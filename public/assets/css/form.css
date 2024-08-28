@@ -1,0 +1,230 @@
+@charset "UTF-8";
+
+:root {
+  --blue1: rgb(41, 50, 184);
+  --blue2: rgb(105, 111, 196);
+  --gray1: rgb(198, 194, 194);
+  --gray2: rgb(241, 234, 234);
+  --inputBorder:1px solid #86b7fe;
+  --focusBoxShadow: 0 0 0 .25rem rgba(13,110,253,.25);
+}
+
+
+body, html {
+  background-color: white;
+}
+
+div#hForm {
+  border:2px solid var(--blue1);
+  background-color:white;
+  border-radius: 5px;
+  height: 55px;
+  padding: 5px;
+  margin: 5px 0;
+}
+
+div#header1 {
+  width: 100%;
+  float: left;
+  text-align: center;
+  font-weight: bold;
+  font-size: 13px;
+  margin-top: 2px;
+}
+
+section#info {
+  border:2px solid var(--blue1);
+  background-color: white;
+  border-radius: 5px;
+  margin: 5px 0;
+  padding: 5px;
+}
+
+div#legend {
+  font-size: 10px;
+  color: var(--blue1)
+}
+
+i.iconl {
+  margin-left: 20px;
+}
+
+section.insp {
+  background-color:var(--blue1);
+  text-align: center;
+  border-radius: 5px;
+  font-weight: bold;
+  font-size: 15px;
+  color: white;
+  padding: 5px;
+  margin: 5px 0;
+}
+
+input, select {
+  border: var(--inputBorder);
+  border-radius: 2px;
+  padding: 0px 3px;
+}
+
+input[type="file"] {
+  border: none;
+  cursor: pointer;
+  width: 100%;
+}
+
+.custom-file-upload {
+  margin: 5px 0px 0px 0px;
+}
+
+section.element {
+  background-color: var(--blue2);
+  text-align: center;
+  font-weight: bold;
+  font-size: 15px;
+  border-radius: 5px;
+  color: white;
+  margin: 3px 0px 5px 0px;
+  padding: 5px;
+}
+
+section.item {
+  background-color: white;
+  border-radius: 5px;
+  font-size: 15px;
+  height: auto;
+  padding: 5px;
+  width: 100%;
+  margin: 5px 0px;
+}
+
+section.ask {
+  width: 100%;
+  display: inline-block;
+  vertical-align: bottom;
+  height: auto;
+}
+
+  div.lab {
+  width: 76%;
+  float: left;
+}
+
+div.opt {
+  color: var(--gray1);
+  float: right;
+}
+
+input.medido {
+  width: 48px;
+  height: 23px;
+  padding: 3px;
+}
+
+table.med, table.med > th {
+  text-align: left;
+}
+
+table.med {
+  height: 80px;
+}
+
+table {
+  font-size: 15px;
+}
+
+.fa {
+  display: inline-block;
+  font: normal normal normal 14px / 1 FontAwesome;
+  font-size: inherit;
+  text-rendering: auto;
+  -webkit-font-smoothing: antialiased;
+  margin-right: 4px;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+section.obs {
+  background-color: white;
+  border-radius: 0px 0px 5px 5px;
+  font-size: 15px;
+  height: auto;
+  width: 100%;
+  margin-top: 5px;
+}
+
+textarea {  
+  border-color: #86b7fe;
+  box-sizing: padding-box;
+  border-radius: 2px;
+  overflow: hidden;
+  display: block;
+  padding: 2px;
+  width: 100%;
+}
+
+textarea:focus, input:focus, select:focus {
+  border: var(--inputBorder);
+  outline:0;
+  box-shadow: var(--focusBoxShadow)
+}
+
+.signature-pad {
+  cursor:pointer;
+  margin: auto;
+}
+
+.signature-button {
+  margin-right: 15px;
+  color: var(--blue1);
+  text-decoration: none;
+}
+
+div.infoTec {
+  background-color: white;
+  border-radius: 5px;
+  font-size: 15px;
+  padding: 8px;
+  width: 100%;
+  margin: 5px 0px;
+}
+
+.itec {
+  width: 75%;
+  float: right;
+  height: 23px;
+  margin: 2px 0px;
+}
+
+label.ltec {
+  float: left;
+  width: 24.5%;
+  height: 23px;
+  margin: 2px 0px;
+}
+
+label.equip {
+  float: left;
+  width: 100px;
+  height: 23px;
+  margin: 2px 0px;
+}
+
+.horario {
+  float: left;
+  width: 24.5%;
+  height: 23px;
+  margin: 2px 0px;
+}
+div.itInfTec {
+  margin: 8px 0px;
+  height: 23px;
+}
+
+div.signature {
+  margin:auto;
+  text-align: center;
+}
+
+hr {
+  margin-top: 7px;
+  margin-bottom: 0px;
+}
