@@ -49,50 +49,50 @@
                         @csrf
 
                         <div class="form-floating my-2">
-                            <input type="text" class="form-control" id="equipModel" placeholder="Modelo do Equipamento">
-                            <label for="equipModel">Modelo do Equipamento</label>
+                            <input type="text" class="form-control" id="equipMod" name="equip_mod" placeholder="Modelo do Equipamento">
+                            <label for="equipMod">Modelo do Equipamento</label>
                         </div>
 
                         <div class="form-floating my-2">
-                            <input type="text" class="form-control" id="equipNum" placeholder="Número de Série">
-                            <label for="equipNum">Número de Série</label>
+                            <input type="text" class="form-control" id="equipId" name="equip_id" placeholder="Número de Série">
+                            <label for="equipId">Número de Série</label>
                         </div>
 
                         <div class="form-floating my-2">
-                            <input type="text" class="form-control" id="equipType" placeholder="Tipo">
+                            <input type="text" name="quip_type" class="form-control" id="equipType" placeholder="Tipo">
                             <label for="equipType">Tipo do Equipamento</label>
                         </div>
 
                         <div class="form-floating my-2">
-                            <textarea id="def" placeholder="Defeito encontrado" class='autoExpand form-control' rows='1' data-min-rows='1'></textarea>
-                            <label for="def">Descrição da situação encontrada</label>
+                            <textarea id="situation" name="situation" placeholder="Descrição da situação encontrada" class='autoExpand form-control' rows='1' data-min-rows='1'></textarea>
+                            <label for="situation">Descrição da situação encontrada</label>
                         </div>
 
                         <div class="form-floating my-2">
-                            <textarea id="cause" placeholder="Provável causa do problema" class='autoExpand form-control' rows='1' data-min-rows='1'></textarea>
+                            <textarea id="cause" name="cause" placeholder="Provável causa do problema" class='autoExpand form-control' rows='1' data-min-rows='1'></textarea>
                             <label for="cause">Provável causa do problema</label>
                         </div>
 
                         <div class="form-floating my-2">
-                            <textarea id="solution" placeholder="Serviços executados" class='autoExpand form-control' rows='1' data-min-rows='1'></textarea>
-                            <label for="solution">Descrição dos serviços executados</label>
+                            <textarea id="services" name="services" placeholder="Serviços executados" class='autoExpand form-control' rows='1' data-min-rows='1'></textarea>
+                            <label for="services">Descrição dos serviços executados</label>
                         </div>
 
                         <div class="form-floating my-2">
-                            <input type="date" class="form-control" id="servDate" placeholder="Data do Atendimento" value="{{\Carbon\Carbon::now()->format('Y-m-d')}}">
-                            <label for="servDate">Data do Atendimento</label>
+                            <input type="date" class="form-control" id="date" name="date" placeholder="Data do Atendimento" value="{{\Carbon\Carbon::now()->format('Y-m-d')}}">
+                            <label for="date">Data do Atendimento</label>
                         </div>
 
                         <div class="row g-2">
                             <div class="col">
                                 <div class="form-floating my-2">
-                                    <input type="time" class="form-control" id="goStart" placeholder="Saída (Ida)" value="{{\Carbon\Carbon::now()->format('H:i')}}">
+                                    <input type="time" class="form-control" id="goStart" name="go_start" placeholder="Saída (Ida)" value="{{\Carbon\Carbon::now()->format('H:i')}}">
                                     <label for="goStart">Saída (Ida)</label>
                                 </div>
                             </div>
                             <div class="col">
                                 <div class="form-floating my-2">
-                                    <input type="time" class="form-control" id="goEnd" placeholder="Chegada (Ida)">
+                                    <input type="time" class="form-control" id="goEnd" name="go_end" placeholder="Chegada (Ida)">
                                     <label for="goEnd">Chegada (Ida)</label>
                                 </div>
                             </div>
@@ -101,13 +101,13 @@
                         <div class="row g-2">
                             <div class="col">
                                 <div class="form-floating my-2">
-                                    <input type="time" class="form-control" id="Start" placeholder="Início">
+                                    <input type="time" class="form-control" id="Start" name="start" placeholder="Início">
                                     <label for="Start">Início</label>
                                 </div>
                             </div>
                             <div class="col">    
                                 <div class="form-floating my-2">
-                                    <input type="time" class="form-control" id="End" placeholder="Término">
+                                    <input type="time" class="form-control" id="End" name="end" placeholder="Término">
                                     <label for="End">Término</label>
                                 </div>
                             </div>
@@ -116,20 +116,20 @@
                         <div class="row g-2">
                             <div class="col">
                                 <div class="form-floating my-2">
-                                    <input type="time" class="form-control" id="backStart" placeholder="Saída (Volta)">
+                                    <input type="time" class="form-control" id="backStart" name="back_start" placeholder="Saída (Volta)">
                                     <label for="backStart">Saída (Volta)</label>
                                 </div>
                             </div>
                             <div class="col"> 
                                 <div class="form-floating my-2">
-                                    <input type="time" class="form-control" id="backEnd" placeholder="Chegada (Volta)">
+                                    <input type="time" class="form-control" id="backEnd" name="back_end" placeholder="Chegada (Volta)">
                                     <label for="goStart">Chegada (Volta)</label>
                                 </div>
                             </div>
                         </div>
 
                         <div class="form-floating my-2">
-                            <select class="form-select" id="firstTec" aria-label="Floating label select example">
+                            <select class="form-select" id="firstTec" name="first_tec" aria-label="Floating label select example">
                                 <option selected>Selecionar Técnico 01</option>
                                 <option value="1">Paulo</option>
                                 <option value="2">João</option>
@@ -151,7 +151,7 @@
 
                                     <div class="modal-body signature">
                                         <canvas height="200" width="320" class="signature-pad" id="canv1"></canvas>
-                                        <input type="hidden" name="signTec1" id="idSignTec1">
+                                        <input type="hidden" name="sign_t_1" id="idSignTec1">
                                     </div>
 
                                     <div class="modal-footer">
@@ -168,7 +168,7 @@
 
 
                         <div class="form-floating my-2">
-                            <select class="form-select" id="secondTec" aria-label="Floating label select example">
+                            <select class="form-select" id="secondTec" name="second_tec" aria-label="Floating label select example">
                                 <option selected>Selecionar Técnico 02</option>
                                 <option value="1">Paulo</option>
                                 <option value="2">João</option>
@@ -190,7 +190,7 @@
                                     
                                     <div class="modal-body signature">
                                         <canvas height="200" width="320" class="signature-pad" id="canv2" aria-placeholder="assine aqui"></canvas>
-                                        <input type="hidden" name="signTec2" id="idSignTec2">
+                                        <input type="hidden" name="sign_t_2" id="idSignTec2">
                                     </div>
 
                                     <div class="modal-footer">
