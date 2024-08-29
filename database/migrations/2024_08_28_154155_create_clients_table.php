@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->string('name', 50);
             $table->string('cnpj_cpf', 100)->nullable();
+            $table->string('cep', 30)->nullable();
             $table->string('unit', 50)->nullable();
             $table->string('address');
             $table->string('email', 50)->nullable();
