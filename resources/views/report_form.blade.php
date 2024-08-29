@@ -17,7 +17,7 @@
                             <strong>Solicitação de Assistência Técnica</strong>
                         </div>
                         <div class="col">
-                            Nº <span style="color: red">41040</span>
+                            Nº <span style="color: red">01</span>
                         </div>
                       </div>
                 </div>
@@ -45,8 +45,9 @@
                         <div class="border-top border-dark p-1"><strong>Equipamento:</strong> Câmera 77</div>
                     </div>
 
-                    <form id="form" method="post" autocomplete="on">
+                    <form action="{{route('orders.update', 1 )}}" id="form" method="post" autocomplete="on">
                         @csrf
+                        <input type="hidden" name="_method" id="idNum" value="PUT">
 
                         <div class="form-floating my-2">
                             <input type="text" class="form-control" id="equipMod" name="equip_mod" placeholder="Modelo do Equipamento">
@@ -59,7 +60,7 @@
                         </div>
 
                         <div class="form-floating my-2">
-                            <input type="text" name="quip_type" class="form-control" id="equipType" placeholder="Tipo">
+                            <input type="text" name="equip_type" class="form-control" id="equipType" placeholder="Tipo">
                             <label for="equipType">Tipo do Equipamento</label>
                         </div>
 
@@ -202,17 +203,17 @@
                         </div>
 
                         <div class="my-3">
-                            <button id="submit_button" type="button" class="btn btn-primary my-2 me-2" data-bs-dismiss="modal">
+                            <button id="submit_button" type="submit" class="btn btn-primary my-2 me-2" data-bs-dismiss="modal">
                                 Confirma
                             </button>
+
                             <div class="form-check form-check-inline">
-                                
-                                <input class="form-check-input" type="radio" name="inlineRadioOptions" id="save" value="option1" checked>
+                                <input class="form-check-input" type="radio" name="finished" id="save" value="0" checked>
                                 <label class="form-check-label" for="save"><i class="fa fa-floppy-o" aria-hidden="true"></i>Salvar</label>
-                              </div>
+                            </div>
                               
-                              <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" name="inlineRadioOptions" id="finished" value="option3">
+                            <div class="form-check form-check-inline">
+                                <input class="form-check-input" type="radio" name="finished" id="finished" value="1">
                                 <label class="form-check-label" for="finished"><i class="fa fa-check-square-o" aria-hidden="true"></i>Concluir</label>
                               </div>
                         </div>

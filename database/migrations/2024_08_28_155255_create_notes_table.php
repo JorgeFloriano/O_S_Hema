@@ -13,6 +13,7 @@ return new class extends Migration
     {
         Schema::create('notes', function (Blueprint $table) {
             $table->id();
+            $table->bigInteger('order_id');
             $table->string('equip_mod')->default('Não identificado');
             $table->string('equip_id')->default('Não identificado');
             $table->string('equip_type')->default('Não identificado');
