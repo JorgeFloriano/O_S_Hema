@@ -11,6 +11,7 @@
 </head>
 <body>
     
+    @include('userbar')
     @yield('content')
 
     <script src="{{asset('assets/boodstrap/bootstrap.bundle.min.js')}}"></script>

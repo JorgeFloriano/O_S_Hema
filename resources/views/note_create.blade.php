@@ -8,46 +8,44 @@
     <div class="container">
         <div class="row mt-1">
             <div class="col-lg-6 offset-lg-3">
+
+                @if (session()->has('message'))
+                    <div class="alert alert-info" role="alert">
+                        {{session()->get('message')}}
+                    </div>
+                @endif
+
                 <div id="header" class="text-center my-2">
-                    <div class="row">
-                        <div class="col">
-                            <img src="{{asset('assets/img/logo_hema.png')}}" alt="logo cmk" width="120%">
-                        </div>
-                        <div class="col-6">
-                            <strong>Solicitação de Assistência Técnica</strong>
-                        </div>
-                        <div class="col">
-                            Nº <span style="color: red">01</span>
-                        </div>
-                      </div>
+                    <strong>Solicitação de Assistência Técnica nº <span style="color: red">{{$order->id}}</span></strong>
                 </div>
                 <main>
                     
                     <div class="mx-0 my-2 border border-dark rounded">
-                        <div class="p-1"><strong>Cliente:</strong> Village Ipanema</div>
-                        <div class="border-top border-dark p-1"><strong>Unidade:</strong> 01</div>
-                        <div class="border-top border-dark p-1"><strong>Endereço:</strong> Est. Mun. Fazenda Nacional Ipanema, S/N - Rio Verde, Araçoiaba da Serra - SP</div>
-                        <div class="border-top border-dark p-1"><strong>Contato:</strong> Ricardo</div>
+                        <div class="p-1"><strong>Cliente: </strong>{{$order->client->name}}</div>
+                        <div class="border-top border-dark p-1"><strong>Unidade: </strong>{{$order->client->unit}}</div>
+                        <div class="border-top border-dark p-1"><strong>Endereço: </strong>{{$order->client->address}}</div>
+                        <div class="border-top border-dark p-1"><strong>Contato: </strong>{{$order->client->contact}}</div>
                         <div class="border-top border-dark p-1"><strong>Órgao Solicitante</strong>: SUP</div>
                         <div class="border-top border-dark p-1"><strong>Anotado por</strong>: Gabriel</div>
                     </div>
 
                     <div class="mx-0 my-2 border border-dark rounded">
-                        <div class="p-1"><strong>Data do Acionamento:</strong> 15/08/2024</div>
+                        <div class="p-1"><strong>Data do Acionamento: </strong>{{date('d/m/Y',strtotime($order->req_date))}}</div>
                     </div>
                      
                     <div class="mx-0 my-2 border border-dark rounded">
-                        <div class="p-1"><strong>Hora do Acionamento:</strong> 17:14</div>
+                        <div class="p-1"><strong>Hora do Acionamento: </strong>{{date('H:i',strtotime($order->req_time))}}</div>
                     </div>
 
                     <div class="mx-0 my-2 border border-dark rounded">
-                        <div class="p-1"><strong>Problema Relatado:</strong> Câmera sem gravação</div>
-                        <div class="border-top border-dark p-1"><strong>Equipamento:</strong> Câmera 77</div>
+                        <div class="p-1"><strong>Problema Relatado: </strong>{{$order->req_descr}}</div>
+                        <div class="border-top border-dark p-1"><strong>Equipamento: </strong>{{$order->equipment}}</div>
                     </div>
 
-                    <form action="{{route('orders.update', 1 )}}" id="form" method="post" autocomplete="on">
+                    <form action="{{route('notes.store')}}" id="form" method="post" autocomplete="on">
                         @csrf
-                        <input type="hidden" name="_method" id="idNum" value="PUT">
+                        
+                        <input type="hidden" name="order_id" id="order_id" value="{{$order->id}}">
 
                         <div class="form-floating my-2">
                             <input type="text" class="form-control" id="equipMod" name="equip_mod" placeholder="Modelo do Equipamento">
@@ -84,30 +82,30 @@
                             <label for="date">Data do Atendimento</label>
                         </div>
 
-                        <div class="row g-2">
+                        <div class="row g-2 mb-2">
                             <div class="col">
-                                <div class="form-floating my-2">
+                                <div class="form-floating">
                                     <input type="time" class="form-control" id="goStart" name="go_start" placeholder="Saída (Ida)" value="{{\Carbon\Carbon::now()->format('H:i')}}">
                                     <label for="goStart">Saída (Ida)</label>
                                 </div>
                             </div>
                             <div class="col">
-                                <div class="form-floating my-2">
+                                <div class="form-floating">
                                     <input type="time" class="form-control" id="goEnd" name="go_end" placeholder="Chegada (Ida)">
                                     <label for="goEnd">Chegada (Ida)</label>
                                 </div>
                             </div>
                         </div>
 
-                        <div class="row g-2">
+                        <div class="row g-2 mb-2">
                             <div class="col">
-                                <div class="form-floating my-2">
+                                <div class="form-floating">
                                     <input type="time" class="form-control" id="Start" name="start" placeholder="Início">
                                     <label for="Start">Início</label>
                                 </div>
                             </div>
                             <div class="col">    
-                                <div class="form-floating my-2">
+                                <div class="form-floating">
                                     <input type="time" class="form-control" id="End" name="end" placeholder="Término">
                                     <label for="End">Término</label>
                                 </div>
@@ -116,13 +114,13 @@
 
                         <div class="row g-2">
                             <div class="col">
-                                <div class="form-floating my-2">
+                                <div class="form-floating">
                                     <input type="time" class="form-control" id="backStart" name="back_start" placeholder="Saída (Volta)">
                                     <label for="backStart">Saída (Volta)</label>
                                 </div>
                             </div>
                             <div class="col"> 
-                                <div class="form-floating my-2">
+                                <div class="form-floating">
                                     <input type="time" class="form-control" id="backEnd" name="back_end" placeholder="Chegada (Volta)">
                                     <label for="goStart">Chegada (Volta)</label>
                                 </div>
@@ -215,13 +213,9 @@
                             <div class="form-check form-check-inline">
                                 <input class="form-check-input" type="radio" name="finished" id="finished" value="1">
                                 <label class="form-check-label" for="finished"><i class="fa fa-check-square-o" aria-hidden="true"></i>Concluir</label>
-                              </div>
+                                </div>
+                            </div>
                         </div>
-
-                        <div class="mt-4">
-                            
-                        </div>
-
                     </form>
                     <script src="{{asset('assets/js/signature.js')}}"></script>
                     <script src="{{asset('assets/js/signature2.js')}}"></script>
