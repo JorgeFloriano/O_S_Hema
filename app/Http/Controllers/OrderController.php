@@ -46,9 +46,9 @@ class OrderController extends Controller
             'req_descr' => $request->req_descr,
         ]);
         if ($created) {
-            return redirect()->route('orders.index')->with('message', 'Cadastro realizado com sucesso.');
+            return redirect()->route('orders.index')->with('message', 'Ordem de serviço criada com sucesso.');
         }
-        return redirect()->route('orders.index')->with('message', 'Erro no cadastro.');
+        return redirect()->route('orders.index')->with('message', 'Erro ao criar ordem de serviço.');
     }
 
     /**
@@ -77,7 +77,12 @@ class OrderController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        
+        $updated = $this->os->where('id', $id)->update($request->except(['_token', '_method']));
+
+        if ($updated) {
+            return redirect()->back()->with('message', 'Ordem de serviço atualizada com sucesso.');
+        }
+        return redirect()->back()->with('message', 'Erro ao atualizar ordem de serviço.');
     }
 
     /**
@@ -85,6 +90,11 @@ class OrderController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        $deleted = $this->os->where('id', $id)->delete();
+
+        if ($deleted) {
+            return redirect()->route('orders.index')->with('message', 'Ordem de serviço deletada com sucesso.');
+        }
+        return redirect()->route('orders.index')->with('message', 'Erro ao deletar ordem de serviço.');
     }
 }

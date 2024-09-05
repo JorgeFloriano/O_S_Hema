@@ -6,7 +6,7 @@ use App\Http\Controllers\NoteController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
-    return view('orders_form');
+    return view('orders_list');
 });
 
 Route::resource('orders', OrderController::class);

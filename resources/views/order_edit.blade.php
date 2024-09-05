@@ -30,7 +30,11 @@
                             <select class="form-select" id="client_id" name="client_id" aria-label="Floating label select example">
                                 <option selected>Selecione o Cliente</option>
                                 @foreach ($clients as $client)
-                                    <option value="{{$client->id}}">{{$client->name}}</option>
+                                    @if ($client->id == $order->client_id)
+                                        <option selected value="{{$client->id}}">{{$client->name}}</option>
+                                    @else
+                                        <option value="{{$client->id}}">{{$client->name}}</option>
+                                    @endif
                                 @endforeach
                             </select>
                             <label for="client_id">Cliente</label>
