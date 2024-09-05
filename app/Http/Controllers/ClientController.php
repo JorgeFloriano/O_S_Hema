@@ -45,9 +45,9 @@ class ClientController extends Controller
             'contact' => $request->input('contact'),
         ]);
         if ($created) {
-            return redirect()->route('clients.index')->with('message', 'Cadastro realizado com sucesso.');
+            return redirect()->route('clients.index')->with('message', 'Cliente cadastrado com sucesso.');
         }
-        return redirect()->route('clients.index')->with('message', 'Erro no cadastro.');
+        return redirect()->route('clients.index')->with('message', 'Erro ao cadastrar cliente.');
     }
 
     /**
@@ -76,7 +76,7 @@ class ClientController extends Controller
         if ($updated) {
             return redirect()->back()->with('message', 'Cadastro atualizado com sucesso.');
         }
-        return redirect()->back()->with('message', 'Erro no cadastro.');
+        return redirect()->back()->with('message', 'Erro ao atualizar cadastro.');
     }
 
     /**
