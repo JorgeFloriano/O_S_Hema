@@ -60,7 +60,7 @@
                             <label for="equipment">Equipamento</label>
                         </div>
 
-                        <button id="submit_button" type="submit" class="btn btn-primary my-2 me-2" data-bs-dismiss="modal">
+                        <button id="submitButton" name="submit_button" type="submit" class="btn btn-primary my-2 me-2" data-bs-dismiss="modal">
                             Confirma
                         </button>
 
