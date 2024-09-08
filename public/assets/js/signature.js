@@ -4,20 +4,25 @@ const form = document.querySelector('#form');
 const clearButton = document.querySelector('#clear1');
 const signButton = document.querySelector('#pen1');
 const okButton = document.querySelector('#okSign1');
+const submit = document.querySelector('#submitButton');
 const ctx = canvas.getContext('2d');
 const image = document.querySelector('#idSignTec1');
 let writingMode = false;
 let writingModeBtn = false;
 sc.style.overflow = "";
+const msg = 'Informações não podem ser salvas sem assinatura de um Técnico.';
+var signed = false;
 
-form.addEventListener('submit', () => {
+submit.addEventListener('click', () => {
     const imageURL = canvas.toDataURL();
     image.value = imageURL;
     image.height = canvas.height;
     image.width = canvas.width;
     image.style.display = 'block';
     form.appendChild(image);
-    clearPad();
+    if (signed == false) {
+        window.alert(msg);
+    }
 })
 
 const clearPad = () => {
@@ -27,6 +32,8 @@ const clearPad = () => {
 clearButton.addEventListener('click', (event) => {
     event.preventDefault();
     clearPad();
+    signed = false;
+    submit.type = 'button';
 })
 
 signButton.addEventListener('click', (event) => {
@@ -61,8 +68,12 @@ const handlePointerMove = (event) => {
     if (writingModeBtn) {
         if (!writingMode) return
         if (event.type == 'touchmove') {
+            signed = true;
+            submit.type = 'submit';
             const [positionX, positionY] = getTargetPositionMobile(event);
         } else {
+            signed = true;
+            submit.type = 'submit';
             const [positionX, positionY] = getTargetPosition(event);
         }
         ctx.lineTo(positionX, positionY);
@@ -79,8 +90,12 @@ const handlePointerDown = (event) => {
     ctx.beginPath();
 
     if (event.type == 'touchmove') {
+        signed = true;
+        submit.type = 'submit';
         const [positionX, positionY] = getTargetPositionMobile(event);
     } else {
+        signed = true;
+        submit.type = 'submit';
         const [positionX, positionY] = getTargetPosition(event);
     }
     ctx.moveTo(positionX, positionY);

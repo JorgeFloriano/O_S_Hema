@@ -82,5 +82,4 @@ function showAddress(dados) {
 
  // global delegated event listener
  document.addEventListener('input', onExpandableTextareaInput)
- 
- 
+

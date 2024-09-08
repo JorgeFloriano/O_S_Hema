@@ -42,106 +42,62 @@
                         <div class="border-top border-dark p-1"><strong>Equipamento: </strong>{{$order->equipment}}</div>
                     </div>
 
-                    @if(count($order->notes) !== 0)
-                        <!-- Button trigger modal -->
-                        <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#exampleModal">
-                            Mostrar serviços anteriores
-                        </button>
-                        
-                        <div class="mt-3">
-                            <strong>Registrar informações da atividade</strong>
-                        </div>
-                        
-                        <!-- Modal -->
-                        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h1 class="modal-title fs-5" id="exampleModalLabel">Registros anteriores</h1>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <div>
-                                            @foreach ($order->notes as $note)
-                                            <div>
-                                                <div>Registro nº {{$note->id}} - Técnico nº {{$note->first_tec}} - {{date('d/m/Y',strtotime($note->date))}}</div>
-                                                    <div>
-                                                        <a href="{{route('notes.edit', [
-                                                        'order' => $order->id,
-                                                        'note' => $note->id
-                                                        ])}}" class="btn btn-primary btn-sm">
-                                                            Editar
-                                                        </a>
-                                                        <a href="{{route('notes.show', [
-                                                        'order' => $order->id,
-                                                        'note' => $note->id
-                                                        ])}}" class="btn btn-danger btn-sm">
-                                                            Excluir
-                                                        </a>
-                                                    <hr>
-                                                </div>
-                                            </div>
-                                            @endforeach
-                                        </div>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-                    @endif
+                    <div class="mt-3">
+                        <strong>Editar registro nº {{$note->id}}</strong>
+                    </div>
 
-                    <form action="{{route('notes.store')}}" id="form" method="post" autocomplete="on">
+                    <form action="{{route('notes.update', ['note' => $note->id])}}" id="form" method="post" autocomplete="on">
                         @csrf
+
+                        <input type="hidden" name="_method" id="idNum" value="PUT">
                         
                         <input type="hidden" name="order_id" id="order_id" value="{{$order->id}}">
 
                         <div class="form-floating my-2">
-                            <input type="text" class="form-control" id="equipMod" name="equip_mod" value="adadadasd" placeholder="Modelo do Equipamento">
+                            <input type="text" class="form-control" id="equipMod" name="equip_mod" value="{{$note->equip_mod}}">
                             <label for="equipMod">Modelo do Equipamento</label>
                         </div>
 
                         <div class="form-floating my-2">
-                            <input type="text" class="form-control" id="equipId" name="equip_id" value="adadadasd" placeholder="Número de Série">
+                            <input type="text" class="form-control" id="equipId" name="equip_id" value="{{$note->equip_id}}">
                             <label for="equipId">Número de Série</label>
                         </div>
 
                         <div class="form-floating my-2">
-                            <input type="text" name="equip_type" class="form-control" id="equipType" value="adadadasd" placeholder="Tipo">
+                            <input type="text" name="equip_type" class="form-control" id="equipType" value="{{$note->equip_type}}">
                             <label for="equipType">Tipo do Equipamento</label>
                         </div>
 
                         <div class="form-floating my-2">
-                            <textarea id="situation" name="situation" placeholder="Descrição da situação encontrada" value="adadadasd" class='autoExpand form-control' rows='1' data-min-rows='1'>adadadasd</textarea>
+                            <textarea id="situation" name="situation" class='autoExpand form-control' rows='1' data-min-rows='1'>{{$note->situation}}</textarea>
                             <label for="situation">Descrição da situação encontrada</label>
                         </div>
 
                         <div class="form-floating my-2">
-                            <textarea id="cause" name="cause" placeholder="Provável causa do problema" value="adadadasd" class='autoExpand form-control' rows='1' data-min-rows='1'>adadadasd</textarea>
+                            <textarea id="cause" name="cause" class='autoExpand form-control' rows='1' data-min-rows='1'>{{$note->cause}}</textarea>
                             <label for="cause">Provável causa do problema</label>
                         </div>
 
                         <div class="form-floating my-2">
-                            <textarea id="services" name="services" placeholder="Serviços executados" value="adadadasd" class='autoExpand form-control' rows='1' data-min-rows='1'>adadadasd</textarea>
+                            <textarea id="services" name="services" class='autoExpand form-control' rows='1' data-min-rows='1'>{{$note->services}}</textarea>
                             <label for="services">Descrição dos serviços executados</label>
                         </div>
 
                         <div class="form-floating my-2">
-                            <input type="date" class="form-control" id="date" name="date" placeholder="Data do Atendimento" value="{{\Carbon\Carbon::now()->format('Y-m-d')}}">
+                            <input type="date" class="form-control" id="date" name="date" value="{{$note->date}}">
                             <label for="date">Data do Atendimento</label>
                         </div>
 
                         <div class="row g-2 mb-2">
                             <div class="col">
                                 <div class="form-floating">
-                                    <input type="time" class="form-control" id="goStart" name="go_start" placeholder="Saída (Ida)" value="{{\Carbon\Carbon::now()->format('H:i')}}">
+                                    <input type="time" class="form-control" id="goStart" name="go_start" value="{{$note->go_start}}">
                                     <label for="goStart">Saída (Ida)</label>
                                 </div>
                             </div>
                             <div class="col">
                                 <div class="form-floating">
-                                    <input type="time" class="form-control" id="goEnd" name="go_end" placeholder="Chegada (Ida)" value="{{\Carbon\Carbon::now()->format('H:i')}}">
+                                    <input type="time" class="form-control" id="goEnd" name="go_end" value="{{$note->go_end}}">
                                     <label for="goEnd">Chegada (Ida)</label>
                                 </div>
                             </div>
@@ -150,13 +106,13 @@
                         <div class="row g-2 mb-2">
                             <div class="col">
                                 <div class="form-floating">
-                                    <input type="time" class="form-control" id="Start" name="start" placeholder="Início" value="{{\Carbon\Carbon::now()->format('H:i')}}">
+                                    <input type="time" class="form-control" id="Start" name="start" value="{{$note->start}}">
                                     <label for="Start">Início</label>
                                 </div>
                             </div>
                             <div class="col">    
                                 <div class="form-floating">
-                                    <input type="time" class="form-control" id="End" name="end" placeholder="Término" value="{{\Carbon\Carbon::now()->format('H:i')}}">
+                                    <input type="time" class="form-control" id="End" name="end" value="{{$note->end}}">
                                     <label for="End">Término</label>
                                 </div>
                             </div>
@@ -165,13 +121,13 @@
                         <div class="row g-2">
                             <div class="col">
                                 <div class="form-floating">
-                                    <input type="time" class="form-control" id="backStart" name="back_start" placeholder="Saída (Volta)" value="{{\Carbon\Carbon::now()->format('H:i')}}">
+                                    <input type="time" class="form-control" id="backStart" name="back_start" value="{{$note->back_start}}">
                                     <label for="backStart">Saída (Volta)</label>
                                 </div>
                             </div>
                             <div class="col"> 
                                 <div class="form-floating">
-                                    <input type="time" class="form-control" id="backEnd" name="back_end" placeholder="Chegada (Volta)" value="{{\Carbon\Carbon::now()->format('H:i')}}">
+                                    <input type="time" class="form-control" id="backEnd" name="back_end" value="{{$note->back_end}}">
                                     <label for="goStart">Chegada (Volta)</label>
                                 </div>
                             </div>
@@ -179,14 +135,14 @@
 
                         <div class="form-floating my-2">
                             <select class="form-select" id="firstTec" name="first_tec" aria-label="Floating label select example">
-                                <option value="0" selected>Selecionar Técnico 01</option>
-                                <option value="1">Paulo</option>
+                                <option >Selecionar Técnico 01</option>
+                                <option selected value="1">Paulo</option>
                                 <option value="2">João</option>
                                 <option value="3">Pedro</option>
                             </select>
                             <label for="firstTec">Técnico 01</label>
                         </div>
-                        <button onclick="scrollToBottom()" class="btn btn-info" id="pen1" href="#" class="signature-button" data-bs-toggle="modal"     data-bs-target="#signature1Modal"><i class="fa fa-pencil" aria-hidden="true"></i>Assinar
+                        <button onclick="scrollToBottom()" class="btn btn-info" id="pen1" href="#" class="signature-button" data-bs-toggle="modal"     data-bs-target="#signature1Modal"><i class="fa fa-pencil" aria-hidden="true"></i>ASSINAR
                         </button>
 
                         <!-- Modal signature 01-->
@@ -200,6 +156,7 @@
 
                                     <div class="modal-body signature">
                                         <canvas height="200" width="320" class="signature-pad" id="canv1"></canvas>
+                                        <input type="hidden" name="sign_t_1" id="idSignTec1" value="{{$note->sign_t_1}}">
                                     </div>
 
                                     <div class="modal-footer">
@@ -214,18 +171,16 @@
                             </div>
                         </div>
 
-                        <input type="hidden" name="sign_t_1" id="idSignTec1">
-
                         <div class="form-floating my-2">
                             <select class="form-select" id="secondTec" name="second_tec" aria-label="Floating label select example">
-                                <option value="0" selected>Selecionar Técnico 02</option>
+                                <option selected value="0">Selecionar Técnico 02</option>
                                 <option value="1">Paulo</option>
                                 <option value="2">João</option>
                                 <option value="3">Pedro</option>
                             </select>
                             <label for="secondTec">Técnico 02</label>
                         </div>
-                        <button class="btn btn-info mb-2" id="pen2" href="#" class="signature-button" data-bs-toggle="modal" data-bs-target="#signature2Modal"><i class="fa fa-pencil" aria-hidden="true"></i>Assinar
+                        <button class="btn btn-info mb-2" id="pen2" href="#" class="signature-button" data-bs-toggle="modal" data-bs-target="#signature2Modal"><i class="fa fa-pencil" aria-hidden="true"></i>ASSINAR
                         </button>
 
                         <!-- Modal signature 02-->
@@ -252,19 +207,13 @@
 
                         <div class="my-3">
                             <button id="submitButton" name="submit_button" type="button" class="btn btn-primary my-2 me-2" data-bs-dismiss="modal">
-                                Confirma
+                                Salvar
                             </button>
-
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" name="finished" id="save" value="0" checked>
-                                <label class="form-check-label" for="save"><i class="fa fa-floppy-o" aria-hidden="true"></i>Salvar</label>
-                            </div>
-                              
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" name="finished" id="finished" value="1">
-                                <label class="form-check-label" for="finished"><i class="fa fa-check-square-o" aria-hidden="true"></i>Concluir</label>
-                                </div>
-                            </div>
+                           
+                            <a href="{{route('notes.create', ['order' => $order->id])}}" class="btn btn-secondary">
+                                Voltar
+                            </a>
+                            
                         </div>
                     </form>
                     <script src="{{asset('assets/js/signature.js')}}"></script>

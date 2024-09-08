@@ -10,7 +10,7 @@
         color: rgb(129, 190, 208)
     }
 </style>
-<div class="container" id="userbar">
+<div class="container-fluid" id="userbar">
     <div class="row pe-1 mb-2 ico">
         <div class="col-4 p-2">
             <img src="{{asset('assets/img/logo_hema.png')}}" alt="logo hema" width="80px">

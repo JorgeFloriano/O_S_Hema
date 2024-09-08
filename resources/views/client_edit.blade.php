@@ -65,7 +65,7 @@
                             <input type="text" class="form-control" id="contact" name="contact" placeholder="Nome do Contato" value="{{$client->contact}}">
                             <label for="contact">Nome do Contato</label>
                         </div>
-                            <button id="submit_button" type="submit" class="btn btn-primary my-2 me-2" data-bs-dismiss="modal">
+                            <button id="submitButton" name="submit_button" type="submit" class="btn btn-primary my-2 me-2" data-bs-dismiss="modal">
                                 Confirma
                             </button>
 

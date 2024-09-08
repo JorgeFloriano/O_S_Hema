@@ -46,7 +46,7 @@
                         </div>
 
                         <div class="alert alert-danger">
-                            Ao deleter o cadastro todos os dados deste cliente serão perdidos perdidos!
+                            Ao deleter o cadastro todos os dados deste cliente serão perdidos!
                         </div>
                         <div style="margin:10px 0;">
 

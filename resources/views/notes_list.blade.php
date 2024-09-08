@@ -19,7 +19,6 @@
                             <th>Cliente</th>
                             <th>Data</th>
                             <th>Exec.</th>
-                            <th>Apag.</th>
                         </tr>
                     </thead>
 
@@ -30,13 +29,8 @@
                                 <td>{{$order->client->name}}</td>
                                 <td>{{date('d/m/y',strtotime($order->req_date))}}</td>
                                 <td>
-                                    <a href="{{route('notes.edit', ['note' => $order->id])}}" class="btn btn-primary btn-sm">
+                                    <a href="{{route('notes.create', ['order' => $order->id])}}" class="btn btn-primary btn-sm">
                                         <i class="fa fa-edit"></i>
-                                    </a>
-                                </td>
-                                <td>
-                                    <a href="{{route('notes.destroy', ['note' => $order->id])}}" class="btn btn-danger btn-sm">
-                                        <i class="fa fa-eraser" aria-hidden="true"></i>
                                     </a>
                                 </td>
                             </tr>
