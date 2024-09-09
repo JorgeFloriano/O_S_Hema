@@ -60,10 +60,13 @@
                             <label for="equipment">Equipamento</label>
                         </div>
 
-                        <button id="submitButton" name="submit_button" type="submit" class="btn btn-primary my-2 me-2" data-bs-dismiss="modal">
-                            Confirma
-                        </button>
-
+                        <div class="my-2">
+                            <button id="submitButton" type="submit" class="btn btn-primary me-2" data-bs-dismiss="modal">
+                                Confirma
+                            </button>
+                            <a href="{{route('orders.index')}}" class="btn btn-secondary">
+                                Voltar
+                            </a>
                         </div>
                     </form>
                 </main>
