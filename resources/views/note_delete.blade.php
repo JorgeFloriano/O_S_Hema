@@ -43,15 +43,13 @@
                     </div>
 
                     <div class="mt-3">
-                        <strong>Editar registro nº {{$note->id}}</strong>
+                        <strong>Deletar registro nº {{$note->id}}</strong>
                     </div>
 
-                    <form action="{{route('notes.update', ['note' => $note->id])}}" id="form" method="post" autocomplete="on">
+                    <form action="{{route('notes.destroy', ['note' => $note->id])}}" id="form" method="post" autocomplete="on">
                         @csrf
 
-                        <input type="hidden" name="_method" id="idNum" value="PUT">
-                        
-                        <input type="hidden" name="order_id" id="order_id" value="{{$note->order->id}}">
+                        <input type="hidden" name="_method" id="idNum" value="DELETE">
 
                         <div class="form-floating my-2">
                             <input type="text" class="form-control" id="equipMod" name="equip_mod" value="{{$note->equip_mod}}">
@@ -134,89 +132,26 @@
                         </div>
 
                         <div class="form-floating my-2">
-                            <select class="form-select" id="firstTec" name="first_tec" aria-label="Floating label select example">
-                                <option >Selecionar Técnico 01</option>
-                                <option selected value="1">Paulo</option>
-                                <option value="2">João</option>
-                                <option value="3">Pedro</option>
-                            </select>
+                            <input class="form-control" id="firstTec" name="first_tec" value="Técnico {{$note->first_tec}}">
                             <label for="firstTec">Técnico 01</label>
-                        </div>
-                        <button onclick="scrollToBottom()" class="btn btn-info" id="pen1" href="#" class="signature-button" data-bs-toggle="modal"     data-bs-target="#signature1Modal"><i class="fa fa-pencil" aria-hidden="true"></i>ASSINAR
-                        </button>
-
-                        <!-- Modal signature 01-->
-                        <div style="position: fixed" class="modal fade" id="signature1Modal" tabindex="-1" aria-labelledby="signature1ModalLabel" aria-hidden="true">
-                            <div class="modal-dialog modal-dialog-centered">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                    <h5 class="modal-title" id="signature1ModalLabel">Assinatura do Técnico 01</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                    </div>
-
-                                    <div class="modal-body signature">
-                                        <canvas height="200" width="320" class="signature-pad" id="canv1"></canvas>
-                                        <input type="hidden" name="sign_t_1" id="idSignTec1" value="{{$note->sign_t_1}}">
-                                    </div>
-
-                                    <div class="modal-footer">
-                                        <a id="okSign1" href="#" class="signature-button" data-bs-dismiss="modal">
-                                            <i class="fa fa-check" aria-hidden="true" ></i>Ok
-                                        </a>
-                                        <a id="clear1" href="#" class="signature-button">
-                                            <i class="fa fa-eraser" aria-hidden="true"></i>Apagar
-                                        </a>
-                                    </div>
-                                </div>
-                            </div>
                         </div>
 
                         <div class="form-floating my-2">
-                            <select class="form-select" id="secondTec" name="second_tec" aria-label="Floating label select example">
-                                <option selected value="0">Selecionar Técnico 02</option>
-                                <option value="1">Paulo</option>
-                                <option value="2">João</option>
-                                <option value="3">Pedro</option>
-                            </select>
+                            <input class="form-control" id="secondTec" name="second_tec" value="Técnico {{$note->second_tec}}">
                             <label for="secondTec">Técnico 02</label>
                         </div>
-                        <button class="btn btn-info mb-2" id="pen2" href="#" class="signature-button" data-bs-toggle="modal" data-bs-target="#signature2Modal"><i class="fa fa-pencil" aria-hidden="true"></i>ASSINAR
-                        </button>
 
-                        <!-- Modal signature 02-->
-                        <div class="modal fade" id="signature2Modal" tabindex="-1" aria-labelledby="signature2ModalLabel" aria-hidden="true">
-                            <div class="modal-dialog modal-dialog-centered">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                    <h5 class="modal-title" id="signature2ModalLabel">Assinatura do Técnico 02</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                    </div>
-                                    
-                                    <div class="modal-body signature">
-                                        <canvas height="200" width="320" class="signature-pad" id="canv2" aria-placeholder="assine aqui"></canvas>
-                                        <input type="hidden" name="sign_t_2" id="idSignTec2">
-                                    </div>
-
-                                    <div class="modal-footer">
-                                    <a id="okSign2" href="#" class="signature-button" data-bs-dismiss="modal"><i class="fa fa-check" aria-hidden="true"></i>Ok </a>
-                                    <a id="clear2" href="#" class="signature-button"><i class="fa fa-eraser" aria-hidden="true"></i>Apagar </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="mb-2">
-                            <button id="submitButton" type="button" class="btn btn-primary me-2" data-bs-dismiss="modal">
-                                Salvar
+                        <div class="my-2">
+                            <button id="submitButton" type="submit" class="btn btn-danger me-2" data-bs-dismiss="modal">
+                                Deletar
                             </button>
                            
                             <a href="{{route('notes.create', ['order' => $note->order->id])}}" class="btn btn-secondary">
                                 Voltar
                             </a>
+                            
                         </div>
                     </form>
-                    <script src="{{asset('assets/js/signature.js')}}"></script>
-                    <script src="{{asset('assets/js/signature2.js')}}"></script>
                 </main>
             </div>
         </div>

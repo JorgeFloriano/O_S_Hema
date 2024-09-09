@@ -45,13 +45,15 @@
                             <label for="email">E-mail</label>
                         </div>
 
-                        <div class="alert alert-danger">
+                        <div class="alert alert-danger mb-2">
                             Ao deleter o cadastro todos os dados deste cliente serão perdidos!
                         </div>
-                        <div style="margin:10px 0;">
 
-                        <button type="submit" class="btn btn-danger">DELETAR</button>
-
+                        <div class="my-2">
+                            <button type="submit" class="btn btn-danger me-2">Deletar</button>
+                            <a href="{{route('clients.index')}}" class="btn btn-secondary">
+                                Voltar
+                            </a>
                         </div>
                     </form>
                 </main>

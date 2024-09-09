@@ -38,7 +38,7 @@
 
                         <div class="form-floating my-2">
                             <input onchange="getAddress()" type="text" class="form-control" id="cep" name="cep" placeholder="CEP (preenche o endereço automáticamente)" value="{{$client->cep}}">
-                            <label for="cep">CEP (preenche o endereço automáticamente)</label>
+                            <label for="cep">CEP (autopreenche o endereço)</label>
                         </div>
 
                         <div class="form-floating my-2">
@@ -65,10 +65,13 @@
                             <input type="text" class="form-control" id="contact" name="contact" placeholder="Nome do Contato" value="{{$client->contact}}">
                             <label for="contact">Nome do Contato</label>
                         </div>
-                            <button id="submitButton" name="submit_button" type="submit" class="btn btn-primary my-2 me-2" data-bs-dismiss="modal">
+                        <div class="my-2">
+                            <button id="submitButton" type="submit" class="btn btn-primary me-2">
                                 Confirma
                             </button>
-
+                            <a href="{{route('clients.index')}}" class="btn btn-secondary">
+                                Voltar
+                            </a>
                         </div>
                     </form>
                 </main>

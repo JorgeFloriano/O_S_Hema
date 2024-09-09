@@ -38,10 +38,14 @@
                         <div class="alert alert-warning">
                             Atenção, as informações desta ordem de serviço serão perdidas após a mesma ser deletada!
                         </div>
-                        <div style="margin:10px 0;">
 
-                        <button type="submit" class="btn btn-danger">DELETAR</button>
-
+                        <div class="my-2">
+                            <button id="submitButton" type="submit" class="btn btn-danger me-2" data-bs-dismiss="modal">
+                                Delete
+                            </button>
+                            <a href="{{route('orders.index')}}" class="btn btn-secondary">
+                                Voltar
+                            </a>
                         </div>
                     </form>
                 </main>
