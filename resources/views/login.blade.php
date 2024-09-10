@@ -2,30 +2,35 @@
 
 @section('content')
     <div class="container-fluid">
-        <div class="row mx-4 my-5">
-            <div class="col-lg-4 offset-lg-4 col-md-6 offset-md-3 col-sm-8 offset-sm-2">
+        <div class="row mx-2 my-5">
+            <div class="col-lg-4 offset-lg-4 col-md-8 offset-md-2 col-sm-10 offset-sm-1">
                 <div class="card">
                     <div class="text-center">
-                        <img class="my-3" src="{{ asset('assets/img/talha_color.png')}}" width="60%" alt="logo cmk">
-                        <h2>EQUIPAMENTOS</h2>
+                        <h2>Sistema de Gerenciamento</h2>
+                        <img id="logo" class="my-3" src="{{ asset('assets/img/logo_hema.png')}}" width="100%" alt="logo hema">
                         <hr>
                     </div>
                     {{-- form --}}
                     <form action="{{route('login.store')}}" method="post">
+
                         @csrf
-                        <div class="form-group my-3">
-                            <label>User:</label>
-                            <input type="email" name="email" class="form-control">
+                        <div class="form-floating my-3">
+                            <input type="email" name="email" id="email" class="form-control" placeholder="E-mail">
+                            <label for="email">E-mail</label>
                         </div>
-                        <div class="form-group my-3">
-                            <label>Password:</label>
-                            <input type="password" name="password" class="form-control">
+
+                        <div class="form-floating my-3">
+                            <input type="password" name="password" id="password" class="form-control" placeholder="Senha">
+                            <label for="password">Senha</label>
                         </div>
+
                         <div class="form-group my-3">
                             <input type="submit" value="ENTER" class="btn btn-primary">
                         </div>
+
                     {{-- /form --}}
                     </form>
+
                     {{-- validation errors --}}
                     @if ($errors->any())
                         <div class="alert alert-danger">
