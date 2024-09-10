@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\Client;
 use App\Models\Note;
 use App\Models\Order;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class OrderController extends Controller
@@ -29,8 +30,12 @@ class OrderController extends Controller
     public function create()
     {
         $clients = Client::select('id', 'name')->get();
+        $tecs = User::select('id', 'name')->where('type', 3)->get();
 
-        return view('order_create', ['clients' => $clients]);
+        return view('order_create', [
+            'clients' => $clients,
+            'tecs' => $tecs
+        ]);
     }
 
     /**
@@ -40,6 +45,7 @@ class OrderController extends Controller
     {
         $created = $this->os->create([
             'client_id' => $request->client_id,
+            'user_id' => $request->user_id,
             'equipment' => $request->equipment,
             'req_date' => $request->req_date,
             'req_time' => $request->req_time,
@@ -65,10 +71,12 @@ class OrderController extends Controller
     public function edit(Order $order)
     {
         $clients = Client::select('id', 'name')->get();
+        $tecs = User::select('id', 'name')->where('type', 3)->get();
 
         return view('order_edit', [
             'order' => $order,
             'clients' => $clients,
+            'tecs' => $tecs
         ]);
     }
 
