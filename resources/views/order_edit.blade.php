@@ -26,6 +26,11 @@
                         
                         <input type="hidden" name="_method" id="idNum" value="PUT">
 
+                        <div class="form-floating my-2">
+                            <input type="text" class="form-control" disabled id="writer_id" name="writer_id" placeholder="Editada por" value="{{$writer->id.' - '.$writer->name}}">
+                            <label for="writer_id">Editada por</label>
+                        </div>
+
                         <div class="form-floating">
                             <select class="form-select" id="client_id" name="client_id" aria-label="Floating label select example">
                                 <option selected>Selecione o Cliente</option>
@@ -38,6 +43,20 @@
                                 @endforeach
                             </select>
                             <label for="client_id">Cliente</label>
+                        </div>
+
+                        <div class="form-floating my-2">
+                            <select class="form-select" id="tec_id" name="user_id" aria-label="Floating label select example">
+                                <option selected value="0">Selecione o Técnico</option>
+                                @foreach ($tecs as $tec)
+                                    @if ($tec->id == $order->user_id)
+                                        <option selected value="{{$tec->id}}">{{$tec->id}} - {{$tec->name}}</option>  
+                                    @else
+                                        <option value="{{$tec->id}}">{{$tec->id}} - {{$tec->name}}</option>
+                                    @endif
+                                @endforeach
+                            </select>
+                            <label for="tec_id">Técnico</label>
                         </div>
 
                         <div class="form-floating my-2">

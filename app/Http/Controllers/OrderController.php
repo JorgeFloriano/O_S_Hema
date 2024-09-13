@@ -19,7 +19,7 @@ class OrderController extends Controller
 
     public function index()
     {
-        $orders = $this->os->select('id', 'client_id','req_date')->get();
+        $orders = $this->os->select('id', 'client_id', 'user_id','req_date')->get();
 
         return view('orders_list' , ['orders' => $orders]);
     }
@@ -46,6 +46,7 @@ class OrderController extends Controller
         $created = $this->os->create([
             'client_id' => $request->client_id,
             'user_id' => $request->user_id,
+            'writer_id' => auth()->user()->id,
             'equipment' => $request->equipment,
             'req_date' => $request->req_date,
             'req_time' => $request->req_time,
@@ -72,11 +73,13 @@ class OrderController extends Controller
     {
         $clients = Client::select('id', 'name')->get();
         $tecs = User::select('id', 'name')->where('type', 3)->get();
+        $writer = User::select('id', 'name')->where('type', 2)->find($order->writer_id);
 
         return view('order_edit', [
             'order' => $order,
             'clients' => $clients,
-            'tecs' => $tecs
+            'tecs' => $tecs,
+            'writer' => $writer
         ]);
     }
 
@@ -85,9 +88,13 @@ class OrderController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $updated = $this->os->where('id', $id)->update($request->except(['_token', '_method']));
+        $updated = $this->os->where('id', $id)->update($request->except(['_token', '_method', 'writer_id']));
 
-        if ($updated) {
+        $os = Order::find($id);
+        $os->writer_id = auth()->user()->id;
+        $updated_writer = $os->save();
+
+        if ($updated && $updated_writer) {
             return redirect()->back()->with('message', 'Ordem de serviço atualizada com sucesso.');
         }
         return redirect()->back()->with('message', 'Erro ao atualizar ordem de serviço.');

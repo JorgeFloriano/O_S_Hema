@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Foundation\Auth\User;
 
 class Order extends Model
 {
@@ -13,6 +14,7 @@ class Order extends Model
 
     protected $fillable = [
         'client_id',
+        'writer_id',
         'user_id',
         'type',
         'finished',
@@ -28,6 +30,10 @@ class Order extends Model
 
     public function client(): BelongsTo {
         return $this->belongsTo(Client::class);
+    }
+
+    public function user(): BelongsTo {
+        return $this->belongsTo(User::class);
     }
 
     public function notes(): HasMany {

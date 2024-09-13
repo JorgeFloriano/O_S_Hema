@@ -26,7 +26,7 @@
                         <div class="border-top border-dark p-1"><strong>Endereço: </strong>{{$note->order->client->address}}</div>
                         <div class="border-top border-dark p-1"><strong>Contato: </strong>{{$note->order->client->contact}}</div>
                         <div class="border-top border-dark p-1"><strong>Órgao Solicitante</strong>: SUP</div>
-                        <div class="border-top border-dark p-1"><strong>Anotado por</strong>: Gabriel</div>
+                        <div class="border-top border-dark p-1"><strong>Anotado por</strong>: {{$writer->id.' - '.$writer->name}}</div>
                     </div>
 
                     <div class="mx-0 my-2 border border-dark rounded">
@@ -135,13 +135,11 @@
 
                         <div class="form-floating my-2">
                             <select class="form-select" id="firstTec" name="first_tec" aria-label="Floating label select example">
-                                <option >Selecionar Técnico 01</option>
-                                <option selected value="1">Paulo</option>
-                                <option value="2">João</option>
-                                <option value="3">Pedro</option>
+                                <option selected value="{{$note->first_tec->id}}">{{$note->first_tec->id.' - '.$note->first_tec->name}}</option>
                             </select>
                             <label for="firstTec">Técnico 01</label>
                         </div>
+                        
                         <button onclick="scrollToBottom()" class="btn btn-info" id="pen1" href="#" class="signature-button" data-bs-toggle="modal"     data-bs-target="#signature1Modal"><i class="fa fa-pencil" aria-hidden="true"></i>ASSINAR
                         </button>
 
@@ -173,13 +171,26 @@
 
                         <div class="form-floating my-2">
                             <select class="form-select" id="secondTec" name="second_tec" aria-label="Floating label select example">
-                                <option selected value="0">Selecionar Técnico 02</option>
-                                <option value="1">Paulo</option>
-                                <option value="2">João</option>
-                                <option value="3">Pedro</option>
+
+                                @if (!isset($note->second_tec->id))
+                                    <option selected value="0">Selecionar Técnico 02</option>
+                                @endif
+
+                                @foreach ($tecs as $tec)
+                                    @if (isset($note->second_tec->id))
+                                        @if ($note->second_tec->id == $tec->id)
+                                            <option selected value="{{$tec->id}}">{{$tec->id}} - {{$tec->name}}</option>
+                                        @else
+                                            <option value="{{$tec->id}}">{{$tec->id}} - {{$tec->name}}</option>
+                                        @endif
+                                    @else
+                                        <option value="{{$tec->id}}">{{$tec->id}} - {{$tec->name}}</option>
+                                    @endif
+                                @endforeach
                             </select>
-                            <label for="secondTec">Técnico 02</label>
+                            <label for="tec_id">Técnico 02</label>
                         </div>
+
                         <button class="btn btn-info mb-2" id="pen2" href="#" class="signature-button" data-bs-toggle="modal" data-bs-target="#signature2Modal"><i class="fa fa-pencil" aria-hidden="true"></i>ASSINAR
                         </button>
 
@@ -205,7 +216,7 @@
                             </div>
                         </div>
 
-                        <div class="mb-2">
+                        <div class="mb-3">
                             <button id="submitButton" type="button" class="btn btn-primary me-2" data-bs-dismiss="modal">
                                 Salvar
                             </button>

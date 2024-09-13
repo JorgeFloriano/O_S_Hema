@@ -26,7 +26,7 @@
                         <div class="border-top border-dark p-1"><strong>Endereço: </strong>{{$order->client->address}}</div>
                         <div class="border-top border-dark p-1"><strong>Contato: </strong>{{$order->client->contact}}</div>
                         <div class="border-top border-dark p-1"><strong>Órgao Solicitante</strong>: SUP</div>
-                        <div class="border-top border-dark p-1"><strong>Anotado por</strong>: Gabriel</div>
+                        <div class="border-top border-dark p-1"><strong>Anotado por</strong>: {{$writer->id.' - '.$writer->name}}</div>
                     </div>
 
                     <div class="mx-0 my-2 border border-dark rounded">
@@ -64,21 +64,32 @@
                                         <div>
                                             @foreach ($order->notes as $note)
                                             <div>
-                                                <div>Registro nº {{$note->id}} - Técnico nº {{$note->first_tec}} - {{date('d/m/Y',strtotime($note->date))}}</div>
-                                                    <div>
-                                                        <a href="{{route('notes.edit', [
-                                                        'order' => $order->id,
-                                                        'note' => $note->id
-                                                        ])}}" class="btn btn-primary btn-sm">
-                                                            Editar
-                                                        </a>
-                                                        <a href="{{route('notes.show', [
-                                                        'order' => $order->id,
-                                                        'note' => $note->id
-                                                        ])}}" class="btn btn-danger btn-sm">
-                                                            Excluir
-                                                        </a>
-                                                    <hr>
+                                                <div>Registro nº {{$note->id}}, Téc. {{$note->first_tec->id}}-{{$note->first_tec->name}}, {{date('d/m/Y',strtotime($note->date))}}</div>
+                                                    <div class="mt-2">
+                                                        @if ($note->first_tec->id == auth()->user()->id)
+                                                            <a href="{{route('notes.edit', [
+                                                                'order' => $order->id,
+                                                                'note' => $note->id
+                                                            ])}}" class="btn btn-primary btn-sm">
+                                                                Editar
+                                                            </a>
+                                                            <a href="{{route('notes.show', [
+                                                                'order' => $order->id,
+                                                                'note' => $note->id,
+                                                            ])}}" class="btn btn-danger btn-sm">
+                                                                Excluir
+                                                            </a>
+                                                        @else
+                                                            <a href="{{route('notes.show', [
+                                                                'order' => $order->id,
+                                                                'note' => $note->id,
+                                                            ])}}" class="btn btn-info btn-sm">
+                                                                Exibir
+                                                            </a>
+                                                        @endif
+                                                    @if (!$loop->last)
+                                                        <hr> 
+                                                    @endif
                                                 </div>
                                             </div>
                                             @endforeach
@@ -179,13 +190,17 @@
 
                         <div class="form-floating my-2">
                             <select class="form-select" id="firstTec" name="first_tec" aria-label="Floating label select example">
-                                <option value="0" selected>Selecionar Técnico 01</option>
-                                <option value="1">Paulo</option>
-                                <option value="2">João</option>
-                                <option value="3">Pedro</option>
+                                @foreach ($tecs as $tec)
+                                    @if (auth()->user()->id == $tec->id)
+                                        <option selected value="{{$tec->id}}">{{$tec->id}} - {{$tec->name}}</option>
+                                    @else
+                                        <option value="{{$tec->id}}">{{$tec->id}} - {{$tec->name}}</option>
+                                    @endif
+                                @endforeach
                             </select>
                             <label for="firstTec">Técnico 01</label>
                         </div>
+
                         <button onclick="scrollToBottom()" class="btn btn-info" id="pen1" href="#" class="signature-button" data-bs-toggle="modal"     data-bs-target="#signature1Modal"><i class="fa fa-pencil" aria-hidden="true"></i>Assinar
                         </button>
 
@@ -218,13 +233,14 @@
 
                         <div class="form-floating my-2">
                             <select class="form-select" id="secondTec" name="second_tec" aria-label="Floating label select example">
-                                <option value="0" selected>Selecionar Técnico 02</option>
-                                <option value="1">Paulo</option>
-                                <option value="2">João</option>
-                                <option value="3">Pedro</option>
+                                <option value="0">Selecione o Técnico 02</option>
+                                @foreach ($tecs as $tec)
+                                    <option value="{{$tec->id}}">{{$tec->id}} - {{$tec->name}}</option>
+                                @endforeach
                             </select>
-                            <label for="secondTec">Técnico 02</label>
+                            <label for="firstTec">Técnico 02</label>
                         </div>
+
                         <button class="btn btn-info mb-2" id="pen2" href="#" class="signature-button" data-bs-toggle="modal" data-bs-target="#signature2Modal"><i class="fa fa-pencil" aria-hidden="true"></i>Assinar
                         </button>
 
@@ -259,7 +275,6 @@
                             <div class="form-check form-check-inline">
                                 <input class="form-check-input" type="radio" name="finished" id="finished" value="1">
                                 <label class="form-check-label" for="finished"><i class="fa fa-check-square-o" aria-hidden="true"></i>Concluir</label>
-                                </div>
                             </div>
                         </div>
 

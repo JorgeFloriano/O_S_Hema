@@ -1,6 +1,6 @@
 <style>
     .ico {
-        background-color: gray;
+        background-color: rgb(35, 33, 33);
         color: white;
     }
     a {

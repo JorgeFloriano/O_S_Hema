@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Note;
 use App\Models\Order;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class NoteController extends Controller
@@ -19,7 +20,7 @@ class NoteController extends Controller
 
     public function index()
     {
-        $orders = Order::select('id', 'client_id','req_date')->get();
+        $orders = Order::select('id', 'client_id','req_date')->where('user_id', auth()->user()->id)->get();
 
         return view('notes_list' , ['orders' => $orders]);
     }
@@ -29,7 +30,19 @@ class NoteController extends Controller
      */
     public function create(Order $order)
     {
-        return view('note_create', ['order' => $order]);
+        foreach ($order->notes as $note) {
+            $note->first_tec = User::find($note->first_tec);
+            $note->second_tec = User::find($note->second_tec);
+        }
+
+        $writer = User::select('id', 'name')->where('type', 2)->find($order->writer_id);
+        $tecs = User::select('id', 'name')->where('type', 3)->get();
+
+        return view('note_create', [
+            'order' => $order,
+            'tecs' => $tecs,
+            'writer' => $writer
+        ]);
     }
 
     /**
@@ -40,6 +53,12 @@ class NoteController extends Controller
         if (!isset($request->sign_t_1) || $request->sign_t_1 == $this->empit_sign) {
             return redirect()->back()->with('message', 'Informações não podem ser salvas sem assinatura de um Técnico.');
         }
+
+        $second_tec = $request->second_tec;
+        if ($request->first_tec == $second_tec) {
+            $second_tec = 0;
+        }
+
         $created_note = $this->note->create([
             'order_id' => $request->input('order_id'),
             'equip_mod' => $request->input('equip_mod'),
@@ -57,7 +76,7 @@ class NoteController extends Controller
             'back_end' => $request->input('back_end'),
             'first_tec' => $request->input('first_tec'),
             'sign_t_1' => $request->input('sign_t_1'),
-            'second_tec' => $request->input('second_tec'),
+            'second_tec' => $second_tec,
             'sign_t_2' => $request->input('sign_t_2'),
             ]);
     
@@ -76,7 +95,20 @@ class NoteController extends Controller
      */
     public function show(Note $note)
     {
-        return view('note_delete', ['note' => $note]);
+        $note->first_tec = User::select('id', 'name')->find($note->first_tec);
+        $note->second_tec = User::select('id', 'name')->find($note->second_tec);
+        $writer = User::select('id', 'name')->where('type', 2)->find($note->order->writer_id);
+
+        $msg = 'Deletar';
+        if (auth()->user()->id != $note->first_tec->id) {
+            $msg = 'Informações do';
+        }
+
+        return view('note_delete', [
+            'note' => $note,
+            'msg' => $msg,
+            'writer' => $writer
+        ]);
     }
 
     /**
@@ -84,35 +116,55 @@ class NoteController extends Controller
      */
     public function edit(Note $note)
     {
-        return view('note_edit', ['note' => $note]);
+        
+        $note->first_tec = User::select('id', 'name')->find($note->first_tec);
+        $note->second_tec = User::select('id', 'name')->find($note->second_tec);
+        $writer = User::select('id', 'name')->where('type', 2)->find($note->order->writer_id);
+
+        
+        $tecs = User::select('id', 'name')
+            ->where('type', 3)
+            ->where('id', '!=', $note->first_tec->id)
+            ->get();
+
+        return view('note_edit', [
+            'note' => $note,
+            'tecs' => $tecs,
+            'writer' => $writer
+        ]);
     }
 
     /**
      * Update the specified resource in storage.
      */
     public function update(Request $request, string $id)
-    {
-        if (!isset($request->sign_t_1) || $request->sign_t_1 == $this->empit_sign) {
-            return redirect()->back()->with('message', 'Informações não podem ser salvas sem assinatura de um Técnico.');
+    {      
+        if (auth()->user()->id == $request->first_tec) {
+            if (!isset($request->sign_t_1) || $request->sign_t_1 == $this->empit_sign) {
+                return redirect()->back()->with('message', 'Informações não podem ser salvas sem assinatura de um Técnico.');
+            }
+            $updated = $this->note->where('id', $id)->update($request->except(['_token', '_method', 'submit_button']));
+    
+            if ($updated) {
+                return redirect()->back()->with('message', 'Registro de serviço atualizada com sucesso.');
+            }
+            return redirect()->back()->with('message', 'Erro ao atualizar registro de serviço.');
         }
-        $updated = $this->note->where('id', $id)->update($request->except(['_token', '_method', 'submit_button']));
-
-        if ($updated) {
-            return redirect()->back()->with('message', 'Registro de serviço atualizada com sucesso.');
-        }
-        return redirect()->back()->with('message', 'Erro ao atualizar registro de serviço.');
+        return redirect()->back()->with('message', 'Registro pode ser editado apenas pelo técnico executante.');
     }
-
     /**
      * Remove the specified resource from storage.
      */
     public function destroy(Note $note)
     {
-        $deleted = $this->note->where('id', $note->id)->delete();
-
-        if ($deleted) {
-            return redirect()->route('notes.create', ['order' => $note->order->id])->with('message', 'Registro deletado com sucesso.');
+        if (auth()->user()->id == $note->first_tec) {
+            $deleted = $this->note->where('id', $note->id)->delete();
+    
+            if ($deleted) {
+                return redirect()->route('notes.create', ['order' => $note->order->id])->with('message', 'Registro deletado com sucesso.');
+            }
+            return redirect()->route('notes.create', ['order' => $note->order->id])->with('message', 'Erro ao deletar registro.');
         }
-        return redirect()->route('notes.create', ['order' => $note->order->id])->with('message', 'Erro ao deletar registro.');
+        return redirect()->back()->with('message', 'Registro pode ser deletado apenas pelo técnico executante.');
     }
 }

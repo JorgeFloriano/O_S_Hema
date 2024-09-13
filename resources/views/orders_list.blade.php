@@ -23,6 +23,7 @@
                         <tr>
                             <th>Nº</th>
                             <th>Cliente</th>
+                            <th>Técnico</th>
                             <th>Data</th>
                             <th>Edit</th>
                             <th>Del.</th>
@@ -34,6 +35,7 @@
                             <tr>
                                 <td>{{$order->id}}</td>
                                 <td>{{$order->client->name}}</td>
+                                <td>{{$order->user->name ?? ''}}</td>
                                 <td>{{ date('d/m/Y',strtotime($order->req_date))}}</td>
                                 <td>
                                     <a href="{{route('orders.edit', ['order' => $order->id])}}" class="btn btn-primary btn-sm">
