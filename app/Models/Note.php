@@ -5,6 +5,8 @@ namespace App\Models;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
+use Illuminate\Database\Eloquent\Relations\HasOne;
+use Illuminate\Foundation\Auth\User;
 
 class Note extends Model
 {
@@ -38,4 +40,15 @@ class Note extends Model
     {
         return $this->belongsTo(Order::class);
     }
+
+    public function first_tec(): HasOne
+    {
+        return $this->hasOne(User::class);
+    }
+
+    public function second_tec(): HasOne
+    {
+        return $this->hasOne(User::class);
+    }
+
 }

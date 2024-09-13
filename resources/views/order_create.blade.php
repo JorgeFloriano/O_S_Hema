@@ -19,7 +19,7 @@
 
                         <div class="form-floating">
                             <select class="form-select" id="client_id" name="client_id" aria-label="Floating label select example">
-                                <option selected>Selecione o Cliente</option>
+                                <option selected value="0">Selecione o Cliente</option>
                                 @foreach ($clients as $client)
                                     <option value="{{$client->id}}">{{$client->id}} - {{$client->name}}</option>
                                 @endforeach

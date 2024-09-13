@@ -7,19 +7,22 @@
     <link rel="stylesheet" href="{{ asset('assets/fontawesome/font-awesome.min.css')}}" type="text/css">
     <link rel="stylesheet" href="{{ asset('assets/boodstrap/bootstrap.min.css')}}" type="text/css">
     <style>
+
         body {
-            background-image: linear-gradient(to left, rgb(159, 156, 156), rgb(86, 84, 84));
+            background-image: linear-gradient(to left, #606d7f, #293a4e);
         }
         .card {
-            padding: 15px;
+            /*padding: 15px;*/
             border-radius: 15px;
-            box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.529);
+            box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.746);
+            border: none;
         }
-        #logo {
-            background-color: rgb(221, 216, 216);
-            padding: 10px;
-            border-radius: 5px;
+        .card-img-top {
+            background-color: rgb(35, 33, 33);
+            border-radius:15px 15px 0 0;
+            padding: 40px 15px;
         }
+
     </style>
     <title>Login</title>
 </head>
