@@ -17,7 +17,6 @@ return new class extends Migration
             $table->smallInteger('client_id');
             $table->smallInteger('writer_id');
             $table->smallInteger('user_id')->nullable();
-            $table->tinyInteger('type')->default(0);
             $table->boolean('finished')->default(0);
             $table->string('equipment')->nullable();
             $table->date('req_date')->useCurrent();

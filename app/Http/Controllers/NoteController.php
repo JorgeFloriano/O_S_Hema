@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
 use App\Models\Note;
 use App\Models\Order;
 use App\Models\User;
@@ -35,8 +36,9 @@ class NoteController extends Controller
             $note->second_tec = User::find($note->second_tec);
         }
 
-        $writer = User::select('id', 'name')->where('type', 2)->find($order->writer_id);
-        $tecs = User::select('id', 'name')->where('type', 3)->get();
+        $writer = Category::find(2)->users()->where('user_id', $order->writer_id)->first();
+
+        $tecs = Category::find(3)->users()->get();
 
         return view('note_create', [
             'order' => $order,
@@ -97,7 +99,8 @@ class NoteController extends Controller
     {
         $note->first_tec = User::select('id', 'name')->find($note->first_tec);
         $note->second_tec = User::select('id', 'name')->find($note->second_tec);
-        $writer = User::select('id', 'name')->where('type', 2)->find($note->order->writer_id);
+
+        $writer = Category::find(2)->users()->where('user_id', $note->order->writer_id)->first();
 
         $msg = 'Deletar';
         if (auth()->user()->id != $note->first_tec->id) {
@@ -119,13 +122,10 @@ class NoteController extends Controller
         
         $note->first_tec = User::select('id', 'name')->find($note->first_tec);
         $note->second_tec = User::select('id', 'name')->find($note->second_tec);
-        $writer = User::select('id', 'name')->where('type', 2)->find($note->order->writer_id);
-
         
-        $tecs = User::select('id', 'name')
-            ->where('type', 3)
-            ->where('id', '!=', $note->first_tec->id)
-            ->get();
+        $writer = Category::find(2)->users()->where('user_id', $note->order->writer_id)->first();
+
+        $tecs = Category::find(3)->users()->where('user_id','!=', $note->first_tec->id)->get();
 
         return view('note_edit', [
             'note' => $note,
