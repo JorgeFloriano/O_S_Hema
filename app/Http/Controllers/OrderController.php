@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Category;
 use App\Models\Client;
 use App\Models\Note;
 use App\Models\Order;
@@ -30,7 +31,8 @@ class OrderController extends Controller
     public function create()
     {
         $clients = Client::select('id', 'name')->get();
-        $tecs = User::select('id', 'name')->where('type', 3)->get();
+
+        $tecs = Category::find(3)->users()->get();
 
         return view('order_create', [
             'clients' => $clients,
@@ -72,9 +74,11 @@ class OrderController extends Controller
     public function edit(Order $order)
     {
         $clients = Client::select('id', 'name')->get();
-        $tecs = User::select('id', 'name')->where('type', 3)->get();
-        $writer = User::select('id', 'name')->where('type', 2)->find($order->writer_id);
 
+        $tecs = Category::find(3)->users()->get();
+
+        $writer = Category::find(2)->users()->where('user_id', $order->writer_id)->first();
+            
         return view('order_edit', [
             'order' => $order,
             'clients' => $clients,

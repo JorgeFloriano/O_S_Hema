@@ -4,13 +4,14 @@ use App\Http\Controllers\ClientController;
 use App\Http\Controllers\LoginController;
 use App\Http\Controllers\OrderController;
 use App\Http\Controllers\NoteController;
+use App\Http\Controllers\UserController;
 use Illuminate\Support\Facades\Route;
 
 Route::controller(LoginController::class)->group(function () {
     Route::get('/login', 'index')->name('login.index');
     Route::post('/login', 'store')->name('login.store');
     Route::get('/logout', 'destroy')->name('login.destroy');
-    Route::get('/add_user', 'add_user')->name('login.add_user');
+    Route::get('/add', 'add')->name('login.add');
 });
 
 Route::get('/', function () {
@@ -20,6 +21,11 @@ Route::get('/', function () {
 Route::resource('orders', OrderController::class);
 
 Route::resource('clients', ClientController::class);
+
+Route::resource('users', UserController::class);
+
+Route::get('/tec_on', [UserController::class, 'tec_on'])->name('tec_on');
+Route::put('/tec_on_update', [UserController::class, 'tec_on_update'])->name('tec_on_update');
 
 Route::get('/notes', [NoteController::class, 'index'])->name('notes.index');
 Route::get('/notes/{order}/create', [NoteController::class, 'create'])->name('notes.create');
