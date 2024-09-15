@@ -26,7 +26,7 @@
                         <div class="border-top border-dark p-1"><strong>Endereço: </strong>{{$order->client->address}}</div>
                         <div class="border-top border-dark p-1"><strong>Contato: </strong>{{$order->client->contact}}</div>
                         <div class="border-top border-dark p-1"><strong>Órgao Solicitante</strong>: SUP</div>
-                        <div class="border-top border-dark p-1"><strong>Anotado por</strong>: {{$writer->id.' - '.$writer->name}}</div>
+                        <div class="border-top border-dark p-1"><strong>Anotado por</strong>: {{$order->adm->id.' - '.$order->adm->user->name}}</div>
                     </div>
 
                     <div class="mx-0 my-2 border border-dark rounded">
@@ -64,9 +64,9 @@
                                         <div>
                                             @foreach ($order->notes as $note)
                                             <div>
-                                                <div>Registro nº {{$note->id}}, Téc. {{$note->first_tec->id}}-{{$note->first_tec->name}}, {{date('d/m/Y',strtotime($note->date))}}</div>
-                                                    <div class="mt-2">
-                                                        @if ($note->first_tec->id == auth()->user()->id)
+                                                <div>Registro nº {{$note->id}}, Téc. {{$note->tecs->first()->id}}-{{$note->tecs->first()->user->name}},    {{date('d/m/Y',strtotime($note->date))}}</div>
+                                                    <div class="mt-2"> 
+                                                        @if ($note->tecs->first()->id == auth()->user()->tec->id)
                                                             <a href="{{route('notes.edit', [
                                                                 'order' => $order->id,
                                                                 'note' => $note->id
@@ -87,11 +87,11 @@
                                                                 Exibir
                                                             </a>
                                                         @endif
-                                                    @if (!$loop->last)
-                                                        <hr> 
-                                                    @endif
+                                                        @if (!$loop->last)
+                                                            <hr> 
+                                                        @endif
+                                                    </div>
                                                 </div>
-                                            </div>
                                             @endforeach
                                         </div>
                                     </div>
@@ -191,10 +191,10 @@
                         <div class="form-floating my-2">
                             <select class="form-select" id="firstTec" name="first_tec" aria-label="Floating label select example">
                                 @foreach ($tecs as $tec)
-                                    @if (auth()->user()->id == $tec->id)
-                                        <option selected value="{{$tec->id}}">{{$tec->id}} - {{$tec->name}}</option>
+                                    @if (auth()->user()->tec->id == $tec->id)
+                                        <option selected value="{{$tec->id}}">{{$tec->id}} - {{$tec->user->name}}</option>
                                     @else
-                                        <option value="{{$tec->id}}">{{$tec->id}} - {{$tec->name}}</option>
+                                        <option value="{{$tec->id}}">{{$tec->id}} - {{$tec->user->name}}</option>
                                     @endif
                                 @endforeach
                             </select>
@@ -235,7 +235,7 @@
                             <select class="form-select" id="secondTec" name="second_tec" aria-label="Floating label select example">
                                 <option value="0">Selecione o Técnico 02</option>
                                 @foreach ($tecs as $tec)
-                                    <option value="{{$tec->id}}">{{$tec->id}} - {{$tec->name}}</option>
+                                    <option value="{{$tec->id}}">{{$tec->id}} - {{$tec->user->name}}</option>
                                 @endforeach
                             </select>
                             <label for="firstTec">Técnico 02</label>

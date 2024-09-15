@@ -2,7 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Category;
+use App\Models\Tec;
+use App\Models\User;
 use Illuminate\Http\Request;
 
 class UserController extends Controller
@@ -17,18 +18,9 @@ class UserController extends Controller
 
     public function tec_on()
     {
-        $tecs = Category::find(3)->users()->where('user_id', '!=', 1)->orderBy('user_id')->get();
+        $tecs = Tec::all();
 
-        foreach ($tecs as $tec) {
-            $tec_on = Category::find(2)->users()->where('user_id', $tec->id)->first();
-            
-            if (isset($tec_on)) {
-                $tec->check = 'checked';
-            } else {
-                $tec->check = '';
-            }
-            
-        }
+        session()->put('tecs', $tecs);
 
         return view('tec_on', [
             'tecs' => $tecs
@@ -37,7 +29,26 @@ class UserController extends Controller
 
     public function tec_on_update(Request $request)
     {
-        return $request->except(['_token', '_method']);
+        $tecs = session('tecs');
+
+        foreach ($tecs as  $tec) {
+
+            if ($request->input('tec'.$tec->id)) {
+                $tec->on_call = 1;
+                $up_on = $tec->save();
+                if (!$up_on) {
+                    return redirect()->back()->with('message', 'Erro ao atualizar registros.'); 
+                }
+            } else {
+                $tec->on_call = 0;
+                $up_off = $tec->save();
+                if (!$up_off) {
+                    return redirect()->back()->with('message', 'Erro ao atualizar registros.'); 
+                }  
+            }
+        }
+
+        return redirect()->back()->with('message', 'Registros atualizados com sucesso.');
     }
 
     /**

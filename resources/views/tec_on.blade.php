@@ -37,7 +37,11 @@
                                     <td>{{$tec->name}}</td>
                                     <td>{{$tec->function}}</td>
                                     <td>
-                                        <input class="form-check-input" name="tec{{$tec->id}}" type="checkbox" {{$tec->check}} value="1" id="tec{{$tec->id}}">
+                                        @if ($tec->on_call)
+                                            <input class="form-check-input" name="tec{{$tec->id}}" checked type="checkbox" value="1" id="tec{{$tec->id}}">
+                                        @else
+                                            <input class="form-check-input" name="tec{{$tec->id}}" type="checkbox" value="1" id="tec{{$tec->id}}">
+                                        @endif
                                     </td>
                                 </tr>
                             @endforeach

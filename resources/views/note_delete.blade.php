@@ -26,7 +26,7 @@
                         <div class="border-top border-dark p-1"><strong>Endereço: </strong>{{$note->order->client->address}}</div>
                         <div class="border-top border-dark p-1"><strong>Contato: </strong>{{$note->order->client->contact}}</div>
                         <div class="border-top border-dark p-1"><strong>Órgao Solicitante</strong>: SUP</div>
-                        <div class="border-top border-dark p-1"><strong>Anotado por</strong>:  {{$writer->id.' - '.$writer->name}}</div>
+                        <div class="border-top border-dark p-1"><strong>Anotado por</strong>:  {{$adm->id.' - '.$adm->user->name}}</div>
                     </div>
 
                     <div class="mx-0 my-2 border border-dark rounded">
@@ -132,18 +132,18 @@
                         </div>
 
                         <div class="form-floating my-2">
-                            <input class="form-control" id="firstTec" disabled name="first_tec" value="{{$note->first_tec->id}} - {{$note->first_tec->name}}">
+                            <input class="form-control" id="firstTec" disabled name="first_tec" value="{{$note->first_tec->id}} - {{$note->first_tec->user->name}}">
                             <label for="firstTec">Técnico 01</label>
                         </div>
 
                         <div class="form-floating my-2">
-                            <input class="form-control" id="secondTec" disabled name="second_tec" value="{{$note->second_tec->id ?? ''}} - {{$note->second_tec->name ?? ''}}">
+                            <input class="form-control" id="secondTec" disabled name="second_tec" value="{{$note->second_tec->id ?? ''}} - {{$note->second_tec->user->name ?? ''}}">
                             <label for="secondTec">Técnico 02</label>
                         </div>
 
                         <div class="my-2">
 
-                            @if (auth()->user()->id == $note->first_tec->id)
+                            @if (auth()->user()->tec->id == $note->first_tec->id)
                                 <button id="submitButton" type="submit" class="btn btn-danger me-2" data-bs-dismiss="modal">
                                     Deletar
                                 </button> 
@@ -152,7 +152,6 @@
                             <a href="{{route('notes.create', ['order' => $note->order->id])}}" class="btn btn-secondary">
                                 Voltar
                             </a>
-                            
                         </div>
                     </form>
                 </main>

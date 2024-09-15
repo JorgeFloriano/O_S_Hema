@@ -30,27 +30,48 @@
             </a>
             <ul class="dropdown-menu">
 
-                @if (auth()->user()->categories()->first()->id == 1)
-                    <li><a class="dropdown-item btn-lg" href="{{route('clients.index')}}"><i class="fa fa-user" aria-hidden="true"></i></i>Clientes</a></li>
+                @if (auth()->user()->adm()->first())
+                    @if (auth()->user()->adm()->first()->main)
+                        <li>
+                            <a class="dropdown-item btn-lg" href="{{route('clients.index')}}">
+                                <i class="fa fa-user" aria-hidden="true"></i>
+                                Clientes
+                            </a>
+                        </li>
+
+                        <li>
+                            <a class="dropdown-item btn-lg" href="{{route('users.index')}}">
+                                <i class="fa fa-user-o" aria-hidden="true"></i>
+                                Colaboradores
+                            </a>
+                        </li>
+                    @endif
+
+                    <li>
+                        <a class="dropdown-item btn-lg" href="{{route('tec_on')}}">
+                            <i class="fa fa-wrench" aria-hidden="true"></i></i>
+                            Plantonistas
+                        </a>
+                    </li>
+
+                    <li>
+                        <a class="dropdown-item btn-lg" href="{{route('orders.index')}}">
+                            <i class="fa fa-file-text" aria-hidden="true"></i>
+                            Ordens
+                        </a>
+                    </li>
                 @endif
 
-                @if (isset(auth()->user()->categories()->where('category_id', 2)->first()->id))
-                    <li><a class="dropdown-item btn-lg" href="{{route('orders.index')}}"><i class="fa fa-file-text" aria-hidden="true"></i>Ordens</a></li>
-                @endif
-
-                @if ((isset(auth()->user()->categories()->where('category_id', 3)->first()->id)))
+                @if (auth()->user()->tec()->first())
                     <li><a class="dropdown-item btn-lg" href="{{route('notes.index')}}"><i class="fa fa-list-ol" aria-hidden="true"></i></i>Programação</a></li> 
                 @endif
 
-                @if ((isset(auth()->user()->categories()->where('category_id', 4)->first()->id)))
-                    <li><a class="dropdown-item btn-lg" href="{{route('users.index')}}"><i class="fa fa-user-o" aria-hidden="true"></i></i>Colaboradores</a></li> 
-                @endif
-
-                @if ((isset(auth()->user()->categories()->where('category_id', 2)->first()->id)))
-                    <li><a class="dropdown-item btn-lg" href="{{route('tec_on')}}"><i class="fa fa-wrench" aria-hidden="true"></i></i>Plantonistas</a></li> 
-                @endif
-
-                <li><a class="dropdown-item btn-lg" href="{{route('login.destroy')}}"><i class="fa fa-sign-out" aria-hidden="true"></i></i>Logout</a></li>
+                <li>
+                    <a class="dropdown-item btn-lg" href="{{route('login.destroy')}}">
+                        <i class="fa fa-sign-out" aria-hidden="true"></i>
+                        Logout
+                    </a>
+                </li>
             </ul>
         </div>
     </div>

@@ -2,8 +2,9 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Category;
-use App\Models\CategoryUser;
+use App\Models\Adm;
+use App\Models\NoteTec;
+use App\Models\Tec;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -58,52 +59,36 @@ class LoginController extends Controller
 
         // echo 'user saved';
 
-        // $cat = new Category();
-        // $cat->description = 'Admin';
-        // $cat->type = 'Main';
-        // $cat->save();
-        
-        // $cat2 = new Category();
-        // $cat2->description = 'Admin';
-        // $cat2->save();
-
-        // $cat3 = new Category();
-        // $cat3->description = 'Tec';
-        // $cat3->type = 'On';
-        // $cat3->save();
-
-        // $cat4 = new Category();
-        // $cat4->description = 'Tec';
-        // $cat4->save();
-
-        // echo 'categories saved';
-
-        // $c_u = new CategoryUser();
-        // $c_u->user_id = 1;
-        // $c_u->category_id = 2;
-        // $c_u->save();
-
-        // $c_u2 = new CategoryUser();
-        // $c_u2->user_id = 1;
-        // $c_u2->category_id = 3;
+        // $c_u2 = new Adm();
+        // $c_u2->user_id = 2;
+        // $c_u2->main = 0;
         // $c_u2->save();
 
-        // $c_u3 = new CategoryUser();
-        // $c_u3->user_id = 1;
-        // $c_u3->category_id = 4;
-        // $c_u3->save();
+        // $c_u2 = new NoteTec();
+        // $c_u2->note_id = 2;
+        // $c_u2->tec_id = 3;
+        // $c_u2->save();
 
-        //$admin = User::find(3)->categories()->find(2);
+        // $c_u2 = new NoteTec();
+        // $c_u2->note_id = 3;
+        // $c_u2->tec_id = 4;
+        // $c_u2->save();
 
-        //$admin = User::find(3)->categories()->first();
+        // $c_u2 = new NoteTec();
+        // $c_u2->note_id = 6;
+        // $c_u2->tec_id = 2;
+        // $c_u2->save();
 
-        //echo $admin->id;
+        // $c_u2 = new NoteTec();
+        // $c_u2->note_id = 13;
+        // $c_u2->tec_id = 1;
+        // $c_u2->save();
 
-        // if ($admin) {
-        //     echo $admin->id;
-        // } else {
-        //     echo 'not admin';
-        // }
+        $c_u2 = new NoteTec();
+        $c_u2->note_id = 4;
+        $c_u2->tec_id = 4;
+        $c_u2->save();
+
     }
 
     public function index()
@@ -111,25 +96,19 @@ class LoginController extends Controller
          // Check if the user is logged out
          if(auth()->user()) {
 
-            $user_cat = auth()->user()->categories()->first();
-
-            if (!isset($user_cat->id)) {
-                return view('login');
+            $adm = auth()->user()->adm()->first();
+            
+            if ($adm) {
+                if ($adm->main) {
+                    return redirect()->route('clients.index');
+                }
+                return redirect()->route('orders.index');
             }
 
-            switch ($user_cat->id) {
-                case 1:
-                    return redirect()->route('clients.index');
-                    break;
-                case 2:
-                    return redirect()->route('orders.index');
-                    break;
-                case 3 || 4:
-                    return redirect()->route('notes.index');
-                    break;
-                default:
-                    return view('login');
-                    break;
+            $tec = auth()->user()->tec()->first();
+
+            if ($tec) {
+                return redirect()->route('notes.index');
             }
         }
         return view('login');
@@ -154,39 +133,32 @@ class LoginController extends Controller
             return redirect()->route('login.index')->withErrors(['error' => 'Credenciais inválidas']);
         }
         
-        $user_cat = auth()->user()->categories()->first();
+        $adm = auth()->user()->adm()->first();
+
+        if ($adm) {
+            if ($adm->main) {
+                return redirect()->route('clients.index')->with([
+                    'success'=>'Olá',
+                ]);
+            }
+            return redirect()->route('orders.index')->with([
+                'success'=>'Olá',
+            ]);
+        }
+
+        $tec = auth()->user()->tec()->first();
+
+        if ($tec) {
+            return redirect()->route('notes.index')->with([
+                'success'=>'Olá',
+            ]);
+        }
 
         if (!isset($user_cat->id)) {
             return redirect()->route('login.index')->withErrors(['error' => 'Credenciais inválidas']);
         }
-
-        switch ($user_cat->id) {
-
-            case 1:
-                return redirect()->route('clients.index')->with([
-                    'success'=>'Olá',
-                ]);
-                break;
-            case 2:
-                return redirect()->route('orders.index')->with([
-                    'success'=>'Olá',
-                ]);
-                break;
-            case 3 || 4:
-                return redirect()->route('notes.index')->with([
-                    'success'=>'Olá',
-                ]);
-                break;
-            default:
-                return view('login');
-                break;
-        }        
-
-        return redirect()->route('clients.index')->with([
-            'success'=>'Olá',
-        ]);
     }
-    
+
     public function destroy()
     {
         Auth::logout();

@@ -27,10 +27,6 @@ return new class extends Migration
             $table->time('end');
             $table->time('back_start');
             $table->time('back_end');
-            $table->smallInteger('first_tec');
-            $table->text('sign_t_1');
-            $table->smallInteger('second_tec')->nullable();
-            $table->text('sign_t_2')->nullable();
             $table->timestamps();
         });
     }
