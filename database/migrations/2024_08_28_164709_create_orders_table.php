@@ -15,8 +15,8 @@ return new class extends Migration
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
             $table->smallInteger('client_id');
-            $table->smallInteger('writer_id');
-            $table->smallInteger('user_id')->nullable();
+            $table->smallInteger('adm_id');
+            $table->smallInteger('tec_id')->nullable();
             $table->boolean('finished')->default(0);
             $table->string('equipment')->nullable();
             $table->date('req_date')->useCurrent();

@@ -11,10 +11,10 @@ return new class extends Migration
      */
     public function up(): void
     {
-        Schema::create('category_user', function (Blueprint $table) {
+        Schema::create('adms', function (Blueprint $table) {
             $table->id();
-            $table->tinyInteger('user_id');
-            $table->tinyInteger('category_id');
+            $table->foreignId('user_id')->constrained();
+            $table->boolean('main')->default(false);
             $table->timestamps();
         });
     }
@@ -24,6 +24,10 @@ return new class extends Migration
      */
     public function down(): void
     {
-        Schema::dropIfExists('category_user');
+        Schema::table('adms', function(Blueprint $table) {
+            $table->foreignId('user_id')
+            ->constrained()
+            ->onDelete('cascade');
+        });
     }
 };

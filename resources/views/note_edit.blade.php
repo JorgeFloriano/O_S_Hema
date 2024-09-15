@@ -26,7 +26,7 @@
                         <div class="border-top border-dark p-1"><strong>Endereço: </strong>{{$note->order->client->address}}</div>
                         <div class="border-top border-dark p-1"><strong>Contato: </strong>{{$note->order->client->contact}}</div>
                         <div class="border-top border-dark p-1"><strong>Órgao Solicitante</strong>: SUP</div>
-                        <div class="border-top border-dark p-1"><strong>Anotado por</strong>: {{$writer->id.' - '.$writer->name}}</div>
+                        <div class="border-top border-dark p-1"><strong>Anotado por</strong>: {{$adm->id.' - '.$adm->user->name}}</div>
                     </div>
 
                     <div class="mx-0 my-2 border border-dark rounded">
@@ -135,7 +135,7 @@
 
                         <div class="form-floating my-2">
                             <select class="form-select" id="firstTec" name="first_tec" aria-label="Floating label select example">
-                                <option selected value="{{$note->first_tec->id}}">{{$note->first_tec->id.' - '.$note->first_tec->name}}</option>
+                                <option selected value="{{$note->first_tec->id}}">{{$note->first_tec->id.' - '.$note->first_tec->user->name}}</option>
                             </select>
                             <label for="firstTec">Técnico 01</label>
                         </div>
@@ -179,12 +179,12 @@
                                 @foreach ($tecs as $tec)
                                     @if (isset($note->second_tec->id))
                                         @if ($note->second_tec->id == $tec->id)
-                                            <option selected value="{{$tec->id}}">{{$tec->id}} - {{$tec->name}}</option>
+                                            <option selected value="{{$tec->id}}">{{$tec->id}} - {{$tec->user->name}}</option>
                                         @else
-                                            <option value="{{$tec->id}}">{{$tec->id}} - {{$tec->name}}</option>
+                                            <option value="{{$tec->id}}">{{$tec->id}} - {{$tec->user->name}}</option>
                                         @endif
                                     @else
-                                        <option value="{{$tec->id}}">{{$tec->id}} - {{$tec->name}}</option>
+                                        <option value="{{$tec->id}}">{{$tec->id}} - {{$tec->user->name}}</option>
                                     @endif
                                 @endforeach
                             </select>

@@ -31,7 +31,7 @@
                             <select class="form-select" id="tec_id" name="user_id" aria-label="Floating label select example">
                                 <option selected value="0">Selecione o Técnico</option>
                                 @foreach ($tecs as $tec)
-                                    <option value="{{$tec->id}}">{{$tec->id}} - {{$tec->name}}</option>
+                                    <option value="{{$tec->id}}">{{$tec->id}} - {{$tec->user->name}}</option>
                                 @endforeach
                             </select>
                             <label for="tec_id">Técnico</label>

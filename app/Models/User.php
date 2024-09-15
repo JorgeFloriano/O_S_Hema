@@ -5,6 +5,7 @@ namespace App\Models;
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 
@@ -19,6 +20,7 @@ class User extends Authenticatable
      */
     protected $fillable = [
         'name',
+        'surname',
         'email',
         'password',
         'function',
@@ -47,8 +49,13 @@ class User extends Authenticatable
         ];
     }
 
-    public function categories(): BelongsToMany
+    public function adm(): HasOne
     {
-        return $this->belongsToMany(Category::class);
+        return $this->hasOne(Adm::class);
+    }
+
+    public function tec(): HasOne
+    {
+        return $this->hasOne(Tec::class);
     }
 }

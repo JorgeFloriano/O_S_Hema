@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Foundation\Auth\User;
 
 class Order extends Model
 {
@@ -14,8 +13,8 @@ class Order extends Model
 
     protected $fillable = [
         'client_id',
-        'writer_id',
-        'user_id',
+        'adm_id',
+        'tec_id',
         'type',
         'finished',
         'equipment',
@@ -24,7 +23,6 @@ class Order extends Model
         'req_descr',
     ];
 
-
     protected $table = "orders";
     protected $primaryKey = "id";
 
@@ -32,8 +30,12 @@ class Order extends Model
         return $this->belongsTo(Client::class);
     }
 
-    public function user(): BelongsTo {
-        return $this->belongsTo(User::class);
+    public function adm(): BelongsTo {
+        return $this->belongsTo(Adm::class);
+    }
+
+    public function tec(): BelongsTo {
+        return $this->belongsTo(Tec::class);
     }
 
     public function notes(): HasMany {

@@ -2,9 +2,12 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Adm;
 use App\Models\Category;
 use App\Models\Note;
+use App\Models\NoteTec;
 use App\Models\Order;
+use App\Models\Tec;
 use App\Models\User;
 use Illuminate\Http\Request;
 
@@ -21,7 +24,7 @@ class NoteController extends Controller
 
     public function index()
     {
-        $orders = Order::select('id', 'client_id','req_date')->where('user_id', auth()->user()->id)->get();
+        $orders = Order::select('id', 'client_id','req_date')->where('tec_id', auth()->user()->tec->id)->get();
 
         return view('notes_list' , ['orders' => $orders]);
     }
@@ -31,19 +34,21 @@ class NoteController extends Controller
      */
     public function create(Order $order)
     {
-        foreach ($order->notes as $note) {
-            $note->first_tec = User::find($note->first_tec);
-            $note->second_tec = User::find($note->second_tec);
-        }
+        // foreach ($order->notes as $note) {
+        //     echo( 'note_id '.$note->id . '<br>');
+        //     echo($note->tecs->first()->id. '<br>');
+        //     echo(date('d/m/Y',strtotime($note->date)). '<br>');
+            
+        //     echo $note->tecs->first()->user->name. '<br>';
+        //     echo '<br><br>';
+        // }
+        // die;
 
-        $writer = Category::find(2)->users()->where('user_id', $order->writer_id)->first();
-
-        $tecs = Category::find(3)->users()->get();
+        $tecs = Tec::all();
 
         return view('note_create', [
             'order' => $order,
             'tecs' => $tecs,
-            'writer' => $writer
         ]);
     }
 
@@ -58,7 +63,7 @@ class NoteController extends Controller
 
         $second_tec = $request->second_tec;
         if ($request->first_tec == $second_tec) {
-            $second_tec = 0;
+            $second_tec = null;
         }
 
         $created_note = $this->note->create([
@@ -76,17 +81,27 @@ class NoteController extends Controller
             'end' => $request->input('end'),
             'back_start' => $request->input('back_start'),
             'back_end' => $request->input('back_end'),
-            'first_tec' => $request->input('first_tec'),
-            'sign_t_1' => $request->input('sign_t_1'),
-            'second_tec' => $second_tec,
-            'sign_t_2' => $request->input('sign_t_2'),
             ]);
+
+            if ($created_note) {
+                $cr_note_tec1 = NoteTec::create([
+                    'note_id' => $created_note->id,
+                    'tec_id' => $request->input('first_tec'),
+                    'signature' => $request->input('sign_t_1'),
+                ]);
+
+                $cr_note_tec2 = NoteTec::create([
+                    'note_id' => $created_note->id,
+                    'tec_id' => $second_tec,
+                    'signature' => $request->input('sign_t_2'),
+                ]);
+            }
     
             $os = Order::find($request->input('order_id'));
             $os->finished = $request->input('finished');
             $updated_os = $os->save();
     
-            if ($created_note && $updated_os) {
+            if ($cr_note_tec1 && $updated_os) {
                 return redirect()->back()->with('message', 'Informações salvas com sucesso.');
             }
             return redirect()->back()->with('message', 'Erro ao salvar informações.');
@@ -97,20 +112,23 @@ class NoteController extends Controller
      */
     public function show(Note $note)
     {
-        $note->first_tec = User::select('id', 'name')->find($note->first_tec);
-        $note->second_tec = User::select('id', 'name')->find($note->second_tec);
+        $note->first_tec = Note::find($note->id)->tecs[0];
 
-        $writer = Category::find(2)->users()->where('user_id', $note->order->writer_id)->first();
+        if (isset(Note::find($note->id)->tecs[1])) {
+            $note->second_tec = Note::find($note->id)->tecs[1];
+        }
+
+        $adm = Adm::find($note->order->adm->id);
 
         $msg = 'Deletar';
-        if (auth()->user()->id != $note->first_tec->id) {
+        if (auth()->user()->tec->id != $note->first_tec->id) {
             $msg = 'Informações do';
         }
 
         return view('note_delete', [
             'note' => $note,
             'msg' => $msg,
-            'writer' => $writer
+            'adm' => $adm
         ]);
     }
 
@@ -120,17 +138,20 @@ class NoteController extends Controller
     public function edit(Note $note)
     {
         
-        $note->first_tec = User::select('id', 'name')->find($note->first_tec);
-        $note->second_tec = User::select('id', 'name')->find($note->second_tec);
-        
-        $writer = Category::find(2)->users()->where('user_id', $note->order->writer_id)->first();
+        $note->first_tec = Note::find($note->id)->tecs[0];
 
-        $tecs = Category::find(3)->users()->where('user_id','!=', $note->first_tec->id)->get();
+        if (isset(Note::find($note->id)->tecs[1])) {
+            $note->second_tec = Note::find($note->id)->tecs[1];
+        }
+        
+        $adm = Adm::find($note->order->adm->id);
+
+        $tecs = Tec::where('id','!=', $note->first_tec->id)->get();
 
         return view('note_edit', [
             'note' => $note,
             'tecs' => $tecs,
-            'writer' => $writer
+            'adm' => $adm
         ]);
     }
 
@@ -139,11 +160,32 @@ class NoteController extends Controller
      */
     public function update(Request $request, string $id)
     {      
-        if (auth()->user()->id == $request->first_tec) {
+
+        $note_tec1 = NoteTec::where('note_id', $id)->get()[0];
+        $note_tec1->signature = $request->sign_t_1;
+        $note_tec1->save();
+
+        if ($request->second_tec != 0) {
+            if (isset(NoteTec::where('note_id', $id)->get()[1])) {
+                $note_tec2 = NoteTec::where('note_id', $id)->get()[1];
+                $note_tec2->tec_id = $request->second_tec;
+                $note_tec2->signature = $request->sign_t_2;
+                $note_tec2->save();
+            } else {
+                $note_tec2 = NoteTec::create([
+                    'note_id' => $id,
+                    'tec_id' => $request->second_tec,
+                    'signature' => $request->sign_t_2,
+                ]);
+            }
+        }
+
+        if (auth()->user()->tec->id == $request->first_tec) {
             if (!isset($request->sign_t_1) || $request->sign_t_1 == $this->empit_sign) {
                 return redirect()->back()->with('message', 'Informações não podem ser salvas sem assinatura de um Técnico.');
             }
-            $updated = $this->note->where('id', $id)->update($request->except(['_token', '_method', 'submit_button']));
+
+            $updated = $this->note->where('id', $id)->update($request->except(['_token', '_method', 'submit_button', 'first_tec', 'second_tec', 'sign_t_1', 'sign_t_2']));
     
             if ($updated) {
                 return redirect()->back()->with('message', 'Registro de serviço atualizada com sucesso.');
