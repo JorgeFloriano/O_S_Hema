@@ -9,7 +9,7 @@
         <div class="row mt-1">
             <div class="col-lg-8 offset-lg-2">
                 <div id="header" class="my-2">
-                    <h2>Cadastro de Cliente</h2>
+                    <h2>Cadastrar Cliente</h2>
                 </div>
                 <hr>
                 <main>
@@ -18,7 +18,7 @@
                         @csrf
                         
                         <div class="form-floating my-2">
-                            <input type="text" class="form-control" id="name" name="name" placeholder="Nome da Empresa">
+                            <input type="text" class="form-control" id="name" name="name" placeholder="Nome da Empresa" required>
                             <label for="name">Nome da Empresa</label>
                         </div>
 
@@ -38,7 +38,7 @@
                         </div>
 
                         <div class="form-floating my-2">
-                            <input type="text" class="form-control" id="address" name="address" placeholder="Endereço">
+                            <input type="text" class="form-control" id="address" name="address" placeholder="Endereço" required>
                             <label for="address">Endereço</label>
                         </div>
 
@@ -48,12 +48,12 @@
                         </div>
 
                         <div class="form-floating my-2">
-                            <input type="text" class="form-control" id="phone" name="phone" placeholder="Telefone">
+                            <input type="text" class="form-control" id="phone" name="phone" placeholder="Telefone" required>
                             <label for="phone">Telefone</label>
                         </div>
                         
                         <div class="form-floating my-2">
-                            <input type="text" class="form-control" id="contact" name="contact" placeholder="Nome do Contato">
+                            <input type="text" class="form-control" id="contact" name="contact" placeholder="Nome do Contato" required>
                             <label for="contact">Nome do Contato</label>
                         </div>
 

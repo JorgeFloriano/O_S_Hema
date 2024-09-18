@@ -34,8 +34,8 @@
                             @foreach ($tecs as $tec)
                                 <tr>
                                     <td>{{$tec->id}}</td>
-                                    <td>{{$tec->name}}</td>
-                                    <td>{{$tec->function}}</td>
+                                    <td>{{$tec->user->name}}</td>
+                                    <td>{{$tec->user->function}}</td>
                                     <td>
                                         @if ($tec->on_call)
                                             <input class="form-check-input" name="tec{{$tec->id}}" checked type="checkbox" value="1" id="tec{{$tec->id}}">

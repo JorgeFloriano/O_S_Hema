@@ -122,9 +122,8 @@ class LoginController extends Controller
         ], [
             'email.required' => 'Digite seu e-mail',
             'password.required' => 'Digite sua senha'
-        ]
-
-    );
+            ]
+        );
 
         $credentials = $request->only('email', 'password');
         $authenticated = Auth::attempt($credentials);

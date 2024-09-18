@@ -13,8 +13,8 @@ class Order extends Model
 
     protected $fillable = [
         'client_id',
-        'adm_id',
         'tec_id',
+        'user_id',
         'type',
         'finished',
         'equipment',
@@ -30,8 +30,8 @@ class Order extends Model
         return $this->belongsTo(Client::class);
     }
 
-    public function adm(): BelongsTo {
-        return $this->belongsTo(Adm::class);
+    public function user(): BelongsTo {
+        return $this->belongsTo(User::class);
     }
 
     public function tec(): BelongsTo {

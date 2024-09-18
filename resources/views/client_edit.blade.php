@@ -16,7 +16,7 @@
                 @endif
 
                 <div id="header" class="my-2">
-                    <h2>Editar Cadastro do Cliente {{$client->id}}</h2>
+                    <h2>Editar Cadastro do Cliente nº{{$client->id}}</h2>
                 </div>
                 <hr>
                 <main>

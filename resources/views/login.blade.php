@@ -17,11 +17,11 @@
                             @csrf
                             <h2>Sistema de Gerenciamento</h2>
                             <div class="form-floating my-3">
-                                <input type="email" name="email" id="email" class="form-control" placeholder="E-mail">
+                                <input type="email" name="email" id="email" class="form-control" placeholder="E-mail" required>
                                 <label for="email">E-mail</label>
                             </div>
                             <div class="form-floating my-3">
-                                <input type="password" name="password" id="password" class="form-control" placeholder="Senha">
+                                <input type="password" name="password" id="password" class="form-control" placeholder="Senha" required>
                                 <label for="password">Senha</label>
                             </div>
                             <div class="form-group my-3">
