@@ -2,13 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Adm;
-use App\Models\Category;
 use App\Models\Note;
 use App\Models\NoteTec;
 use App\Models\Order;
 use App\Models\Tec;
-use App\Models\User;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 class NoteController extends Controller
@@ -24,7 +22,7 @@ class NoteController extends Controller
 
     public function index()
     {
-        $orders = Order::select('id', 'client_id','req_date')->where('tec_id', auth()->user()->tec->id)->get();
+        $orders = Order::select('id', 'client_id','req_date', 'finished')->where('tec_id', auth()->user()->tec->id)->get();
 
         return view('notes_list' , ['orders' => $orders]);
     }
@@ -34,15 +32,6 @@ class NoteController extends Controller
      */
     public function create(Order $order)
     {
-        // foreach ($order->notes as $note) {
-        //     echo( 'note_id '.$note->id . '<br>');
-        //     echo($note->tecs->first()->id. '<br>');
-        //     echo(date('d/m/Y',strtotime($note->date)). '<br>');
-            
-        //     echo $note->tecs->first()->user->name. '<br>';
-        //     echo '<br><br>';
-        // }
-        // die;
 
         $tecs = Tec::all();
 
@@ -63,7 +52,7 @@ class NoteController extends Controller
 
         $second_tec = $request->second_tec;
         if ($request->first_tec == $second_tec) {
-            $second_tec = null;
+            $second_tec = '0';
         }
 
         $created_note = $this->note->create([
@@ -90,11 +79,13 @@ class NoteController extends Controller
                     'signature' => $request->input('sign_t_1'),
                 ]);
 
-                $cr_note_tec2 = NoteTec::create([
-                    'note_id' => $created_note->id,
-                    'tec_id' => $second_tec,
-                    'signature' => $request->input('sign_t_2'),
-                ]);
+                if ($second_tec != '0') {
+                    $cr_note_tec2 = NoteTec::create([
+                        'note_id' => $created_note->id,
+                        'tec_id' => $second_tec,
+                        'signature' => $request->input('sign_t_2') ?? null,
+                    ]);
+                }
             }
     
             $os = Order::find($request->input('order_id'));
@@ -102,6 +93,9 @@ class NoteController extends Controller
             $updated_os = $os->save();
     
             if ($cr_note_tec1 && $updated_os) {
+                if ($request->input('finished')) {
+                    return redirect()->route('notes.index')->with('message', 'Solicitação de Serviço finalizada com sucesso.');
+                }
                 return redirect()->back()->with('message', 'Informações salvas com sucesso.');
             }
             return redirect()->back()->with('message', 'Erro ao salvar informações.');
@@ -118,8 +112,6 @@ class NoteController extends Controller
             $note->second_tec = Note::find($note->id)->tecs[1];
         }
 
-        $adm = Adm::find($note->order->adm->id);
-
         $msg = 'Deletar';
         if (auth()->user()->tec->id != $note->first_tec->id) {
             $msg = 'Informações do';
@@ -128,7 +120,6 @@ class NoteController extends Controller
         return view('note_delete', [
             'note' => $note,
             'msg' => $msg,
-            'adm' => $adm
         ]);
     }
 
@@ -143,15 +134,12 @@ class NoteController extends Controller
         if (isset(Note::find($note->id)->tecs[1])) {
             $note->second_tec = Note::find($note->id)->tecs[1];
         }
-        
-        $adm = Adm::find($note->order->adm->id);
 
         $tecs = Tec::where('id','!=', $note->first_tec->id)->get();
 
         return view('note_edit', [
             'note' => $note,
             'tecs' => $tecs,
-            'adm' => $adm
         ]);
     }
 
@@ -163,20 +151,29 @@ class NoteController extends Controller
 
         $note_tec1 = NoteTec::where('note_id', $id)->get()[0];
         $note_tec1->signature = $request->sign_t_1;
-        $note_tec1->save();
+        $s_t1_save = $note_tec1->save();
+        if (!$s_t1_save) {
+            return redirect()->back()->with('message', 'Erro ao atualizar assinatura do Técnico 01.');
+        }
 
         if ($request->second_tec != 0) {
             if (isset(NoteTec::where('note_id', $id)->get()[1])) {
                 $note_tec2 = NoteTec::where('note_id', $id)->get()[1];
                 $note_tec2->tec_id = $request->second_tec;
                 $note_tec2->signature = $request->sign_t_2;
-                $note_tec2->save();
+                $n_t2_save = $note_tec2->save();
+                if (!$n_t2_save) {
+                    return redirect()->back()->with('message', 'Erro ao atualizar registro do Técnico 02.');
+                }
             } else {
                 $note_tec2 = NoteTec::create([
                     'note_id' => $id,
                     'tec_id' => $request->second_tec,
                     'signature' => $request->sign_t_2,
                 ]);
+                if (!$note_tec2) {
+                    return redirect()->back()->with('message', 'Erro ao criar registro do Técnico 02.');
+                }
             }
         }
 
@@ -195,18 +192,28 @@ class NoteController extends Controller
         return redirect()->back()->with('message', 'Registro pode ser editado apenas pelo técnico executante.');
     }
     /**
-     * Remove the specified resource from storage.
+     * Mark the specified Note as finished.
      */
-    public function destroy(Note $note)
+
+    public function destroy(Note $note): RedirectResponse
     {
-        if (auth()->user()->id == $note->first_tec) {
-            $deleted = $this->note->where('id', $note->id)->delete();
-    
-            if ($deleted) {
-                return redirect()->route('notes.create', ['order' => $note->order->id])->with('message', 'Registro deletado com sucesso.');
+        $firstTec = $note->tecs->first();
+
+        if (auth()->user()->tec->id === $firstTec->id) {
+            $noteTecs = NoteTec::where('note_id', $note->id)->get();
+            foreach ($noteTecs as $noteTec) {
+                $noteTec->delete();
             }
-            return redirect()->route('notes.create', ['order' => $note->order->id])->with('message', 'Erro ao deletar registro.');
+
+            if ($note->delete()) {
+                return redirect()->route('notes.create', ['order' => $note->order->id])
+                    ->with('message', 'Registro deletado com sucesso.');
+            }
+
+            return redirect()->route('notes.create', ['order' => $note->order->id])
+                ->with('message', 'Erro ao deletar registro.');
         }
+
         return redirect()->back()->with('message', 'Registro pode ser deletado apenas pelo técnico executante.');
     }
 }

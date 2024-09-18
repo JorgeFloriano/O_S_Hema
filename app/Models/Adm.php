@@ -14,7 +14,10 @@ class Adm extends Model
         return $this->belongsTo(User::class);
     }
 
-    protected $fillable = [];
+    protected $fillable = [
+        'user_id',
+        'main',
+    ];
 
     use HasFactory;
 }

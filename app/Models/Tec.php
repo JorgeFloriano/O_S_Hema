@@ -15,6 +15,7 @@ class Tec extends Model
     }
 
     protected $fillable = [
+        'user_id',
         'on_call'
     ];
 

@@ -4,14 +4,22 @@
     
      <div class="container">
         <div class="row">
-            <div class="col">
-                @if (session()->has('message'))
+
+            @if (session()->has('message'))
+                <div class="alert alert-info" role="alert">
                     {{session()->get('message')}}
-                @endif
+                </div>
+            @endif
+
+            <div class="col">
                 <div id="header" class="my-2">
                     <h2>Programação</h2>
                 </div>
                 <hr>
+                @if (auth()->user()->tec->on_call)
+                    <a href="{{route('orders.create')}}" class="btn btn-primary">Gerar O.S.</a>
+                <hr>
+                @endif
                 <table class="table table-striped">
                     <thead class="table-dark">
                         <tr>
@@ -19,6 +27,7 @@
                             <th>Cliente</th>
                             <th>Data</th>
                             <th>Exec.</th>
+                            <th>Encerr.</th>
                         </tr>
                     </thead>
 
@@ -28,11 +37,30 @@
                                 <td>{{$order->id}}</td>
                                 <td>{{$order->client->name}}</td>
                                 <td>{{date('d/m/y',strtotime($order->req_date))}}</td>
-                                <td>
-                                    <a href="{{route('notes.create', ['order' => $order->id])}}" class="btn btn-primary btn-sm">
-                                        <i class="fa fa-edit"></i>
-                                    </a>
-                                </td>
+
+                                @if ($order->finished)
+                                    <td>
+                                        <a href="{{route('orders.show_pdf', ['order' => $order->id])}}" class="btn btn-outline-danger btn-sm">
+                                            <i class="fa fa-file-pdf-o"></i>
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <a class="btn btn-secondary btn-sm">
+                                            <i class="fa fa-check-square-o"></i>
+                                        </a>
+                                    </td>
+                                @else
+                                    <td>
+                                        <a href="{{route('notes.create', ['order' => $order->id])}}" class="btn btn-info btn-sm">
+                                            <i class="fa fa-edit"></i>
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <a href="{{route('orders.finish', ['order' => $order->id])}}" class="btn btn-primary btn-sm">
+                                            <i class="fa fa-check-square-o"></i>
+                                        </a>
+                                    </td>
+                                @endif
                             </tr>
                         @endforeach
                     </tbody> 

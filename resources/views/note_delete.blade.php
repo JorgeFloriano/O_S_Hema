@@ -26,7 +26,7 @@
                         <div class="border-top border-dark p-1"><strong>Endereço: </strong>{{$note->order->client->address}}</div>
                         <div class="border-top border-dark p-1"><strong>Contato: </strong>{{$note->order->client->contact}}</div>
                         <div class="border-top border-dark p-1"><strong>Órgao Solicitante</strong>: SUP</div>
-                        <div class="border-top border-dark p-1"><strong>Anotado por</strong>:  {{$adm->id.' - '.$adm->user->name}}</div>
+                        <div class="border-top border-dark p-1"><strong>Anotado por</strong>: {{$note->order->user->name}}</div>
                     </div>
 
                     <div class="mx-0 my-2 border border-dark rounded">

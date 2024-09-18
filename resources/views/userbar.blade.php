@@ -42,7 +42,7 @@
                         <li>
                             <a class="dropdown-item btn-lg" href="{{route('users.index')}}">
                                 <i class="fa fa-user-o" aria-hidden="true"></i>
-                                Colaboradores
+                                Usuários
                             </a>
                         </li>
                     @endif

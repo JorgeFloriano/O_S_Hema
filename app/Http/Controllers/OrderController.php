@@ -2,12 +2,11 @@
 
 namespace App\Http\Controllers;
 
-use App\Models\Adm;
 use App\Models\Client;
-use App\Models\Note;
 use App\Models\Order;
 use App\Models\Tec;
 use App\Models\User;
+use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 class OrderController extends Controller
@@ -46,16 +45,24 @@ class OrderController extends Controller
      */
     public function store(Request $request)
     {
+
+        if ($request->client_id == '0') {
+            return redirect()->route('orders.create')->with('message', 'Selecione um cliente para prosseguir.');
+        }
+
         $created = $this->os->create([
             'client_id' => $request->client_id,
-            'tec_id' => $request->user_id,
-            'adm_id' => auth()->user()->id,
+            'tec_id' => $request->tec_id,
+            'user_id' => auth()->user()->id,
             'equipment' => $request->equipment,
             'req_date' => $request->req_date,
             'req_time' => $request->req_time,
             'req_descr' => $request->req_descr,
         ]);
         if ($created) {
+            if ((isset(auth()->user()->tec))) {
+                return redirect()->route('notes.index')->with('message', 'Ordem de serviço criada com sucesso.');
+            }
             return redirect()->route('orders.index')->with('message', 'Ordem de serviço criada com sucesso.');
         }
         return redirect()->route('orders.index')->with('message', 'Erro ao criar ordem de serviço.');
@@ -74,17 +81,17 @@ class OrderController extends Controller
      */
     public function edit(Order $order)
     {
-        $clients = Client::select('id', 'name')->get();
+        $clients = Client::select(['id', 'name'])->get();
 
         $tecs = Tec::all();
 
-        $adm = Adm::find($order->adm_id);
+        $user = User::select('name')->find($order->user_id);
             
         return view('order_edit', [
             'order' => $order,
             'clients' => $clients,
             'tecs' => $tecs,
-            'adm' => $adm
+            'user' => $user
         ]);
     }
 
@@ -93,10 +100,15 @@ class OrderController extends Controller
      */
     public function update(Request $request, string $id)
     {
+
+        if ($request->client_id == '0') {
+            return redirect()->back()->with('message', 'Selecione um cliente para prosseguir.');
+        }
+
         $updated = $this->os->where('id', $id)->update($request->except(['_token', '_method', 'adm_id']));
 
         $os = Order::find($id);
-        $os->adm_id = auth()->user()->id;
+        $os->user_id = auth()->user()->id;
         $updated_adm = $os->save();
 
         if ($updated && $updated_adm) {
@@ -116,5 +128,21 @@ class OrderController extends Controller
             return redirect()->route('orders.index')->with('message', 'Ordem de serviço deletada com sucesso.');
         }
         return redirect()->route('orders.index')->with('message', 'Erro ao deletar ordem de serviço.');
+    }
+
+    public function finish(Order $order): RedirectResponse
+    {
+        $order->finished = true;
+        $updated = $order->save();
+
+        if ($updated) {
+            return redirect()->back()->with('message', 'Ordem de serviço finalizada com sucesso.');
+        }
+
+        return redirect()->back()->with('message', 'Erro ao finalizar Ordem de serviço.');
+    }
+    public function show_pdf(Order $order)
+    {
+        return view('order_pdf', ['order' => $order]);
     }
 }

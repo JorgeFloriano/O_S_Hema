@@ -27,13 +27,13 @@
                         <input type="hidden" name="_method" id="idNum" value="PUT">
 
                         <div class="form-floating my-2">
-                            <input type="text" class="form-control" disabled id="adm_id" name="adm_id" placeholder="Editada por" value="{{$adm->id.' - '.$adm->user->name}}">
+                            <input type="text" class="form-control" disabled id="adm_id" name="adm_id" placeholder="Editada por" value="{{$user->name}}">
                             <label for="adm_id">Editada por</label>
                         </div>
 
                         <div class="form-floating">
                             <select class="form-select" id="client_id" name="client_id" aria-label="Floating label select example">
-                                <option selected>Selecione o Cliente</option>
+                                <option value="0" selected>Selecione o Cliente</option>
                                 @foreach ($clients as $client)
                                     @if ($client->id == $order->client_id)
                                         <option selected value="{{$client->id}}">{{$client->name}}</option>
@@ -70,7 +70,7 @@
                         </div>
 
                         <div class="form-floating my-2">
-                            <textarea id="req_descr" name="req_descr" placeholder="Problema Relatado" class='autoExpand form-control' rows='1' data-min-rows='1'>{{$order->req_descr}}</textarea>
+                            <textarea id="req_descr" name="req_descr" placeholder="Problema Relatado" class='autoExpand form-control' rows='1' data-min-rows='1' required>{{$order->req_descr}}</textarea>
                             <label for="req_descr">Problema Relatado</label>
                         </div>
 

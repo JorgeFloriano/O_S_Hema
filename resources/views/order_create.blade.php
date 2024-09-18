@@ -8,6 +8,13 @@
     <div class="container">
         <div class="row mt-1">
             <div class="col-lg-8 offset-lg-2">
+
+                @if (session()->has('message'))
+                    <div class="alert alert-info" role="alert">
+                        {{session()->get('message')}}
+                    </div>
+                @endif
+
                 <div id="header" class="my-2">
                     <h2>Gerar Ordem de Serviço</h2> 
                 </div>
@@ -18,8 +25,8 @@
                         @csrf
 
                         <div class="form-floating">
-                            <select class="form-select" id="client_id" name="client_id" aria-label="Floating label select example">
-                                <option selected value="0">Selecione o Cliente</option>
+                            <select class="form-select" id="client_id" name="client_id" aria-label="Floating label select example" required>
+                                <option value="0">Selecione o Cliente</option>
                                 @foreach ($clients as $client)
                                     <option value="{{$client->id}}">{{$client->id}} - {{$client->name}}</option>
                                 @endforeach
@@ -28,11 +35,15 @@
                         </div>
 
                         <div class="form-floating my-2">
-                            <select class="form-select" id="tec_id" name="user_id" aria-label="Floating label select example">
-                                <option selected value="0">Selecione o Técnico</option>
-                                @foreach ($tecs as $tec)
-                                    <option value="{{$tec->id}}">{{$tec->id}} - {{$tec->user->name}}</option>
-                                @endforeach
+                            <select class="form-select" id="tec_id" name="tec_id" aria-label="Floating label select example">
+                                @if (isset(auth()->user()->tec))
+                                    <option selected value="{{auth()->user()->tec->id}}">{{auth()->user()->tec->id}} - {{auth()->user()->name}}</option>
+                                @else
+                                    <option selected value="0">Selecione o Técnico</option>
+                                    @foreach ($tecs as $tec)
+                                        <option value="{{$tec->id}}">{{$tec->id}} - {{$tec->user->name}}</option>
+                                    @endforeach
+                                @endif
                             </select>
                             <label for="tec_id">Técnico</label>
                         </div>
@@ -48,7 +59,7 @@
                         </div>
 
                         <div class="form-floating my-2">
-                            <textarea id="req_descr" name="req_descr" placeholder="Problema Relatado" class='autoExpand form-control' rows='1' data-min-rows='1'></textarea>
+                            <textarea id="req_descr" name="req_descr" placeholder="Problema Relatado" class='autoExpand form-control' rows='1' data-min-rows='1' required></textarea>
                             <label for="req_descr">Problema Relatado</label>
                         </div>
 
@@ -61,7 +72,11 @@
                             <button id="submitButton" type="submit" class="btn btn-primary me-2" data-bs-dismiss="modal">
                                 Confirma
                             </button>
-                            <a href="{{route('orders.index')}}" class="btn btn-secondary">
+                            @if (isset(auth()->user()->tec))
+                                <a href="{{route('notes.index')}}" class="btn btn-secondary">
+                            @else
+                                <a href="{{route('orders.index')}}" class="btn btn-secondary">
+                            @endif
                                 Voltar
                             </a>
                         </div>
