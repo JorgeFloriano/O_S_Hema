@@ -35,6 +35,16 @@
                         </div>
 
                         <div class="form-floating my-2">
+                            <input type="text" class="form-control" id="sector" name="sector" placeholder="Setor">
+                            <label for="sector">Setor</label>
+                        </div>
+
+                        <div class="form-floating my-2">
+                            <input type="text" class="form-control" id="req_name" name="req_name" placeholder="Solicitante do Solicitante">
+                            <label for="req_name">Nome do Solicitante</label>
+                        </div>
+
+                        <div class="form-floating my-2">
                             <select class="form-select" id="tec_id" name="tec_id" aria-label="Floating label select example">
                                 @if (isset(auth()->user()->tec))
                                     <option selected value="{{auth()->user()->tec->id}}">{{auth()->user()->tec->id}} - {{auth()->user()->name}}</option>

@@ -14,11 +14,13 @@ return new class extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
+            $table->string('sector');
             $table->smallInteger('client_id');
             $table->smallInteger('adm_id');
             $table->smallInteger('tec_id')->nullable();
             $table->boolean('finished')->default(0);
             $table->string('equipment')->nullable();
+            $table->string('req_name');
             $table->date('req_date')->useCurrent();
             $table->time('req_time')->useCurrent();
             $table->text('req_descr');

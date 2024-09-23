@@ -27,7 +27,7 @@
                         <input type="hidden" name="_method" id="idNum" value="PUT">
 
                         <div class="form-floating my-2">
-                            <input type="text" class="form-control" disabled id="adm_id" name="adm_id" placeholder="Editada por" value="{{$user->name}}">
+                            <input type="text" class="form-control" disabled id="adm_id" name="adm_id" placeholder="Editada por" value="{{$user->name ?? ''}}">
                             <label for="adm_id">Editada por</label>
                         </div>
 
@@ -43,6 +43,16 @@
                                 @endforeach
                             </select>
                             <label for="client_id">Cliente</label>
+                        </div>
+
+                        <div class="form-floating my-2">
+                            <input type="text" class="form-control" id="sector" name="sector" placeholder="Setor" value="{{$order->sector}}">
+                            <label for="sector">Setor</label>
+                        </div>
+
+                        <div class="form-floating my-2">
+                            <input type="text" class="form-control" id="req_name" name="req_name" placeholder="Solicitante do Solicitante" value="{{$order->req_name}}">
+                            <label for="req_name">Nome do Solicitante</label>
                         </div>
 
                         <div class="form-floating my-2">
