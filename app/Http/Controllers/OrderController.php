@@ -50,8 +50,17 @@ class OrderController extends Controller
             return redirect()->route('orders.create')->with('message', 'Selecione um cliente para prosseguir.');
         }
 
+        //If there is no contact name, then use the name of the client that was selected
+        $cont_name_client = $request->req_name;
+        if (!$request->req_name) {
+            $cont_name_client = Client::find($request->client_id)->contact;
+        }
+
+        //Create new order
         $created = $this->os->create([
             'client_id' => $request->client_id,
+            'sector' => $request->sector,
+            'req_name' => $cont_name_client,
             'tec_id' => $request->tec_id,
             'user_id' => auth()->user()->id,
             'equipment' => $request->equipment,
@@ -59,6 +68,7 @@ class OrderController extends Controller
             'req_time' => $request->req_time,
             'req_descr' => $request->req_descr,
         ]);
+        
         if ($created) {
             if ((isset(auth()->user()->tec))) {
                 return redirect()->route('notes.index')->with('message', 'Ordem de serviço criada com sucesso.');

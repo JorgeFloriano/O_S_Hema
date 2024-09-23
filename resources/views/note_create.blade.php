@@ -24,9 +24,9 @@
                         <div class="p-1"><strong>Cliente: </strong>{{$order->client->name}}</div>
                         <div class="border-top border-dark p-1"><strong>Unidade: </strong>{{$order->client->unit}}</div>
                         <div class="border-top border-dark p-1"><strong>Endereço: </strong>{{$order->client->address}}</div>
-                        <div class="border-top border-dark p-1"><strong>Contato: </strong>{{$order->client->contact}}</div>
-                        <div class="border-top border-dark p-1"><strong>Órgao Solicitante</strong>: SUP</div>
-                        <div class="border-top border-dark p-1"><strong>Anotado por</strong>: {{$order->user->name ?? ''}}</div>
+                        <div class="border-top border-dark p-1"><strong>Contato: </strong>{{$order->req_name}}</div>
+                        <div class="border-top border-dark p-1"><strong>Setor: </strong>{{$order->sector}}</div>
+                        <div class="border-top border-dark p-1"><strong>Anotado por: </strong>{{$order->user->name ?? ''}}</div>
                     </div>
 
                     <div class="mx-0 my-2 border border-dark rounded">
@@ -39,7 +39,7 @@
                     
                     <div class="mx-0 my-2 border border-dark rounded">
                         <div class="p-1"><strong>Problema Relatado: </strong>{{$order->req_descr}}</div>
-                        <div class="border-top border-dark p-1"><strong>Equipamento: </strong>{{$order->equipment}}</div>
+                        <div class="border-top border-dark p-1"><strong>Equipamento: </strong>{{$order->equipment ?? ''}}</div>
                     </div>
 
                     @if(count($order->notes) !== 0)
@@ -124,17 +124,17 @@
                         </div>
 
                         <div class="form-floating my-2">
-                            <textarea id="situation" name="situation" placeholder="Descrição da situação encontrada" class='autoExpand form-control' rows='1' data-min-rows='1' required>{{old('situation')}}</textarea>
+                            <textarea id="situation" name="situation" placeholder="Descrição da situação encontrada" maxlength="80" class='autoExpand form-control' rows='1' data-min-rows='1' required>{{old('situation')}}</textarea>
                             <label for="situation">Descrição da situação encontrada</label>
                         </div>
 
                         <div class="form-floating my-2">
-                            <textarea id="cause" name="cause" placeholder="Provável causa do problema" class='autoExpand form-control' rows='1' data-min-rows='1' required>{{old('cause')}}</textarea>
+                            <textarea id="cause" name="cause" placeholder="Provável causa do problema" maxlength="80" class='autoExpand form-control' rows='1' data-min-rows='1' required>{{old('cause')}}</textarea>
                             <label for="cause">Provável causa do problema</label>
                         </div>
 
                         <div class="form-floating my-2">
-                            <textarea id="services" name="services" placeholder="Serviços executados" class='autoExpand form-control' rows='1' data-min-rows='1' required>{{old('services')}}</textarea>
+                            <textarea id="services" name="services" placeholder="Serviços executados" maxlength="330" class='autoExpand form-control' rows='1' data-min-rows='1' required>{{old('services')}}</textarea>
                             <label for="services">Descrição dos serviços executados</label>
                         </div>
 

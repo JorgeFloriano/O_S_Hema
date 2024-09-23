@@ -24,9 +24,9 @@
                         <div class="p-1"><strong>Cliente: </strong>{{$note->order->client->name}}</div>
                         <div class="border-top border-dark p-1"><strong>Unidade: </strong>{{$note->order->client->unit}}</div>
                         <div class="border-top border-dark p-1"><strong>Endereço: </strong>{{$note->order->client->address}}</div>
-                        <div class="border-top border-dark p-1"><strong>Contato: </strong>{{$note->order->client->contact}}</div>
-                        <div class="border-top border-dark p-1"><strong>Órgao Solicitante</strong>: SUP</div>
-                        <div class="border-top border-dark p-1"><strong>Anotado por</strong>: {{$note->order->user->name}}</div>
+                        <div class="border-top border-dark p-1"><strong>Contato: </strong>{{$note->order->req_name}}</div>
+                        <div class="border-top border-dark p-1"><strong>Setor: </strong>{{$note->order->sector}}</div>
+                        <div class="border-top border-dark p-1"><strong>Anotado por: </strong>{{$note->order->user->name ?? ''}}</div>
                     </div>
 
                     <div class="mx-0 my-2 border border-dark rounded">

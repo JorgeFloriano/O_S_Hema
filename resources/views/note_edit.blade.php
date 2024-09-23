@@ -24,9 +24,9 @@
                         <div class="p-1"><strong>Cliente: </strong>{{$note->order->client->name}}</div>
                         <div class="border-top border-dark p-1"><strong>Unidade: </strong>{{$note->order->client->unit}}</div>
                         <div class="border-top border-dark p-1"><strong>Endereço: </strong>{{$note->order->client->address}}</div>
-                        <div class="border-top border-dark p-1"><strong>Contato: </strong>{{$note->order->client->contact}}</div>
-                        <div class="border-top border-dark p-1"><strong>Órgao Solicitante</strong>: SUP</div>
-                        <div class="border-top border-dark p-1"><strong>Anotado por</strong>: {{$note->order->user->name}}</div>
+                        <div class="border-top border-dark p-1"><strong>Contato: </strong>{{$note->order->req_name}}</div>
+                        <div class="border-top border-dark p-1"><strong>Setor: </strong>{{$note->order->sector}}</div>
+                        <div class="border-top border-dark p-1"><strong>Anotado por: </strong>{{$note->order->user->name ?? ''}}</div>
                     </div>
 
                     <div class="mx-0 my-2 border border-dark rounded">
@@ -69,17 +69,17 @@
                         </div>
 
                         <div class="form-floating my-2">
-                            <textarea id="situation" name="situation" class='autoExpand form-control' rows='1' data-min-rows='1'>{{$note->situation}}</textarea>
+                            <textarea id="situation" name="situation" maxlength="80" class='autoExpand form-control' rows='1' data-min-rows='1'>{{$note->situation}}</textarea>
                             <label for="situation">Descrição da situação encontrada</label>
                         </div>
 
                         <div class="form-floating my-2">
-                            <textarea id="cause" name="cause" class='autoExpand form-control' rows='1' data-min-rows='1'>{{$note->cause}}</textarea>
+                            <textarea id="cause" name="cause" maxlength="80" class='autoExpand form-control' rows='1' data-min-rows='1'>{{$note->cause}}</textarea>
                             <label for="cause">Provável causa do problema</label>
                         </div>
 
                         <div class="form-floating my-2">
-                            <textarea id="services" name="services" class='autoExpand form-control' rows='1' data-min-rows='1'>{{$note->services}}</textarea>
+                            <textarea id="services" name="services" maxlength="330" class='autoExpand form-control' rows='1' data-min-rows='1'>{{$note->services}}</textarea>
                             <label for="services">Descrição dos serviços executados</label>
                         </div>
 
