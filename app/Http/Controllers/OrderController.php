@@ -153,6 +153,6 @@ class OrderController extends Controller
     }
     public function show_pdf(Order $order)
     {
-        return view('order_pdf', ['order' => $order]);
+    return view('order_pdf', ['order' => $order]);
     }
 }

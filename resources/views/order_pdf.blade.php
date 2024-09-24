@@ -14,4 +14,9 @@
 
     @include('o_s_parts/note_info')
 
+    @include('o_s_parts/despesas')
+    
+    @include('o_s_parts/tec_note')
+
+
 @endsection
