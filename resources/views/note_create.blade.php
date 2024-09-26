@@ -109,22 +109,22 @@
                         <input type="hidden" name="order_id" id="order_id" value="{{$order->id}}">
 
                         <div class="form-floating my-2">
-                            <input type="text" class="form-control" id="equipMod" name="equip_mod" value="{{old('equip_mod')}}" placeholder="Modelo do Equipamento" required>
+                            <input type="text" class="form-control" id="equipMod" name="equip_mod" value="{{old('equip_mod')}}" placeholder="Modelo do Equipamento" maxlength="20" required>
                             <label for="equipMod">Modelo do Equipamento</label>
                         </div>
 
                         <div class="form-floating my-2">
-                            <input type="text" class="form-control" id="equipId" name="equip_id" value="{{old('equip_id')}}" placeholder="Número de Série" required>
+                            <input type="text" class="form-control" id="equipId" name="equip_id" value="{{old('equip_id')}}" placeholder="Número de Série" maxlength="20" required>
                             <label for="equipId">Número de Identificação</label>
                         </div>
 
                         <div class="form-floating my-2">
-                            <input type="text" name="equip_type" class="form-control" id="equipType" value="{{old('equip_type')}}" placeholder="Tipo" Required>
+                            <input type="text" name="equip_type" class="form-control" id="equipType" value="{{old('equip_type')}}" placeholder="Tipo" maxlength="20" required>
                             <label for="equipType">Tipo do Equipamento</label>
                         </div>
 
                         <div class="form-floating my-2">
-                            <textarea id="situation" name="situation" placeholder="Descrição da situação encontrada" maxlength="80" class='autoExpand form-control' rows='1' data-min-rows='1' required>{{old('situation')}}</textarea>
+                            <textarea id="situation" name="situation" placeholder="Descrição da situação encontrada" maxlength="70" class='autoExpand form-control' rows='1' data-min-rows='1' required>{{old('situation')}}</textarea>
                             <label for="situation">Descrição da situação encontrada</label>
                         </div>
 
@@ -173,7 +173,7 @@
                             </div>
                         </div>
 
-                        <div class="row g-2">
+                        <div class="row g-2 mb-2">
                             <div class="col">
                                 <div class="form-floating">
                                     <input type="time" class="form-control" id="backStart" required name="back_start" placeholder="Saída (Volta)" value="{{\Carbon\Carbon::now()->add(10, 'minutes')->format('H:i')}}">
@@ -186,6 +186,41 @@
                                     <label for="goStart">Chegada (Volta)</label>
                                 </div>
                             </div>
+                        </div>
+
+                        <div class="row g-2 mb-2">
+                            <div class="col">
+                                <div class="form-floating">
+                                    <input type="number" class="form-control" id="kmStart" step="0.01" required name="km_start" placeholder="Km inicial">
+                                    <label for="kmStart">Km inicial</label>
+                                </div>
+                            </div>
+                            <div class="col">    
+                                <div class="form-floating">
+                                    <input type="number" class="form-control" id="kmEnd" step="0.01" required name="km_end" placeholder="Km final">
+                                    <label for="kmEnd">Km final</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row g-2">
+                            <div class="col">
+                                <div class="form-floating">
+                                    <input type="number" class="form-control" id="food" step="0.01" required name="food" placeholder="Alimantação (R$)">
+                                    <label for="food">Alimantação (R$)</label>
+                                </div>
+                            </div>
+                            <div class="col"> 
+                                <div class="form-floating">
+                                    <input type="number" class="form-control" id="expense" step="0.01" required name="expense" placeholder="Outras Despesas (R$)">
+                                    <label for="expense">Outras Despesas (R$)</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-floating my-2">
+                            <input type="text" class="form-control" id="obs" name="obs" value="{{old('obs')}}" placeholder="Observações"  maxlength="40">
+                            <label for="obs">Observações</label>
                         </div>
 
                         <div class="form-floating my-2">
@@ -238,7 +273,7 @@
                                     <option value="{{$tec->id}}">{{$tec->id}} - {{$tec->user->name}}</option>
                                 @endforeach
                             </select>
-                            <label for="firstTec">Técnico 02</label>
+                            <label for="secondTec">Técnico 02</label>
                         </div>
 
                         <button class="btn btn-info mb-2" id="pen2" href="#" class="signature-button" data-bs-toggle="modal" data-bs-target="#signature2Modal"><i class="fa fa-pencil" aria-hidden="true"></i>Assinar
@@ -261,6 +296,46 @@
                                     <div class="modal-footer">
                                     <a id="okSign2" href="#" class="signature-button" data-bs-dismiss="modal"><i class="fa fa-check" aria-hidden="true"></i>Ok </a>
                                     <a id="clear2" href="#" class="signature-button"><i class="fa fa-eraser" aria-hidden="true"></i>Apagar </a>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-floating my-2">
+                            <input type="text" name="cl_name" class="form-control" id="clName" value="{{old('cl_name')}}" placeholder="Cliente" maxlength="40">
+                            <label for="clName">Cliente:</label>
+                        </div>
+
+                        <div class="form-floating my-2">
+                            <input type="text" name="cl_function" class="form-control" id="clFunction" value="{{old('cl_function')}}" placeholder="Função" maxlength="40">
+                            <label for="clFunction">Função:</label>
+                        </div>
+
+                        <div class="form-floating my-2">
+                            <input type="text" name="cl_contact" class="form-control" id="clContact" value="{{old('cl_contact')}}" placeholder="Contato" maxlength="40">
+                            <label for="clContact">Contato:</label>
+                        </div>
+
+                        <button class="btn btn-info mb-2" id="pen3" href="#" class="signature-button" data-bs-toggle="modal" data-bs-target="#signature3Modal"><i class="fa fa-pencil" aria-hidden="true"></i>Assinatura do Cliente
+                        </button>
+
+                        <!-- Modal signature 03-->
+                        <div class="modal fade" id="signature3Modal" tabindex="-1" aria-labelledby="signature3ModalLabel" aria-hidden="true">
+                            <div class="modal-dialog modal-dialog-centered">
+                                <div class="modal-content">
+                                    <div class="modal-header">
+                                    <h5 class="modal-title" id="signature3ModalLabel">Assinatura do Cliente</h5>
+                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                    </div>
+                                    
+                                    <div class="modal-body signature">
+                                        <canvas height="200" width="320" class="signature-pad" id="canv3" aria-placeholder="assine aqui"></canvas>
+                                        <input type="hidden" name="cl_sign" id="idSignCl">
+                                    </div>
+
+                                    <div class="modal-footer">
+                                    <a id="okSign3" href="#" class="signature-button" data-bs-dismiss="modal"><i class="fa fa-check" aria-hidden="true"></i>Ok </a>
+                                    <a id="clear3" href="#" class="signature-button"><i class="fa fa-eraser" aria-hidden="true"></i>Apagar </a>
                                     </div>
                                 </div>
                             </div>
@@ -289,6 +364,7 @@
                     </form>
                     <script src="{{asset('assets/js/signature.js')}}"></script>
                     <script src="{{asset('assets/js/signature2.js')}}"></script>
+                    <script src="{{asset('assets/js/signature3.js')}}"></script>
                 </main>
             </div>
         </div>

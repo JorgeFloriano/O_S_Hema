@@ -27,6 +27,11 @@ return new class extends Migration
             $table->time('end');
             $table->time('back_start');
             $table->time('back_end');
+            $table->float('food', 8, 2)->default(0);
+            $table->float('km_start', 8, 2)->default(0);
+            $table->float('km_end', 8, 2)->default(0);
+            $table->float('expense', 8, 2)->default(0);
+            $table->string('obs')->nullable();
             $table->timestamps();
         });
     }

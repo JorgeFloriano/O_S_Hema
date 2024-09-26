@@ -11,7 +11,7 @@
                 </div>
                 @endif
                 <div id="header" class="my-2">
-                    <h2>Gerenciar Técnicos de plantão</h2>
+                    <h2>Gerenciar Colaboradores de Sobreaviso</h2>
                 </div>
                 <hr>
 
@@ -26,7 +26,7 @@
                                 <th>Nº</th>
                                 <th>Nome</th>
                                 <th>Função</th>
-                                <th>Plantão</th>
+                                <th>Gerenciar</th>
                             </tr>
                         </thead>
 

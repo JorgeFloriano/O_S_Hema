@@ -22,6 +22,6 @@
     </div>
 
     <div class="LastInfoLine" style="height: 100px">
-        <div class="InfoFirstCollum"><strong>Serviços Realizados: </strong>{{$order->notes[0]->services ?? ''}}</div>
+        <div class="InfoFirstCollum" style="overflow: initial"><strong>Serviços Realizados: </strong>{{$order->notes[0]->services ?? ''}}</div>
     </div>
 </div>

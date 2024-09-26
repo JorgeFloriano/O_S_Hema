@@ -23,6 +23,11 @@ class Order extends Model
         'req_date',
         'req_time',
         'req_descr',
+        'cl_name',
+        'cl_function',
+        'cl_contact',
+        'cl_date',
+        'cl_sign',
     ];
 
     protected $table = "orders";
