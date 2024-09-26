@@ -8,7 +8,7 @@ window.onload = function(){
             margin:        0,
             filename:     name+'.pdf',
             image:        { type: 'jpeg'},
-            html2canvas: { scale: 3, y: 0,  scrollY: 0},
+            html2canvas: { scale: 3, y: 0, scrollY: 0},
             jsPDF:        { format: 'A4', orientation: 'portrait' }
           };
         html2pdf().from(order).set(opt).save();

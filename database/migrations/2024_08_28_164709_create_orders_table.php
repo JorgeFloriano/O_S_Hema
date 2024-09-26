@@ -24,6 +24,11 @@ return new class extends Migration
             $table->date('req_date')->useCurrent();
             $table->time('req_time')->useCurrent();
             $table->text('req_descr');
+            $table->string('cl_name', 50)->nullable();
+            $table->string('cl_function', 50)->nullable();
+            $table->string('cl_contact', 50)->nullable();
+            $table->date('cl_date')->nullable();
+            $table->text('cl_sign')->nullable();
             $table->timestamps();
         });
     }

@@ -18,5 +18,6 @@
     
     @include('o_s_parts/tec_note')
 
+    @include('o_s_parts/client_sign')
 
 @endsection

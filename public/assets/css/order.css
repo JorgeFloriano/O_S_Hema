@@ -9,10 +9,11 @@ gelo #EFEEEC
 */
 
 :root {
-  --blue1: #dbeaf3;
+  --blue1: #e2eaee;
   --blue2: rgb(105, 111, 196);
   --gray1: rgb(198, 194, 194);
   --gray2: rgb(241, 234, 234);
+  --width: 760px;
   /*--inputBorder:1px solid #86b7fe;
   --focusBoxShadow: 0 0 0 .25rem rgba(13,110,253,.25);*/
 }
@@ -29,7 +30,7 @@ body, html {
 }
 
 section#print {
-  margin: 10px 15px;
+  margin: 10px;
   width:770px;
   margin: auto;
   padding:10px;
@@ -51,7 +52,7 @@ div#header2 {
   text-align: center;
   font-weight: bold;
   font-size: 14px;
-  width: 320px;
+  width: 302px;
 }
 
 div#header3 {
@@ -105,6 +106,7 @@ div#Info {
 }
 
 .InfoFirstCollum {
+  overflow: hidden;
   padding: 0 6px 0 6px;
   float: left;
   height: 22px;
@@ -112,12 +114,14 @@ div#Info {
 }
 
 .InfoTitle {
+  overflow: hidden;
   padding: 0 6px 0 6px;
   text-align: center;
   height: 22px;
 }
 
 .InfoCollum {
+  overflow: hidden;
   padding: 0 6px 0 6px;
   float: left;
   height: 22px;
@@ -135,7 +139,7 @@ div#buttonGroup {
 }
 
 table {
-  font-size: 14px;
+  font-size: 15px;
   width: 100%;
   overflow:hidden;
   border-collapse:collapse;
@@ -169,11 +173,15 @@ table.z tr:nth-child(even){
 }
 
 table th {
+    overflow: hidden;
     background-color: var(--blue1);
     border-right:1px solid black;
     border-top: none;
+    border-bottom:1px solid black;
+
 }
 table td {
+  overflow: hidden;
   border-right:1px solid black;
   padding-left: 5px;
 }
@@ -183,11 +191,15 @@ tr {
 }
 
 .b-t {
+  overflow: hidden;
   border:1px solid black !important;
   border-radius: 6px;
   margin-bottom: 15px;
 }
 
-td < tr.hour {
-
+.b-half-table {
+  overflow: hidden;
+  border:1px solid black !important;
+  border-radius: 6px 6px 0px 0px;
+  margin-bottom: -1px;
 }

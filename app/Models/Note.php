@@ -26,6 +26,11 @@ class Note extends Model
         'end',
         'back_start',
         'back_end',
+        'food',
+        'km_start',
+        'km_end',
+        'expense',
+        'obs',
     ];
 
     protected $table = "notes";

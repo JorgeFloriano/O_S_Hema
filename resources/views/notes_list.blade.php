@@ -44,6 +44,7 @@
                                             <i class="fa fa-file-pdf-o"></i>
                                         </a>
                                     </td>
+                                    
                                     <td>
                                         <a class="btn btn-secondary btn-sm">
                                             <i class="fa fa-check-square-o"></i>
@@ -55,11 +56,20 @@
                                             <i class="fa fa-edit"></i>
                                         </a>
                                     </td>
-                                    <td>
-                                        <a href="{{route('orders.finish', ['order' => $order->id])}}" class="btn btn-primary btn-sm">
-                                            <i class="fa fa-check-square-o"></i>
-                                        </a>
-                                    </td>
+
+                                    @if ($order->notes->count() > 0)
+                                        <td>
+                                            <a href="{{route('orders.finish', ['order' => $order->id])}}" class="btn btn-primary btn-sm">
+                                                <i class="fa fa-check-square-o"></i>
+                                            </a>
+                                        </td>
+                                    @else
+                                        <td>
+                                            <a class="btn btn-secondary btn-sm">
+                                                <i class="fa fa-check-square-o"></i>
+                                            </a>
+                                        </td>
+                                    @endif
                                 @endif
                             </tr>
                         @endforeach

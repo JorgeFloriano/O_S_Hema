@@ -54,22 +54,22 @@
                         <input type="hidden" name="order_id" id="order_id" value="{{$note->order->id}}">
 
                         <div class="form-floating my-2">
-                            <input type="text" class="form-control" id="equipMod" name="equip_mod" value="{{$note->equip_mod}}">
+                            <input type="text" class="form-control" id="equipMod" name="equip_mod" maxlength="20" value="{{$note->equip_mod}}">
                             <label for="equipMod">Modelo do Equipamento</label>
                         </div>
 
                         <div class="form-floating my-2">
-                            <input type="text" class="form-control" id="equipId" name="equip_id" value="{{$note->equip_id}}">
+                            <input type="text" class="form-control" id="equipId" name="equip_id" maxlength="20" value="{{$note->equip_id}}">
                             <label for="equipId">Número de Série</label>
                         </div>
 
                         <div class="form-floating my-2">
-                            <input type="text" name="equip_type" class="form-control" id="equipType" value="{{$note->equip_type}}">
+                            <input type="text" name="equip_type" class="form-control" id="equipType" maxlength="20" value="{{$note->equip_type}}">
                             <label for="equipType">Tipo do Equipamento</label>
                         </div>
 
                         <div class="form-floating my-2">
-                            <textarea id="situation" name="situation" maxlength="80" class='autoExpand form-control' rows='1' data-min-rows='1'>{{$note->situation}}</textarea>
+                            <textarea id="situation" name="situation" maxlength="70" class='autoExpand form-control' rows='1' data-min-rows='1'>{{$note->situation}}</textarea>
                             <label for="situation">Descrição da situação encontrada</label>
                         </div>
 
@@ -118,7 +118,7 @@
                             </div>
                         </div>
 
-                        <div class="row g-2">
+                        <div class="row g-2 mb-2">
                             <div class="col">
                                 <div class="form-floating">
                                     <input type="time" class="form-control" id="backStart" name="back_start" value="{{$note->back_start}}">
@@ -131,6 +131,41 @@
                                     <label for="goStart">Chegada (Volta)</label>
                                 </div>
                             </div>
+                        </div>
+
+                        <div class="row g-2 mb-2">
+                            <div class="col">
+                                <div class="form-floating">
+                                    <input type="number" class="form-control" id="kmStart" step="0.01" required name="km_start" value="{{$note->km_start}}" placeholder="Km inicial">
+                                    <label for="kmStart">Km inicial</label>
+                                </div>
+                            </div>
+                            <div class="col">    
+                                <div class="form-floating">
+                                    <input type="number" class="form-control" id="kmEnd" step="0.01" required name="km_end" value="{{$note->km_end}}" placeholder="Km final">
+                                    <label for="kmEnd">Km final</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="row g-2">
+                            <div class="col">
+                                <div class="form-floating">
+                                    <input type="number" class="form-control" id="food" step="0.01" required name="food" value="{{$note->food}}" placeholder="Alimantação (R$)">
+                                    <label for="food">Alimantação (R$)</label>
+                                </div>
+                            </div>
+                            <div class="col"> 
+                                <div class="form-floating">
+                                    <input type="number" class="form-control" id="expense" step="0.01" required name="expense" value="{{$note->expense}}" placeholder="Outras Despesas (R$)">
+                                    <label for="expense">Outras Despesas (R$)</label>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="form-floating my-2">
+                            <input type="text" class="form-control" id="obs" name="obs" value="{{$note->obs}}" placeholder="Observações"  maxlength="40">
+                            <label for="obs">Observações</label>
                         </div>
 
                         <div class="form-floating my-2">
@@ -188,7 +223,7 @@
                                     @endif
                                 @endforeach
                             </select>
-                            <label for="tec_id">Técnico 02</label>
+                            <label for="secondTec">Técnico 02</label>
                         </div>
 
                         <button class="btn btn-info mb-2" id="pen2" href="#" class="signature-button" data-bs-toggle="modal" data-bs-target="#signature2Modal"><i class="fa fa-pencil" aria-hidden="true"></i>ASSINAR

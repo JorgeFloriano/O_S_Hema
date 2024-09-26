@@ -40,7 +40,7 @@
                         </div>
 
                         <div class="form-floating my-2">
-                            <input type="email" class="form-control" id="email" name="email" value="@hema.com" placeholder="E-mail" required>
+                            <input type="email" class="form-control" id="email" name="email" value="@hema.com.br" placeholder="E-mail" required>
                             <label for="email">E-mail</label>
                         </div>
 

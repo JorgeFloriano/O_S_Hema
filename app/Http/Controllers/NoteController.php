@@ -70,6 +70,10 @@ class NoteController extends Controller
             'end' => $request->input('end'),
             'back_start' => $request->input('back_start'),
             'back_end' => $request->input('back_end'),
+            'food' => $request->input('food'),
+            'km_start' => $request->input('km_start'),
+            'km_end' => $request->input('km_end'),
+            'expense' => $request->input('expense'),
             ]);
 
             if ($created_note) {
@@ -89,6 +93,12 @@ class NoteController extends Controller
             }
     
             $os = Order::find($request->input('order_id'));
+            $os->cl_name = $request->input('cl_name');
+            $os->cl_function = $request->input('cl_function');
+            $os->cl_contact = $request->input('cl_contact');
+            $os->cl_date = \Carbon\Carbon::now()->format('Y-m-d');
+            $os->cl_sign = $request->input('cl_sign');
+
             $os->finished = $request->input('finished');
             $updated_os = $os->save();
     
