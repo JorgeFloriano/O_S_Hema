@@ -1,7 +1,7 @@
 <div class="b-t">
     <table>
         <tr>
-            <th colspan="6" style="border-right: none">Apontamento de horas dos Técnicos - Data - {{date('d/m/Y',strtotime($order->notes[0]->date))}}</th>
+            <th colspan="6" style="border-right: none">Apontamento de horas dos Técnicos</th>
         </tr>
 
         <tr>
@@ -20,38 +20,38 @@
         </tr>
 
         <tr>
-            <td style="text-align: center; width: 16.6%">{{date('H:i',strtotime($order->notes[0]->go_start))}}</td>
-            <td style="text-align: center">{{date('H:i',strtotime($order->notes[0]->go_end))}}</td>
-            <td style="text-align: center">{{date('H:i',strtotime($order->notes[0]->start))}}</td>
-            <td style="text-align: center">{{date('H:i',strtotime($order->notes[0]->end))}}</td>
-            <td style="text-align: center">{{date('H:i',strtotime($order->notes[0]->back_start))}}</td>
-            <td style="text-align: center; border-right: none">{{date('H:i',strtotime($order->notes[0]->back_end))}}</td>
+            <td style="text-align: center; width: 16.6%">{{date('H:i',strtotime($note->go_start))}}</td>
+            <td style="text-align: center">{{date('H:i',strtotime($note->go_end))}}</td>
+            <td style="text-align: center">{{date('H:i',strtotime($note->start))}}</td>
+            <td style="text-align: center">{{date('H:i',strtotime($note->end))}}</td>
+            <td style="text-align: center">{{date('H:i',strtotime($note->back_start))}}</td>
+            <td style="text-align: center; border-right: none">{{date('H:i',strtotime($note->back_end))}}</td>
         </tr>
 
         <tr style="border-bottom: none">
             <th colspan="2">Técnico 01</th>
 
             <td style="width: 16.6%" rowspan="3">
-                <img src={{$order->notes[0]->tecs[0]->pivot->signature}} alt="" width="100%">
+                <img src={{$note->tecs[0]->pivot->signature}} alt="" width="100%">
             </td>
 
             <th colspan="2" style="width: 33.33%">Técnico 02</th>
 
             <td style="width: 16.6%; border-right: hidden" rowspan="3">
-                @if (isset($order->notes[0]->tecs[1]))
-                    <img src={{$order->notes[0]->tecs[1]->pivot->signature ?? ''}} alt="" width="100%">
+                @if (isset($note->tecs[1]))
+                    <img src={{$note->tecs[1]->pivot->signature ?? ''}} alt="" width="100%">
                 @endif
             </td>
         </tr>
 
         <tr style="border-bottom: none">
-            <td style="width: 33.3%;border-bottom:1px solid black;" colspan="2">Nome: {{$order->notes[0]->tecs[0]->user->name}}</td>
-            <td style="width: 33.3%;border-bottom:1px solid black;" colspan="2">Nome: {{$order->notes[0]->tecs[1]->user->name ?? '--------------------------------------------'}}</td>
+            <td style="width: 33.3%;border-bottom:1px solid black;" colspan="2">Nome: {{$note->tecs[0]->user->name}}</td>
+            <td style="width: 33.3%;border-bottom:1px solid black;" colspan="2">Nome: {{$note->tecs[1]->user->name ?? '--------------------------------------'}}</td>
         </tr>
         
         <tr style="border-bottom: none">
-            <td colspan="2">Função: {{$order->notes[0]->tecs[0]->user->function}}</td>
-            <td colspan="2">Função: {{$order->notes[0]->tecs[1]->user->function ?? '------------------------------------------'}}</td>
+            <td colspan="2">Função: {{$note->tecs[0]->user->function}}</td>
+            <td colspan="2">Função: {{$note->tecs[1]->user->function ?? '-------------------------------------'}}</td>
         </tr>
     </table>
 </div>

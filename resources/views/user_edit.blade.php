@@ -35,17 +35,17 @@
                         <input type="hidden" name="_method" id="idNum" value="PUT">
                         
                         <div class="form-floating my-2">
-                            <input type="text" class="form-control" id="name" name="name" value="{{$user->name}}" placeholder="Nome" required>
+                            <input type="text" class="form-control" maxlength="20" id="name" name="name" value="{{$user->name}}" placeholder="Nome" required>
                             <label for="name">Nome</label>
                         </div>
 
                         <div class="form-floating my-2">
-                            <input type="text" class="form-control" id="surname" name="surname" value="{{$user->surname}}" placeholder="Sobrenome">
+                            <input type="text" class="form-control" maxlength="20" id="surname" name="surname" value="{{$user->surname}}" placeholder="Sobrenome">
                             <label for="surname">Sobrenome</label>
                         </div>
 
                         <div class="form-floating my-2">
-                            <input type="text" class="form-control" id="function" name="function" value="{{$user->function}}" placeholder="Função" required>
+                            <input type="text" class="form-control" maxlength="20" id="function" name="function" value="{{$user->function}}" placeholder="Função" required>
                             <label for="function">Função</label>
                         </div>
 
@@ -75,6 +75,13 @@
                             <input class="form-check-input" type="checkbox" value="1" name="adm" {{$adm_checked}} id="adm">
                             <label class="form-check-label" for="adm">
                                 Acesso de Administrador
+                            </label>
+                        </div>
+
+                        <div class="form-check">
+                            <input class="form-check-input" type="checkbox" value="1" name="sup" {{$sup_checked}} id="sup">
+                            <label class="form-check-label" for="sup">
+                                Acesso de Supervisor
                             </label>
                         </div>
 

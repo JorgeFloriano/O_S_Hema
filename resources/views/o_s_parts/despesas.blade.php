@@ -12,14 +12,14 @@
         </tr>
 
         <tr style="border-bottom: none">
-            <td style="text-align: center">120.0</td>
-            <td style="text-align: center">50</td>
-            <td style="text-align: center">50</td>
-            <td style="text-align: center; border-right: none;">00</td>
+            <td style="text-align: center">{{$note->food ?? '00'}}</td>
+            <td style="text-align: center">{{$note->km_start ?? '00'}}</td>
+            <td style="text-align: center">{{$note->km_end ?? '00'}}</td>
+            <td style="text-align: center; border-right: none;">{{$note->expense ?? '00'}}</td>
         </tr>
     </table>
 </div>
 
 <div class="LastInfoLine" style="height: 50px; margin-bottom: 15px">
-    <div class="InfoFirstCollum" style="overflow: initial"><strong>Observações: </strong>{{$order->notes[0]->obs ?? ''}}</div>
+    <div class="InfoFirstCollum" style="overflow: initial"><strong>Observações: </strong>{{$note->obs ?? ''}}</div>
 </div>

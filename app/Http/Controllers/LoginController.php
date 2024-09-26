@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\Adm;
 use App\Models\NoteTec;
+use App\Models\Sup;
 use App\Models\Tec;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -22,41 +23,6 @@ class LoginController extends Controller
         // $user->save();
         // echo 'user saved';
 
-        // $user2 = new User();
-        // $user2->name = 'Janete Moura';
-        // $user2->function = 'Téc. Admin';
-        // $user2->email = 'janetemoura@hema.com.br';
-        // $user2->password = Hash::make('janetem0ura123');
-        // $user2->save();
-
-        // $user3 = new User();
-        // $user3->name = 'Mary Jane';
-        // $user3->function = 'Téc. Admin';
-        // $user3->email = 'maryjane@hema.com.br';
-        // $user3->password = Hash::make('maryjane123');
-        // $user3->save();
-
-        // $user4 = new User();
-        // $user4->name = 'Mário Bros';
-        // $user4->function = 'Téc. Eletrônico';
-        // $user4->email = 'mariobros@hema.com.br';
-        // $user4->password = Hash::make('mari0br0s123');
-        // $user4->save();
-
-        // $user5 = new User();
-        // $user5->name = 'Joel Muller';
-        // $user5->function = 'Téc. Mecatrônica';
-        // $user5->email = 'joelmuller@hema.com.br';
-        // $user5->password = Hash::make('j0elmuller123');
-        // $user5->save();
-
-        // $user6 = new User();
-        // $user6->name = 'Peeter Parker';
-        // $user6->function = 'Téc. Mêcanico';
-        // $user6->email = 'peeterparker@hema.com.br';
-        // $user6->password = Hash::make('peeterparker123');
-        // $user6->save();
-
         // echo 'user saved';
 
         // $c_u2 = new Adm();
@@ -64,30 +30,14 @@ class LoginController extends Controller
         // $c_u2->main = 0;
         // $c_u2->save();
 
+        // $c_u2 = new Sup();
+        // $c_u2->user_id = 1;
+        // $c_u2->save();
+
         // $c_u2 = new NoteTec();
         // $c_u2->note_id = 2;
         // $c_u2->tec_id = 3;
         // $c_u2->save();
-
-        // $c_u2 = new NoteTec();
-        // $c_u2->note_id = 3;
-        // $c_u2->tec_id = 4;
-        // $c_u2->save();
-
-        // $c_u2 = new NoteTec();
-        // $c_u2->note_id = 6;
-        // $c_u2->tec_id = 2;
-        // $c_u2->save();
-
-        // $c_u2 = new NoteTec();
-        // $c_u2->note_id = 13;
-        // $c_u2->tec_id = 1;
-        // $c_u2->save();
-
-        $c_u2 = new NoteTec();
-        $c_u2->note_id = 4;
-        $c_u2->tec_id = 4;
-        $c_u2->save();
 
     }
 
@@ -109,6 +59,12 @@ class LoginController extends Controller
 
             if ($tec) {
                 return redirect()->route('notes.index');
+            }
+
+            $sup = auth()->user()->sup()->first();
+
+            if ($sup) {
+                return redirect()->route('tec_on');
             }
         }
         return view('login');
@@ -153,9 +109,18 @@ class LoginController extends Controller
             ]);
         }
 
+        $sup = auth()->user()->sup()->first();
+
+        if ($sup) {
+            return redirect()->route('tec_on')->with([
+                'success'=>'Olá',
+            ]);
+        }
+        
         if (!isset($user_cat->id)) {
             return redirect()->route('login.index')->withErrors(['error' => 'Credenciais inválidas']);
         }
+
     }
 
     public function destroy()

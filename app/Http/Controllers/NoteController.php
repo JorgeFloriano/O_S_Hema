@@ -74,6 +74,7 @@ class NoteController extends Controller
             'km_start' => $request->input('km_start'),
             'km_end' => $request->input('km_end'),
             'expense' => $request->input('expense'),
+            'obs' => $request->input('obs'),
             ]);
 
             if ($created_note) {

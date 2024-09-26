@@ -26,7 +26,7 @@
                                 <th>Nº</th>
                                 <th>Nome</th>
                                 <th>Função</th>
-                                <th>Gerenciar</th>
+                                <th>S/N</th>
                             </tr>
                         </thead>
 

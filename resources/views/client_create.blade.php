@@ -18,42 +18,42 @@
                         @csrf
                         
                         <div class="form-floating my-2">
-                            <input type="text" class="form-control" id="name" name="name" placeholder="Nome da Empresa" required>
+                            <input type="text" class="form-control" id="name" name="name" maxlength="20" placeholder="Nome da Empresa" required>
                             <label for="name">Nome da Empresa</label>
                         </div>
 
                         <div class="form-floating my-2">
-                            <input type="text" class="form-control" id="cnpj_cpf" name="cnpj_cpf" placeholder="CNPJ">
+                            <input type="text" class="form-control" id="cnpj_cpf" name="cnpj_cpf" maxlength="40" placeholder="CNPJ">
                             <label for="cnpj_cpf">CNPJ</label>
                         </div>
-
+ 
                         <div class="form-floating my-2">
-                            <input onchange="getAddress()" type="text" class="form-control" id="cep" name="cep" placeholder="CEP (preenche o endereço automáticamente)">
+                            <input onchange="getAddress()" type="text" class="form-control" id="cep" name="cep" maxlength="20" placeholder="CEP (preenche o endereço automáticamente)">
                             <label for="cep">CEP (auto-preenche o endereço)</label>
                         </div>
 
                         <div class="form-floating my-2">
-                            <input type="text" class="form-control" id="unit" name="unit" placeholder="Unidade">
+                            <input type="text" class="form-control" id="unit" name="unit" maxlength="20" placeholder="Unidade">
                             <label for="unit">Unidade</label>
                         </div>
 
                         <div class="form-floating my-2">
-                            <input type="text" class="form-control" id="address" name="address" placeholder="Endereço" required>
+                            <input type="text" class="form-control" id="address" name="address" maxlength="80" placeholder="Endereço" required>
                             <label for="address">Endereço</label>
                         </div>
 
                         <div class="form-floating my-2">
-                            <input type="email" class="form-control" id="email" name="email" placeholder="E-mail">
+                            <input type="email" class="form-control" id="email" name="email" maxlength="50" placeholder="E-mail">
                             <label for="email">E-mail</label>
                         </div>
 
                         <div class="form-floating my-2">
-                            <input type="text" class="form-control" id="phone" name="phone" placeholder="Telefone" required>
+                            <input type="text" class="form-control" id="phone" name="phone" maxlength="20" placeholder="Telefone" required>
                             <label for="phone">Telefone</label>
                         </div>
                         
                         <div class="form-floating my-2">
-                            <input type="text" class="form-control" id="contact" name="contact" placeholder="Nome do Contato" required>
+                            <input type="text" class="form-control" id="contact" name="contact" maxlength="20" placeholder="Nome do Contato" required>
                             <label for="contact">Nome do Contato</label>
                         </div>
 

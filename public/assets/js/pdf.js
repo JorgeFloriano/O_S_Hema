@@ -9,7 +9,8 @@ window.onload = function(){
             filename:     name+'.pdf',
             image:        { type: 'jpeg'},
             html2canvas: { scale: 3, y: 0, scrollY: 0},
-            jsPDF:        { format: 'A4', orientation: 'portrait' }
+            jsPDF:        { format: 'A4', orientation: 'portrait' },
+            pagebreak: { before: '.page-break' }
           };
         html2pdf().from(order).set(opt).save();
     })
