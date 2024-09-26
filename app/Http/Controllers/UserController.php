@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Adm;
+use App\Models\Sup;
 use App\Models\Tec;
 use App\Models\User;
 use Illuminate\Http\Request;
@@ -80,7 +81,7 @@ class UserController extends Controller
             'password.min' => 'Digite uma senha com pelo menos 5 caracteres',
         ]);
 
-        if (!$request->adm && !$request->tec) {
+        if (!$request->adm && !$request->tec && !$request->sup) {
             return redirect()->back()->with('message', 'Selecione um acesso para o usuário.');
         }
 
@@ -102,6 +103,12 @@ class UserController extends Controller
             $adm_cr = Adm::create([
                 'user_id' => $user_cr->id,
                 'main' => 0,
+            ]);
+        }
+
+        if ($request->sup && $user_cr) {
+            $sup_cr = Sup::create([
+                'user_id' => $user_cr->id,
             ]);
         }
 
@@ -142,10 +149,16 @@ class UserController extends Controller
             $adm_checked = 'checked';
         }
 
+        $sup_checked = '';
+        if (isset($user->sup)) {
+            $sup_checked = 'checked';
+        }
+
         return view('user_edit', [
             'user' => $user,
             'adm_checked' => $adm_checked,
             'tec_checked' => $tec_checked,
+            'sup_checked' => $sup_checked
         ]);
     }
 
@@ -154,13 +167,15 @@ class UserController extends Controller
      */
     public function update(Request $request, string $id)
     {
-        $request->validate([
-            'email' => 'email',
-            'password' => 'min:5'
-        ], [
-            'email.email' => 'Digite um e-mail válido',
-            'password.min' => 'Digite uma senha com pelo menos 5 caracteres',
-        ]);
+        if ($request->input('password')) {
+            $request->validate([
+                'email' => 'email',
+                'password' => 'min:5'
+            ], [
+                'email.email' => 'Digite um e-mail válido',
+                'password.min' => 'Digite uma senha com pelo menos 5 caracteres',
+            ]);
+        }
         
         $updated = $this->user->where('id', $id)->update($request->except([
             '_token',
@@ -168,14 +183,15 @@ class UserController extends Controller
             'password',
             'confirm_pass',
             'tec',
-            'adm'
+            'adm',
+            'sup'
         ]));
 
         if (!$updated) {
             return redirect()->back()->with('message', 'Erro ao atualizar cadastro de usuário.');
         }
 
-        if (!$request->input('tec') && !$request->input('adm')) {
+        if (!$request->input('tec') && !$request->input('adm') && !$request->input('sup')) {
             return redirect()->back()->with('message', 'O usuário deve ter pelo menos um acesso.');
         }
 
@@ -228,7 +244,25 @@ class UserController extends Controller
             if (!$adm_dl) {
                 return redirect()->back()->with('message', 'Erro ao remover acesso de administrador.'); 
             }
-        } 
+        }
+
+        if ($request->input('sup') && !isset(User::where('id', $id)->first()->sup)) {
+            $sup_cr = Sup::create([
+                'user_id' => $id
+            ]);
+
+            if (!$sup_cr) {
+                return redirect()->back()->with('message', 'Erro ao liberar acesso de supervisor.'); 
+            }
+        }
+
+        if (!$request->input('sup') && isset(User::where('id', $id)->first()->sup)) {
+            $sup_dl = Sup::where('user_id', $id)->delete();
+
+            if (!$sup_dl) {
+                return redirect()->back()->with('message', 'Erro ao remover acesso de supervisor.'); 
+            }
+        }
 
         return redirect()->back()->with('message', 'Cadastro atualizado com sucesso.');
     }
@@ -245,6 +279,10 @@ class UserController extends Controller
 
         if (Tec::where('user_id', $id)->get()) {
             Tec::where('user_id', $id)->delete();
+        }
+
+        if (Sup::where('user_id', $id)->get()) {
+            Sup::where('user_id', $id)->delete();
         }
 
         $deleted = $this->user->where('id', $id)->delete();

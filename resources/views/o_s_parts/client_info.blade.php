@@ -10,7 +10,7 @@
     </div>
 
     <div class="InfoLine">
-        <div class="InfoFirstCollum" style="width: 50%"><strong>Contato: </strong>{{$order->client->contact}}</div>
+        <div class="InfoFirstCollum" style="width: 50%"><strong>Contato: </strong>{{$order->req_name}}</div>
         <div class="InfoCollum"><strong>Setor: </strong>{{$order->sector}}</div>
     </div>
 

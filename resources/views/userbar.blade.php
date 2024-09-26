@@ -48,13 +48,6 @@
                     @endif
 
                     <li>
-                        <a class="dropdown-item btn-lg" href="{{route('tec_on')}}">
-                            <i class="fa fa-wrench" aria-hidden="true"></i></i>
-                            Plantonistas
-                        </a>
-                    </li>
-
-                    <li>
                         <a class="dropdown-item btn-lg" href="{{route('orders.index')}}">
                             <i class="fa fa-file-text" aria-hidden="true"></i>
                             Ordens
@@ -63,7 +56,21 @@
                 @endif
 
                 @if (auth()->user()->tec()->first())
-                    <li><a class="dropdown-item btn-lg" href="{{route('notes.index')}}"><i class="fa fa-list-ol" aria-hidden="true"></i></i>Programação</a></li> 
+                    <li>
+                        <a class="dropdown-item btn-lg" href="{{route('notes.index')}}">
+                            <i class="fa fa-list-ol" aria-hidden="true"></i>
+                            Programação
+                        </a>
+                    </li> 
+                @endif
+
+                @if (auth()->user()->sup()->first())
+                    <li>
+                        <a class="dropdown-item btn-lg" href="{{route('tec_on')}}">
+                            <i class="fa fa-wrench" aria-hidden="true"></i></i>
+                            Sobreaviso
+                        </a>
+                    </li>
                 @endif
 
                 <li>

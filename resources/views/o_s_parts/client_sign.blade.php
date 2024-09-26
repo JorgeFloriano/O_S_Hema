@@ -1,4 +1,4 @@
-<div class="b-t">
+<div class="clientSign b-t">
     <table>
         <tr>
             <th colspan="3" style="border-right: none">Cliente</th>
