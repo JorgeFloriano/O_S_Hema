@@ -45,20 +45,6 @@
                         </div>
 
                         <div class="form-floating my-2">
-                            <select class="form-select" id="tec_id" name="tec_id" aria-label="Floating label select example">
-                                @if (isset(auth()->user()->tec))
-                                    <option selected value="{{auth()->user()->tec->id}}">{{auth()->user()->tec->id}} - {{auth()->user()->name}}</option>
-                                @else
-                                    <option selected value="0">Selecione o Técnico</option>
-                                    @foreach ($tecs as $tec)
-                                        <option value="{{$tec->id}}">{{$tec->id}} - {{$tec->user->name}}</option>
-                                    @endforeach
-                                @endif
-                            </select>
-                            <label for="tec_id">Técnico</label>
-                        </div>
-
-                        <div class="form-floating my-2">
                             <input type="date" class="form-control" id="req_date" name="req_date" placeholder="Data do Acionamento" value="{{\Carbon\Carbon::now()->format('Y-m-d')}}">
                             <label for="req_date">Data do Acionamento</label>
                         </div>

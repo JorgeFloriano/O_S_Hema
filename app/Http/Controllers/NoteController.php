@@ -13,15 +13,21 @@ class NoteController extends Controller
 {
     public readonly Note $note;
     private $empit_sign;
+    public $t; // user is tec or not
 
     public function __construct()
     {
+        $this->t = auth()->user()->tec()->first();
         $this->note = new Note();
         $this->empit_sign = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAUAAAADICAYAAACZBDirAAAAAXNSR0IArs4c6QAABc5JREFUeF7t1AERAAAIAjHpX9ogPxswPHaOAAECUYFFc4tNgACBM4CegACBrIABzFYvOAECBtAPECCQFTCA2eoFJ0DAAPoBAgSyAgYwW73gBAgYQD9AgEBWwABmqxecAAED6AcIEMgKGMBs9YITIGAA/QABAlkBA5itXnACBAygHyBAICtgALPVC06AgAH0AwQIZAUMYLZ6wQkQMIB+gACBrIABzFYvOAECBtAPECCQFTCA2eoFJ0DAAPoBAgSyAgYwW73gBAgYQD9AgEBWwABmqxecAAED6AcIEMgKGMBs9YITIGAA/QABAlkBA5itXnACBAygHyBAICtgALPVC06AgAH0AwQIZAUMYLZ6wQkQMIB+gACBrIABzFYvOAECBtAPECCQFTCA2eoFJ0DAAPoBAgSyAgYwW73gBAgYQD9AgEBWwABmqxecAAED6AcIEMgKGMBs9YITIGAA/QABAlkBA5itXnACBAygHyBAICtgALPVC06AgAH0AwQIZAUMYLZ6wQkQMIB+gACBrIABzFYvOAECBtAPECCQFTCA2eoFJ0DAAPoBAgSyAgYwW73gBAgYQD9AgEBWwABmqxecAAED6AcIEMgKGMBs9YITIGAA/QABAlkBA5itXnACBAygHyBAICtgALPVC06AgAH0AwQIZAUMYLZ6wQkQMIB+gACBrIABzFYvOAECBtAPECCQFTCA2eoFJ0DAAPoBAgSyAgYwW73gBAgYQD9AgEBWwABmqxecAAED6AcIEMgKGMBs9YITIGAA/QABAlkBA5itXnACBAygHyBAICtgALPVC06AgAH0AwQIZAUMYLZ6wQkQMIB+gACBrIABzFYvOAECBtAPECCQFTCA2eoFJ0DAAPoBAgSyAgYwW73gBAgYQD9AgEBWwABmqxecAAED6AcIEMgKGMBs9YITIGAA/QABAlkBA5itXnACBAygHyBAICtgALPVC06AgAH0AwQIZAUMYLZ6wQkQMIB+gACBrIABzFYvOAECBtAPECCQFTCA2eoFJ0DAAPoBAgSyAgYwW73gBAgYQD9AgEBWwABmqxecAAED6AcIEMgKGMBs9YITIGAA/QABAlkBA5itXnACBAygHyBAICtgALPVC06AgAH0AwQIZAUMYLZ6wQkQMIB+gACBrIABzFYvOAECBtAPECCQFTCA2eoFJ0DAAPoBAgSyAgYwW73gBAgYQD9AgEBWwABmqxecAAED6AcIEMgKGMBs9YITIGAA/QABAlkBA5itXnACBAygHyBAICtgALPVC06AgAH0AwQIZAUMYLZ6wQkQMIB+gACBrIABzFYvOAECBtAPECCQFTCA2eoFJ0DAAPoBAgSyAgYwW73gBAgYQD9AgEBWwABmqxecAAED6AcIEMgKGMBs9YITIGAA/QABAlkBA5itXnACBAygHyBAICtgALPVC06AgAH0AwQIZAUMYLZ6wQkQMIB+gACBrIABzFYvOAECBtAPECCQFTCA2eoFJ0DAAPoBAgSyAgYwW73gBAgYQD9AgEBWwABmqxecAAED6AcIEMgKGMBs9YITIGAA/QABAlkBA5itXnACBAygHyBAICtgALPVC06AgAH0AwQIZAUMYLZ6wQkQMIB+gACBrIABzFYvOAECBtAPECCQFTCA2eoFJ0DAAPoBAgSyAgYwW73gBAgYQD9AgEBWwABmqxecAAED6AcIEMgKGMBs9YITIGAA/QABAlkBA5itXnACBAygHyBAICtgALPVC06AgAH0AwQIZAUMYLZ6wQkQMIB+gACBrIABzFYvOAECBtAPECCQFTCA2eoFJ0DAAPoBAgSyAgYwW73gBAgYQD9AgEBWwABmqxecAAED6AcIEMgKGMBs9YITIGAA/QABAlkBA5itXnACBAygHyBAICtgALPVC06AgAH0AwQIZAUMYLZ6wQkQMIB+gACBrIABzFYvOAECBtAPECCQFTCA2eoFJ0DAAPoBAgSyAgYwW73gBAg84oAAyUjb8HgAAAAASUVORK5CYII=';
     }
 
     public function index()
     {
+        if (!$this->t) {
+            return view('login');
+        }
+
         $orders = Order::select('id', 'client_id','req_date', 'finished')->where('tec_id', auth()->user()->tec->id)->get();
 
         return view('notes_list' , ['orders' => $orders]);
@@ -32,6 +38,9 @@ class NoteController extends Controller
      */
     public function create(Order $order)
     {
+        if (!$this->t) {
+            return view('login');
+        }
 
         $tecs = Tec::all();
 
@@ -46,6 +55,10 @@ class NoteController extends Controller
      */
     public function store(Request $request)
     {
+        if (!$this->t) {
+            return view('login');
+        }
+
         if (!isset($request->sign_t_1) || $request->sign_t_1 == $this->empit_sign) {
             return redirect()->back()->with('message', 'Informações não podem ser salvas sem assinatura de um Técnico.');
         }
@@ -117,6 +130,7 @@ class NoteController extends Controller
      */
     public function show(Note $note)
     {
+
         $note->first_tec = Note::find($note->id)->tecs[0];
 
         if (isset(Note::find($note->id)->tecs[1])) {
@@ -124,8 +138,12 @@ class NoteController extends Controller
         }
 
         $msg = 'Deletar';
-        if (auth()->user()->tec->id != $note->first_tec->id) {
+        if (!isset(auth()->user()->tec)) {
             $msg = 'Informações do';
+        } else {
+            if (auth()->user()->tec->id != $note->first_tec->id) {
+                $msg = 'Informações do';
+            }
         }
 
         return view('note_delete', [
@@ -139,7 +157,6 @@ class NoteController extends Controller
      */
     public function edit(Note $note)
     {
-        
         $note->first_tec = Note::find($note->id)->tecs[0];
 
         if (isset(Note::find($note->id)->tecs[1])) {
@@ -159,6 +176,9 @@ class NoteController extends Controller
      */
     public function update(Request $request, string $id)
     {      
+        if (!$this->t) {
+            return view('login');
+        }
 
         $note_tec1 = NoteTec::where('note_id', $id)->get()[0];
         $note_tec1->signature = $request->sign_t_1;
@@ -208,6 +228,10 @@ class NoteController extends Controller
 
     public function destroy(Note $note): RedirectResponse
     {
+        if (!$this->t) {
+            return view('login');
+        }
+
         $firstTec = $note->tecs->first();
 
         if (auth()->user()->tec->id === $firstTec->id) {

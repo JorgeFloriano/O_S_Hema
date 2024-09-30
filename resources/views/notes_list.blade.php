@@ -16,10 +16,12 @@
                     <h2>Programação</h2>
                 </div>
                 <hr>
+
                 @if (auth()->user()->tec->on_call)
                     <a href="{{route('orders.create')}}" class="btn btn-primary">Gerar O.S.</a>
-                <hr>
+                    <hr>
                 @endif
+                
                 <table class="table table-striped">
                     <thead class="table-dark">
                         <tr>
@@ -46,7 +48,7 @@
                                     </td>
                                     
                                     <td>
-                                        <a class="btn btn-secondary btn-sm">
+                                        <a class="btn btn-secondary btn-sm disabled">
                                             <i class="fa fa-check-square-o"></i>
                                         </a>
                                     </td>
@@ -65,7 +67,7 @@
                                         </td>
                                     @else
                                         <td>
-                                            <a class="btn btn-secondary btn-sm">
+                                            <a class="btn btn-secondary btn-sm disabled">
                                                 <i class="fa fa-check-square-o"></i>
                                             </a>
                                         </td>

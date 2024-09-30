@@ -30,6 +30,8 @@ Route::resource('users', UserController::class);
 Route::get('/tec_on', [UserController::class, 'tec_on'])->name('tec_on');
 Route::put('/tec_on_update', [UserController::class, 'tec_on_update'])->name('tec_on_update');
 
+Route::put('/ord_tec_update', [OrderController::class, 'ord_tec_update'])->name('ord_tec_update');
+
 Route::get('/notes', [NoteController::class, 'index'])->name('notes.index');
 Route::get('/notes/{order}/create', [NoteController::class, 'create'])->name('notes.create');
 Route::post('/notes', [NoteController::class, 'store'])->name('notes.store');

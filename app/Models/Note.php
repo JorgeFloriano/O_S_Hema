@@ -6,10 +6,12 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Note extends Model
 {
     use HasFactory;
+    use SoftDeletes;
 
     protected $fillable = [
         'order_id',
@@ -43,7 +45,7 @@ class Note extends Model
 
     public function tecs(): BelongsToMany
     {
-        return $this->belongsToMany(Tec::class)->withPivot('signature')->withTimestamps();
+        return $this->belongsToMany(Tec::class)->withPivot('signature')->withTimestamps()->withTrashed();
     }
 
 }

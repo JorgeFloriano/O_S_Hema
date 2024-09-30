@@ -42,7 +42,7 @@
                         <div class="border-top border-dark p-1"><strong>Equipamento: </strong>{{$order->equipment ?? ''}}</div>
                     </div>
 
-                    @if(count($order->notes) !== 0)
+                    @if(count($order->notes) > 0)
                         <!-- Button trigger modal -->
                         <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#exampleModal">
                             Mostrar serviços anteriores

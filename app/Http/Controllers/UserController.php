@@ -12,14 +12,24 @@ use Illuminate\Support\Facades\Hash;
 class UserController extends Controller
 {
     public readonly User $user;
-
+    public $m; // user is adm main or not
+    public $s; // user is supervisor or not
+    
     public function __construct()
     {
         $this->user = new User();
+        if (isset(auth()->user()->adm)) {   
+            $this->m = auth()->user()->adm()->first()->main;
+        }
+        $this->s = auth()->user()->sup()->first();
     }
     
     public function index()
     {
+        if (!$this->m) {
+            return view('login');
+        }
+
         $users = $this->user->select('id', 'name','function')->get();
 
         return view('users_list' , ['users' => $users]);
@@ -27,6 +37,10 @@ class UserController extends Controller
 
     public function tec_on()
     {
+        if (!$this->m && !$this->s) {
+            return view('login');
+        }
+
         $tecs = Tec::all();
 
         session()->put('tecs', $tecs);
@@ -38,6 +52,10 @@ class UserController extends Controller
 
     public function tec_on_update(Request $request)
     {
+        if (!$this->m && !$this->s) {
+            return view('login');
+        }
+
         $tecs = session('tecs');
 
         foreach ($tecs as  $tec) {
@@ -65,6 +83,10 @@ class UserController extends Controller
      */
     public function create()
     {
+        if (!$this->m) {
+            return view('login');
+        }
+
         return view('user_create');
     }
 
@@ -73,6 +95,10 @@ class UserController extends Controller
      */
     public function store(Request $request)
     {
+        if (!$this->m) {
+            return view('login');
+        }
+
         $request->validate([
             'email' => 'email',
             'password' => 'min:5'
@@ -130,6 +156,10 @@ class UserController extends Controller
      */
     public function show(User $user)
     {
+        if (!$this->m) {
+            return view('login');
+        }
+
         return view('user_delete', ['user' => $user]);
     }
 
@@ -167,6 +197,10 @@ class UserController extends Controller
      */
     public function update(Request $request, string $id)
     {
+        if (!$this->m) {
+            return view('login');
+        }
+
         if ($request->input('password')) {
             $request->validate([
                 'email' => 'email',
@@ -199,13 +233,15 @@ class UserController extends Controller
             return redirect()->back()->with('message', 'Para alterar a senha, preencha os campos \'Senha\' e \'Confirmação de Senha\'.');
         }
 
-        if ($request->input('password') == $request->input('confirm_pass')) {
+        if ($request->password == $request->confirm_pass && $request->password != '') {
             $user = $this->user->where('id', $id)->first();
 
             $user->password = Hash::make($request->input('password'));
             $user->save();
         } else {
-            return redirect()->back()->with('message', 'A senha digitada deve ser identica à confirmação.');
+            if ($request->password != '' && $request->confirm_pass != '') {
+                return redirect()->back()->with('message', 'A senha digitada deve ser identica à confirmação.');
+            }
         }
 
         if ($request->input('tec') && !isset(User::where('id', $id)->first()->tec)) {
@@ -272,6 +308,9 @@ class UserController extends Controller
      */
     public function destroy(string $id)
     {
+        if (!$this->m) {
+            return view('login');
+        }
 
         if (Adm::where('user_id', $id)->get()) {
             Adm::where('user_id', $id)->delete();

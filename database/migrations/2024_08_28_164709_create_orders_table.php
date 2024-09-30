@@ -30,6 +30,7 @@ return new class extends Migration
             $table->date('cl_date')->nullable();
             $table->text('cl_sign')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 
