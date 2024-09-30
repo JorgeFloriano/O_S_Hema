@@ -33,6 +33,7 @@ return new class extends Migration
             $table->float('expense', 8, 2)->default(0);
             $table->string('obs')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

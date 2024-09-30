@@ -8,14 +8,22 @@ use Illuminate\Http\Request;
 class ClientController extends Controller
 {
     public readonly Client $client;
+    public $m; // user is adm main or not
 
     public function __construct()
     {
         $this->client = new Client();
+        if (isset(auth()->user()->adm)) {   
+            $this->m = auth()->user()->adm()->first()->main;
+        }
     }
     
     public function index()
     {
+        if (!$this->m) {
+            return view('login');
+        }
+
         $clients = $this->client->select('id', 'name','unit')->get();
 
         return view('clients_list' , ['clients' => $clients]);
@@ -26,6 +34,10 @@ class ClientController extends Controller
      */
     public function create()
     {
+        if (!$this->m) {
+            return view('login');
+        }
+        
         return view('client_create');
     }
 
@@ -34,6 +46,10 @@ class ClientController extends Controller
      */
     public function store(Request $request)
     {
+        if (!$this->m) {
+            return view('login');
+        }
+        
         $created = $this->client->create([
             'name' => $request->input('name'),
             'cnpj_cpf' => $request->input('cnpj_cpf'),
@@ -55,6 +71,10 @@ class ClientController extends Controller
      */
     public function show(Client $client)
     {
+        if (!$this->m) {
+            return view('login');
+        }
+        
         return view('client_delete', ['client' => $client]);
     }
 
@@ -63,6 +83,10 @@ class ClientController extends Controller
      */
     public function edit(Client $client)
     {
+        if (!$this->m) {
+            return view('login');
+        }
+        
         return view('client_edit', ['client' => $client]);
     }
 
@@ -71,6 +95,10 @@ class ClientController extends Controller
      */
     public function update(Request $request, string $id)
     {
+        if (!$this->m) {
+            return view('login');
+        }
+        
         $updated = $this->client->where('id', $id)->update($request->except(['_token', '_method']));
 
         if ($updated) {
@@ -84,6 +112,10 @@ class ClientController extends Controller
      */
     public function destroy(string $id)
     {
+        if (!$this->m) {
+            return view('login');
+        }
+        
         $deleted = $this->client->where('id', $id)->delete();
 
         if ($deleted) {

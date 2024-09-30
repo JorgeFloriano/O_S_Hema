@@ -26,7 +26,7 @@
                         </div>
 
                         <div class="form-floating my-2">
-                            <input type="text" class="form-control" id="client_id" name="client_id" disabled value="{{$order->client_id.' - '. $order->client->name}}">
+                            <input type="text" class="form-control" id="client_id" name="client_id" disabled value="{{$order->client_id ?? ''.' - '. $order->client->name ?? ''}}">
                             <label for="client_id">Cliente</label>
                         </div>
 

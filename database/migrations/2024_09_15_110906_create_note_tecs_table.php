@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreignId('tec_id')->constrained();
             $table->text('signature')->nullable();
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

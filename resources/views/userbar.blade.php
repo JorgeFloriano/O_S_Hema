@@ -46,13 +46,6 @@
                             </a>
                         </li>
                     @endif
-
-                    <li>
-                        <a class="dropdown-item btn-lg" href="{{route('orders.index')}}">
-                            <i class="fa fa-file-text" aria-hidden="true"></i>
-                            Ordens
-                        </a>
-                    </li>
                 @endif
 
                 @if (auth()->user()->tec()->first())
@@ -61,7 +54,16 @@
                             <i class="fa fa-list-ol" aria-hidden="true"></i>
                             Programação
                         </a>
-                    </li> 
+                    </li>
+                @endif
+
+                @if (auth()->user()->sup()->first() || auth()->user()->adm()->first())
+                    <li>
+                        <a class="dropdown-item btn-lg" href="{{route('orders.index')}}">
+                            <i class="fa fa-file-text" aria-hidden="true"></i>
+                            Ordens
+                        </a>
+                    </li>
                 @endif
 
                 @if (auth()->user()->sup()->first())

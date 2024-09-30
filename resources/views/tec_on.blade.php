@@ -17,8 +17,8 @@
 
                 <form action="{{route('tec_on_update')}}" id="form" method="post">
 
-                @csrf
-                <input type="hidden" name="_method" id="idNum" value="PUT">
+                    @csrf
+                    <input type="hidden" name="_method" id="idNum" value="PUT">
                 
                     <table class="table table-striped">
                         <thead class="table-dark">

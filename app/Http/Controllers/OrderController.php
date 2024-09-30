@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\Client;
+use App\Models\NoteTec;
 use App\Models\Order;
 use App\Models\Tec;
 use App\Models\User;
@@ -12,17 +13,57 @@ use Illuminate\Http\Request;
 class OrderController extends Controller
 {
     public readonly Order $os;
-
+    public $m; // user is admin main or not
+    public $s; // user is supervisor or not
+    public $a; // user is admin or not
+    public $t; // user is tec or not
+    public $o; // user is tec on call or not
     public function __construct()
     {
         $this->os = new Order();
+        if (isset(auth()->user()->adm)) {
+            $this->m = auth()->user()->adm()->first()->main;
+        }
+        if (isset(auth()->user()->tec)) {
+            $this->o = auth()->user()->tec()->first()->on_call;
+        }
+        $this->s = auth()->user()->sup()->first();
+        $this->a = auth()->user()->adm()->first();
     }
-
     public function index()
     {
-        $orders = $this->os->select('id', 'client_id', 'tec_id','req_date')->get();
+        if (!$this->m && !$this->s && !$this->a) {
+            return view('login');
+        }
 
-        return view('orders_list' , ['orders' => $orders]);
+        $orders = $this->os->select('id', 'client_id', 'tec_id','req_date', 'finished')->orderBy('id', 'desc')->get();
+
+        $tecs = Tec::all();
+
+        session()->put('ords', $orders);
+
+        $main = null;
+        if (auth()->user()->adm()->first()) {
+            $m = auth()->user()->adm()->first()->main;
+        }
+
+        $sup = null;
+        if (auth()->user()->sup()->first()) {
+            $sup = auth()->user()->sup()->first();
+        }
+
+        $adm = null;
+        if (auth()->user()->adm()->first()) {
+            $adm = auth()->user()->adm()->first();
+        }
+
+        return view('orders_list' , [
+            'orders' => $orders,
+            'tecs' => $tecs,
+            'main' => $main,
+            'sup' => $sup,
+            'adm' => $adm
+        ]);
     }
 
     /**
@@ -30,6 +71,10 @@ class OrderController extends Controller
      */
     public function create()
     {
+        if (!$this->m && !$this->a && !$this->o) {
+            return view('login');
+        }
+        
         $clients = Client::select('id', 'name')->get();
 
         $tecs = Tec::all();
@@ -45,6 +90,9 @@ class OrderController extends Controller
      */
     public function store(Request $request)
     {
+        if (!$this->a && !$this->o) {
+            return view('login');
+        }
 
         if ($request->client_id == '0') {
             return redirect()->route('orders.create')->with('message', 'Selecione um cliente para prosseguir.');
@@ -56,13 +104,18 @@ class OrderController extends Controller
             $cont_name_client = Client::find($request->client_id)->contact;
         }
 
+        $tec_id = null;
+        if (isset(auth()->user()->tec)) {
+            $tec_id = auth()->user()->tec->id;
+        }
+
         //Create new order
         $created = $this->os->create([
             'client_id' => $request->client_id,
             'sector' => $request->sector,
             'req_name' => $cont_name_client,
-            'tec_id' => $request->tec_id,
             'user_id' => auth()->user()->id,
+            'tec_id' => $tec_id,
             'equipment' => $request->equipment,
             'req_date' => $request->req_date,
             'req_time' => $request->req_time,
@@ -70,7 +123,7 @@ class OrderController extends Controller
         ]);
         
         if ($created) {
-            if ((isset(auth()->user()->tec))) {
+            if ($this->o && !$this->a) {
                 return redirect()->route('notes.index')->with('message', 'Ordem de serviço criada com sucesso.');
             }
             return redirect()->route('orders.index')->with('message', 'Ordem de serviço criada com sucesso.');
@@ -83,6 +136,10 @@ class OrderController extends Controller
      */
     public function show(Order $order)
     {
+        if (!$this->a && !$this->o) {
+            return view('login');
+        }
+
         return view('order_delete', ['order' => $order]);
     }
 
@@ -92,16 +149,23 @@ class OrderController extends Controller
     public function edit(Order $order)
     {
         $clients = Client::select(['id', 'name'])->get();
-
         $tecs = Tec::all();
-
         $user = User::select('name')->find($order->user_id);
+
+        $disabled = 'disabled';
+        $msg = '';
+        if ($this->a) {
+            $disabled = '';
+            $msg = 'Editar ';
+        }
             
         return view('order_edit', [
             'order' => $order,
             'clients' => $clients,
             'tecs' => $tecs,
-            'user' => $user
+            'user' => $user,
+            'disabled' => $disabled,
+            'msg' => $msg
         ]);
     }
 
@@ -115,7 +179,7 @@ class OrderController extends Controller
             return redirect()->back()->with('message', 'Selecione um cliente para prosseguir.');
         }
 
-        $updated = $this->os->where('id', $id)->update($request->except(['_token', '_method', 'adm_id']));
+        $updated = $this->os->where('id', $id)->update($request->except(['_token', '_method', 'adm_id', 'tec_id']));
 
         $os = Order::find($id);
         $os->user_id = auth()->user()->id;
@@ -132,7 +196,17 @@ class OrderController extends Controller
      */
     public function destroy(string $id)
     {
-        $deleted = $this->os->where('id', $id)->delete();
+        $order = $this->os->find($id);
+        
+        foreach ($order->notes as $key => $note) {
+            foreach ($note->tecs as $key => $tec) {
+                $note_tec = NoteTec::where('note_id', $note->id)->where('tec_id', $tec->id)->first();
+                $note_tec->delete();
+            }
+            $note->delete();
+        }
+
+        $deleted = $order->delete();
 
         if ($deleted) {
             return redirect()->route('orders.index')->with('message', 'Ordem de serviço deletada com sucesso.');
@@ -154,5 +228,22 @@ class OrderController extends Controller
     public function show_pdf(Order $order)
     {
     return view('order_pdf', ['order' => $order]);
+    }
+
+    public function ord_tec_update(Request $request)
+    {
+        $ords = session('ords');
+
+        foreach ($ords as  $ord) {
+            if ($request->input('ord_'.$ord->id)) {
+                $ord->tec_id = $request->input('ord_'.$ord->id);
+                $ord = $ord->save();
+                if (!$ord) {
+                    return redirect()->back()->with('message', 'Erro ao selecionar técnico.'); 
+                }
+            }
+        }
+
+        return redirect()->back()->with('message', 'Técnico selecionado com sucesso.');
     }
 }

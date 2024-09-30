@@ -143,15 +143,21 @@
 
                         <div class="my-2">
 
-                            @if (auth()->user()->tec->id == $note->first_tec->id)
-                                <button id="submitButton" type="submit" class="btn btn-danger me-2" data-bs-dismiss="modal">
-                                    Deletar
-                                </button> 
+                            @if(isset(auth()->user()->tec))
+                                @if (auth()->user()->tec->id == $note->first_tec->id)
+                                    <button id="submitButton" type="submit" class="btn btn-danger me-2" data-bs-dismiss="modal">
+                                        Deletar
+                                    </button>
+                                @endif
+
+                                <a href="{{route('notes.create', ['order' => $note->order->id])}}" class="btn btn-secondary">
+                                    Voltar
+                                </a>
+                            @else
+                                <a href="{{route('orders.edit', ['order' => $note->order->id])}}" class="btn btn-secondary">
+                                    Voltar
+                                </a>
                             @endif
-                           
-                            <a href="{{route('notes.create', ['order' => $note->order->id])}}" class="btn btn-secondary">
-                                Voltar
-                            </a>
                         </div>
                     </form>
                 </main>
