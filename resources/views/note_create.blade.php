@@ -191,13 +191,13 @@
                         <div class="row g-2 mb-2">
                             <div class="col">
                                 <div class="form-floating">
-                                    <input type="number" class="form-control" id="kmStart" step="0.01" required name="km_start" placeholder="Km inicial">
+                                    <input type="number" class="form-control" id="kmStart" step="0.01" max="9999.99" min="0" required name="km_start" placeholder="Km inicial">
                                     <label for="kmStart">Km inicial</label>
                                 </div>
                             </div>
                             <div class="col">    
                                 <div class="form-floating">
-                                    <input type="number" class="form-control" id="kmEnd" step="0.01" required name="km_end" placeholder="Km final">
+                                    <input type="number" class="form-control" id="kmEnd" step="0.01" max="9999.99" min="0" required name="km_end" placeholder="Km final">
                                     <label for="kmEnd">Km final</label>
                                 </div>
                             </div>
@@ -206,13 +206,13 @@
                         <div class="row g-2">
                             <div class="col">
                                 <div class="form-floating">
-                                    <input type="number" class="form-control" id="food" step="0.01" required name="food" placeholder="Alimantação (R$)">
+                                    <input type="number" class="form-control" id="food" step="0.01" max="9999.99" min="0" required name="food" placeholder="Alimantação (R$)">
                                     <label for="food">Alimantação (R$)</label>
                                 </div>
                             </div>
                             <div class="col"> 
                                 <div class="form-floating">
-                                    <input type="number" class="form-control" id="expense" step="0.01" required name="expense" placeholder="Outras Despesas (R$)">
+                                    <input type="number" class="form-control" id="expense" step="0.01" max="9999.99" min="0" required name="expense" placeholder="Outras Despesas (R$)">
                                     <label for="expense">Outras Despesas (R$)</label>
                                 </div>
                             </div>

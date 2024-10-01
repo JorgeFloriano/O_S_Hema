@@ -71,7 +71,7 @@ class OrderController extends Controller
      */
     public function create()
     {
-        if (!$this->m && !$this->a && !$this->o) {
+        if (!$this->a && !$this->o) {
             return view('login');
         }
         
@@ -136,7 +136,7 @@ class OrderController extends Controller
      */
     public function show(Order $order)
     {
-        if (!$this->a && !$this->o) {
+        if (!$this->a) {
             return view('login');
         }
 
@@ -148,6 +148,10 @@ class OrderController extends Controller
      */
     public function edit(Order $order)
     {
+        if (!$this->a) {
+            return view('login');
+        }
+
         $clients = Client::select(['id', 'name'])->get();
         $tecs = Tec::all();
         $user = User::select('name')->find($order->user_id);
@@ -174,6 +178,9 @@ class OrderController extends Controller
      */
     public function update(Request $request, string $id)
     {
+        if (!$this->a) {
+            return view('login');
+        }
 
         if ($request->client_id == '0') {
             return redirect()->back()->with('message', 'Selecione um cliente para prosseguir.');
@@ -196,6 +203,10 @@ class OrderController extends Controller
      */
     public function destroy(string $id)
     {
+        if (!$this->a) {
+            return view('login');
+        }
+
         $order = $this->os->find($id);
         
         foreach ($order->notes as $key => $note) {
@@ -216,6 +227,10 @@ class OrderController extends Controller
 
     public function finish(Order $order): RedirectResponse
     {
+        if (!$this->t && !$this->m) {
+            return view('login');
+        }
+
         $order->finished = true;
         $updated = $order->save();
 
@@ -227,11 +242,16 @@ class OrderController extends Controller
     }
     public function show_pdf(Order $order)
     {
+        
     return view('order_pdf', ['order' => $order]);
     }
 
     public function ord_tec_update(Request $request)
     {
+        if (!$this->s && !$this->m) {
+            return view('login');
+        }
+
         $ords = session('ords');
 
         foreach ($ords as  $ord) {

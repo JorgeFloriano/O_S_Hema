@@ -8,6 +8,15 @@
     <div class="container">
         <div class="row mt-1">
             <div class="col-lg-8 offset-lg-2">
+
+                @if ($errors->any())
+                    <div class="alert alert-danger">
+                        @foreach ($errors->all() as $msg)
+                            <div>{{$msg}}</div>
+                        @endforeach
+                    </div>
+                @endif
+
                 <div id="header" class="my-2">
                     <h2>Cadastrar Cliente</h2>
                 </div>

@@ -29,7 +29,7 @@
                 <hr>
 
                 <main>
-                    <form action="{{route('users.update', ['user' => $user->id])}}" id="form" method="post" autocomplete="on">
+                    <form action="{{route('users.update', ['user' => $user->id])}}" id="form" method="post" autocomplete="off">
                         @csrf
 
                         <input type="hidden" name="_method" id="idNum" value="PUT">
@@ -55,8 +55,8 @@
                         </div>
 
                         <div class="form-floating my-2">
-                            <input type="password" class="form-control" id="password" name="password" placeholder="Senha">
-                            <label for="password">Senha</label>
+                            <input type="password" class="form-control" id="password" name="password" placeholder="Senha" autocomplete="new-password">
+                            <label for="password">Senha (escolha uma senha com letras números e símbolos)</label>
                         </div>
 
                         <div class="form-floating my-2">
