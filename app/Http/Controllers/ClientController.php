@@ -50,6 +50,15 @@ class ClientController extends Controller
             return view('login');
         }
         
+        $request->validate([
+            'email' => 'email|unique:clients',
+            'cnpj_cpf' => 'unique:clients'
+        ], [
+            'email.email' => 'Digite um e-mail válido',
+            'email.unique' => 'O e-mail digitado está em uso, por favor escolha outro.',
+            'cnpj_cpf.unique' => 'O CNPJ digitado está já foi cadastrado.',
+        ]);
+
         $created = $this->client->create([
             'name' => $request->input('name'),
             'cnpj_cpf' => $request->input('cnpj_cpf'),

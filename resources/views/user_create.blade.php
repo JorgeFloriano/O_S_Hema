@@ -15,6 +15,14 @@
                     </div>
                 @endif
 
+                @if ($errors->any())
+                    <div class="alert alert-danger">
+                        @foreach ($errors->all() as $msg)
+                            <div>{{$msg}}</div>
+                        @endforeach
+                    </div>
+                @endif
+
                 <div id="header" class="my-2">
                     <h2>Cadastrar Usuário</h2>
                 </div>
@@ -25,17 +33,17 @@
                         @csrf
                         
                         <div class="form-floating my-2">
-                            <input type="text" class="form-control" maxlength="20" id="name" name="name" placeholder="Nome" required>
+                            <input type="text" class="form-control" maxlength="20" id="name" name="name" placeholder="Nome" required value="{{old('name')}}">
                             <label for="name">Nome</label>
                         </div>
 
                         <div class="form-floating my-2">
-                            <input type="text" class="form-control" maxlength="20" id="surname" name="surname" placeholder="Sobrenome">
+                            <input type="text" class="form-control" maxlength="20" id="surname" name="surname" placeholder="Sobrenome" value="{{old('surname')}}">
                             <label for="surname">Sobrenome</label>
                         </div>
 
                         <div class="form-floating my-2">
-                            <input type="text" class="form-control" maxlength="20" id="function" name="function" placeholder="Função" required>
+                            <input type="text" class="form-control" maxlength="20" id="function" name="function" placeholder="Função" required value="{{old('function')}}">
                             <label for="function">Função</label>
                         </div>
 
@@ -46,7 +54,7 @@
 
                         <div class="form-floating my-2">
                             <input type="password" class="form-control" id="password" minlength="5" name="password" placeholder="Senha" required>
-                            <label for="password">Senha</label>
+                            <label for="password">Senha (escolha uma senha com letras números e símbolos)</label>
                         </div>
 
                         <div class="form-floating my-2">

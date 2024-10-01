@@ -34,7 +34,7 @@
                     @if (auth()->user()->adm()->first()->main)
                         <li>
                             <a class="dropdown-item btn-lg" href="{{route('clients.index')}}">
-                                <i class="fa fa-user" aria-hidden="true"></i>
+                                <i class="fa fa-handshake-o" aria-hidden="true"></i>
                                 Clientes
                             </a>
                         </li>
@@ -60,7 +60,7 @@
                 @if (auth()->user()->sup()->first() || auth()->user()->adm()->first())
                     <li>
                         <a class="dropdown-item btn-lg" href="{{route('orders.index')}}">
-                            <i class="fa fa-file-text" aria-hidden="true"></i>
+                            <i class="fa fa-file-text-o" aria-hidden="true"></i>
                             Ordens
                         </a>
                     </li>
@@ -69,7 +69,7 @@
                 @if (auth()->user()->sup()->first())
                     <li>
                         <a class="dropdown-item btn-lg" href="{{route('tec_on')}}">
-                            <i class="fa fa-wrench" aria-hidden="true"></i></i>
+                            <i class="fa fa-mobile" aria-hidden="true"></i></i>
                             Sobreaviso
                         </a>
                     </li>

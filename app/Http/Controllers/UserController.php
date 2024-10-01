@@ -100,11 +100,13 @@ class UserController extends Controller
         }
 
         $request->validate([
-            'email' => 'email',
-            'password' => 'min:5'
+            'email' => 'email|unique:users',
+            'password' => 'min:5|unique:users'
         ], [
             'email.email' => 'Digite um e-mail válido',
             'password.min' => 'Digite uma senha com pelo menos 5 caracteres',
+            'email.unique' => 'O e-mail digitado está em uso, por favor escolha outro.',
+            'password.unique' => 'A senha digitada está em uso, por favor escolha outra.',
         ]);
 
         if (!$request->adm && !$request->tec && !$request->sup) {
@@ -203,11 +205,20 @@ class UserController extends Controller
 
         if ($request->input('password')) {
             $request->validate([
-                'email' => 'email',
                 'password' => 'min:5'
             ], [
-                'email.email' => 'Digite um e-mail válido',
                 'password.min' => 'Digite uma senha com pelo menos 5 caracteres',
+            ]);
+        }
+
+        $email = $this->user->find($id)->email;
+
+        if ($request->email != $email) {
+            $request->validate([
+                'email' => 'email|unique:users',
+            ], [
+                'email.email' => 'Digite um e-mail válido',
+                'email.unique' => 'O e-mail digitado está em uso, por favor escolha outro.',
             ]);
         }
         
