@@ -47,7 +47,10 @@
                             @endforeach
                         </tbody> 
                     </table>
-                    <button id="submitButton" type="submit" class="btn btn-primary me-2">
+                    <div>
+                        {{$tecs->links()}}
+                    </div>
+                    <button id="submitButton" type="submit" class="btn btn-primary me-2 my-3">
                         Salvar
                     </button>
                 </form>

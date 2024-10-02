@@ -4,6 +4,7 @@
         color: white;
     }
     a {
+        color: black;
         text-decoration: none;
     }
     a:hover, i:hover {
@@ -25,7 +26,7 @@
             @endif
         </div>
         <div class="nav-item dropdown col-2 pt-2 text-center">
-            <a href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+            <a href="#" role="button" data-bs-toggle="dropdown" aria-expanded="false" style="color: white">
                 <i style="font-size: x-large" class="fa fa-bars" aria-hidden="true"></i>
             </a>
             <ul class="dropdown-menu">

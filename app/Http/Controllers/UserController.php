@@ -30,7 +30,7 @@ class UserController extends Controller
             return view('login');
         }
 
-        $users = $this->user->select('id', 'name','function')->get();
+        $users = $this->user->select('id', 'name','function')->simplePaginate(10);
 
         return view('users_list' , ['users' => $users]);
     }
@@ -41,7 +41,7 @@ class UserController extends Controller
             return view('login');
         }
 
-        $tecs = Tec::all();
+        $tecs = Tec::simplePaginate(10);
 
         session()->put('tecs', $tecs);
 
