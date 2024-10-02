@@ -28,7 +28,7 @@ class NoteController extends Controller
             return view('login');
         }
 
-        $orders = Order::select('id', 'client_id','req_date', 'finished')->where('tec_id', auth()->user()->tec->id)->get();
+        $orders = Order::select('id', 'client_id','req_date', 'finished')->where('tec_id', auth()->user()->tec->id)->orderBy('id', 'desc')->simplePaginate(10);
 
         return view('notes_list' , ['orders' => $orders]);
     }

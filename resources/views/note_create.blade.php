@@ -207,13 +207,13 @@
                             <div class="col">
                                 <div class="form-floating">
                                     <input type="number" class="form-control" id="food" step="0.01" max="9999.99" min="0" required name="food" placeholder="Alimantação (R$)">
-                                    <label for="food">Alimantação (R$)</label>
+                                    <label for="food">Alimentação (R$)</label>
                                 </div>
                             </div>
                             <div class="col"> 
                                 <div class="form-floating">
                                     <input type="number" class="form-control" id="expense" step="0.01" max="9999.99" min="0" required name="expense" placeholder="Outras Despesas (R$)">
-                                    <label for="expense">Outras Despesas (R$)</label>
+                                    <label for="expense">Outros (R$)</label>
                                 </div>
                             </div>
                         </div>
@@ -341,15 +341,15 @@
                             </div>
                         </div>
 
-                        <div class="my-2">
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" name="finished" id="save" value="0" checked>
-                                <label class="form-check-label" for="save"><i class="fa fa-floppy-o" aria-hidden="true"></i>Salvar</label>
+                        <div class="my-3">
+                            <div class="form-check">
+                                <input required class="form-check-input" type="radio" name="finished" id="save" value="0">
+                                <label class="form-check-label" for="save"><i class="fa fa-floppy-o" aria-hidden="true"></i>Salvar (atendimento pendente)</label>
                             </div>
                               
-                            <div class="form-check form-check-inline">
-                                <input class="form-check-input" type="radio" name="finished" id="finished" value="1">
-                                <label class="form-check-label" for="finished"><i class="fa fa-check-square-o" aria-hidden="true"></i>Concluir</label>
+                            <div class="form-check">
+                                <input required class="form-check-input" type="radio" name="finished" id="finished" value="1">
+                                <label class="form-check-label" for="finished"><i class="fa fa-check-square-o" aria-hidden="true"></i>Concluir (atendimento finalizado)</label>
                             </div>
                         </div>
 

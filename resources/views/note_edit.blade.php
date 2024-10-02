@@ -152,13 +152,13 @@
                             <div class="col">
                                 <div class="form-floating">
                                     <input type="number" class="form-control" id="food" step="0.01" max="9999.99" min="0" required name="food" value="{{$note->food}}" placeholder="Alimantação (R$)">
-                                    <label for="food">Alimantação (R$)</label>
+                                    <label for="food">Alimentação (R$)</label>
                                 </div>
                             </div>
                             <div class="col"> 
                                 <div class="form-floating">
                                     <input type="number" class="form-control" id="expense" step="0.01" max="9999.99" min="0" required name="expense" value="{{$note->expense}}" placeholder="Outras Despesas (R$)">
-                                    <label for="expense">Outras Despesas (R$)</label>
+                                    <label for="expense">Outros (R$)</label>
                                 </div>
                             </div>
                         </div>

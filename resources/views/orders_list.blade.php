@@ -144,6 +144,9 @@
                             @endforeach
                         </tbody> 
                     </table>
+                    <div>
+                        {{ $orders->links() }}
+                    </div>
                 </form>
             </div>
         </div>

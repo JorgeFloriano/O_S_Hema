@@ -24,7 +24,7 @@ class ClientController extends Controller
             return view('login');
         }
 
-        $clients = $this->client->select('id', 'name','unit')->get();
+        $clients = $this->client->select('id', 'name','unit')->simplePaginate(10);
 
         return view('clients_list' , ['clients' => $clients]);
     }
