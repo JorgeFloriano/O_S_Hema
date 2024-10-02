@@ -36,7 +36,7 @@ class OrderController extends Controller
             return view('login');
         }
 
-        $orders = $this->os->select('id', 'client_id', 'tec_id','req_date', 'finished')->orderBy('id', 'desc')->get();
+        $orders = $this->os->select('id', 'client_id', 'tec_id','req_date', 'finished')->orderBy('id', 'desc')->simplePaginate(10);
 
         $tecs = Tec::all();
 
@@ -44,7 +44,7 @@ class OrderController extends Controller
 
         $main = null;
         if (auth()->user()->adm()->first()) {
-            $m = auth()->user()->adm()->first()->main;
+            $main = auth()->user()->adm()->first()->main;
         }
 
         $sup = null;
