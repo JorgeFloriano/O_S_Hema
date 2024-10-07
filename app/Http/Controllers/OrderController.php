@@ -57,7 +57,7 @@ class OrderController extends Controller
             $adm = auth()->user()->adm()->first();
         }
 
-        return view('orders_list' , [
+        return view('order.orders_list' , [
             'orders' => $orders,
             'tecs' => $tecs,
             'main' => $main,
@@ -79,7 +79,7 @@ class OrderController extends Controller
 
         $tecs = Tec::all();
 
-        return view('order_create', [
+        return view('order.order_create', [
             'clients' => $clients,
             'tecs' => $tecs
         ]);
@@ -140,7 +140,7 @@ class OrderController extends Controller
             return view('login');
         }
 
-        return view('order_delete', ['order' => $order]);
+        return view('order.order_delete', ['order' => $order]);
     }
 
     /**
@@ -148,7 +148,7 @@ class OrderController extends Controller
      */
     public function edit(Order $order)
     {
-        if (!$this->a) {
+        if (!$this->a && !$this->s) {
             return view('login');
         }
 
@@ -163,7 +163,7 @@ class OrderController extends Controller
             $msg = 'Editar ';
         }
             
-        return view('order_edit', [
+        return view('order.order_edit', [
             'order' => $order,
             'clients' => $clients,
             'tecs' => $tecs,
@@ -243,7 +243,7 @@ class OrderController extends Controller
     public function show_pdf(Order $order)
     {
         
-    return view('order_pdf', ['order' => $order]);
+    return view('order.order_pdf', ['order' => $order]);
     }
 
     public function ord_tec_update(Request $request)

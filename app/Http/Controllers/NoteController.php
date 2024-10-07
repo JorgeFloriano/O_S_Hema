@@ -30,7 +30,7 @@ class NoteController extends Controller
 
         $orders = Order::select('id', 'client_id','req_date', 'finished')->where('tec_id', auth()->user()->tec->id)->orderBy('id', 'desc')->simplePaginate(10);
 
-        return view('notes_list' , ['orders' => $orders]);
+        return view('note.notes_list' , ['orders' => $orders]);
     }
 
     /**
@@ -44,7 +44,7 @@ class NoteController extends Controller
 
         $tecs = Tec::all();
 
-        return view('note_create', [
+        return view('note.note_create', [
             'order' => $order,
             'tecs' => $tecs,
         ]);
@@ -146,7 +146,7 @@ class NoteController extends Controller
             }
         }
 
-        return view('note_delete', [
+        return view('note.note_delete', [
             'note' => $note,
             'msg' => $msg,
         ]);
@@ -165,7 +165,7 @@ class NoteController extends Controller
 
         $tecs = Tec::where('id','!=', $note->first_tec->id)->get();
 
-        return view('note_edit', [
+        return view('note.note_edit', [
             'note' => $note,
             'tecs' => $tecs,
         ]);

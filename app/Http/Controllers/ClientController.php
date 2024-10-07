@@ -26,7 +26,7 @@ class ClientController extends Controller
 
         $clients = $this->client->select('id', 'name','unit')->simplePaginate(10);
 
-        return view('clients_list' , ['clients' => $clients]);
+        return view('client.clients_list' , ['clients' => $clients]);
     }
 
     /**
@@ -38,7 +38,7 @@ class ClientController extends Controller
             return view('login');
         }
         
-        return view('client_create');
+        return view('client.client_create');
     }
 
     /**
@@ -84,7 +84,7 @@ class ClientController extends Controller
             return view('login');
         }
         
-        return view('client_delete', ['client' => $client]);
+        return view('client.client_delete', ['client' => $client]);
     }
 
     /**
@@ -96,7 +96,7 @@ class ClientController extends Controller
             return view('login');
         }
         
-        return view('client_edit', ['client' => $client]);
+        return view('client.client_edit', ['client' => $client]);
     }
 
     /**
