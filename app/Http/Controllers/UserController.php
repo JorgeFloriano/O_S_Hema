@@ -32,9 +32,10 @@ class UserController extends Controller
 
         $users = $this->user->select('id', 'name','function')->simplePaginate(10);
 
-        return view('users_list' , ['users' => $users]);
+        return view('user.users_list' , ['users' => $users]);
     }
-
+    
+    //If logged in user is adm main or supervisor, show technician on call list
     public function tec_on()
     {
         if (!$this->m && !$this->s) {
@@ -45,11 +46,12 @@ class UserController extends Controller
 
         session()->put('tecs', $tecs);
 
-        return view('tec_on', [
+        return view('user.tec_on', [
             'tecs' => $tecs
         ]);
     }
 
+    // If logged in user is adm main or supervisor, Technician on call update
     public function tec_on_update(Request $request)
     {
         if (!$this->m && !$this->s) {
@@ -78,21 +80,17 @@ class UserController extends Controller
         return redirect()->back()->with('message', 'Registros atualizados com sucesso.');
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
+    // If logged in user is adm main, show create user form
     public function create()
     {
         if (!$this->m) {
             return view('login');
         }
 
-        return view('user_create');
+        return view('user.user_create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+    // If logged in user is adm main, validate and create a new user
     public function store(Request $request)
     {
         if (!$this->m) {
@@ -109,16 +107,17 @@ class UserController extends Controller
             'password.unique' => 'A senha digitada está em uso, por favor escolha outra.',
         ]);
 
+        // Verify if any access option is selected
         if (!$request->adm && !$request->tec && !$request->sup) {
             return redirect()->back()->with('message', 'Selecione um acesso para o usuário.');
         }
 
+        // Verify if password and confirm_pass are the same
         if ($request->password !== $request->confirm_pass) {
             return redirect()->back()->with('message', 'A senha digitada tem que ser identica à confirmação.');
         }
 
-
-
+        // Create new user
         $user_cr = $this->user->create([
             'name' => $request->input('name'),
             'surname' => $request->input('surname'),
@@ -127,50 +126,52 @@ class UserController extends Controller
             'password' => Hash::make($request->input('password')),
         ]);
 
-        if ($request->adm && $user_cr) {
-            $adm_cr = Adm::create([
-                'user_id' => $user_cr->id,
-                'main' => 0,
-            ]);
-        }
-
-        if ($request->sup && $user_cr) {
-            $sup_cr = Sup::create([
-                'user_id' => $user_cr->id,
-            ]);
-        }
-
-        if ($request->tec && $user_cr) {
-            $tec_cr = Tec::create([
-                'user_id' => $user_cr->id,
-                'on_call' => 0,
-            ]);
-        }
-
+        // If new user was created
         if ($user_cr) {
+            // If adm option is selected, makes available admin access
+            if ($request->adm) {
+                $adm_cr = Adm::create([
+                    'user_id' => $user_cr->id,
+                    'main' => 0,
+                ]);
+            }
+    
+            // If sup option is selected, makes available supervisor access
+            if ($request->sup) {
+                $sup_cr = Sup::create([
+                    'user_id' => $user_cr->id,
+                ]);
+            }
+    
+            // If tec option is selected, makes available technician access
+            if ($request->tec) {
+                $tec_cr = Tec::create([
+                    'user_id' => $user_cr->id,
+                    'on_call' => 0,
+                ]);
+            }
+
             return redirect()->route('users.index')->with('message', 'Usuário adm cadastrado com sucesso.');
         }
+
         return redirect()->route('users.index')->with('message', 'Erro ao cadastrar usuário.');
     }
 
-    /**
-     * Display the specified resource.
-     */
+    // Shows the form to delete the user registration
     public function show(User $user)
     {
         if (!$this->m) {
             return view('login');
         }
 
-        return view('user_delete', ['user' => $user]);
+        return view('user.user_delete', ['user' => $user]);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
+    // Shows the form to edit the user registration
     public function edit(User $user)
     {
 
+        // Checks if the user has any access and this will be selected
         $tec_checked = '';
         if (isset($user->tec)) {
             $tec_checked = 'checked';
@@ -186,7 +187,7 @@ class UserController extends Controller
             $sup_checked = 'checked';
         }
 
-        return view('user_edit', [
+        return view('user.user_edit', [
             'user' => $user,
             'adm_checked' => $adm_checked,
             'tec_checked' => $tec_checked,
@@ -194,15 +195,15 @@ class UserController extends Controller
         ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
+    
+    // If logged in user is adm main, validate and update the user registration
     public function update(Request $request, string $id)
     {
         if (!$this->m) {
             return view('login');
         }
 
+        // If the password field is filled, validate it
         if ($request->input('password')) {
             $request->validate([
                 'password' => 'min:5'
@@ -211,6 +212,7 @@ class UserController extends Controller
             ]);
         }
 
+        // If the email field has been changed, validate the new email
         $email = $this->user->find($id)->email;
 
         if ($request->email != $email) {
@@ -240,89 +242,107 @@ class UserController extends Controller
             return redirect()->back()->with('message', 'O usuário deve ter pelo menos um acesso.');
         }
 
+        // Verify if one of the password and confirm_pass fields has been filled in and the other has not
         if ((!$request->input('password') && $request->input('confirm_pass')) || ($request->input('password') && !$request->input('confirm_pass'))) {
             return redirect()->back()->with('message', 'Para alterar a senha, preencha os campos \'Senha\' e \'Confirmação de Senha\'.');
         }
 
+        // Verify if the password and confirm_pass fields are equal and not empty
         if ($request->password == $request->confirm_pass && $request->password != '') {
+
+            // Update the password
             $user = $this->user->where('id', $id)->first();
 
             $user->password = Hash::make($request->input('password'));
             $user->save();
         } else {
+
+            // Return an error message if the password and confirm_pass fields are not equal
             if ($request->password != '' && $request->confirm_pass != '') {
                 return redirect()->back()->with('message', 'A senha digitada deve ser identica à confirmação.');
             }
         }
 
+        // If the user not has a technician access and the tec field is filled, create one
         if ($request->input('tec') && !isset(User::where('id', $id)->first()->tec)) {
             $tec_cr = Tec::create([
                 'user_id' => $id,
                 'on_call' => 0,
             ]);
 
+            // Return an error message.
             if (!$tec_cr) {
                 return redirect()->back()->with('message', 'Erro ao liberar acesso de técnico.'); 
             }
         }
         
+        // If the user has a technician access and the tec field is not filled, remove it
         if (!$request->input('tec') && isset(User::where('id', $id)->first()->tec)) {
             $tec_dl = Tec::where('user_id', $id)->delete();
 
+            // Return an error message.
             if (!$tec_dl) {
                 return redirect()->back()->with('message', 'Erro ao remover acesso de técnico.'); 
             }
         }
 
+        // If the user not has an administrator access and the adm field is filled, create one
         if ($request->input('adm') && !isset(User::where('id', $id)->first()->adm)) {
             $adm_cr = Adm::create([
                'user_id' => $id,
                'main' => 0,
             ]);
            
+            // Return an error message.
             if (!$adm_cr) {
                return redirect()->back()->with('message', 'Erro ao liberar acesso de administrador.');
             }
         }
 
+        // If the user has an administrator access and the adm field is not filled, remove it
         if (!$request->input('adm') && isset(User::where('id', $id)->first()->adm)) {
             $adm_dl = Adm::where('user_id', $id)->delete();
 
+            // Return an error message.
             if (!$adm_dl) {
                 return redirect()->back()->with('message', 'Erro ao remover acesso de administrador.'); 
             }
         }
 
+        // If the user not has a supervisor access and the sup field is filled, create one
         if ($request->input('sup') && !isset(User::where('id', $id)->first()->sup)) {
             $sup_cr = Sup::create([
                 'user_id' => $id
             ]);
 
+            // Return an error message.
             if (!$sup_cr) {
                 return redirect()->back()->with('message', 'Erro ao liberar acesso de supervisor.'); 
             }
         }
 
+        // If the user has a supervisor access and the sup field is not filled, remove it
         if (!$request->input('sup') && isset(User::where('id', $id)->first()->sup)) {
             $sup_dl = Sup::where('user_id', $id)->delete();
 
+            // Return an error message.
             if (!$sup_dl) {
                 return redirect()->back()->with('message', 'Erro ao remover acesso de supervisor.'); 
             }
         }
 
+        // Return a success message
         return redirect()->back()->with('message', 'Cadastro atualizado com sucesso.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
+    // If logged in user is adm main, delete the selected user
     public function destroy(string $id)
     {
         if (!$this->m) {
             return view('login');
         }
 
+        // Delete all accesses of the selected user
         if (Adm::where('user_id', $id)->get()) {
             Adm::where('user_id', $id)->delete();
         }
@@ -335,6 +355,7 @@ class UserController extends Controller
             Sup::where('user_id', $id)->delete();
         }
 
+        // Delete the selected user
         $deleted = $this->user->where('id', $id)->delete();
 
         if ($deleted) {

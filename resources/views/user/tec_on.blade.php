@@ -38,9 +38,9 @@
                                     <td>{{$tec->user->function}}</td>
                                     <td>
                                         @if ($tec->on_call)
-                                            <input class="form-check-input" name="tec{{$tec->id}}" checked type="checkbox" value="1" id="tec{{$tec->id}}">
+                                            <input onchange="form.submit()" class="form-check-input" name="tec{{$tec->id}}" checked type="checkbox" value="1" id="tec{{$tec->id}}">
                                         @else
-                                            <input class="form-check-input" name="tec{{$tec->id}}" type="checkbox" value="1" id="tec{{$tec->id}}">
+                                            <input onchange="form.submit()" class="form-check-input" name="tec{{$tec->id}}" type="checkbox" value="1" id="tec{{$tec->id}}">
                                         @endif
                                     </td>
                                 </tr>
@@ -50,9 +50,6 @@
                     <div>
                         {{$tecs->links()}}
                     </div>
-                    <button id="submitButton" type="submit" class="btn btn-primary me-2 my-3">
-                        Salvar
-                    </button>
                 </form>
             </div>
         </div>
