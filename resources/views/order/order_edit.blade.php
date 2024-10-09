@@ -20,14 +20,13 @@
                 </div>
                 <hr>
                 <main>
-                
                     <form action="{{route('orders.update', ['order' => $order->id])}}" id="form" method="post" autocomplete="on">
                         @csrf
                         
                         <input type="hidden" name="_method" id="idNum" value="PUT">
 
                         <div class="form-floating my-2">
-                            <input type="text" class="form-control" disabled id="adm_id" name="adm_id" placeholder="Editada por" value="{{$user->name ?? ''}}">
+                            <input type="text" class="form-control" disabled id="adm_id" name="adm_id" placeholder="Editada por" value="{{$user->name ?? ''}}" required>
                             <label for="adm_id">Editada por</label>
                         </div>
 
@@ -46,22 +45,22 @@
                         </div>
 
                         <div class="form-floating my-2">
-                            <input type="text" class="form-control" {{$disabled}} id="sector" name="sector" maxlength="30" placeholder="Setor" value="{{$order->sector}}">
+                            <input type="text" class="form-control" {{$disabled}} id="sector" name="sector" maxlength="30" placeholder="Setor" value="{{$order->sector ?? ''}}" required>
                             <label for="sector">Setor</label>
                         </div>
 
                         <div class="form-floating my-2">
-                            <input type="text" class="form-control" {{$disabled}} id="req_name" name="req_name" maxlength="20" placeholder="Solicitante do Solicitante" value="{{$order->req_name}}">
+                            <input type="text" class="form-control" {{$disabled}} id="req_name" name="req_name" maxlength="20" placeholder="Solicitante do Solicitante" value="{{$order->req_name ?? ''}}">
                             <label for="req_name">Nome do Solicitante</label>
                         </div>
 
                         <div class="form-floating my-2">
-                            <input type="date" class="form-control" {{$disabled}} id="req_date" name="req_date" placeholder="Data do Acionamento" value="{{$order->req_date}}">
+                            <input type="date" class="form-control" {{$disabled}} id="req_date" name="req_date" placeholder="Data do Acionamento" value="{{$order->req_date}}" required>
                             <label for="req_date">Data do Acionamento</label>
                         </div>
 
                         <div class="form-floating my-2">
-                            <input type="time" class="form-control" {{$disabled}} id="req_time" name="req_time" placeholder="Hora do Acionamento" value="{{$order->req_time}}">
+                            <input type="time" class="form-control" {{$disabled}} id="req_time" name="req_time" placeholder="Hora do Acionamento" value="{{$order->req_time}}" required>
                             <label for="req_time">Hora do Acionamento</label>
                         </div>
 
@@ -76,47 +75,47 @@
                         </div>
 
                         @if(count($order->notes) > 0)
-                        <!-- Button trigger modal -->
-                        <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#exampleModal">
-                            Mostrar serviços executados
-                        </button>
-                        
-                        <!-- Modal -->
-                        <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-                            <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                        <h1 class="modal-title fs-5" id="exampleModalLabel">Registros anteriores</h1>
-                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                    </div>
-                                    <div class="modal-body">
-                                        <div>
-                                            @foreach ($order->notes as $note)
-                                            <div>
-                                                <div>Registro nº {{$note->id}}, Téc. {{$note->tecs->first()->id}}-{{$note->tecs->first()->user->name}},    {{date('d/m/Y',strtotime($note->date))}}</div>
-                                                    <div class="mt-2"> 
-                                                        <a href="{{route('notes.show', [
-                                                            'order' => $order->id,
-                                                            'note' => $note->id,
-                                                        ])}}" class="btn btn-info btn-sm">
-                                                            Exibir
-                                                        </a>
-                                                        
-                                                        @if (!$loop->last)
-                                                            <hr> 
-                                                        @endif
-                                                    </div>
-                                                </div>
-                                            @endforeach
+                            <!-- Button trigger modal -->
+                            <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                                Mostrar serviços executados
+                            </button>
+                            
+                            <!-- Modal -->
+                            <div class="modal fade" id="exampleModal" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered modal-dialog-scrollable">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                            <h1 class="modal-title fs-5" id="exampleModalLabel">Registros anteriores</h1>
+                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                                         </div>
-                                    </div>
-                                    <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                                        <div class="modal-body">
+                                            <div>
+                                                @foreach ($order->notes as $note)
+                                                <div>
+                                                    <div>Registro nº {{$note->id}}, Téc. {{$note->tecs->first()->id}}-{{$note->tecs->first()->user->name}},    {{date('d/m/Y',strtotime($note->date))}}</div>
+                                                        <div class="mt-2"> 
+                                                            <a href="{{route('notes.show', [
+                                                                'order' => $order->id,
+                                                                'note' => $note->id,
+                                                            ])}}" class="btn btn-info btn-sm">
+                                                                Exibir
+                                                            </a>
+                                                            
+                                                            @if (!$loop->last)
+                                                                <hr> 
+                                                            @endif
+                                                        </div>
+                                                    </div>
+                                                @endforeach
+                                            </div>
+                                        </div>
+                                        <div class="modal-footer">
+                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                                        </div>
                                     </div>
                                 </div>
                             </div>
-                        </div>
-                    @endif
+                        @endif
 
                         <div class="my-2">
                             @if (auth()->user()->adm()->first())

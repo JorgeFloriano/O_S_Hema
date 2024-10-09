@@ -13,28 +13,36 @@ use Illuminate\Http\Request;
 class OrderController extends Controller
 {
     public readonly Order $os;
-    public $m; // user is admin main or not
-    public $s; // user is supervisor or not
-    public $a; // user is admin or not
-    public $t; // user is tec or not
-    public $o; // user is tec on call or not
+    public $m; // main administrator
+    public $s; // supervisor
+    public $a; // administrator
+    public $t; // technician
+    public $o; // technician on call
     public function __construct()
     {
+        // Set a nem service order
         $this->os = new Order();
+
+        // user is admin main or not
         if (isset(auth()->user()->adm)) {
             $this->m = auth()->user()->adm()->first()->main;
         }
+
+        // user is technician on call or not
         if (isset(auth()->user()->tec)) {
             $this->o = auth()->user()->tec()->first()->on_call;
         }
+
+        // user is supervisor or not
         $this->s = auth()->user()->sup()->first();
+
+        // user is administrator or not
         $this->a = auth()->user()->adm()->first();
     }
     public function index()
     {
-        if (!$this->m && !$this->s && !$this->a) {
-            return view('login');
-        }
+        // If user is not suprevisor or administrator, redirect to login
+        if (!$this->s && !$this->a) {return view('login');}
 
         $orders = $this->os->select('id', 'client_id', 'tec_id','req_date', 'finished')->orderBy('id', 'desc')->simplePaginate(10);
 
@@ -42,38 +50,20 @@ class OrderController extends Controller
 
         session()->put('ords', $orders);
 
-        $main = null;
-        if (auth()->user()->adm()->first()) {
-            $main = auth()->user()->adm()->first()->main;
-        }
-
-        $sup = null;
-        if (auth()->user()->sup()->first()) {
-            $sup = auth()->user()->sup()->first();
-        }
-
-        $adm = null;
-        if (auth()->user()->adm()->first()) {
-            $adm = auth()->user()->adm()->first();
-        }
-
         return view('order.orders_list' , [
             'orders' => $orders,
             'tecs' => $tecs,
-            'main' => $main,
-            'sup' => $sup,
-            'adm' => $adm
+            'main' => $this->m ?? null,
+            'sup' => $this->s ?? null,
+            'adm' => $this->a ?? null
         ]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
+    // Show the form for creating a new order
     public function create()
     {
-        if (!$this->a && !$this->o) {
-            return view('login');
-        }
+        // If user is not administrator or on call technician, redirect to login
+        if (!$this->a && !$this->o) {return view('login');}
         
         $clients = Client::select('id', 'name')->get();
 
@@ -85,25 +75,23 @@ class OrderController extends Controller
         ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+    // Create a new order
     public function store(Request $request)
     {
-        if (!$this->a && !$this->o) {
-            return view('login');
-        }
 
-        if ($request->client_id == '0') {
-            return redirect()->route('orders.create')->with('message', 'Selecione um cliente para prosseguir.');
-        }
+        // If user is not administrator or on call technician, redirect to login
+        if (!$this->a && !$this->o) {return view('login');}
 
-        //If there is no contact name, then use the name of the client that was selected
+        // If there is no client selected, redirect to create page
+        if ($request->client_id == '0') {return redirect()->route('orders.create')->with('message', 'Selecione um cliente para prosseguir.');}
+
+        // If there is no contact name, then use the name of the client that was selected
         $cont_name_client = $request->req_name;
         if (!$request->req_name) {
             $cont_name_client = Client::find($request->client_id)->contact;
         }
 
+        // If user that is creating the order is a technician, set the order tec_id to the tec_id itself
         $tec_id = null;
         if (isset(auth()->user()->tec)) {
             $tec_id = auth()->user()->tec->id;
@@ -122,20 +110,15 @@ class OrderController extends Controller
             'req_descr' => $request->req_descr,
         ]);
         
-        if ($created) {
-            if ($this->o && !$this->a) {
-                return redirect()->route('notes.index')->with('message', 'Ordem de serviço criada com sucesso.');
-            }
-            return redirect()->route('orders.index')->with('message', 'Ordem de serviço criada com sucesso.');
-        }
-        return redirect()->route('orders.index')->with('message', 'Erro ao criar ordem de serviço.');
+        $msg = $created ? 'Ordem de serviço criada com sucesso.' : 'Erro ao criar ordem de serviço.';
+        $route = $this->o && !$this->a ? 'notes.index' : 'orders.index';     
+        return redirect()->route($route)->with('message', $msg);
     }
 
-    /**
-     * Display the specified resource.
-     */
+    // Shows the form to delete the order
     public function show(Order $order)
     {
+        // Only administrator can delete orders
         if (!$this->a) {
             return view('login');
         }
@@ -143,11 +126,10 @@ class OrderController extends Controller
         return view('order.order_delete', ['order' => $order]);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
+    // Shows the form to edit the order
     public function edit(Order $order)
     {
+        // Only administrators can edit orders, supervisors can just see them
         if (!$this->a && !$this->s) {
             return view('login');
         }
@@ -156,13 +138,9 @@ class OrderController extends Controller
         $tecs = Tec::all();
         $user = User::select('name')->find($order->user_id);
 
-        $disabled = 'disabled';
-        $msg = '';
-        if ($this->a) {
-            $disabled = '';
-            $msg = 'Editar ';
-        }
-            
+        $disabled = $this->a ? '' : 'disabled';
+        $msg = $this->a ? '' : 'Informações do';
+        
         return view('order.order_edit', [
             'order' => $order,
             'clients' => $clients,
@@ -173,18 +151,12 @@ class OrderController extends Controller
         ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
+    // Only administrators can update orders.
     public function update(Request $request, string $id)
     {
-        if (!$this->a) {
-            return view('login');
-        }
+        if (!$this->a) {return view('login');}
 
-        if ($request->client_id == '0') {
-            return redirect()->back()->with('message', 'Selecione um cliente para prosseguir.');
-        }
+        if ($request->client_id == '0') {return redirect()->back()->with('message', 'Selecione um cliente para prosseguir.');}
 
         $updated = $this->os->where('id', $id)->update($request->except(['_token', '_method', 'adm_id', 'tec_id']));
 
@@ -192,20 +164,14 @@ class OrderController extends Controller
         $os->user_id = auth()->user()->id;
         $updated_adm = $os->save();
 
-        if ($updated && $updated_adm) {
-            return redirect()->back()->with('message', 'Ordem de serviço atualizada com sucesso.');
-        }
-        return redirect()->back()->with('message', 'Erro ao atualizar ordem de serviço.');
+        $msg = $updated && $updated_adm ? 'Ordem de serviço atualizada com sucesso.' : 'Erro ao atualizar ordem de serviço.';
+        return redirect()->back()->with('message', $msg);
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
+    // Only administrators can delete orders
     public function destroy(string $id)
     {
-        if (!$this->a) {
-            return view('login');
-        }
+        if (!$this->a) {return view('login');}
 
         $order = $this->os->find($id);
         
@@ -219,10 +185,8 @@ class OrderController extends Controller
 
         $deleted = $order->delete();
 
-        if ($deleted) {
-            return redirect()->route('orders.index')->with('message', 'Ordem de serviço deletada com sucesso.');
-        }
-        return redirect()->route('orders.index')->with('message', 'Erro ao deletar ordem de serviço.');
+        $msg = $deleted ? 'Ordem de serviço deletada com sucesso.' : 'Erro ao deletar ordem de serviço.';
+        return redirect()->route('orders.index')->with('message', $msg);
     }
 
     public function finish(Order $order): RedirectResponse
@@ -234,23 +198,20 @@ class OrderController extends Controller
         $order->finished = true;
         $updated = $order->save();
 
-        if ($updated) {
-            return redirect()->back()->with('message', 'Ordem de serviço finalizada com sucesso.');
-        }
-
-        return redirect()->back()->with('message', 'Erro ao finalizar Ordem de serviço.');
+        $msg = $updated ? 'Ordem de serviço finalizada com sucesso.' : 'Erro ao finalizar Ordem de serviço.';
+        return redirect()->back()->with('message', $msg);
     }
+
+    // Shows the PDF for the order
     public function show_pdf(Order $order)
     {
-        
-    return view('order.order_pdf', ['order' => $order]);
+        return view('order.order_pdf', ['order' => $order]);
     }
 
+    // Only main administrators or supervisors can change the on call technician
     public function ord_tec_update(Request $request)
     {
-        if (!$this->s && !$this->m) {
-            return view('login');
-        }
+        if (!$this->s && !$this->m) {return view('login');}
 
         $ords = session('ords');
 

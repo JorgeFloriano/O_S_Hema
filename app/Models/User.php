@@ -54,6 +54,11 @@ class User extends Authenticatable
         return $this->hasOne(Adm::class);
     }
 
+    public function isTec()
+    {
+        
+    }
+
     public function tec(): HasOne
     {
         return $this->hasOne(Tec::class);

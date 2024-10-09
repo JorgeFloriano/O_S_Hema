@@ -33,9 +33,7 @@ class NoteController extends Controller
         return view('note.notes_list' , ['orders' => $orders]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
+    // Only technicians can access the service order filling form
     public function create(Order $order)
     {
         if (!$this->t) {
@@ -50,23 +48,20 @@ class NoteController extends Controller
         ]);
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
+    // Only technicians can save notes on the service orders
     public function store(Request $request)
     {
         if (!$this->t) {
             return view('login');
         }
 
+        // Form info can't be saved without first technician signature
         if (!isset($request->sign_t_1) || $request->sign_t_1 == $this->empit_sign) {
             return redirect()->back()->with('message', 'Informações não podem ser salvas sem assinatura de um Técnico.');
         }
 
-        $second_tec = $request->second_tec;
-        if ($request->first_tec == $second_tec) {
-            $second_tec = '0';
-        }
+        // If there is no second_tec, set it to 0
+        $second_tec = $request->first_tec == $request->second_tec ? '0' : $request->second_tec;
 
         $created_note = $this->note->create([
             'order_id' => $request->input('order_id'),
@@ -83,13 +78,14 @@ class NoteController extends Controller
             'end' => $request->input('end'),
             'back_start' => $request->input('back_start'),
             'back_end' => $request->input('back_end'),
-            'food' => $request->input('food'),
+            'food' => $request->input('food') ?? 0,
             'km_start' => $request->input('km_start'),
             'km_end' => $request->input('km_end'),
-            'expense' => $request->input('expense'),
+            'expense' => $request->input('expense') ?? 0,
             'obs' => $request->input('obs'),
             ]);
 
+            // Create note_tec for first_tec
             if ($created_note) {
                 $cr_note_tec1 = NoteTec::create([
                     'note_id' => $created_note->id,
@@ -97,6 +93,7 @@ class NoteController extends Controller
                     'signature' => $request->input('sign_t_1'),
                 ]);
 
+                // Create note_tec for second_tec if he is not 0
                 if ($second_tec != '0') {
                     $cr_note_tec2 = NoteTec::create([
                         'note_id' => $created_note->id,
@@ -106,13 +103,13 @@ class NoteController extends Controller
                 }
             }
     
+            // Update client info and finshed status on order
             $os = Order::find($request->input('order_id'));
             $os->cl_name = $request->input('cl_name');
             $os->cl_function = $request->input('cl_function');
             $os->cl_contact = $request->input('cl_contact');
             $os->cl_date = \Carbon\Carbon::now()->format('Y-m-d');
             $os->cl_sign = $request->input('cl_sign');
-
             $os->finished = $request->input('finished');
             $updated_os = $os->save();
     
@@ -125,14 +122,13 @@ class NoteController extends Controller
             return redirect()->back()->with('message', 'Erro ao salvar informações.');
     }
 
-    /**
-     * Display the specified resource.
-     */
+    // Show the form for deleting a note on the service orders
     public function show(Note $note)
     {
-
+        // Get the first technician of the note
         $note->first_tec = Note::find($note->id)->tecs[0];
 
+        // Get the second technician of the note if he exists
         if (isset(Note::find($note->id)->tecs[1])) {
             $note->second_tec = Note::find($note->id)->tecs[1];
         }

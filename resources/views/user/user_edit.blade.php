@@ -56,7 +56,7 @@
 
                         <div class="form-floating my-2">
                             <input type="password" class="form-control" id="password" name="password" placeholder="Senha" autocomplete="new-password">
-                            <label for="password">Senha (escolha uma senha com letras números e símbolos)</label>
+                            <label for="password">Senha</label>
                         </div>
 
                         <div class="form-floating my-2">

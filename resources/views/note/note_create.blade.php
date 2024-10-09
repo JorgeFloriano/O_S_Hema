@@ -206,13 +206,13 @@
                         <div class="row g-2">
                             <div class="col">
                                 <div class="form-floating">
-                                    <input type="number" class="form-control" id="food" step="0.01" max="9999.99" min="0" required name="food" placeholder="Alimantação (R$)">
+                                    <input type="number" class="form-control" id="food" step="0.01" max="9999.99" min="0" name="food" placeholder="Alimantação (R$)">
                                     <label for="food">Alimentação (R$)</label>
                                 </div>
                             </div>
                             <div class="col"> 
                                 <div class="form-floating">
-                                    <input type="number" class="form-control" id="expense" step="0.01" max="9999.99" min="0" required name="expense" placeholder="Outras Despesas (R$)">
+                                    <input type="number" class="form-control" id="expense" step="0.01" max="9999.99" min="0" name="expense" placeholder="Outras Despesas (R$)">
                                     <label for="expense">Outros (R$)</label>
                                 </div>
                             </div>

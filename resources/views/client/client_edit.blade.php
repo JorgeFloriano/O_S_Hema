@@ -27,7 +27,7 @@
                         <input type="hidden" name="_method" id="idNum" value="PUT">
 
                         <div class="form-floating my-2">
-                            <input type="text" class="form-control" id="name" name="name" maxlength="20" placeholder="Nome da Empresa" value="{{$client->name}}">
+                            <input type="text" class="form-control" id="name" name="name" maxlength="20" placeholder="Nome da Empresa" value="{{$client->name}}" required>
                             <label for="name">Nome da Empresa</label>
                         </div>
 
@@ -47,7 +47,7 @@
                         </div>
 
                         <div class="form-floating my-2">
-                            <input type="text" class="form-control" id="address" name="address" maxlength="80" placeholder="Endereço" value="{{$client->address}}">
+                            <input type="text" class="form-control" id="address" name="address" maxlength="80" placeholder="Endereço" value="{{$client->address}}" required>
                             <label for="address">Endereço</label>
                         </div>
 
@@ -57,12 +57,12 @@
                         </div>
 
                         <div class="form-floating my-2">
-                            <input type="text" class="form-control" id="phone" name="phone" maxlength="20" placeholder="Telefone" value="{{$client->phone}}">
+                            <input type="text" class="form-control" id="phone" name="phone" maxlength="20" placeholder="Telefone" value="{{$client->phone}}" required>
                             <label for="phone">Telefone</label>
                         </div>
                         
                         <div class="form-floating my-2">
-                            <input type="text" class="form-control" id="contact" name="contact" maxlength="20" placeholder="Nome do Contato" value="{{$client->contact}}">
+                            <input type="text" class="form-control" id="contact" name="contact" maxlength="20" placeholder="Nome do Contato" value="{{$client->contact}}" required>
                             <label for="contact">Nome do Contato</label>
                         </div>
                         <div class="my-2">

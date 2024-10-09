@@ -35,7 +35,7 @@
                         </div>
 
                         <div class="form-floating my-2">
-                            <input type="text" class="form-control" id="sector" name="sector" maxlength="30" placeholder="Setor">
+                            <input type="text" class="form-control" id="sector" name="sector" maxlength="30" placeholder="Setor" required>
                             <label for="sector">Setor</label>
                         </div>
 
@@ -45,12 +45,12 @@
                         </div>
 
                         <div class="form-floating my-2">
-                            <input type="date" class="form-control" id="req_date" name="req_date" placeholder="Data do Acionamento" value="{{\Carbon\Carbon::now()->format('Y-m-d')}}">
+                            <input type="date" class="form-control" id="req_date" name="req_date" placeholder="Data do Acionamento" value="{{\Carbon\Carbon::now()->format('Y-m-d')}}" required>
                             <label for="req_date">Data do Acionamento</label>
                         </div>
 
                         <div class="form-floating my-2">
-                            <input type="time" class="form-control" id="req_time" name="req_time" placeholder="Hora do Acionamento" value="{{\Carbon\Carbon::now()->format('H:i')}}">
+                            <input type="time" class="form-control" id="req_time" name="req_time" placeholder="Hora do Acionamento" value="{{\Carbon\Carbon::now()->format('H:i')}}" required>
                             <label for="req_time">Hora do Acionamento</label>
                         </div>
 

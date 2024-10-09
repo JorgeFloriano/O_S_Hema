@@ -53,12 +53,12 @@
                         </div>
 
                         <div class="form-floating my-2">
-                            <input type="password" class="form-control" id="password" minlength="5" name="password" placeholder="Senha" required>
-                            <label for="password">Senha (escolha uma senha com letras números e símbolos)</label>
+                            <input type="password" class="form-control" id="password" minlength="5" maxlength="100" name="password" placeholder="Senha" required>
+                            <label for="password">Senha</label>
                         </div>
 
                         <div class="form-floating my-2">
-                            <input type="password" class="form-control" id="confirm_pass" minlength="5" name="confirm_pass" placeholder="Confirmar Senha" required>
+                            <input type="password" class="form-control" id="confirm_pass" minlength="5" maxlength="100" name="confirm_pass" placeholder="Confirmar Senha" required>
                             <label for="confirm_pass">Confirmar Senha</label>
                         </div>
 
