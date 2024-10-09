@@ -54,50 +54,50 @@
                         <input type="hidden" name="order_id" id="order_id" value="{{$note->order->id}}">
 
                         <div class="form-floating my-2">
-                            <input type="text" class="form-control" id="equipMod" name="equip_mod" maxlength="20" value="{{$note->equip_mod}}">
+                            <input type="text" class="form-control" id="equipMod" name="equip_mod" maxlength="20" value="{{$note->equip_mod}}" required>
                             <label for="equipMod">Modelo do Equipamento</label>
                         </div>
 
                         <div class="form-floating my-2">
-                            <input type="text" class="form-control" id="equipId" name="equip_id" maxlength="20" value="{{$note->equip_id}}">
+                            <input type="text" class="form-control" id="equipId" name="equip_id" maxlength="20" value="{{$note->equip_id}}" required>
                             <label for="equipId">Número de Série</label>
                         </div>
 
                         <div class="form-floating my-2">
-                            <input type="text" name="equip_type" class="form-control" id="equipType" maxlength="20" value="{{$note->equip_type}}">
+                            <input type="text" name="equip_type" class="form-control" id="equipType" maxlength="20" value="{{$note->equip_type}}" required>
                             <label for="equipType">Tipo do Equipamento</label>
                         </div>
 
                         <div class="form-floating my-2">
-                            <textarea id="situation" name="situation" maxlength="70" class='autoExpand form-control' rows='1' data-min-rows='1'>{{$note->situation}}</textarea>
+                            <textarea id="situation" name="situation" maxlength="70" class='autoExpand form-control' rows='1' data-min-rows='1' required>{{$note->situation}}</textarea>
                             <label for="situation">Descrição da situação encontrada</label>
                         </div>
 
                         <div class="form-floating my-2">
-                            <textarea id="cause" name="cause" maxlength="80" class='autoExpand form-control' rows='1' data-min-rows='1'>{{$note->cause}}</textarea>
+                            <textarea id="cause" name="cause" maxlength="80" class='autoExpand form-control' rows='1' data-min-rows='1' required>{{$note->cause}}</textarea>
                             <label for="cause">Provável causa do problema</label>
                         </div>
 
                         <div class="form-floating my-2">
-                            <textarea id="services" name="services" maxlength="330" class='autoExpand form-control' rows='1' data-min-rows='1'>{{$note->services}}</textarea>
+                            <textarea id="services" name="services" maxlength="330" class='autoExpand form-control' rows='1' data-min-rows='1' required>{{$note->services}}</textarea>
                             <label for="services">Descrição dos serviços executados</label>
                         </div>
 
                         <div class="form-floating my-2">
-                            <input type="date" class="form-control" id="date" name="date" value="{{$note->date}}">
+                            <input type="date" class="form-control" id="date" name="date" value="{{$note->date}}" required>
                             <label for="date">Data do Atendimento</label>
                         </div>
 
                         <div class="row g-2 mb-2">
                             <div class="col">
                                 <div class="form-floating">
-                                    <input type="time" class="form-control" id="goStart" name="go_start" value="{{$note->go_start}}">
+                                    <input type="time" class="form-control" id="goStart" name="go_start" value="{{$note->go_start}}" required>
                                     <label for="goStart">Saída (Ida)</label>
                                 </div>
                             </div>
                             <div class="col">
                                 <div class="form-floating">
-                                    <input type="time" class="form-control" id="goEnd" name="go_end" value="{{$note->go_end}}">
+                                    <input type="time" class="form-control" id="goEnd" name="go_end" value="{{$note->go_end}}" required>
                                     <label for="goEnd">Chegada (Ida)</label>
                                 </div>
                             </div>
@@ -106,13 +106,13 @@
                         <div class="row g-2 mb-2">
                             <div class="col">
                                 <div class="form-floating">
-                                    <input type="time" class="form-control" id="Start" name="start" value="{{$note->start}}">
+                                    <input type="time" class="form-control" id="Start" name="start" value="{{$note->start}}" required>
                                     <label for="Start">Início</label>
                                 </div>
                             </div>
                             <div class="col">    
                                 <div class="form-floating">
-                                    <input type="time" class="form-control" id="End" name="end" value="{{$note->end}}">
+                                    <input type="time" class="form-control" id="End" name="end" value="{{$note->end}}" required>
                                     <label for="End">Término</label>
                                 </div>
                             </div>
@@ -121,13 +121,13 @@
                         <div class="row g-2 mb-2">
                             <div class="col">
                                 <div class="form-floating">
-                                    <input type="time" class="form-control" id="backStart" name="back_start" value="{{$note->back_start}}">
+                                    <input type="time" class="form-control" id="backStart" name="back_start" value="{{$note->back_start}}" required>
                                     <label for="backStart">Saída (Volta)</label>
                                 </div>
                             </div>
                             <div class="col"> 
                                 <div class="form-floating">
-                                    <input type="time" class="form-control" id="backEnd" name="back_end" value="{{$note->back_end}}">
+                                    <input type="time" class="form-control" id="backEnd" name="back_end" value="{{$note->back_end}}" required>
                                     <label for="goStart">Chegada (Volta)</label>
                                 </div>
                             </div>
