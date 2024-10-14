@@ -15,8 +15,18 @@
                     </div>
                 @endif
 
+                @if ($errors->any())
+                    <div class="alert alert-warning">
+                        <ul>
+                            @foreach ($errors->all() as $msg)
+                                <li>{{$msg}}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
                 <div id="header" class="my-2">
-                    <h2>{{$msg}}Ordem de Serviço Nº {{$order->id}}</h2> 
+                    <h2>{{$title}}Ordem de Serviço Nº {{$order->id}}</h2> 
                 </div>
                 <hr>
                 <main>

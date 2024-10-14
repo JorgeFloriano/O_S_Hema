@@ -2,12 +2,16 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\FormCrUserRequest;
+use App\Http\Requests\FormUpUserRequest;
 use App\Models\Adm;
 use App\Models\Sup;
 use App\Models\Tec;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class UserController extends Controller
 {
@@ -30,7 +34,9 @@ class UserController extends Controller
             return view('login');
         }
 
-        $users = $this->user->select('id', 'name','function')->simplePaginate(10);
+        $admins = Adm::select('user_id')->where('main', 1)->get();
+
+        $users = $this->user->select('id', 'name','function')->whereNotIn('id', $admins)->simplePaginate(10);
 
         return view('user.users_list' , ['users' => $users]);
     }
@@ -91,38 +97,22 @@ class UserController extends Controller
     }
 
     // If logged in user is adm main, validate and create a new user
-    public function store(Request $request)
+    public function store(FormCrUserRequest $request)
     {
         if (!$this->m) {
             return view('login');
         }
 
-        $request->validate([
-            'email' => 'email|unique:users',
-            'password' => 'min:5|unique:users'
-        ], [
-            'email.email' => 'Digite um e-mail válido',
-            'password.min' => 'Digite uma senha com pelo menos 5 caracteres',
-            'email.unique' => 'O e-mail digitado está em uso, por favor escolha outro.',
-            'password.unique' => 'A senha digitada está em uso, por favor escolha outra.',
-        ]);
-
-        // Verify if any access option is selected
-        if (!$request->adm && !$request->tec && !$request->sup) {
-            return redirect()->back()->with('message', 'Selecione um acesso para o usuário.');
-        }
-
-        // Verify if password and confirm_pass are the same
-        if ($request->password !== $request->confirm_pass) {
-            return redirect()->back()->with('message', 'A senha digitada tem que ser identica à confirmação.');
-        }
+        $request->validated();
+        $email = $request->username.'@hema.com.br';
 
         // Create new user
         $user_cr = $this->user->create([
             'name' => $request->input('name'),
             'surname' => $request->input('surname'),
             'function' => $request->input('function'),
-            'email' => $request->input('email'),
+            'username' => $request->input('username'),
+            'email' => $email,
             'password' => Hash::make($request->input('password')),
         ]);
 
@@ -170,6 +160,9 @@ class UserController extends Controller
     // Shows the form to edit the user registration
     public function edit(User $user)
     {
+        if (!$this->m) {
+            return view('login');
+        }
 
         // Checks if the user has any access and this will be selected
         $tec_checked = '';
@@ -203,7 +196,21 @@ class UserController extends Controller
             return view('login');
         }
 
-        // If the password field is filled, validate it
+        $min = $request->password && $request->password_confirmation ? 'min:5' : 'min:0';
+
+        Validator::make($request->all(), [
+            'name' => 'required|max:20',
+            'surname' => 'max:20',
+            'function' => 'required|max:20',
+            'username' => [Rule::unique('users')->ignore($id), 'min:10', 'max:100'],
+            'password' => [$min, 'confirmed']
+        ], [
+            'username.unique' => 'O nome de usúario digitado está em uso, por favor escolha outro.',
+            'password.min' => 'Digite uma senha com pelo menos 5 caracteres',
+            'password.confirmed' => 'As senhas digitadas deveriam ser identicas.',
+        ])->validate();
+
+        //If the password field is filled, validate it
         if ($request->input('password')) {
             $request->validate([
                 'password' => 'min:5'
@@ -211,24 +218,12 @@ class UserController extends Controller
                 'password.min' => 'Digite uma senha com pelo menos 5 caracteres',
             ]);
         }
-
-        // If the email field has been changed, validate the new email
-        $email = $this->user->find($id)->email;
-
-        if ($request->email != $email) {
-            $request->validate([
-                'email' => 'email|unique:users',
-            ], [
-                'email.email' => 'Digite um e-mail válido',
-                'email.unique' => 'O e-mail digitado está em uso, por favor escolha outro.',
-            ]);
-        }
-        
+       
         $updated = $this->user->where('id', $id)->update($request->except([
             '_token',
             '_method',
             'password',
-            'confirm_pass',
+            'password_confirmation',
             'tec',
             'adm',
             'sup'
@@ -242,25 +237,14 @@ class UserController extends Controller
             return redirect()->back()->with('message', 'O usuário deve ter pelo menos um acesso.');
         }
 
-        // Verify if one of the password and confirm_pass fields has been filled in and the other has not
-        if ((!$request->input('password') && $request->input('confirm_pass')) || ($request->input('password') && !$request->input('confirm_pass'))) {
-            return redirect()->back()->with('message', 'Para alterar a senha, preencha os campos \'Senha\' e \'Confirmação de Senha\'.');
-        }
-
-        // Verify if the password and confirm_pass fields are equal and not empty
-        if ($request->password == $request->confirm_pass && $request->password != '') {
+        // Verify if the password and passwordconfirmation fields are equal and not empty
+        if ($request->password == $request->password_confirmation && $request->password != '') {
 
             // Update the password
             $user = $this->user->where('id', $id)->first();
 
             $user->password = Hash::make($request->input('password'));
             $user->save();
-        } else {
-
-            // Return an error message if the password and confirm_pass fields are not equal
-            if ($request->password != '' && $request->confirm_pass != '') {
-                return redirect()->back()->with('message', 'A senha digitada deve ser identica à confirmação.');
-            }
         }
 
         // If the user not has a technician access and the tec field is filled, create one

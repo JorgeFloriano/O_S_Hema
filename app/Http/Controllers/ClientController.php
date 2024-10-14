@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\FormCliRequest;
 use App\Models\Client;
 use Illuminate\Http\Request;
 
@@ -44,20 +45,13 @@ class ClientController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(FormCliRequest $request)
     {
         if (!$this->m) {
             return view('login');
         }
         
-        $request->validate([
-            'email' => 'email|unique:clients',
-            'cnpj_cpf' => 'unique:clients'
-        ], [
-            'email.email' => 'Digite um e-mail válido',
-            'email.unique' => 'O e-mail digitado está em uso, por favor escolha outro.',
-            'cnpj_cpf.unique' => 'O CNPJ digitado está já foi cadastrado.',
-        ]);
+        $request->validated();
 
         $created = $this->client->create([
             'name' => $request->input('name'),
@@ -102,11 +96,13 @@ class ClientController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(FormCliRequest $request, string $id)
     {
         if (!$this->m) {
             return view('login');
         }
+
+        $request->validated();
         
         $updated = $this->client->where('id', $id)->update($request->except(['_token', '_method']));
 

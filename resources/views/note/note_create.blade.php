@@ -15,6 +15,16 @@
                     </div>
                 @endif
 
+                @if ($errors->any())
+                    <div class="alert alert-warning">
+                        <ul>
+                            @foreach ($errors->all() as $msg)
+                                <li>{{$msg}}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
                 <div id="header" class="text-center my-2">
                     <strong>Solicitação de Assistência Técnica nº <span style="color: red">{{$order->id}}</span></strong>
                 </div>
@@ -146,13 +156,13 @@
                         <div class="row g-2 mb-2">
                             <div class="col">
                                 <div class="form-floating">
-                                    <input type="time" class="form-control" id="goStart" required name="go_start" placeholder="Saída (Ida)" value="{{\Carbon\Carbon::now()->subtract(160, 'minutes')->format('H:i')}}">
+                                    <input type="time" class="form-control" id="goStart" required name="go_start" placeholder="Saída (Ida)" value="{{old('go_start')}}">
                                     <label for="goStart">Saída (Ida)</label>
                                 </div>
                             </div>
                             <div class="col">
                                 <div class="form-floating">
-                                    <input type="time" class="form-control" id="goEnd" required name="go_end" placeholder="Chegada (Ida)" value="{{\Carbon\Carbon::now()->subtract(130, 'minutes')->format('H:i')}}">
+                                    <input type="time" class="form-control" id="goEnd" required name="go_end" placeholder="Chegada (Ida)" value={{old('go_end')}}>
                                     <label for="goEnd">Chegada (Ida)</label>
                                 </div>
                             </div>
@@ -161,13 +171,13 @@
                         <div class="row g-2 mb-2">
                             <div class="col">
                                 <div class="form-floating">
-                                    <input type="time" class="form-control" id="Start" required name="start" placeholder="Início" value="{{\Carbon\Carbon::now()->subtract(2, 'hours')->format('H:i')}}">
+                                    <input type="time" class="form-control" id="Start" required name="start" placeholder="Início" value={{old('start')}}>
                                     <label for="Start">Início</label>
                                 </div>
                             </div>
                             <div class="col">    
                                 <div class="form-floating">
-                                    <input type="time" class="form-control" id="End" required name="end" placeholder="Término" value="{{\Carbon\Carbon::now()->format('H:i')}}">
+                                    <input type="time" class="form-control" id="End" required name="end" placeholder="Término" value={{old('end')}}>
                                     <label for="End">Término</label>
                                 </div>
                             </div>
@@ -176,13 +186,13 @@
                         <div class="row g-2 mb-2">
                             <div class="col">
                                 <div class="form-floating">
-                                    <input type="time" class="form-control" id="backStart" required name="back_start" placeholder="Saída (Volta)" value="{{\Carbon\Carbon::now()->add(10, 'minutes')->format('H:i')}}">
+                                    <input type="time" class="form-control" id="backStart" required name="back_start" placeholder="Saída (Volta)" value={{old('back_start')}}>
                                     <label for="backStart">Saída (Volta)</label>
                                 </div>
                             </div>
                             <div class="col"> 
                                 <div class="form-floating">
-                                    <input type="time" class="form-control" id="backEnd" required name="back_end" placeholder="Chegada (Volta)" value="{{\Carbon\Carbon::now()->add(40, 'minutes')->format('H:i')}}">
+                                    <input type="time" class="form-control" id="backEnd" required name="back_end" placeholder="Chegada (Volta)" value={{old('back_end')}}>
                                     <label for="goStart">Chegada (Volta)</label>
                                 </div>
                             </div>
@@ -191,13 +201,13 @@
                         <div class="row g-2 mb-2">
                             <div class="col">
                                 <div class="form-floating">
-                                    <input type="number" class="form-control" id="kmStart" step="0.01" max="9999.99" min="0" required name="km_start" placeholder="Km inicial">
+                                    <input type="number" class="form-control" id="kmStart" step="0.01" max="9999.99" min="0" required name="km_start" placeholder="Km inicial" value="{{old('km_start')}}">
                                     <label for="kmStart">Km inicial</label>
                                 </div>
                             </div>
                             <div class="col">    
                                 <div class="form-floating">
-                                    <input type="number" class="form-control" id="kmEnd" step="0.01" max="9999.99" min="0" required name="km_end" placeholder="Km final">
+                                    <input type="number" class="form-control" id="kmEnd" step="0.01" max="9999.99" min="0" required name="km_end" placeholder="Km final" value="{{old('km_end')}}">
                                     <label for="kmEnd">Km final</label>
                                 </div>
                             </div>
@@ -206,13 +216,13 @@
                         <div class="row g-2">
                             <div class="col">
                                 <div class="form-floating">
-                                    <input type="number" class="form-control" id="food" step="0.01" max="9999.99" min="0" name="food" placeholder="Alimantação (R$)">
+                                    <input type="number" class="form-control" id="food" step="0.01" max="9999.99" min="0" name="food" placeholder="Alimantação (R$)" value="{{old('food')}}">
                                     <label for="food">Alimentação (R$)</label>
                                 </div>
                             </div>
                             <div class="col"> 
                                 <div class="form-floating">
-                                    <input type="number" class="form-control" id="expense" step="0.01" max="9999.99" min="0" name="expense" placeholder="Outras Despesas (R$)">
+                                    <input type="number" class="form-control" id="expense" step="0.01" max="9999.99" min="0" name="expense" placeholder="Outras Despesas (R$)" value="{{old('expense')}}">
                                     <label for="expense">Outros (R$)</label>
                                 </div>
                             </div>

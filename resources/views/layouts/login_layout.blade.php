@@ -6,6 +6,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ asset('assets/fontawesome/font-awesome.min.css')}}" type="text/css">
     <link rel="stylesheet" href="{{ asset('assets/boodstrap/bootstrap.min.css')}}" type="text/css">
+    <link rel="shortcut icon" href="{{asset('favicon.ico')}}">
     <style>
 
         body {
@@ -24,7 +25,7 @@
         }
 
     </style>
-    <title>Login</title>
+    <title>Sistema de Gerenciamento Hema</title>
 </head>
 <body>
 

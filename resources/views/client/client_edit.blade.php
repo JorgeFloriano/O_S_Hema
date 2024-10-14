@@ -15,6 +15,16 @@
                     </div>
                 @endif
 
+                @if ($errors->any())
+                    <div class="alert alert-warning">
+                        <ul>
+                            @foreach ($errors->all() as $msg)
+                                <li>{{$msg}}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
                 <div id="header" class="my-2">
                     <h2>Editar Cadastro do Cliente nº{{$client->id}}</h2>
                 </div>
@@ -27,12 +37,12 @@
                         <input type="hidden" name="_method" id="idNum" value="PUT">
 
                         <div class="form-floating my-2">
-                            <input type="text" class="form-control" id="name" name="name" maxlength="20" placeholder="Nome da Empresa" value="{{$client->name}}" required>
+                            <input type="text" class="form-control" id="name" name="name" maxlength="20" required placeholder="Nome da Empresa" value="{{$client->name}}">
                             <label for="name">Nome da Empresa</label>
                         </div>
 
                         <div class="form-floating my-2">
-                            <input type="text" class="form-control" id="cnpj_cpf" name="cnpj_cpf" maxlength="40" placeholder="CNPJ" value="{{$client->cnpj_cpf}}">
+                            <input type="text" class="form-control" id="cnpj_cpf" name="cnpj_cpf" maxlength="20" placeholder="CNPJ" value="{{$client->cnpj_cpf}}">
                             <label for="cnpj_cpf">CNPJ</label>
                         </div>
 
