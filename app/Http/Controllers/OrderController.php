@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\FormOrderRequest;
 use App\Models\Client;
 use App\Models\NoteTec;
 use App\Models\Order;
@@ -76,11 +77,13 @@ class OrderController extends Controller
     }
 
     // Create a new order
-    public function store(Request $request)
+    public function store(FormOrderRequest $request)
     {
 
         // If user is not administrator or on call technician, redirect to login
         if (!$this->a && !$this->o) {return view('login');}
+
+        $request->validated();
 
         // If there is no client selected, redirect to create page
         if ($request->client_id == '0') {return redirect()->route('orders.create')->with('message', 'Selecione um cliente para prosseguir.');}
@@ -138,8 +141,11 @@ class OrderController extends Controller
         $tecs = Tec::all();
         $user = User::select('name')->find($order->user_id);
 
+        // Remove seconds from requests time format
+        $order->req_time = date_format(date_create($order->req_time), 'H:i');
+
         $disabled = $this->a ? '' : 'disabled';
-        $msg = $this->a ? '' : 'Informações do';
+        $title = $this->a ? '' : 'Informações do';
         
         return view('order.order_edit', [
             'order' => $order,
@@ -147,14 +153,16 @@ class OrderController extends Controller
             'tecs' => $tecs,
             'user' => $user,
             'disabled' => $disabled,
-            'msg' => $msg
+            'title' => $title
         ]);
     }
 
     // Only administrators can update orders.
-    public function update(Request $request, string $id)
+    public function update(FormOrderRequest $request, string $id)
     {
         if (!$this->a) {return view('login');}
+
+        $request->validated();
 
         if ($request->client_id == '0') {return redirect()->back()->with('message', 'Selecione um cliente para prosseguir.');}
 

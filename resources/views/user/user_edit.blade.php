@@ -16,10 +16,12 @@
                 @endif
 
                 @if ($errors->any())
-                    <div class="alert alert-danger">
-                        @foreach ($errors->all() as $msg)
-                            <div>{{$msg}}</div>
-                        @endforeach
+                    <div class="alert alert-warning">
+                        <ul>
+                            @foreach ($errors->all() as $msg)
+                                <li>{{$msg}}</li>
+                            @endforeach
+                        </ul>
                     </div>
                 @endif
 
@@ -50,8 +52,8 @@
                         </div>
 
                         <div class="form-floating my-2">
-                            <input type="email" class="form-control" id="email" name="email" value="{{$user->email}}" placeholder="E-mail" required>
-                            <label for="email">E-mail</label>
+                            <input type="text" class="form-control" id="username" name="username" value="{{$user->username}}" placeholder="E-mail" min="10" max="100" required>
+                            <label for="username">Nome de Usúario</label>
                         </div>
 
                         <div class="form-floating my-2">
@@ -60,8 +62,8 @@
                         </div>
 
                         <div class="form-floating my-2">
-                            <input type="password" class="form-control" id="confirm_pass" name="confirm_pass" placeholder="Confirmar Senha">
-                            <label for="confirm_pass">Confirmar Senha</label>
+                            <input type="password" class="form-control" id="password_confirmation" name="password_confirmation" placeholder="Confirmar Senha">
+                            <label for="password_confirmation">Confirmar Senha</label>
                         </div>
 
                         <div class="form-check">

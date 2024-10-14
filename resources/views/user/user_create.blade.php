@@ -16,10 +16,12 @@
                 @endif
 
                 @if ($errors->any())
-                    <div class="alert alert-danger">
-                        @foreach ($errors->all() as $msg)
-                            <div>{{$msg}}</div>
-                        @endforeach
+                    <div class="alert alert-warning">
+                        <ul>
+                            @foreach ($errors->all() as $msg)
+                                <li>{{$msg}}</li>
+                            @endforeach
+                        </ul>
                     </div>
                 @endif
 
@@ -48,18 +50,18 @@
                         </div>
 
                         <div class="form-floating my-2">
-                            <input type="email" class="form-control" id="email" name="email" value="@hema.com.br" placeholder="E-mail" required>
-                            <label for="email">E-mail</label>
+                            <input type="text" class="form-control" id="username" name="username" value="{{old('username')}}" placeholder="Nome de Usúario" min="10" max="100" required>
+                            <label for="username">Nome de Usúario</label>
                         </div>
 
                         <div class="form-floating my-2">
-                            <input type="password" class="form-control" id="password" minlength="5" maxlength="100" name="password" placeholder="Senha" required>
+                            <input type="password" class="form-control" id="password" minlength="5" maxlength="100" name="password" autocomplete="new-password" placeholder="Senha" required>
                             <label for="password">Senha</label>
                         </div>
 
                         <div class="form-floating my-2">
-                            <input type="password" class="form-control" id="confirm_pass" minlength="5" maxlength="100" name="confirm_pass" placeholder="Confirmar Senha" required>
-                            <label for="confirm_pass">Confirmar Senha</label>
+                            <input type="password" class="form-control" id="password_confirmation" minlength="5" maxlength="100" name="password_confirmation" placeholder="Confirmar Senha" required>
+                            <label for="password_confirmation">Confirmar Senha</label>
                         </div>
 
                         <div class="form-check">

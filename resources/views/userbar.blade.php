@@ -34,6 +34,13 @@
                 @if (auth()->user()->adm()->first())
                     @if (auth()->user()->adm()->first()->main)
                         <li>
+                            <a class="dropdown-item btn-lg" href="{{route('users.edit', ['user' => auth()->user()->id])}}">
+                                <i class="fa fa-user" aria-hidden="true"></i>
+                                Perfil
+                            </a>
+                        </li>
+
+                        <li>
                             <a class="dropdown-item btn-lg" href="{{route('clients.index')}}">
                                 <i class="fa fa-handshake-o" aria-hidden="true"></i>
                                 Clientes

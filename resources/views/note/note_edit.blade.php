@@ -15,6 +15,16 @@
                     </div>
                 @endif
 
+                @if ($errors->any())
+                    <div class="alert alert-warning">
+                        <ul>
+                            @foreach ($errors->all() as $msg)
+                                <li>{{$msg}}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
                 <div id="header" class="text-center my-2">
                     <strong>Solicitação de Assistência Técnica nº <span style="color: red">{{$note->order->id}}</span></strong>
                 </div>
@@ -250,6 +260,8 @@
                                 </div>
                             </div>
                         </div>
+
+                        <input type="hidden" name="finished" id="idFinished" value="0">
 
                         <div class="mb-3">
                             <button id="submitButton" type="button" class="btn btn-primary me-2" data-bs-dismiss="modal">

@@ -17,11 +17,11 @@
                             @csrf
                             <h2>Sistema de Gerenciamento</h2>
                             <div class="form-floating my-3">
-                                <input type="email" name="email" id="email" class="form-control" placeholder="E-mail" required>
-                                <label for="email">E-mail</label>
+                                <input type="text" name="username" id="username" class="form-control" placeholder="Usúario" required value="{{old('username')}}">
+                                <label for="username">Usúario</label>
                             </div>
                             <div class="form-floating my-3">
-                                <input type="password" name="password" id="password" class="form-control" placeholder="Senha" required>
+                                <input type="password" name="password" id="password" class="form-control" placeholder="Senha" required value="{{old('password')}}">
                                 <label for="password">Senha</label>
                             </div>
                             <div class="form-group my-3">
@@ -33,15 +33,14 @@
                         {{-- validation errors --}}
                         @if ($errors->any())
                             <div class="alert alert-danger">
-                                @foreach ($errors->all() as $msg)
-                                    <div>{{$msg}}</div>
-                                @endforeach
+                                <ul>
+                                    @foreach ($errors->all() as $msg)
+                                        <li>{{$msg}}</li>
+                                    @endforeach
+                                </ul>
                             </div>
                         @endif
-                                    {{-- login errors --}}
-                                    {{-- @error('error')
-                        <div class="alert alert-danger text-center">{{$message}}</div>
-                                    @enderror --}}
+                                
                     </div>
                 </div>
             </div>

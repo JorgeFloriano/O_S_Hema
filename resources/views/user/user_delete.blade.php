@@ -31,8 +31,8 @@
                         </div>
 
                         <div class="form-floating my-2">
-                            <input type="email" class="form-control" id="email" name="email" value="{{$user->email}}" disabled>
-                            <label for="email">E-mail</label>
+                            <input type="text" class="form-control" id="username" name="username" value="{{$user->username}}" disabled>
+                            <label for="username">Nome de Usúario</label>
                         </div>
 
                         <div class="alert alert-danger mb-2">

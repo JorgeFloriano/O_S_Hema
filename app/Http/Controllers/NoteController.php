@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\FormNoteRequest;
 use App\Models\Note;
 use App\Models\NoteTec;
 use App\Models\Order;
@@ -49,11 +50,13 @@ class NoteController extends Controller
     }
 
     // Only technicians can save notes on the service orders
-    public function store(Request $request)
+    public function store(FormNoteRequest $request)
     {
         if (!$this->t) {
             return view('login');
         }
+
+        $request->validated();
 
         // Form info can't be saved without first technician signature
         if (!isset($request->sign_t_1) || $request->sign_t_1 == $this->empit_sign) {
@@ -161,6 +164,14 @@ class NoteController extends Controller
 
         $tecs = Tec::where('id','!=', $note->first_tec->id)->get();
 
+        // Remove seconds from requests time format
+        $note->go_start = date_format(date_create($note->go_start), 'H:i');
+        $note->go_end = date_format(date_create($note->go_end), 'H:i');
+        $note->start = date_format(date_create($note->start), 'H:i');
+        $note->end = date_format(date_create($note->end), 'H:i');
+        $note->back_start = date_format(date_create($note->back_start), 'H:i');
+        $note->back_end = date_format(date_create($note->back_end), 'H:i');
+
         return view('note.note_edit', [
             'note' => $note,
             'tecs' => $tecs,
@@ -170,11 +181,13 @@ class NoteController extends Controller
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(FormNoteRequest $request, string $id)
     {      
         if (!$this->t) {
             return view('login');
         }
+
+        $request->validated();
 
         $note_tec1 = NoteTec::where('note_id', $id)->get()[0];
         $note_tec1->signature = $request->sign_t_1;
@@ -209,10 +222,10 @@ class NoteController extends Controller
                 return redirect()->back()->with('message', 'Informações não podem ser salvas sem assinatura de um Técnico.');
             }
 
-            $updated = $this->note->where('id', $id)->update($request->except(['_token', '_method', 'submit_button', 'first_tec', 'second_tec', 'sign_t_1', 'sign_t_2']));
+            $updated = $this->note->where('id', $id)->update($request->except(['_token', '_method', 'submit_button', 'first_tec', 'second_tec', 'sign_t_1', 'sign_t_2', 'finished']));
     
             if ($updated) {
-                return redirect()->back()->with('message', 'Registro de serviço atualizada com sucesso.');
+                return redirect()->back()->with('message', 'Registro de serviço atualizado com sucesso.');
             }
             return redirect()->back()->with('message', 'Erro ao atualizar registro de serviço.');
         }

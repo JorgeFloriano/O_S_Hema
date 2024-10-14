@@ -2,26 +2,15 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\FormLoginRequest;
 use App\Models\Adm;
-use App\Models\NoteTec;
-use App\Models\Sup;
-use App\Models\Tec;
 use App\Models\User;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 
 class LoginController extends Controller
 {
     public function add() {
-
-        // $user = new User();
-        // $user->name = 'João Pedro';
-        // $user->function = 'Adm 01';
-        // $user->email = 'joaopedro@hema.com.br';
-        // $user->password = Hash::make('j0a0pedr0123');
-        // $user->save();
-        // echo 'user saved';
 
         // echo 'user saved';
 
@@ -70,18 +59,11 @@ class LoginController extends Controller
         return view('login');
     }
 
-    public function store(Request $request)
+    public function store(FormLoginRequest $request)
     {
-        $request->validate([
-            'email' => 'required|email',
-            'password' => 'required|min:5'
-        ], [
-            'email.required' => 'Digite seu e-mail',
-            'password.required' => 'Digite sua senha'
-            ]
-        );
+        $request->validated();
 
-        $credentials = $request->only('email', 'password');
+        $credentials = $request->only('username', 'password');
         $authenticated = Auth::attempt($credentials);
 
         if (!$authenticated) {
