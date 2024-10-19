@@ -45,12 +45,22 @@
                         </div>
 
                         <div class="form-floating my-2">
-                            <input type="text" class="form-control" id="sector" name="sector" maxlength="30" placeholder="Setor" required>
+                            <select class="form-select" id="type_id" name="order_type_id" aria-label="Floating label select example" required>
+                                <option value="0">Selecione o Tipo do Serviço</option>
+                                @foreach ($types as $type)
+                                    <option value="{{$type->id}}">{{$type->id}} - {{$type->description}}</option>
+                                @endforeach
+                            </select>
+                            <label for="order_type_id">Tipo</label>
+                        </div>
+
+                        <div class="form-floating my-2">
+                            <input type="text" class="form-control" id="sector" name="sector" maxlength="30" placeholder="Setor" required value={{old('sector')}}>
                             <label for="sector">Setor</label>
                         </div>
 
                         <div class="form-floating my-2">
-                            <input type="text" class="form-control" id="req_name" name="req_name" maxlength="20" placeholder="Solicitante do Solicitante">
+                            <input type="text" class="form-control" id="req_name" name="req_name" maxlength="20" placeholder="Solicitante do Solicitante" value={{old('req_name')}}>
                             <label for="req_name">Nome do Solicitante</label>
                         </div>
 
@@ -65,12 +75,12 @@
                         </div>
 
                         <div class="form-floating my-2">
-                            <textarea id="req_descr" name="req_descr" maxlength="70" placeholder="Problema Relatado" class='autoExpand form-control' rows='1' data-min-rows='1' required></textarea>
+                            <textarea id="req_descr" name="req_descr" maxlength="70" placeholder="Problema Relatado" class='autoExpand form-control' rows='1' data-min-rows='1' required>{{old('req_descr')}}</textarea>
                             <label for="req_descr">Problema Relatado</label>
                         </div>
 
                         <div class="form-floating my-2">
-                            <input type="text" class="form-control" id="equipment" name="equipment" maxlength="70" placeholder="Equipamento">
+                            <input type="text" class="form-control" id="equipment" name="equipment" maxlength="70" placeholder="Equipamento" value="{{old('equipment')}}">
                             <label for="equipment">Equipamento</label>
                         </div>
 

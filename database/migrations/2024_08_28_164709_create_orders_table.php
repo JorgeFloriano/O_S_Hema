@@ -14,6 +14,7 @@ return new class extends Migration
     {
         Schema::create('orders', function (Blueprint $table) {
             $table->id();
+            $table->tinyInteger('type_order_id', 4)->default(0);
             $table->string('sector');
             $table->smallInteger('client_id');
             $table->smallInteger('adm_id');

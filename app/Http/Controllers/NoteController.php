@@ -3,12 +3,18 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\FormNoteRequest;
+use App\Models\Cause;
+use App\Models\Defect;
 use App\Models\Note;
 use App\Models\NoteTec;
+use App\Models\NoteType;
 use App\Models\Order;
+use App\Models\Solution;
 use App\Models\Tec;
 use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Validator;
+use Illuminate\Validation\Rule;
 
 class NoteController extends Controller
 {
@@ -43,9 +49,26 @@ class NoteController extends Controller
 
         $tecs = Tec::all();
 
+        // Generate tables with all codes list
+        $c_l = [
+            'n_types' => NoteType::all(),
+            'defects' => Defect::all(),
+            'causes' => Cause::all(),
+            'solutions' => Solution::all(),
+        ];
+
+        // Generate tables codes ids lists
+        foreach ($c_l as $key => $codes) {
+            session()->put($key.'_ids', $codes->pluck('id')->toArray());
+        }
+
         return view('note.note_create', [
             'order' => $order,
             'tecs' => $tecs,
+            'types' => $c_l['n_types'],
+            'defects' => $c_l['defects'],
+            'causes' => $c_l['causes'],
+            'solutions' =>  $c_l['solutions'],
         ]);
     }
 
@@ -71,8 +94,10 @@ class NoteController extends Controller
             'equip_mod' => $request->input('equip_mod'),
             'equip_id' => $request->input('equip_id'),
             'equip_type' => $request->input('equip_type'),
-            'situation' => $request->input('situation'),
-            'cause' => $request->input('cause'),
+            'note_type_id' => $request->input('note_type_id'),
+            'defect_id' => $request->input('defect_id'),
+            'cause_id' => $request->input('cause_id'),
+            'solution_id' => $request->input('solution_id'),
             'services' => $request->input('services'),
             'date' => $request->input('date'),
             'go_start' => $request->input('go_start'),
@@ -81,11 +106,11 @@ class NoteController extends Controller
             'end' => $request->input('end'),
             'back_start' => $request->input('back_start'),
             'back_end' => $request->input('back_end'),
-            'food' => $request->input('food') ?? 0,
+            'food' => $request->input('food'),
             'km_start' => $request->input('km_start'),
             'km_end' => $request->input('km_end'),
-            'expense' => $request->input('expense') ?? 0,
-            'obs' => $request->input('obs'),
+            'expense' => $request->input('expense'),
+            'obs' => $request->input('obs') ?? 'Sem observaçãos',
             ]);
 
             // Create note_tec for first_tec
@@ -164,6 +189,19 @@ class NoteController extends Controller
 
         $tecs = Tec::where('id','!=', $note->first_tec->id)->get();
 
+        // Generate tables with all codes list
+        $c_l = [
+            'n_types' => NoteType::all(),
+            'defects' => Defect::all(),
+            'causes' => Cause::all(),
+            'solutions' => Solution::all(),
+        ];
+
+        // Generate tables codes ids lists
+        foreach ($c_l as $key => $codes) {
+            session()->put($key.'_ids', $codes->pluck('id')->toArray());
+        }
+
         // Remove seconds from requests time format
         $note->go_start = date_format(date_create($note->go_start), 'H:i');
         $note->go_end = date_format(date_create($note->go_end), 'H:i');
@@ -175,6 +213,10 @@ class NoteController extends Controller
         return view('note.note_edit', [
             'note' => $note,
             'tecs' => $tecs,
+            'types' => $c_l['n_types'],
+            'defects' => $c_l['defects'],
+            'causes' => $c_l['causes'],
+            'solutions' =>  $c_l['solutions'],
         ]);
     }
 

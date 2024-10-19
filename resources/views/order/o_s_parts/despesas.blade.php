@@ -12,14 +12,14 @@
         </tr>
 
         <tr style="border-bottom: none">
-            <td style="text-align: center">{{$note->food ?? '00'}}</td>
-            <td style="text-align: center">{{$note->km_start ?? '00'}}</td>
-            <td style="text-align: center">{{$note->km_end ?? '00'}}</td>
-            <td style="text-align: center; border-right: none;">{{$note->expense ?? '00'}}</td>
+            <td style="text-align: center">{{number_format($note->food, 2, '.', '') ?? '00.00'}}</td>
+            <td style="text-align: center">{{number_format($note->km_start, 2, '.', '') ?? '00.00'}}</td>
+            <td style="text-align: center">{{number_format($note->km_end, 2, '.', '') ?? '00.00'}}</td>
+            <td style="text-align: center; border-right: none;">{{number_format($note->expense, 2, '.', '') ?? '00.00'}}</td>
         </tr>
     </table>
 </div>
 
 <div class="LastInfoLine" style="height: 50px; margin-bottom: 15px">
-    <div class="InfoFirstCollum" style="overflow: initial"><strong>Observações: </strong>{{$note->obs ?? ''}}</div>
+    <div class="InfoFirstCollum" style="overflow: initial"><strong>Observações: </strong>{{$note->obs ?? ' Sem observações'}}</div>
 </div>
