@@ -31,6 +31,7 @@
                         <thead class="table-dark">
                             <tr>
                                 <th>Nº</th>
+                                <th>Tipo</th>
                                 <th>Cliente</th>
                                 <th>Técnico</th>
                                 <th>Data</th>
@@ -47,6 +48,7 @@
                             @foreach ($orders as $order)
                                 <tr>
                                     <td>{{$order->id}}</td>
+                                    <td>{{$order->type->id.' - '.$order->type->description ?? ''}}</td>
                                     <td>{{$order->client->name ?? ''}}</td>
                                     <td>
                                         @if ($order->finished || (!$main && !$sup))
@@ -77,7 +79,7 @@
                                             </select>
                                         @endif
                                     </td>
-                                    <td>{{ date('d/m/Y',strtotime($order->req_date))}}</td>
+                                    <td>{{date('d/m/Y',strtotime($order->req_date))}}</td>
                                     @if ($order->finished)
                                         <td>
                                             <a href="{{route('orders.show_pdf', ['order' => $order->id])}}" class="btn btn-outline-danger btn-sm">

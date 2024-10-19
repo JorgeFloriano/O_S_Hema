@@ -42,16 +42,28 @@
 
                         <div class="form-floating">
                             <select class="form-select" {{$disabled}} id="client_id" name="client_id" aria-label="Floating label select example">
-                                <option value="0" selected>Selecione o Cliente</option>
                                 @foreach ($clients as $client)
                                     @if ($client->id == $order->client_id)
-                                        <option selected value="{{$client->id}}">{{$client->name}}</option>
+                                        <option selected value="{{$client->id}}">{{$client->id.' - '.$client->name}}</option>
                                     @else
-                                        <option value="{{$client->id}}">{{$client->name}}</option>
+                                        <option value="{{$client->id}}">{{$client->id.' - '.$client->name}}</option>
                                     @endif
                                 @endforeach
                             </select>
                             <label for="client_id">Cliente</label>
+                        </div>
+
+                        <div class="form-floating my-2">
+                            <select class="form-select" {{$disabled}} id="type_id" name="order_type_id" aria-label="Floating label select example">
+                                @foreach ($types as $type)
+                                    @if ($type->id == $order->order_type_id)
+                                        <option selected value="{{$type->id}}">{{$type->id.' - '.$type->description}}</option>
+                                    @else
+                                        <option value="{{$type->id}}">{{$type->id.' - '.$type->description}}</option>
+                                    @endif
+                                @endforeach
+                            </select>
+                            <label for="type_id">Tipo</label>
                         </div>
 
                         <div class="form-floating my-2">

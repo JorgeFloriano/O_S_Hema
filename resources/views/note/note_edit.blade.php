@@ -79,17 +79,59 @@
                         </div>
 
                         <div class="form-floating my-2">
-                            <textarea id="situation" name="situation" maxlength="70" class='autoExpand form-control' rows='1' data-min-rows='1' required>{{$note->situation}}</textarea>
-                            <label for="situation">Descrição da situação encontrada</label>
+                            <select class="form-select" id="note_type_id" name="note_type_id" aria-label="Floating label select example" required>
+                                @foreach ($types as $type)
+                                    @if ($type->id == $note->note_type_id)
+                                        <option value="{{$type->id}}" selected>{{$type->id}} - {{$type->description}}</option>
+                                    @else
+                                        <option value="{{$type->id}}">{{$type->id}} - {{$type->description}}</option>
+                                    @endif
+                                @endforeach
+                            </select>
+                            <label for="note_type_id">Tipo de Atendimento</label>
                         </div>
 
                         <div class="form-floating my-2">
-                            <textarea id="cause" name="cause" maxlength="80" class='autoExpand form-control' rows='1' data-min-rows='1' required>{{$note->cause}}</textarea>
-                            <label for="cause">Provável causa do problema</label>
+                            <select class="form-select" id="defect_id" name="defect_id" aria-label="Floating label select example" required>
+                                @foreach ($defects as $defect)
+                                    @if ($defect->id == $note->defect_id)
+                                        <option value="{{$defect->id}}" selected>{{$defect->id}} - {{$defect->description}}</option>
+                                    @else
+                                        <option value="{{$defect->id}}">{{$defect->id}} - {{$defect->description}}</option>
+                                    @endif
+                                @endforeach
+                            </select>
+                            <label for="defect_id">Defeito</label>
                         </div>
 
                         <div class="form-floating my-2">
-                            <textarea id="services" name="services" maxlength="330" class='autoExpand form-control' rows='1' data-min-rows='1' required>{{$note->services}}</textarea>
+                            <select class="form-select" id="cause_id" name="cause_id" aria-label="Floating label select example" required>
+                                @foreach ($causes as $cause)
+                                    @if ($cause->id == $note->cause_id)
+                                        <option value="{{$cause->id}}" selected>{{$cause->id}} - {{$cause->description}}</option>
+                                    @else
+                                        <option value="{{$cause->id}}">{{$cause->id}} - {{$cause->description}}</option>
+                                    @endif
+                                @endforeach
+                            </select>
+                            <label for="cause_id">Causa</label>
+                        </div>
+
+                        <div class="form-floating my-2">
+                            <select class="form-select" id="solution_id" name="solution_id" aria-label="Floating label select example" required>
+                                @foreach ($solutions as $solution)
+                                    @if ($solution->id == $note->solution_id)
+                                        <option value="{{$solution->id}}" selected>{{$solution->id}} - {{$solution->description}}</option>
+                                    @else
+                                        <option value="{{$solution->id}}">{{$solution->id}} - {{$solution->description}}</option>
+                                    @endif
+                                @endforeach
+                            </select>
+                            <label for="solution_id">Solução</label>
+                        </div> 
+
+                        <div class="form-floating my-2">
+                            <textarea id="services" name="services" maxlength="330" class='autoExpand form-control' rows='1' data-min-rows='1'>{{$note->services}}</textarea>
                             <label for="services">Descrição dos serviços executados</label>
                         </div>
 
@@ -146,13 +188,13 @@
                         <div class="row g-2 mb-2">
                             <div class="col">
                                 <div class="form-floating">
-                                    <input type="number" class="form-control" id="kmStart" step="0.01" max="9999.99" min="0" required name="km_start" value="{{$note->km_start}}" placeholder="Km inicial">
+                                    <input type="number" class="form-control" id="kmStart" step="0.01" max="9999.99" min="0" name="km_start" value="{{$note->km_start}}" placeholder="Km inicial">
                                     <label for="kmStart">Km inicial</label>
                                 </div>
                             </div>
                             <div class="col">    
                                 <div class="form-floating">
-                                    <input type="number" class="form-control" id="kmEnd" step="0.01" max="9999.99" min="0" required name="km_end" value="{{$note->km_end}}" placeholder="Km final">
+                                    <input type="number" class="form-control" id="kmEnd" step="0.01" max="9999.99" min="0" name="km_end" value="{{$note->km_end}}}" placeholder="Km final">
                                     <label for="kmEnd">Km final</label>
                                 </div>
                             </div>
@@ -161,13 +203,13 @@
                         <div class="row g-2">
                             <div class="col">
                                 <div class="form-floating">
-                                    <input type="number" class="form-control" id="food" step="0.01" max="9999.99" min="0" required name="food" value="{{$note->food}}" placeholder="Alimantação (R$)">
+                                    <input type="number" class="form-control" id="food" step="0.01" max="9999.99" min="0" name="food" value="{{$note->food}}" placeholder="Alimantação (R$)">
                                     <label for="food">Alimentação (R$)</label>
                                 </div>
                             </div>
                             <div class="col"> 
                                 <div class="form-floating">
-                                    <input type="number" class="form-control" id="expense" step="0.01" max="9999.99" min="0" required name="expense" value="{{$note->expense}}" placeholder="Outras Despesas (R$)">
+                                    <input type="number" class="form-control" id="expense" step="0.01" max="9999.99" min="0" name="expense" value="{{$note->expense}}" placeholder="Outras Despesas (R$)">
                                     <label for="expense">Outros (R$)</label>
                                 </div>
                             </div>

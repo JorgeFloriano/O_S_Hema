@@ -25,7 +25,8 @@
     </div>
 
     <div class="InfoLine">
-        <div class="InfoFirstCollum"><strong>Equipamento relatado: </strong> {{$order->equipment ?? ''}}</div>
+        <div class="InfoFirstCollum" style="width: 50%"><strong>Tipo de Serviço: </strong>CFTV</div>
+        <div class="InfoCollum"><strong>Equipamento : </strong>{{$order->equipment ?? ''}}</div>
     </div>
 
     <div class="LastInfoLine">

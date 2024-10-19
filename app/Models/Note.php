@@ -18,8 +18,10 @@ class Note extends Model
         'equip_mod',
         'equip_id',
         'equip_type',
-        'situation',
-        'cause',
+        'note_type_id',
+        'defect_id',
+        'cause_id',
+        'solution_id',
         'services',
         'date',
         'go_start',
@@ -48,4 +50,22 @@ class Note extends Model
         return $this->belongsToMany(Tec::class)->withPivot('signature')->withTimestamps()->withTrashed();
     }
 
+    public function type(): BelongsTo {
+        return $this->belongsTo(NoteType::class, 'note_type_id');
+    }
+
+    public function defect(): BelongsTo
+    {
+        return $this->belongsTo(Defect::class);
+    }
+
+    public function cause(): BelongsTo
+    {
+        return $this->belongsTo(Cause::class);
+    }
+
+    public function solution(): BelongsTo
+    {
+        return $this->belongsTo(Solution::class);
+    }
 }

@@ -19,7 +19,8 @@ return new class extends Migration
             $table->string('equip_type')->default('Não identificado');
             $table->string('situation');
             $table->string('cause')->default('Não identificada');
-            $table->text('services');
+            $table->integer('defect_id')->nullable();
+            $table->text('services')->nullable();
             $table->date('date');
             $table->time('go_start');
             $table->time('go_end');
@@ -27,10 +28,10 @@ return new class extends Migration
             $table->time('end');
             $table->time('back_start');
             $table->time('back_end');
-            $table->float('food', 8, 2)->default(0);
-            $table->float('km_start', 8, 2)->default(0);
-            $table->float('km_end', 8, 2)->default(0);
-            $table->float('expense', 8, 2)->default(0);
+            $table->float('food', 8, 2)->nullable();
+            $table->float('km_start', 8, 2)->nullable();
+            $table->float('km_end', 8, 2)->nullable();
+            $table->float('expense', 8, 2)->nullable();
             $table->string('obs')->nullable();
             $table->timestamps();
             $table->softDeletes();

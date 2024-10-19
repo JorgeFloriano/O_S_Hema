@@ -10,7 +10,7 @@
             <div class="col-lg-8 offset-lg-2">
 
                 <div id="header" class="my-2">
-                    <h2>Deletar ordem de serviço nº {{$order->id}}</h2>
+                    <h2>Deletar Ordem de Serviço nº {{$order->id}}</h2>
                 </div>
                 <hr>
                 <main>
@@ -21,12 +21,22 @@
                         <input type="hidden" name="_method" id="idNum" value="DELETE">
 
                         <div class="form-floating my-2">
+                            <input type="text" class="form-control" id="date" name="date" disabled value={{date('d/m/Y',strtotime($order->req_date))}}>
+                            <label for="date">Data</label>
+                        </div>
+
+                        <div class="form-floating my-2">
+                            <input type="text" class="form-control" id="order_type_id" name="order_type_id" disabled value="{{$order->order_type_id.' - '. $order->type->description}}">
+                            <label for="order_type_id">Tipo</label>
+                        </div>
+
+                        <div class="form-floating my-2">
                             <textarea id="req_descr" name="req_descr" disabled class='autoExpand form-control' rows='1' data-min-rows='1'>{{$order->req_descr}}</textarea>
                             <label for="req_descr">Problema Relatado</label>
                         </div>
 
                         <div class="form-floating my-2">
-                            <input type="text" class="form-control" id="client_id" name="client_id" disabled value="{{$order->client_id ?? ''.' - '. $order->client->name ?? ''}}">
+                            <input type="text" class="form-control" id="client_id" name="client_id" disabled value="{{$order->client_id.' - '. $order->client->name}}">
                             <label for="client_id">Cliente</label>
                         </div>
 

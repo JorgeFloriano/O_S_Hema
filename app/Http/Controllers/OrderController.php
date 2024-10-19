@@ -6,6 +6,7 @@ use App\Http\Requests\FormOrderRequest;
 use App\Models\Client;
 use App\Models\NoteTec;
 use App\Models\Order;
+use App\Models\OrderType;
 use App\Models\Tec;
 use App\Models\User;
 use Illuminate\Http\RedirectResponse;
@@ -45,7 +46,7 @@ class OrderController extends Controller
         // If user is not suprevisor or administrator, redirect to login
         if (!$this->s && !$this->a) {return view('login');}
 
-        $orders = $this->os->select('id', 'client_id', 'tec_id','req_date', 'finished')->orderBy('id', 'desc')->simplePaginate(10);
+        $orders = $this->os->select('id', 'order_type_id','client_id', 'tec_id','req_date', 'finished')->orderBy('id', 'desc')->simplePaginate(10);   
 
         $tecs = Tec::all();
 
@@ -68,11 +69,15 @@ class OrderController extends Controller
         
         $clients = Client::select('id', 'name')->get();
 
+        $types = OrderType::all();
+        session()->put('types_ids', $types->pluck('id')->toArray());
+
         $tecs = Tec::all();
 
         return view('order.order_create', [
             'clients' => $clients,
-            'tecs' => $tecs
+            'tecs' => $tecs,
+            'types' => $types
         ]);
     }
 
@@ -84,9 +89,6 @@ class OrderController extends Controller
         if (!$this->a && !$this->o) {return view('login');}
 
         $request->validated();
-
-        // If there is no client selected, redirect to create page
-        if ($request->client_id == '0') {return redirect()->route('orders.create')->with('message', 'Selecione um cliente para prosseguir.');}
 
         // If there is no contact name, then use the name of the client that was selected
         $cont_name_client = $request->req_name;
@@ -103,6 +105,7 @@ class OrderController extends Controller
         //Create new order
         $created = $this->os->create([
             'client_id' => $request->client_id,
+            'order_type_id' => $request->order_type_id,
             'sector' => $request->sector,
             'req_name' => $cont_name_client,
             'user_id' => auth()->user()->id,
@@ -139,6 +142,7 @@ class OrderController extends Controller
 
         $clients = Client::select(['id', 'name'])->get();
         $tecs = Tec::all();
+        $types = OrderType::all();
         $user = User::select('name')->find($order->user_id);
 
         // Remove seconds from requests time format
@@ -149,6 +153,7 @@ class OrderController extends Controller
         
         return view('order.order_edit', [
             'order' => $order,
+            'types' => $types,
             'clients' => $clients,
             'tecs' => $tecs,
             'user' => $user,
@@ -224,12 +229,10 @@ class OrderController extends Controller
         $ords = session('ords');
 
         foreach ($ords as  $ord) {
-            if ($request->input('ord_'.$ord->id)) {
-                $ord->tec_id = $request->input('ord_'.$ord->id);
-                $ord = $ord->save();
-                if (!$ord) {
-                    return redirect()->back()->with('message', 'Erro ao selecionar técnico.'); 
-                }
+            $ord->tec_id = $request->input('ord_'.$ord->id);
+            $ord = $ord->save();
+            if (!$ord) {
+                return redirect()->back()->with('message', 'Erro ao selecionar técnico.'); 
             }
         }
 

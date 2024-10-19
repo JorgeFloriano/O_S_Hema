@@ -134,18 +134,48 @@
                         </div>
 
                         <div class="form-floating my-2">
-                            <textarea id="situation" name="situation" placeholder="Descrição da situação encontrada" maxlength="70" class='autoExpand form-control' rows='1' data-min-rows='1' required>{{old('situation')}}</textarea>
-                            <label for="situation">Descrição da situação encontrada</label>
+                            <select class="form-select" id="note_type_id" name="note_type_id" aria-label="Floating label select example" required>
+                                <option value="0">Selecione o Tipo do Serviço</option>
+                                @foreach ($types as $type)
+                                    <option value="{{$type->id}}">{{$type->id}} - {{$type->description}}</option>
+                                @endforeach
+                            </select>
+                            <label for="note_type_id">Tipo de Atendimento</label>
                         </div>
 
                         <div class="form-floating my-2">
-                            <textarea id="cause" name="cause" placeholder="Provável causa do problema" maxlength="80" class='autoExpand form-control' rows='1' data-min-rows='1' required>{{old('cause')}}</textarea>
-                            <label for="cause">Provável causa do problema</label>
+                            <select class="form-select" id="defect_id" name="defect_id" aria-label="Floating label select example" required>
+                                <option value="0">Selecione o defeito encontrado</option>
+                                @foreach ($defects as $defect)
+                                    <option value="{{$defect->id}}">{{$defect->id}} - {{$defect->description}}</option>
+                                @endforeach
+                            </select>
+                            <label for="defect_id">Defeito</label>
                         </div>
 
                         <div class="form-floating my-2">
-                            <textarea id="services" name="services" placeholder="Serviços executados" maxlength="330" class='autoExpand form-control' rows='1' data-min-rows='1' required>{{old('services')}}</textarea>
-                            <label for="services">Descrição dos serviços executados</label>
+                            <select class="form-select" id="cause_id" name="cause_id" aria-label="Floating label select example" required>
+                                <option value="0">Selecione a possível causa</option>
+                                @foreach ($causes as $cause)
+                                    <option value="{{$cause->id}}">{{$cause->id}} - {{$cause->description}}</option>
+                                @endforeach
+                            </select>
+                            <label for="cause_id">Causa</label>
+                        </div>
+
+                        <div class="form-floating my-2">
+                            <select class="form-select" id="solution_id" name="solution_id" aria-label="Floating label select example" required>
+                                <option value="0">Selecione a solução executada</option>
+                                @foreach ($solutions as $solution)
+                                    <option value="{{$solution->id}}">{{$solution->id}} - {{$solution->description}}</option>
+                                @endforeach
+                            </select>
+                            <label for="solution_id">Solução</label>
+                        </div>
+
+                        <div class="form-floating my-2">
+                            <textarea id="services" name="services" placeholder="Serviços executados" maxlength="270" class='autoExpand form-control' rows='1' data-min-rows='1'>{{old('services')}}</textarea>
+                            <label for="services">Observações dos Serviços Executados</label>
                         </div>
 
                         <div class="form-floating my-2">
@@ -156,13 +186,13 @@
                         <div class="row g-2 mb-2">
                             <div class="col">
                                 <div class="form-floating">
-                                    <input type="time" class="form-control" id="goStart" required name="go_start" placeholder="Saída (Ida)" value="{{old('go_start')}}">
+                                    <input type="time" class="form-control" id="goStart" required name="go_start" placeholder="Saída (Ida)" value="{{\Carbon\Carbon::now()->format('H:i')}}">
                                     <label for="goStart">Saída (Ida)</label>
                                 </div>
                             </div>
                             <div class="col">
                                 <div class="form-floating">
-                                    <input type="time" class="form-control" id="goEnd" required name="go_end" placeholder="Chegada (Ida)" value={{old('go_end')}}>
+                                    <input type="time" class="form-control" id="goEnd" required name="go_end" placeholder="Chegada (Ida)" value={{\Carbon\Carbon::now()->format('H:i')}}>
                                     <label for="goEnd">Chegada (Ida)</label>
                                 </div>
                             </div>
@@ -171,13 +201,13 @@
                         <div class="row g-2 mb-2">
                             <div class="col">
                                 <div class="form-floating">
-                                    <input type="time" class="form-control" id="Start" required name="start" placeholder="Início" value={{old('start')}}>
+                                    <input type="time" class="form-control" id="Start" required name="start" placeholder="Início" value={{\Carbon\Carbon::now()->format('H:i')}}>
                                     <label for="Start">Início</label>
                                 </div>
                             </div>
                             <div class="col">    
                                 <div class="form-floating">
-                                    <input type="time" class="form-control" id="End" required name="end" placeholder="Término" value={{old('end')}}>
+                                    <input type="time" class="form-control" id="End" required name="end" placeholder="Término" value={{\Carbon\Carbon::now()->format('H:i')}}>
                                     <label for="End">Término</label>
                                 </div>
                             </div>
@@ -186,13 +216,13 @@
                         <div class="row g-2 mb-2">
                             <div class="col">
                                 <div class="form-floating">
-                                    <input type="time" class="form-control" id="backStart" required name="back_start" placeholder="Saída (Volta)" value={{old('back_start')}}>
+                                    <input type="time" class="form-control" id="backStart" required name="back_start" placeholder="Saída (Volta)" value={{\Carbon\Carbon::now()->format('H:i')}}>
                                     <label for="backStart">Saída (Volta)</label>
                                 </div>
                             </div>
                             <div class="col"> 
                                 <div class="form-floating">
-                                    <input type="time" class="form-control" id="backEnd" required name="back_end" placeholder="Chegada (Volta)" value={{old('back_end')}}>
+                                    <input type="time" class="form-control" id="backEnd" required name="back_end" placeholder="Chegada (Volta)" value={{\Carbon\Carbon::now()->format('H:i')}}>
                                     <label for="goStart">Chegada (Volta)</label>
                                 </div>
                             </div>
@@ -201,13 +231,13 @@
                         <div class="row g-2 mb-2">
                             <div class="col">
                                 <div class="form-floating">
-                                    <input type="number" class="form-control" id="kmStart" step="0.01" max="9999.99" min="0" required name="km_start" placeholder="Km inicial" value="{{old('km_start')}}">
+                                    <input type="number" class="form-control" id="kmStart" step="0.01" max="9999.99" min="0" name="km_start" placeholder="Km inicial" value="{{old('km_start')}}">
                                     <label for="kmStart">Km inicial</label>
                                 </div>
                             </div>
                             <div class="col">    
                                 <div class="form-floating">
-                                    <input type="number" class="form-control" id="kmEnd" step="0.01" max="9999.99" min="0" required name="km_end" placeholder="Km final" value="{{old('km_end')}}">
+                                    <input type="number" class="form-control" id="kmEnd" step="0.01" max="9999.99" min="0" name="km_end" placeholder="Km final" value="{{old('km_end')}}">
                                     <label for="kmEnd">Km final</label>
                                 </div>
                             </div>
@@ -230,7 +260,7 @@
 
                         <div class="form-floating my-2">
                             <input type="text" class="form-control" id="obs" name="obs" value="{{old('obs')}}" placeholder="Observações"  maxlength="40">
-                            <label for="obs">Observações</label>
+                            <label for="obs">Observações das despesas</label>
                         </div>
 
                         <div class="form-floating my-2">

@@ -67,18 +67,28 @@
                         </div>
 
                         <div class="form-floating my-2">
-                            <textarea id="situation" disabled name="situation" class='autoExpand form-control' rows='1' data-min-rows='1'>{{$note->situation}}</textarea>
-                            <label for="situation">Descrição da situação encontrada</label>
+                            <input type="text" disabled name="note_type_id" class="form-control" id="noteType" value="{{$note->type->id.' - '.$note->type->description}}">
+                            <label for="noteType">Tipo de Serviço</label>
                         </div>
 
                         <div class="form-floating my-2">
-                            <textarea id="cause" disabled name="cause" class='autoExpand form-control' rows='1' data-min-rows='1'>{{$note->cause}}</textarea>
-                            <label for="cause">Provável causa do problema</label>
+                            <input type="text" disabled name="defect_id" class="form-control" id="defect" value="{{$note->defect->id.' - '.$note->defect->description}}">
+                            <label for="defect">Defeito</label>
+                        </div>
+
+                        <div class="form-floating my-2">
+                            <input type="text" disabled name="cause_id" class="form-control" id="cause" value="{{$note->cause->id.' - '.$note->cause->description}}">
+                            <label for="cause">Causa</label>
+                        </div>
+
+                        <div class="form-floating my-2">
+                            <input type="text" disabled name="solution" class="form-control" id="solution" value="{{$note->solution->id.' - '.$note->solution->description}}">
+                            <label for="solution">Solução</label>
                         </div>
 
                         <div class="form-floating my-2">
                             <textarea id="services" disabled name="services" class='autoExpand form-control' rows='1' data-min-rows='1'>{{$note->services}}</textarea>
-                            <label for="services">Descrição dos serviços executados</label>
+                            <label for="services">Observações dos serviços executados</label>
                         </div>
 
                         <div class="form-floating my-2">
