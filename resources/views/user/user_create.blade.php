@@ -55,12 +55,12 @@
                         </div>
 
                         <div class="form-floating my-2">
-                            <input type="password" class="form-control" id="password" minlength="5" maxlength="100" name="password" autocomplete="new-password" placeholder="Senha" required>
+                            <input type="password" class="form-control" id="password" minlength="5" maxlength="60" name="password" autocomplete="new-password" placeholder="Senha" required>
                             <label for="password">Senha</label>
                         </div>
 
                         <div class="form-floating my-2">
-                            <input type="password" class="form-control" id="password_confirmation" minlength="5" maxlength="100" name="password_confirmation" placeholder="Confirmar Senha" required>
+                            <input type="password" class="form-control" id="password_confirmation" minlength="5" maxlength="60" name="password_confirmation" placeholder="Confirmar Senha" required>
                             <label for="password_confirmation">Confirmar Senha</label>
                         </div>
 
