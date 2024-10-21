@@ -74,6 +74,8 @@ class LoginController extends Controller
 
         if ($adm) {
             if ($adm->main) {
+                
+                session()->put('main', $adm->id);
                 return redirect()->route('clients.index')->with([
                     'success'=>'Olá',
                 ]);
