@@ -53,6 +53,6 @@ class Order extends Model
     }
 
     public function type(): BelongsTo {
-        return $this->belongsTo(OrderType::class, 'order_type_id');
+        return $this->belongsTo(OrderType::class, 'order_type_id')->withTrashed();
     }
 }

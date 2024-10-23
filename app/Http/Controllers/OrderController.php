@@ -9,7 +9,6 @@ use App\Models\Order;
 use App\Models\OrderType;
 use App\Models\Tec;
 use App\Models\User;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Http\Request;
 
 class OrderController extends Controller
@@ -40,6 +39,9 @@ class OrderController extends Controller
 
         // user is administrator or not
         $this->a = auth()->user()->adm()->first();
+
+        // user is technician or not
+        $this->t = auth()->user()->tec()->first();
     }
     public function index()
     {
@@ -141,8 +143,12 @@ class OrderController extends Controller
         }
 
         $clients = Client::select(['id', 'name'])->get();
+
         $tecs = Tec::all();
+
         $types = OrderType::all();
+        session()->put('types_ids', $types->pluck('id')->toArray());
+
         $user = User::select('name')->find($order->user_id);
 
         // Remove seconds from requests time format
@@ -202,9 +208,9 @@ class OrderController extends Controller
         return redirect()->route('orders.index')->with('message', $msg);
     }
 
-    public function finish(Order $order): RedirectResponse
+    public function finish(Order $order)
     {
-        if (!$this->t && !$this->m) {
+        if (!$this->t) {
             return view('login');
         }
 

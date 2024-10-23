@@ -29,7 +29,7 @@
                         @csrf
                         
                         <div class="form-floating my-2">
-                            <input type="number" class="form-control" id="id" name="id" placeholder="Número" value="{{old('id')}}">
+                            <input type="number" min="1" class="form-control" id="id" name="id" placeholder="Número" value="{{old('id')}}">
                             <label for="id">Número</label>
                         </div>
 

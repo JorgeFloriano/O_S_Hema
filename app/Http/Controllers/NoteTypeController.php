@@ -4,7 +4,6 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\FormCodeRequest;
 use App\Models\NoteType;
-use Illuminate\Http\Request;
 
 class NoteTypeController extends Controller
 {
@@ -22,9 +21,44 @@ class NoteTypeController extends Controller
         }
 
         session()->put('table', 'note_types');
-        $note_types = $this->note_type->select('id', 'description')->simplePaginate(10);
 
-        return view('codes.note_type.note_types_list', ['note_types' => $note_types]);
+        return redirect()->route('note_types.list' , 1);
+    }
+
+    public function list(bool $opt)
+    {
+        
+        if (session('main') !== auth()->user()->id) {
+            return view('login');
+        }
+
+        if ($opt == 0) {
+            $note_types = $this->note_type->select('id', 'description')->onlyTrashed()->simplePaginate(10);
+            $opt = 1;
+            $msg = 'Desativados';
+            $cond = 'Ativar';
+            $title = 'Mostrar Ativos';
+            $btn_color = 'btn-success';
+            $route = 'note_types.restore';
+        } else {
+            $note_types = $this->note_type->select('id', 'description')->simplePaginate(10);
+            $opt = 0;
+            $msg = 'Ativos';
+            $cond = 'Desativar';
+            $title = 'Mostrar Desativados';
+            $btn_color = 'btn-danger';
+            $route = 'note_types.desativate';
+        }
+
+        return view('codes.note_type.note_types_list', [
+            'note_types' => $note_types,
+            'opt' => $opt,
+            'msg' => $msg,
+            'cond' => $cond,
+            'title' => $title,
+            'btn_color' => $btn_color,
+            'route' => $route
+        ]);
     }
 
     public function create()
@@ -75,11 +109,13 @@ class NoteTypeController extends Controller
     }
 
     
-    public function update(Request $request, string $id)
+    public function update(FormCodeRequest $request, string $id)
     {
         if (session('main') !== auth()->user()->id) {
             return view('login');
         }
+
+        $request->validated();
         
         $updated = $this->note_type->where('id', $id)->update($request->except(['_token', '_method']));
 
@@ -102,5 +138,32 @@ class NoteTypeController extends Controller
             return redirect()->route('note_types.index')->with('message', 'Cadastro deletado com sucesso.');
         }
         return redirect()->route('note_types.index')->with('message', 'Erro ao deletar cadastro.');
+    }
+
+    public function restore(string $id)
+    {
+        if (session('main') !== auth()->user()->id) {
+            return view('login');
+        }
+        $restored = $this->note_type->where('id', $id)->restore();
+
+        if ($restored) {
+            return redirect()->route('note_types.list', 0)->with('message', 'Cadastro restaurado com sucesso.');
+        }
+        return redirect()->route('note_types.list', 0)->with('message', 'Erro ao restaurar cadastro.');
+    }
+
+    public function desativate(string $id)
+    {
+        if (session('main') !== auth()->user()->id) {
+            return view('login');
+        }
+        
+        $deleted = $this->note_type->where('id', $id)->delete();
+
+        if ($deleted) {
+            return redirect()->route('note_types.list', 1)->with('message', 'Cadastro desativado com sucesso.');
+        }
+        return redirect()->route('note_types.list', 1)->with('message', 'Erro ao desativar cadastro.');
     }
 }

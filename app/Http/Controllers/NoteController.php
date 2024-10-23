@@ -197,7 +197,7 @@ class NoteController extends Controller
             'solutions' => Solution::all(),
         ];
 
-        // Generate tables codes ids lists
+        // Generate tables codes ids lists to validate
         foreach ($c_l as $key => $codes) {
             session()->put($key.'_ids', $codes->pluck('id')->toArray());
         }

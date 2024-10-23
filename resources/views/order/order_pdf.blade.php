@@ -16,11 +16,11 @@
 
         @include('order/o_s_parts/client_info')
 
-        <div class="mt-4"><strong>Informações do Atendimento (data {{date('d/m/Y',strtotime($note->date))}})</strong></div>
+        <div><strong>Informações do Atendimento (data {{date('d/m/Y',strtotime($note->date))}})</strong></div>
 
         @include('order/o_s_parts/note_info')
 
-        @include('order/o_s_parts/despesas')
+        {{-- @include('order/o_s_parts/despesas') --}}
 
         @include('order/o_s_parts/tec_note')
 

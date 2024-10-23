@@ -31,11 +31,31 @@ Route::middleware(CheckSession::class)->group(function(){
     Route::get('/orders/{order}/show_pdf', [OrderController::class, 'show_pdf'])->name('orders.show_pdf');
 
     Route::resource('clients', ClientController::class);
+    
     Route::resource('order_types', OrderTypeController::class);
+    Route::get('order_types/{opt}/list', [OrderTypeController::class, 'list'])->name('order_types.list');
+    Route::get('order_types/{order_type}/restore', [OrderTypeController::class, 'restore'])->name('order_types.restore');
+    Route::get('order_types/{order_type}/desativate', [OrderTypeController::class, 'desativate'])->name('order_types.desativate');
+
     Route::resource('note_types', NoteTypeController::class);
+    Route::get('note_types/{opt}/list', [NoteTypeController::class, 'list'])->name('note_types.list');
+    Route::get('note_types/{note_type}/restore', [NoteTypeController::class, 'restore'])->name('note_types.restore');
+    Route::get('note_types/{note_type}/desativate', [NoteTypeController::class, 'desativate'])->name('note_types.desativate');
+
     Route::resource('defects', DefectController::class);
+    Route::get('defects/{opt}/list', [DefectController::class, 'list'])->name('defects.list');
+    Route::get('defects/{defect}/restore', [DefectController::class, 'restore'])->name('defects.restore');
+    Route::get('defects/{defect}/desativate', [DefectController::class, 'desativate'])->name('defects.desativate');
+
     Route::resource('causes', CauseController::class);
+    Route::get('causes/{opt}/list', [CauseController::class, 'list'])->name('causes.list');
+    Route::get('causes/{cause}/restore', [CauseController::class, 'restore'])->name('causes.restore');
+    Route::get('causes/{cause}/desativate', [CauseController::class, 'desativate'])->name('causes.desativate');
+
     Route::resource('solutions', SolutionController::class);
+    Route::get('solutions/{opt}/list', [SolutionController::class, 'list'])->name('solutions.list');
+    Route::get('solutions/{solution}/restore', [SolutionController::class, 'restore'])->name('solutions.restore');
+    Route::get('solutions/{solution}/desativate', [SolutionController::class, 'desativate'])->name('solutions.desativate');
 
     Route::resource('users', UserController::class);
 

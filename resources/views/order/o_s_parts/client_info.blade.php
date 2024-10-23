@@ -1,4 +1,4 @@
-<div id="Info">
+<div class="Info">
     <div class="FirstInfoLine">
         <div class="InfoFirstCollum" style="width: 40%"><strong>Cliente</strong>: {{$order->client->name}}</div>
         <div class="InfoCollum" style="width: 40%"><strong>Unidade: </strong>{{$order->client->unit}}</div>
@@ -29,7 +29,7 @@
         <div class="InfoCollum"><strong>Equipamento : </strong>{{$order->equipment ?? ''}}</div>
     </div>
 
-    <div class="LastInfoLine">
-        <div class="InfoFirstCollum"><strong>Problema relatado: </strong> {{$order->req_descr ?? ''}}</div>
+    <div class="LastInfoLine" style="height: 113px">
+        <div style="padding: 0 6px 0 6px;"><strong>Problema relatado: </strong>{{$order->req_descr ?? ''}}</div>
     </div>
 </div>
