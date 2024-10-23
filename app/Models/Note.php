@@ -51,21 +51,21 @@ class Note extends Model
     }
 
     public function type(): BelongsTo {
-        return $this->belongsTo(NoteType::class, 'note_type_id');
+        return $this->belongsTo(NoteType::class, 'note_type_id')->withTrashed();
     }
 
     public function defect(): BelongsTo
     {
-        return $this->belongsTo(Defect::class);
+        return $this->belongsTo(Defect::class)->withTrashed();
     }
 
     public function cause(): BelongsTo
     {
-        return $this->belongsTo(Cause::class);
+        return $this->belongsTo(Cause::class)->withTrashed();
     }
 
     public function solution(): BelongsTo
     {
-        return $this->belongsTo(Solution::class);
+        return $this->belongsTo(Solution::class)->withTrashed();
     }
 }

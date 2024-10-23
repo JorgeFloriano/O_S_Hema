@@ -32,38 +32,35 @@
                     <i style="font-size: x-large" class="fa fa-list-ol" aria-hidden="true"></i>
                 </a>
                 <ul class="dropdown-menu">
+                    <li>
+                        <a class="dropdown-item btn-lg" href="{{route('order_types.index')}}">
+                            Segmentos de serviços
+                        </a>
+                    </li>
 
-                    @if (session('main') == auth()->user()->id)
-                        <li>
-                            <a class="dropdown-item btn-lg" href="{{route('order_types.index')}}">
-                                Segmentos de serviços
-                            </a>
-                        </li>
+                    <li>
+                        <a class="dropdown-item btn-lg" href="{{route('note_types.index')}}">
+                            Tipos de serviços
+                        </a>
+                    </li>
 
-                        <li>
-                            <a class="dropdown-item btn-lg" href="{{route('note_types.index')}}">
-                                Tipos de serviços
-                            </a>
-                        </li>
+                    <li>
+                        <a class="dropdown-item btn-lg" href="{{route('defects.index')}}">
+                            Defeitos 
+                        </a>
+                    </li>
 
-                        <li>
-                            <a class="dropdown-item btn-lg" href="{{route('defects.index')}}">
-                                Defeitos 
-                            </a>
-                        </li>
+                    <li>
+                        <a class="dropdown-item btn-lg" href="{{route('causes.index')}}">
+                            Causas
+                        </a>
+                    </li>
 
-                        <li>
-                            <a class="dropdown-item btn-lg" href="{{route('causes.index')}}">
-                                Causas
-                            </a>
-                        </li>
-
-                        <li>
-                            <a class="dropdown-item btn-lg" href="{{route('solutions.index')}}">
-                                Soluções
-                            </a>
-                        </li>
-                    @endif
+                    <li>
+                        <a class="dropdown-item btn-lg" href="{{route('solutions.index')}}">
+                            Soluções
+                        </a>
+                    </li>
                 </ul>
             </div>
         @else
@@ -76,7 +73,7 @@
             </a>
             <ul class="dropdown-menu">
 
-                @if (session('main'))
+                @if (session('main') == auth()->user()->id)
                     <li>
                         <a class="dropdown-item btn-lg" href="{{route('users.edit', ['user' => auth()->user()->id])}}">
                             <i class="fa fa-user" aria-hidden="true"></i>

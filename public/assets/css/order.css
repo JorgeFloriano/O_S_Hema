@@ -68,8 +68,8 @@ div#osId {
   color: rgb(211, 21, 21);
 }
 
-div#Info {
-  margin: 5px 0px 15px;
+div.Info {
+  margin: 5px 0px;
   font-size: 15px;
 }
 
@@ -194,7 +194,7 @@ tr {
   overflow: hidden;
   border:1px solid black !important;
   border-radius: 6px;
-  margin-bottom: 15px;
+  margin: 15px 0px;
 }
 
 .b-half-table {

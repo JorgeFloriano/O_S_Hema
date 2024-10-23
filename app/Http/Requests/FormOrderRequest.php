@@ -16,7 +16,7 @@ class FormOrderRequest extends FormRequest
             'req_name' => 'required|max:20',
             'req_date' => 'required|date_format:Y-m-d',
             'req_time' => 'required|date_format:H:i',
-            'req_descr' => 'required|max:70',
+            'req_descr' => 'required|max:430',
             'equipment' => 'max:70',
         ];
     }

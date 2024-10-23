@@ -65,7 +65,7 @@
                         </div>
 
                         <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="1" name="tec" id="tec" checked>
+                            <input class="form-check-input" type="checkbox" value="1" name="tec" id="tec">
                             <label class="form-check-label" for="tec">
                                 Acesso de Técnico
                             </label>

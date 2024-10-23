@@ -87,7 +87,7 @@
                         </div>
 
                         <div class="form-floating my-2">
-                            <textarea id="req_descr" name="req_descr" {{$disabled}} maxlength="70" placeholder="Problema Relatado" class='autoExpand form-control' rows='1' data-min-rows='1' required>{{$order->req_descr}}</textarea>
+                            <textarea id="req_descr" name="req_descr" {{$disabled}} maxlength="430" placeholder="Problema Relatado" class='autoExpand form-control' rows='1' data-min-rows='1' required>{{$order->req_descr}}</textarea>
                             <label for="req_descr">Problema Relatado</label>
                         </div>
 

@@ -45,13 +45,13 @@
         </tr>
 
         <tr style="border-bottom: none">
-            <td style="width: 33.3%;border-bottom:1px solid black;" colspan="2">Nome: {{$note->tecs[0]->user->name}}</td>
-            <td style="width: 33.3%;border-bottom:1px solid black;" colspan="2">Nome: {{$note->tecs[1]->user->name ?? '--------------------------------------'}}</td>
+            <td style="width: 33.3%;border-bottom:1px solid black;" colspan="2"><strong>Nome: </strong>{{$note->tecs[0]->user->name}}</td>
+            <td style="width: 33.3%;border-bottom:1px solid black;" colspan="2"><strong>Nome: </strong>{{$note->tecs[1]->user->name ?? '--------------------------------------'}}</td>
         </tr>
         
         <tr style="border-bottom: none">
-            <td colspan="2">Função: {{$note->tecs[0]->user->function}}</td>
-            <td colspan="2">Função: {{$note->tecs[1]->user->function ?? '-------------------------------------'}}</td>
+            <td colspan="2"><strong>Função: </strong>{{$note->tecs[0]->user->function}}</td>
+            <td colspan="2"><strong>Função: </strong>{{$note->tecs[1]->user->function ?? '-------------------------------------'}}</td>
         </tr>
     </table>
 </div>

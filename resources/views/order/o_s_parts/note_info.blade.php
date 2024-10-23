@@ -1,4 +1,4 @@
-<div id="Info">
+<div class="Info">
     <div class="FirstInfoLine bg-t">
         <div class="InfoTitle"><strong>Dados do Equipamento</strong></div>
     </div>
@@ -33,7 +33,7 @@
         <div class="InfoCollum" style="width: 75%; border-left: hidden">{{$note->solution->id.' - '.$note->solution->description}}</div>
     </div>
 
-    <div class="LastInfoLine" style="height: 75px">
-        <div class="InfoFirstCollum" style="overflow: initial"><strong>Observações: </strong>{{$note->services ?? ''}}</div>
+    <div class="LastInfoLine" style="height: 200px">
+        <div class="InfoFirstCollum" style="overflow: initial"><strong>Descrição da Intervenção: </strong>{{$note->services ?? ''}}</div>
     </div>
 </div>
