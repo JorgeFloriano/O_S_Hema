@@ -128,6 +128,12 @@ div.Info {
   border-left: 1px solid black;
 }
 
+.LongText {
+ overflow: hidden;
+ height: 100%;
+ width: 100%;
+}
+
 div#buttonGroup {
   width:770px;
   margin: auto;

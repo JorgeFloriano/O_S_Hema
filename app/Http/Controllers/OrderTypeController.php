@@ -33,7 +33,7 @@ class OrderTypeController extends Controller
         }
 
         if ($opt == 0) {
-            $order_types = $this->order_type->select('id', 'description')->onlyTrashed()->simplePaginate(10);
+            $order_types = $this->order_type->select('id', 'description')->onlyTrashed()->simplePaginate(20);
             $opt = 1;
             $msg = 'Desativados';
             $cond = 'Ativar';
@@ -41,7 +41,7 @@ class OrderTypeController extends Controller
             $btn_color = 'btn-success';
             $route = 'order_types.restore';
         } else {
-            $order_types = $this->order_type->select('id', 'description')->simplePaginate(10);
+            $order_types = $this->order_type->select('id', 'description')->simplePaginate(20);
             $opt = 0;
             $msg = 'Ativos';
             $cond = 'Desativar';

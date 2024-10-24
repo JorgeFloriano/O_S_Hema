@@ -48,7 +48,7 @@ class OrderController extends Controller
         // If user is not suprevisor or administrator, redirect to login
         if (!$this->s && !$this->a) {return view('login');}
 
-        $orders = $this->os->select('id', 'order_type_id','client_id', 'tec_id','req_date', 'finished')->orderBy('id', 'desc')->simplePaginate(10);   
+        $orders = $this->os->select('id', 'order_type_id','client_id', 'tec_id','req_date', 'finished')->orderBy('id', 'desc')->simplePaginate(20);   
 
         $tecs = Tec::all();
 

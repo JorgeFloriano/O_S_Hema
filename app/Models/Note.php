@@ -47,7 +47,7 @@ class Note extends Model
 
     public function tecs(): BelongsToMany
     {
-        return $this->belongsToMany(Tec::class)->withPivot('signature')->withTimestamps()->withTrashed();
+        return $this->belongsToMany(Tec::class)->withPivot('signature')->withPivot('id')->withTimestamps()->withTrashed()->orderBy('pivot_id');
     }
 
     public function type(): BelongsTo {
