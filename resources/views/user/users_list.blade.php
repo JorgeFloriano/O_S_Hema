@@ -21,38 +21,44 @@
                     <a href="{{route('users.create')}}" class="btn btn-primary">Cadastrar Novo</a>
                 </div>
                 <hr>
-                
-                <table class="table table-striped">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>Nº</th>
-                            <th>Nome</th>
-                            <th>Função</th>
-                            <th>Edit</th>
-                            <th>Del.</th>
-                        </tr>
-                    </thead>
 
-                    <tbody>
-                        @foreach ($users as $user)
+                @if ($users->count() === 0)
+                    <p>
+                        Nenhum registro encontrado !
+                    </p>
+                @else
+                    <table class="table table-striped">
+                        <thead class="table-dark">
                             <tr>
-                                <td>{{$user->id}}</td>
-                                <td>{{$user->name}}</td>
-                                <td>{{$user->function}}</td>
-                                <td>
-                                    <a href="{{route('users.edit', ['user' => $user->id])}}" class="btn btn-primary btn-sm">
-                                        <i class="fa fa-edit"></i>
-                                    </a>
-                                </td>
-                                <td>
-                                    <a href="{{route('users.show', ['user' => $user->id])}}" class="btn btn-danger btn-sm">
-                                        <i class="fa fa-trash"></i>
-                                    </a>
-                                </td>
+                                <th>Nº</th>
+                                <th>Nome</th>
+                                <th>Função</th>
+                                <th>Edit</th>
+                                <th>Del.</th>
                             </tr>
-                        @endforeach
-                    </tbody> 
-                </table>
+                        </thead>
+
+                        <tbody>
+                            @foreach ($users as $user)
+                                <tr>
+                                    <td>{{$user->id}}</td>
+                                    <td>{{$user->name}}</td>
+                                    <td>{{$user->function}}</td>
+                                    <td>
+                                        <a href="{{route('users.edit', ['user' => $user->id])}}" class="btn btn-primary btn-sm">
+                                            <i class="fa fa-edit"></i>
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <a href="{{route('users.show', ['user' => $user->id])}}" class="btn btn-danger btn-sm">
+                                            <i class="fa fa-trash"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody> 
+                    </table>
+                @endif
                 <div>
                     {{$users->links()}}
                 </div>

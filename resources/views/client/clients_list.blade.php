@@ -18,37 +18,44 @@
                     <a href="{{route('clients.create')}}" class="btn btn-primary">Cadastrar Novo</a>
                 </div>
                 <hr>
-                <table class="table table-striped">
-                    <thead class="table-dark">
-                        <tr>
-                            <th>Nº</th>
-                            <th>Nome</th>
-                            <th>Unidade</th>
-                            <th>Edit</th>
-                            <th>Del.</th>
-                        </tr>
-                    </thead>
 
-                    <tbody>
-                        @foreach ($clients as $client)
+                @if ($clients->count() === 0)
+                    <p>
+                        Nenhum registro encontrado !
+                    </p>
+                @else
+                    <table class="table table-striped">
+                        <thead class="table-dark">
                             <tr>
-                                <td>{{$client->id}}</td>
-                                <td>{{$client->name}}</td>
-                                <td>{{$client->unit}}</td>
-                                <td>
-                                    <a href="{{route('clients.edit', ['client' => $client->id])}}" class="btn btn-primary btn-sm">
-                                        <i class="fa fa-edit"></i>
-                                    </a>
-                                </td>
-                                <td>
-                                    <a href="{{route('clients.show', ['client' => $client->id])}}" class="btn btn-danger btn-sm">
-                                        <i class="fa fa-trash"></i>
-                                    </a>
-                                </td>
+                                <th>Nº</th>
+                                <th>Nome</th>
+                                <th>Unidade</th>
+                                <th>Edit</th>
+                                <th>Del.</th>
                             </tr>
-                        @endforeach
-                    </tbody> 
-                </table>
+                        </thead>
+
+                        <tbody>
+                            @foreach ($clients as $client)
+                                <tr>
+                                    <td>{{$client->id}}</td>
+                                    <td>{{$client->name}}</td>
+                                    <td>{{$client->unit}}</td>
+                                    <td>
+                                        <a href="{{route('clients.edit', ['client' => $client->id])}}" class="btn btn-primary btn-sm">
+                                            <i class="fa fa-edit"></i>
+                                        </a>
+                                    </td>
+                                    <td>
+                                        <a href="{{route('clients.show', ['client' => $client->id])}}" class="btn btn-danger btn-sm">
+                                            <i class="fa fa-trash"></i>
+                                        </a>
+                                    </td>
+                                </tr>
+                            @endforeach
+                        </tbody> 
+                    </table>
+                @endif
                 <div>
                     {{$clients->links()}}
                 </div>
