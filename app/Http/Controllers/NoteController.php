@@ -12,9 +12,6 @@ use App\Models\Order;
 use App\Models\Solution;
 use App\Models\Tec;
 use Illuminate\Http\RedirectResponse;
-use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Validator;
-use Illuminate\Validation\Rule;
 
 class NoteController extends Controller
 {
