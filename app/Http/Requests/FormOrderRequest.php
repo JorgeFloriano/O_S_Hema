@@ -16,7 +16,7 @@ class FormOrderRequest extends FormRequest
             'req_name' => 'required|max:20',
             'req_date' => 'required|date_format:Y-m-d',
             'req_time' => 'required|date_format:H:i',
-            'req_descr' => 'required|max:430',
+            'req_descr' => 'required|max:470',
             'equipment' => 'max:70',
         ];
     }
@@ -40,7 +40,7 @@ class FormOrderRequest extends FormRequest
             'req_time.required' => 'Insira a hora',
             'req_time.date_format' => 'Hora inválida',
             'req_descr.required' => 'Insira a descrição do problema',
-            'req_descr.max' => 'Problema deve ter no máximo 70 caracteres',
+            'req_descr.max' => 'Problema deve ter no máximo 470 caracteres',
             'equipment.max' => 'Equipamento deve ter no máximo 70 caracteres',
         ];
     }

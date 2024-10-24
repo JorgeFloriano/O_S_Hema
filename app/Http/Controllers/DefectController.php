@@ -33,7 +33,7 @@ class DefectController extends Controller
         }
 
         if ($opt == 0) {
-            $defects = $this->defect->select('id', 'description')->onlyTrashed()->simplePaginate(10);
+            $defects = $this->defect->select('id', 'description')->onlyTrashed()->simplePaginate(20);
             $opt = 1;
             $msg = 'Desativados';
             $cond = 'Ativar';
@@ -41,7 +41,7 @@ class DefectController extends Controller
             $btn_color = 'btn-success';
             $route = 'defects.restore';
         } else {
-            $defects = $this->defect->select('id', 'description')->simplePaginate(10);
+            $defects = $this->defect->select('id', 'description')->simplePaginate(20);
             $opt = 0;
             $msg = 'Ativos';
             $cond = 'Desativar';

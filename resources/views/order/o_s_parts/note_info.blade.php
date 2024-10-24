@@ -33,7 +33,7 @@
         <div class="InfoCollum" style="width: 75%; border-left: hidden">{{$note->solution->id.' - '.$note->solution->description}}</div>
     </div>
 
-    <div class="LastInfoLine" style="height: 200px">
-        <div class="InfoFirstCollum" style="overflow: initial"><strong>Descrição da Intervenção: </strong>{{$note->services ?? ''}}</div>
+    <div class="LastInfoLine" style="height: 206px">
+        <div class="InfoFirstCollum LongText"><p><strong>Descrição da Intervenção: </strong>{{$note->services ?? ''}}</p></div>
     </div>
 </div>

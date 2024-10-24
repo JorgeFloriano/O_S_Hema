@@ -131,7 +131,7 @@
                         </div> 
 
                         <div class="form-floating my-2">
-                            <textarea id="services" name="services" maxlength="330" class='autoExpand form-control' rows='1' data-min-rows='1'>{{$note->services}}</textarea>
+                            <textarea id="services" name="services" maxlength="850" class='autoExpand form-control' rows='1' data-min-rows='1'>{{$note->services}}</textarea>
                             <label for="services">Descrição dos serviços executados</label>
                         </div>
 

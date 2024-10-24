@@ -3,7 +3,6 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\FormCrUserRequest;
-use App\Http\Requests\FormUpUserRequest;
 use App\Models\Adm;
 use App\Models\Sup;
 use App\Models\Tec;
@@ -36,7 +35,7 @@ class UserController extends Controller
 
         $admins = Adm::select('user_id')->where('main', 1)->get();
 
-        $users = $this->user->select('id', 'name','function')->whereNotIn('id', $admins)->simplePaginate(10);
+        $users = $this->user->select('id', 'name','function')->whereNotIn('id', $admins)->simplePaginate(20);
 
         return view('user.users_list' , ['users' => $users]);
     }
@@ -48,7 +47,7 @@ class UserController extends Controller
             return view('login');
         }
 
-        $tecs = Tec::simplePaginate(10);
+        $tecs = Tec::simplePaginate(20);
 
         session()->put('tecs', $tecs);
 
@@ -285,6 +284,13 @@ class UserController extends Controller
 
         // If the user has an administrator access and the adm field is not filled, remove it
         if (!$request->input('adm') && isset(User::where('id', $id)->first()->adm)) {
+
+            if ($this->m) {
+                if (auth()->user()->id == $id) {
+                    return redirect()->back()->with('message', 'O administrador principal, não pode ter seu acesso removido.');
+                }
+            }
+
             $adm_dl = Adm::where('user_id', $id)->delete();
 
             // Return an error message.

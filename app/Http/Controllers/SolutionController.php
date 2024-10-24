@@ -33,7 +33,7 @@ class SolutionController extends Controller
         }
 
         if ($opt == 0) {
-            $solutions = $this->solution->select('id', 'description')->onlyTrashed()->simplePaginate(10);
+            $solutions = $this->solution->select('id', 'description')->onlyTrashed()->simplePaginate(20);
             $opt = 1;
             $msg = 'Desativados';
             $cond = 'Ativar';
@@ -41,7 +41,7 @@ class SolutionController extends Controller
             $btn_color = 'btn-success';
             $route = 'solutions.restore';
         } else {
-            $solutions = $this->solution->select('id', 'description')->simplePaginate(10);
+            $solutions = $this->solution->select('id', 'description')->simplePaginate(20);
             $opt = 0;
             $msg = 'Ativos';
             $cond = 'Desativar';

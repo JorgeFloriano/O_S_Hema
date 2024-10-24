@@ -25,9 +25,15 @@
                     </div>
                 @endif
 
-                <div id="header" class="my-2">
-                    <h2>Editar Cadastro do Usuário nº{{$user->id}} </h2>
-                </div>
+                @if (auth()->user()->id == $user->id)
+                    <div id="header" class="my-2">
+                        <h2>Editar Perfil </h2>
+                    </div>
+                @else
+                    <div id="header" class="my-2">
+                        <h2>Editar Cadastro do Usuário nº{{$user->id}} </h2>
+                    </div>
+                @endif
                 <hr>
 
                 <main>
@@ -73,12 +79,15 @@
                             </label>
                         </div>
 
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="1" name="adm" {{$adm_checked}} id="adm">
-                            <label class="form-check-label" for="adm">
-                                Acesso de Administrador
-                            </label>
-                        </div>
+                        {{-- This option will not be displayed if the main administrator is editing his own registration. --}}
+                        @if (auth()->user()->id !== $user->id)
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="1" name="adm" {{$adm_checked}} id="adm">
+                                <label class="form-check-label" for="adm">
+                                    Acesso de Administrador
+                                </label>
+                            </div>
+                        @endif
 
                         <div class="form-check">
                             <input class="form-check-input" type="checkbox" value="1" name="sup" {{$sup_checked}} id="sup">

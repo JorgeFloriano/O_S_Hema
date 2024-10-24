@@ -30,6 +30,6 @@
     </div>
 
     <div class="LastInfoLine" style="height: 113px">
-        <div style="padding: 0 6px 0 6px;"><strong>Problema relatado: </strong>{{$order->req_descr ?? ''}}</div>
+        <div class="InfoFirstCollum LongText"><p><strong>Problema relatado: </strong>{{$order->req_descr ?? ''}}</p></div>
     </div>
 </div>

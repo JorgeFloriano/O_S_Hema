@@ -33,7 +33,7 @@ class CauseController extends Controller
         }
 
         if ($opt == 0) {
-            $causes = $this->cause->select('id', 'description')->onlyTrashed()->simplePaginate(10);
+            $causes = $this->cause->select('id', 'description')->onlyTrashed()->simplePaginate(20);
             $opt = 1;
             $msg = 'Desativados';
             $cond = 'Ativar';
@@ -41,7 +41,7 @@ class CauseController extends Controller
             $btn_color = 'btn-success';
             $route = 'causes.restore';
         } else {
-            $causes = $this->cause->select('id', 'description')->simplePaginate(10);
+            $causes = $this->cause->select('id', 'description')->simplePaginate(20);
             $opt = 0;
             $msg = 'Ativos';
             $cond = 'Desativar';

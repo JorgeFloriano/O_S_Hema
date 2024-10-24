@@ -33,7 +33,7 @@ class NoteTypeController extends Controller
         }
 
         if ($opt == 0) {
-            $note_types = $this->note_type->select('id', 'description')->onlyTrashed()->simplePaginate(10);
+            $note_types = $this->note_type->select('id', 'description')->onlyTrashed()->simplePaginate(20);
             $opt = 1;
             $msg = 'Desativados';
             $cond = 'Ativar';
@@ -41,7 +41,7 @@ class NoteTypeController extends Controller
             $btn_color = 'btn-success';
             $route = 'note_types.restore';
         } else {
-            $note_types = $this->note_type->select('id', 'description')->simplePaginate(10);
+            $note_types = $this->note_type->select('id', 'description')->simplePaginate(20);
             $opt = 0;
             $msg = 'Ativos';
             $cond = 'Desativar';

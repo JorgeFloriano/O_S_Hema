@@ -75,7 +75,7 @@
                         </div>
 
                         <div class="form-floating my-2">
-                            <textarea id="req_descr" name="req_descr" maxlength="430" placeholder="Problema Relatado" class='autoExpand form-control' rows='1' data-min-rows='1' required>{{old('req_descr')}}</textarea>
+                            <textarea id="req_descr" name="req_descr" maxlength="470" placeholder="Problema Relatado" class='autoExpand form-control' rows='1' data-min-rows='1' required>{{old('req_descr')}}</textarea>
                             <label for="req_descr">Problema Relatado</label>
                         </div>
 
