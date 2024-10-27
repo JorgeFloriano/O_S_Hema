@@ -72,29 +72,38 @@
                             <label for="password_confirmation">Confirmar Senha</label>
                         </div>
 
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="1" name="tec" {{$tec_checked}} id="tec">
-                            <label class="form-check-label" for="tec">
-                                Acesso de Técnico
-                            </label>
-                        </div>
-
-                        {{-- This option will not be displayed if the main administrator is editing his own registration. --}}
-                        @if (auth()->user()->id !== $user->id)
+                        <fieldset><legend>Selecione um ou mais perfis:</legend>
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" value="1" name="adm" {{$adm_checked}} id="adm">
-                                <label class="form-check-label" for="adm">
-                                    Acesso de Administrador
+                                <input class="form-check-input" type="checkbox" value="1" name="tec" id="tec" {{$tec_checked}}>
+                                <label class="form-check-label" for="tec">
+                                    <strong>Técnico</strong>
                                 </label>
                             </div>
-                        @endif
 
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="1" name="sup" {{$sup_checked}} id="sup">
-                            <label class="form-check-label" for="sup">
-                                Acesso de Supervisor
-                            </label>
-                        </div>
+                            {{-- This option will not be displayed if the main administrator is editing his own registration. --}}
+                            @if (auth()->user()->id !== $user->id)
+                                <div class="form-check">
+                                    <input onchange="enableDisable('cli')" class="form-check-input" type="checkbox" value="1" name="adm" id="adm" {{$adm_checked}} >
+                                    <label class="form-check-label" for="adm">
+                                        <strong>Administrador</strong>
+                                    </label>
+                                    
+                                    <div class="form-check">
+                                        <input {{$cli_disabled}} {{$cli_checked}} class="form-check-input" type="checkbox" value="1" name="cli" id="cli">
+                                        <label class="form-check-label" for="cli">
+                                            Acesso a Clientes
+                                        </label>
+                                    </div>
+                                </div>
+                            @endif
+
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="1" name="sup" id="sup" {{$sup_checked}}>
+                                <label class="form-check-label" for="sup">
+                                    <strong>Supervisor</strong>
+                                </label>
+                            </div>
+                        </fieldset>
 
                         <div class="my-2">
                             <button id="submitButton" type="submit" class="btn btn-primary me-2" data-bs-dismiss="modal">

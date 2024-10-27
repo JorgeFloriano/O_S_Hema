@@ -96,6 +96,15 @@
                     </li>
                 @endif
 
+                @if (session('cli') == auth()->user()->id)
+                    <li>
+                        <a class="dropdown-item btn-lg" href="{{route('clients.index')}}">
+                            <i class="fa fa-handshake-o" aria-hidden="true"></i>
+                            Clientes
+                        </a>
+                    </li>
+                @endif
+
                 @if (auth()->user()->tec()->first())
                     <li>
                         <a class="dropdown-item btn-lg" href="{{route('notes.index')}}">
