@@ -80,6 +80,18 @@ function showAddress(dados) {
    document.querySelector('#address').value = dados.logradouro+', '+dados.bairro+', '+dados.localidade+' - '+dados.uf;
 }
 
+function enableDisable(id) {
+   div = document.getElementById(id);
+   if (div.disabled == false) {
+      this.checked = false;
+      div.checked = false;
+      div.disabled = true;
+   } else {
+      this.checked = true;
+      div.disabled = false;
+   }
+}
+
  // global delegated event listener
  document.addEventListener('input', onExpandableTextareaInput)
 

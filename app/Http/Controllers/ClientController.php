@@ -20,7 +20,8 @@ class ClientController extends Controller
     
     public function index()
     {
-        if (!$this->m) {
+        // If the user isn't main and isn't client, redirect to login page
+        if (!$this->m && session('cli') !== auth()->user()->id) {
             return view('login');
         }
 
@@ -34,7 +35,8 @@ class ClientController extends Controller
      */
     public function create()
     {
-        if (!$this->m) {
+        // If the user isn't main and isn't client, redirect to login page
+        if (!$this->m && session('cli') !== auth()->user()->id) {
             return view('login');
         }
         
@@ -46,7 +48,8 @@ class ClientController extends Controller
      */
     public function store(FormCliRequest $request)
     {
-        if (!$this->m) {
+        // If the user isn't main and isn't client, redirect to login page
+        if (!$this->m && session('cli') !== auth()->user()->id) {
             return view('login');
         }
         
@@ -73,7 +76,8 @@ class ClientController extends Controller
      */
     public function show(Client $client)
     {
-        if (!$this->m) {
+        // If the user isn't main and isn't client, redirect to login page
+        if (!$this->m && session('cli') !== auth()->user()->id) {
             return view('login');
         }
         
@@ -85,7 +89,8 @@ class ClientController extends Controller
      */
     public function edit(Client $client)
     {
-        if (!$this->m) {
+        // If the user isn't main and isn't client, redirect to login page
+        if (!$this->m && session('cli') !== auth()->user()->id) {
             return view('login');
         }
         
@@ -97,7 +102,8 @@ class ClientController extends Controller
      */
     public function update(FormCliRequest $request, string $id)
     {
-        if (!$this->m) {
+        // If the user isn't main and isn't client, redirect to login page
+        if (!$this->m && session('cli') !== auth()->user()->id) {
             return view('login');
         }
 
@@ -116,7 +122,8 @@ class ClientController extends Controller
      */
     public function destroy(string $id)
     {
-        if (!$this->m) {
+        // If the user isn't main and isn't client, redirect to login page
+        if (!$this->m && session('cli') !== auth()->user()->id) {
             return view('login');
         }
         

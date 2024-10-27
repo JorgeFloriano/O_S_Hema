@@ -74,12 +74,16 @@ class LoginController extends Controller
 
         if ($adm) {
             if ($adm->main) {
-                
-                session()->put('main', $adm->id);
+                session()->put('main', auth()->user()->id);
                 return redirect()->route('clients.index')->with([
                     'success'=>'Olá',
                 ]);
             }
+
+            if ($adm->cli) {
+                session()->put('cli', auth()->user()->id);
+            }
+
             return redirect()->route('orders.index')->with([
                 'success'=>'Olá',
             ]);
@@ -109,6 +113,7 @@ class LoginController extends Controller
 
     public function destroy()
     {
+        session()->flush();
         Auth::logout();
         return redirect()->route('login.index');
     }

@@ -119,9 +119,16 @@ class UserController extends Controller
         if ($user_cr) {
             // If adm option is selected, makes available admin access
             if ($request->adm) {
+
+                $cli = 0;
+                if ($request->cli) {
+                    $cli = 1;    
+                }
+
                 $adm_cr = Adm::create([
                     'user_id' => $user_cr->id,
                     'main' => 0,
+                    'cli' => $cli,
                 ]);
             }
     
@@ -170,8 +177,14 @@ class UserController extends Controller
         }
 
         $adm_checked = '';
+        $cli_checked = '';
+        $cli_disabled = 'disabled';
         if (isset($user->adm)) {
             $adm_checked = 'checked';
+            $cli_disabled = '';
+            if ($user->adm->cli) {
+                $cli_checked = 'checked';
+            }
         }
 
         $sup_checked = '';
@@ -182,8 +195,10 @@ class UserController extends Controller
         return view('user.user_edit', [
             'user' => $user,
             'adm_checked' => $adm_checked,
+            'cli_checked' => $cli_checked,
             'tec_checked' => $tec_checked,
-            'sup_checked' => $sup_checked
+            'sup_checked' => $sup_checked,
+            'cli_disabled' => $cli_disabled
         ]);
     }
 
@@ -225,7 +240,8 @@ class UserController extends Controller
             'password_confirmation',
             'tec',
             'adm',
-            'sup'
+            'cli',
+            'sup',
         ]));
 
         if (!$updated) {
@@ -270,15 +286,34 @@ class UserController extends Controller
         }
 
         // If the user not has an administrator access and the adm field is filled, create one
-        if ($request->input('adm') && !isset(User::where('id', $id)->first()->adm)) {
-            $adm_cr = Adm::create([
-               'user_id' => $id,
-               'main' => 0,
-            ]);
-           
-            // Return an error message.
-            if (!$adm_cr) {
-               return redirect()->back()->with('message', 'Erro ao liberar acesso de administrador.');
+        $adm = User::where('id', $id)->first()->adm;
+
+        if ($request->adm) {
+            if (!isset($adm)) {
+
+                $cli = 0;
+                if ($request->cli && !isset($adm->cli)) {
+                    $cli = 1;
+                }
+    
+                $adm_cr = Adm::create([
+                   'user_id' => $id,
+                   'main' => 0,
+                   'cli' => $cli
+                ]);
+               
+                // Return an error message.
+                if (!$adm_cr) {
+                   return redirect()->back()->with('message', 'Erro ao liberar acesso de administrador.');
+                } 
+            } else {
+                $cli_up = Adm::find($adm->id);
+                $cli_up->cli = $request->cli ? 1 : 0;
+                $cli_up->save();
+
+                if (!$cli_up) {
+                    return redirect()->back()->with('message', 'Erro ao atualizar acesso de administrador.');
+                }
             }
         }
 

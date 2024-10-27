@@ -64,26 +64,35 @@
                             <label for="password_confirmation">Confirmar Senha</label>
                         </div>
 
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="1" name="tec" id="tec">
-                            <label class="form-check-label" for="tec">
-                                Acesso de Técnico
-                            </label>
-                        </div>
+                        <fieldset><legend>Selecione um ou mais perfis:</legend>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="1" name="tec" id="tec">
+                                <label class="form-check-label" for="tec">
+                                    <strong>Técnico</strong>
+                                </label>
+                            </div>
 
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="1" name="adm" id="adm">
-                            <label class="form-check-label" for="adm">
-                                Acesso de Administrador
-                            </label>
-                        </div>
+                            <div class="form-check">
+                                <input onchange="enableDisable('cli')" class="form-check-input" type="checkbox" value="1" name="adm" id="adm">
+                                <label class="form-check-label" for="adm">
+                                    <strong>Administrador</strong>
+                                </label>
+                                
+                                <div class="form-check">
+                                    <input disabled class="form-check-input" type="checkbox" value="1" name="cli" id="cli">
+                                    <label class="form-check-label" for="cli">
+                                        Acesso a Clientes
+                                    </label>
+                                </div>
+                            </div>
 
-                        <div class="form-check">
-                            <input class="form-check-input" type="checkbox" value="1" name="sup" id="sup">
-                            <label class="form-check-label" for="sup">
-                                Acesso de Supervisor
-                            </label>
-                        </div>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="1" name="sup" id="sup">
+                                <label class="form-check-label" for="sup">
+                                    <strong>Supervisor</strong>
+                                </label>
+                            </div>
+                        </fieldset>
 
                         <div class="my-2">
                             <button id="submitButton" type="submit" class="btn btn-primary me-2" data-bs-dismiss="modal">
