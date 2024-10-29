@@ -43,23 +43,65 @@ class OrderController extends Controller
         // user is technician or not
         $this->t = auth()->user()->tec()->first();
     }
-    public function index()
+    public function index(Request $request)
     {
         // If user is not suprevisor or administrator, redirect to login
         if (!$this->s && !$this->a) {return view('login');}
 
-        $orders = $this->os->select('id', 'order_type_id','client_id', 'tec_id','req_date', 'finished')->orderBy('id', 'desc')->simplePaginate(20);   
+        if ($request->date_start) {
+            $date_s = $request->date_start;
+        } else {
+            $date_s = \Carbon\Carbon::now()->subMonth()->format('Y-m-d');
+        }
+
+        if ($request->date_end) {
+            $date_e = $request->date_end;
+        } else {
+            $date_e = \Carbon\Carbon::now()->format('Y-m-d');
+        }
+
+        
+        if (!$request->client && !$request->date_start && !$request->date_end) {
+            $orders = $this->os
+            ->select('id', 'order_type_id','client_id', 'tec_id','req_date', 'finished')
+            ->orderBy('id', 'desc')
+            ->simplePaginate(20);
+        } else {
+            if ($request->client) {
+                $orders = $this->os
+                ->where('client_id', $request->client)
+                ->where('req_date', '>=', $date_s)
+                ->where('req_date', '<=', $date_e)
+                ->select('id', 'order_type_id','client_id', 'tec_id','req_date', 'finished')
+                ->orderBy('id', 'desc')
+                ->simplePaginate(20);
+            } else {
+                $orders = $this->os
+                ->where('req_date', '>=', $date_s)
+                ->where('req_date', '<=', $date_e)
+                ->select('id', 'order_type_id','client_id', 'tec_id','req_date', 'finished')
+                ->orderBy('id', 'desc')
+                ->simplePaginate(20);
+            }
+        }
+
 
         $tecs = Tec::all();
+
+        $clients = Client::all();
 
         session()->put('ords', $orders);
 
         return view('order.orders_list' , [
             'orders' => $orders,
             'tecs' => $tecs,
+            'clients' => $clients,
             'main' => $this->m ?? null,
             'sup' => $this->s ?? null,
-            'adm' => $this->a ?? null
+            'adm' => $this->a ?? null,
+            'date_s' => $date_s,
+            'date_e' => $date_e,
+            'old_client' => $request->client ?? null
         ]);
     }
 
@@ -155,7 +197,7 @@ class OrderController extends Controller
         $order->req_time = date_format(date_create($order->req_time), 'H:i');
 
         $disabled = $this->a ? '' : 'disabled';
-        $title = $this->a ? '' : 'Informações do';
+        $title = $this->a ? 'Editar ' : 'Informações da ';
         
         return view('order.order_edit', [
             'order' => $order,

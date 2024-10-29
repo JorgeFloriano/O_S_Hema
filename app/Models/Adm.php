@@ -19,7 +19,7 @@ class Adm extends Model
     protected $fillable = [
         'user_id',
         'main',
-        'client',
+        'cli',
     ];
 
     use HasFactory;

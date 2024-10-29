@@ -5,6 +5,13 @@ function getScrollHeight(elm){
    elm._baseScrollHeight = elm.scrollHeight
    elm.value = savedValue
  }
+
+ window.onload = function() {
+   var textareas = document.querySelectorAll('.autoExpand');
+   for (var i = 0; i < textareas.length; i++) {
+     onExpandableTextareaInput({ target: textareas[i] });
+   }
+ };
  
  function onExpandableTextareaInput({ target:elm }){
    // make sure the input event originated from a textarea and it's desired to be auto-expandable
@@ -51,8 +58,8 @@ function getScrollHeight(elm){
  }
 
 //border-color:#fe8686;outline:0;box-shadow:0 0 0 .25rem rgba(253, 13, 13, 0.25)
-function formUpdate() {
-   document.getElementById("form").submit();
+function formSubmit(form) {
+   document.getElementById(form).submit();
 }
  
 function scrollToBottom() {

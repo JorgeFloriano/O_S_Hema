@@ -120,15 +120,10 @@ class UserController extends Controller
             // If adm option is selected, makes available admin access
             if ($request->adm) {
 
-                $cli = 0;
-                if ($request->cli) {
-                    $cli = 1;    
-                }
-
                 $adm_cr = Adm::create([
                     'user_id' => $user_cr->id,
                     'main' => 0,
-                    'cli' => $cli,
+                    'cli' => $request->cli ? 1 : 0,
                 ]);
             }
     

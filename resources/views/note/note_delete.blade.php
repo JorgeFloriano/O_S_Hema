@@ -88,7 +88,7 @@
 
                         <div class="form-floating my-2">
                             <textarea id="services" disabled name="services" class='autoExpand form-control' rows='1' data-min-rows='1'>{{$note->services}}</textarea>
-                            <label for="services">Observações dos serviços executados</label>
+                            <label for="services">Descrição dos serviços executados</label>
                         </div>
 
                         <div class="form-floating my-2">
@@ -159,15 +159,9 @@
                                         Deletar
                                     </button>
                                 @endif
-
-                                <a href="{{route('notes.create', ['order' => $note->order->id])}}" class="btn btn-secondary">
-                                    Voltar
-                                </a>
-                            @else
-                                <a href="{{route('orders.edit', ['order' => $note->order->id])}}" class="btn btn-secondary">
-                                    Voltar
-                                </a>
                             @endif
+                            
+                            <a href="{{url()->previous()}}" class="btn btn-secondary ms-2" >Voltar</a>
                         </div>
                     </form>
                 </main>

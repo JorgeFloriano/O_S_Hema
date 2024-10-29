@@ -397,9 +397,7 @@
                             <button id="submitButton" type="button" class="btn btn-primary me-2" data-bs-dismiss="modal">
                                 Confirma
                             </button>
-                            <a href="{{route('notes.index')}}" class="btn btn-secondary">
-                                Voltar
-                            </a>
+                            <a href="{{url()->previous()}}" class="btn btn-secondary ms-2" >Voltar</a>
                         </div>
                     </form>
                     <script src="{{asset('assets/js/signature.js')}}"></script>

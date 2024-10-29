@@ -42,9 +42,7 @@
                             <button id="submitButton" type="submit" class="btn btn-primary me-2" data-bs-dismiss="modal">
                                 Confirma
                             </button>
-                            <a href="{{route('note_types.index')}}" class="btn btn-secondary">
-                                Voltar
-                            </a>
+                            <a href="{{url()->previous()}}" class="btn btn-secondary ms-2" >Voltar</a>
                         </div>
                     </form>
                 </main>

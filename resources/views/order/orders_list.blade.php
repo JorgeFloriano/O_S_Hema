@@ -17,11 +17,60 @@
                 <hr>
 
                 @if ($adm)
-                    <div>
+                    <div class="my-2">
                         <a href="{{route('orders.create')}}" class="btn btn-primary">Criar nova</a>
+                        <button onclick="formSubmit('filter_form')" id="submitButton" style="float: right" type="submit" class="btn btn-secondary">
+                            <i class="fa fa-filter" aria-hidden="true"></i> Filtrar
+                        </button>
                     </div>
-                    <hr>
+                @else
+                    <div class="my-2">
+                        <button onclick="formSubmit('filter_form')" id="submitButton" type="submit" class="btn btn-secondary">
+                            <i class="fa fa-filter" aria-hidden="true"></i> Filtrar
+                        </button>
+                    </div>
                 @endif
+
+                <form action="{{route('orders.index')}}" id="filter_form" method="get">
+
+                    @csrf
+                    <div class="row g-2 mb-2">
+                        <div class="col-md-6 col-12">
+                            <div class="form-floating">
+                                <select class="form-select" id="client" name="client" aria-label="Floating label select example" required>
+                                    <option value="0">0 - Todos</option>
+                                    {{-- @foreach ($clients as $client)
+                                        <option value="{{$client->id}}">{{$client->id}} - {{$client->name}}</option>
+                                    @endforeach --}}
+
+                                    @foreach ($clients as $client)
+                                    @if ($client->id == $old_client)
+                                        <option selected value="{{$client->id}}">{{$client->id.' - '.$client->name}}</option>
+                                    @else
+                                        <option value="{{$client->id}}">{{$client->id.' - '.$client->name}}</option>
+                                    @endif
+                                @endforeach
+                            </select>
+                            <label for="client">Selecionar Cliente(s) para exibir</label>
+                            </div>
+                        </div>
+    
+                        <div class="col-md-3 col-6">
+                            <div class="form-floating">
+                                {{-- value="{{\Carbon\Carbon::now()->subYear()->format('Y-m-d')}}" --}}
+                                <input type="date" class="form-control" id="Start" name="date_start" placeholder="Início" value="{{$date_s}}">
+                                <label for="Start">De</label>
+                            </div>
+                        </div>
+                       
+                        <div class="col-md-3 col-6">    
+                            <div class="form-floating">
+                                <input type="date" class="form-control" id="End" required name="date_end" placeholder="Término" value="{{$date_e}}">
+                                <label for="End">Até</label>
+                            </div>
+                        </div>
+                    </div>
+                </form>
 
                 @if ($orders->count() === 0)
                     <p>
@@ -57,7 +106,7 @@
                                             @if ($order->finished || (!$main && !$sup))
                                                 <input class="form-control" disabled id="ord_{{$order->id}}" value="{{$order->tec->id ?? 0}} - {{$order->tec->user->name ?? 'Indefinido'}}">
                                             @else
-                                                <select onchange="formUpdate()" class="form-select" id="ord_{{$order->id}}" name="ord_{{$order->id}}" aria-label="Floating label select example">
+                                                <select onchange="formSubmit('form')" class="form-select" id="ord_{{$order->id}}" name="ord_{{$order->id}}" aria-label="Floating label select example">
                                                     @if (!isset($order->tec->id))
                                                         <option selected value="0">0 - Indefinido</option>
                                                     @else

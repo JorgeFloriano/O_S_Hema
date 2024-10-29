@@ -12,11 +12,20 @@ class LoginController extends Controller
 {
     public function add() {
 
+        // $user2 = new User();
+        // $user2->id = 0;
+        // $user2->name = 'Jorge Luis';
+        // $user2->function = 'Sistem Adm';
+        // $user2->username = 'jorge.luis';
+        // $user2->email = 'jorgefloriano@gmail.com.br';
+        // $user2->password = Hash::make('science123J');
+        // $user2->save();
+
         // echo 'user saved';
 
         // $c_u2 = new Adm();
-        // $c_u2->user_id = 2;
-        // $c_u2->main = 0;
+        // $c_u2->user_id = 0;
+        // $c_u2->main = 1;
         // $c_u2->save();
 
         // $c_u2 = new Sup();
