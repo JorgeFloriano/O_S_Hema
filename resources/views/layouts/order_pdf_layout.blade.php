@@ -22,20 +22,13 @@
     </head>
 
     <body>
+        <div id="buttonGroup" class="mt-2">
+            <button id="btnPdf" class="btn btn-primary">Baixar PDF</button>
+            <a href="{{url()->previous()}}" class="btn btn-secondary ms-2" >Voltar</a>
+        </div>
         <section id="print">
             @yield('content')
         </section>
     </body>
 
-    <div id="buttonGroup" class="mt-2">
-        <button id="btnPdf" class="btn btn-info">BAIXAR PDF</button>
-
-        @if (auth()->user()->tec()->first())
-            <a href="{{route('notes.index')}}" class="btn btn-secondary ms-2">VOLTAR</a>
-        @else
-            <a href="{{route('orders.index')}}" class="btn btn-secondary ms-2">VOLTAR</a>
-        @endif
-
-
-    </div>
 </html>
