@@ -239,11 +239,17 @@ class UserController extends Controller
             'sup',
         ]));
 
+        // User that is updated is adm main
+        $main_id = 0;
+        if (isset(User::where('id', $id)->first()->adm)) {
+            $main_id = User::where('id', $id)->first()->adm()->first()->main;
+        }
+
         if (!$updated) {
             return redirect()->back()->with('message', 'Erro ao atualizar cadastro de usuário.');
         }
 
-        if (!$request->input('tec') && !$request->input('adm') && !$request->input('sup')) {
+        if ((!$request->input('tec') && !$request->input('adm') && !$request->input('sup')) && !$main_id) {
             return redirect()->back()->with('message', 'O usuário deve ter pelo menos um acesso.');
         }
 
@@ -259,13 +265,21 @@ class UserController extends Controller
 
         // If the user not has a technician access and the tec field is filled, create one
         if ($request->input('tec') && !isset(User::where('id', $id)->first()->tec)) {
-            $tec_cr = Tec::create([
-                'user_id' => $id,
-                'on_call' => 0,
-            ]);
 
+            // Check if the user has a technician access deleted
+            $tec_deleted = Tec::where('user_id', $id)->withTrashed()->first();
+
+            if ($tec_deleted) {
+                $tec = $tec_deleted->restore();
+            } else {
+                $tec = Tec::create([
+                    'user_id' => $id,
+                    'on_call' => 0,
+                ]);
+            }
+            
             // Return an error message.
-            if (!$tec_cr) {
+            if (!$tec) {
                 return redirect()->back()->with('message', 'Erro ao liberar acesso de técnico.'); 
             }
         }
@@ -290,15 +304,22 @@ class UserController extends Controller
                 if ($request->cli && !isset($adm->cli)) {
                     $cli = 1;
                 }
-    
-                $adm_cr = Adm::create([
-                   'user_id' => $id,
-                   'main' => 0,
-                   'cli' => $cli
-                ]);
+
+                // Check if the user has a administrator access deleted
+                $adm_deleted = Adm::where('user_id', $id)->withTrashed()->first();
+
+                if ($adm_deleted) {
+                    $new_adm = $adm_deleted->restore();
+                } else {
+                    $new_adm = Adm::create([
+                        'user_id' => $id,
+                        'main' => 0,
+                        'cli' => $cli
+                    ]);
+                }
                
                 // Return an error message.
-                if (!$adm_cr) {
+                if (!$new_adm) {
                    return redirect()->back()->with('message', 'Erro ao liberar acesso de administrador.');
                 } 
             } else {
@@ -312,14 +333,8 @@ class UserController extends Controller
             }
         }
 
-        // If the user has an administrator access and the adm field is not filled, remove it
-        if (!$request->input('adm') && isset(User::where('id', $id)->first()->adm)) {
-
-            if ($this->m) {
-                if (auth()->user()->id == $id) {
-                    return redirect()->back()->with('message', 'O administrador principal, não pode ter seu acesso removido.');
-                }
-            }
+        // If the user has an administrator access, the adm field is not filled and the user is not main, remove administrator access
+        if (!$request->input('adm') && isset(User::where('id', $id)->first()->adm) && !$main_id) {
 
             $adm_dl = Adm::where('user_id', $id)->delete();
 
@@ -331,12 +346,19 @@ class UserController extends Controller
 
         // If the user not has a supervisor access and the sup field is filled, create one
         if ($request->input('sup') && !isset(User::where('id', $id)->first()->sup)) {
-            $sup_cr = Sup::create([
-                'user_id' => $id
-            ]);
+
+            $sup_deleted = Sup::where('user_id', $id)->withTrashed()->first();
+
+            if ($sup_deleted) {
+                $new_sup = $sup_deleted->restore();
+            } else {
+                $new_sup = Sup::create([
+                    'user_id' => $id,
+                ]);
+            }
 
             // Return an error message.
-            if (!$sup_cr) {
+            if (!$new_sup) {
                 return redirect()->back()->with('message', 'Erro ao liberar acesso de supervisor.'); 
             }
         }

@@ -26,7 +26,7 @@
                 @endif
 
                 <div id="header" class="text-center my-2">
-                    <strong>Solicitação de Assistência Técnica nº <span style="color: red">{{$note->order->id}}</span></strong>
+                    <strong>Solicitação de Assistência Técnica nº <span style="color: red">{{number_format($note->order->id, 0, ',', '.')}}</span></strong>
                 </div>
                 <main>
                     
@@ -309,7 +309,9 @@
                             <button id="submitButton" type="button" class="btn btn-primary me-2" data-bs-dismiss="modal">
                                 Salvar
                             </button>
-                            <a href="{{url()->previous()}}" class="btn btn-secondary ms-2" >Voltar</a>
+                            <a href="{{route('notes.create', ['order' => $note->order->id])}}" class="btn btn-secondary">
+                                Voltar
+                            </a>
                         </div>
                     </form>
                     <script src="{{asset('assets/js/signature.js')}}"></script>

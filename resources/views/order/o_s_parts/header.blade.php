@@ -15,6 +15,6 @@
 
     <div id="header3">
         SAT - Solicitação de Assistência Técnica
-        <div id="osId">{{$order->id}}</div>
+        <div id="osId">{{number_format($order->id, 0, ',', '.')}}</div>
     </div>
 </div>

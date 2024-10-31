@@ -26,7 +26,7 @@
                 @endif
 
                 <div id="header" class="my-2">
-                    <h2>{{$title}}Ordem de Serviço Nº {{$order->id}}</h2> 
+                    <h2>{{$title}}Ordem de Serviço Nº {{number_format($order->id, 0, ',', '.')}}</h2> 
                 </div>
                 <hr>
                 <main>
@@ -145,7 +145,9 @@
                                     Confirma
                                 </button>
                             @endif
-                            <a href="{{url()->previous()}}" class="btn btn-secondary ms-2" >Voltar</a>
+                            <a href="{{route('orders.index')}}" class="btn btn-secondary">
+                                Voltar
+                            </a>
                         </div>
                     </form>
                 </main>

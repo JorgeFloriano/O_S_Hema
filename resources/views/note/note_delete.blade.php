@@ -16,7 +16,7 @@
                 @endif
 
                 <div id="header" class="text-center my-2">
-                    <strong>Solicitação de Assistência Técnica nº <span style="color: red">{{$note->order->id}}</span></strong>
+                    <strong>Solicitação de Assistência Técnica nº <span style="color: red">{{number_format($note->order->id, 0, ',', '.')}}</span></strong>
                 </div>
                 <main>
                     

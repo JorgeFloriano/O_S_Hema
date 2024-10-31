@@ -10,7 +10,7 @@
             <div class="col-lg-8 offset-lg-2">
 
                 <div id="header" class="my-2">
-                    <h2>Deletar Ordem de Serviço nº {{$order->id}}</h2>
+                    <h2>Deletar Ordem de Serviço nº {{number_format($order->id, 0, ',', '.')}}</h2>
                 </div>
                 <hr>
                 <main>
