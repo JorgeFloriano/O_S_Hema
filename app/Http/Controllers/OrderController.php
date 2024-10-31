@@ -263,6 +263,18 @@ class OrderController extends Controller
         return redirect()->back()->with('message', $msg);
     }
 
+    public function reopen($id)
+    {
+        if (!$this->s) {
+            return view('login');
+        }
+
+        if ($this->s->reopenOrder($id)) {
+            return redirect()->route('orders.index')->with('message', 'Ordem de serviço reaberta com sucesso.');
+        }
+        return redirect()->route('orders.index')->with('message', 'Erro ao reabrir Ordem de Serviço.');
+    }
+
     // Shows the PDF for the order
     public function show_pdf(Order $order)
     {
@@ -277,10 +289,12 @@ class OrderController extends Controller
         $ords = session('ords');
 
         foreach ($ords as  $ord) {
-            $ord->tec_id = $request->input('ord_'.$ord->id);
-            $ord = $ord->save();
-            if (!$ord) {
-                return redirect()->back()->with('message', 'Erro ao selecionar técnico.'); 
+            if ($request->input('ord_'.$ord->id) != null) {
+                $ord->tec_id = $request->input('ord_'.$ord->id);
+                $ord = $ord->save();
+                if (!$ord) {
+                    return redirect()->back()->with('message', 'Erro ao selecionar técnico.'); 
+                }
             }
         }
 
