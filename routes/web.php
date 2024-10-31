@@ -28,6 +28,7 @@ Route::get('/', function () {
 Route::middleware(CheckSession::class)->group(function(){
     Route::resource('orders', OrderController::class);
     Route::get('/orders/{order}/finish', [OrderController::class, 'finish'])->name('orders.finish');
+    Route::get('/orders/{order}/reopen', [OrderController::class, 'reopen'])->name('orders.reopen');
     Route::get('/orders/{order}/show_pdf', [OrderController::class, 'show_pdf'])->name('orders.show_pdf');
 
     Route::resource('clients', ClientController::class);

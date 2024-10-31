@@ -88,7 +88,13 @@
                             <button id="submitButton" type="submit" class="btn btn-primary me-2" data-bs-dismiss="modal">
                                 Confirma
                             </button>
-                            <a href="{{url()->previous()}}" class="btn btn-secondary ms-2" >Voltar</a>
+                            @if (isset(auth()->user()->adm) || isset(auth()->user()->sup))
+                                <a href="{{route('orders.index')}}" class="btn btn-secondary">
+                            @else
+                                <a href="{{route('notes.index')}}" class="btn btn-secondary">
+                            @endif
+                                Voltar
+                            </a>
                         </div>
                     </form>
                 </main>

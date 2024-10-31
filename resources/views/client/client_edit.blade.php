@@ -79,7 +79,9 @@
                             <button id="submitButton" type="submit" class="btn btn-primary me-2">
                                 Confirma
                             </button>
-                            <a href="{{url()->previous()}}" class="btn btn-secondary ms-2" >Voltar</a>
+                            <a href="{{route('clients.index')}}" class="btn btn-secondary">
+                                Voltar
+                            </a>
                         </div>
                     </form>
                 </main>

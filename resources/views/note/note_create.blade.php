@@ -26,7 +26,7 @@
                 @endif
 
                 <div id="header" class="text-center my-2">
-                    <strong>Solicitação de Assistência Técnica nº <span style="color: red">{{$order->id}}</span></strong>
+                    <strong>Solicitação de Assistência Técnica nº <span style="color: red">{{number_format($order->id, 0, ',', '.')}}</span></strong>
                 </div>
                 <main>
                     
@@ -76,7 +76,7 @@
                                             <div>
                                                 <div>Registro nº {{$note->id}}, Téc. {{$note->tecs->first()->id}}-{{$note->tecs->first()->user->name}},    {{date('d/m/Y',strtotime($note->date))}}</div>
                                                     <div class="mt-2"> 
-                                                        @if ($note->tecs->first()->id == auth()->user()->tec->id)
+                                                        @if ($note->tecs->first()->user_id == auth()->user()->id)
                                                             <a href="{{route('notes.edit', [
                                                                 'order' => $order->id,
                                                                 'note' => $note->id
@@ -397,7 +397,9 @@
                             <button id="submitButton" type="button" class="btn btn-primary me-2" data-bs-dismiss="modal">
                                 Confirma
                             </button>
-                            <a href="{{url()->previous()}}" class="btn btn-secondary ms-2" >Voltar</a>
+                            <a href="{{route('notes.index')}}" class="btn btn-secondary">
+                                Voltar
+                            </a>
                         </div>
                     </form>
                     <script src="{{asset('assets/js/signature.js')}}"></script>

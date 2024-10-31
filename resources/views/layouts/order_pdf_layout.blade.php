@@ -24,6 +24,11 @@
     <body>
         <div id="buttonGroup" class="mt-2">
             <button id="btnPdf" class="btn btn-primary">Baixar PDF</button>
+            @if (auth()->user()->sup()->first())
+                <a href="{{route('orders.reopen', ['order' => $order->id])}}" class="btn btn-primary ms-2">
+                    Reabrir
+                </a>
+            @endif
             <a href="{{url()->previous()}}" class="btn btn-secondary ms-2" >Voltar</a>
         </div>
         <section id="print">

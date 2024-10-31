@@ -15,6 +15,13 @@ class Sup extends Model
         return $this->belongsTo(User::class);
     }
 
+    public function reopenOrder($order_id) {
+        $order = Order::find($order_id);
+        $order_reopened = $order->finished = 0;
+        $order_reopened = $order->save();
+        return $order_reopened;
+    }
+
     protected $fillable = [
         'user_id',
     ];

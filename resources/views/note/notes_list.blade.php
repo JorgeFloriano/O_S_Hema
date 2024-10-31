@@ -41,7 +41,7 @@
                         <tbody>
                             @foreach ($orders as $order)
                                 <tr>
-                                    <td>{{$order->id}}</td>
+                                    <td>{{number_format($order->id, 0, ',', '.')}}</td>
                                     <td>{{$order->client->name}}</td>
                                     <td>{{date('d/m/y',strtotime($order->req_date))}}</td>
 

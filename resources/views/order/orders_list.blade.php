@@ -100,7 +100,7 @@
                             <tbody>
                                 @foreach ($orders as $order)
                                     <tr>
-                                        <td>{{$order->id}}</td>
+                                        <td>{{number_format($order->id, 0, ',', '.')}}</td>
                                         <td>{{$order->client->name ?? ''}}</td>
                                         <td>
                                             @if ($order->finished || (!$main && !$sup))
