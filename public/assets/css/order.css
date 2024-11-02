@@ -25,15 +25,21 @@ gelo #EFEEEC
   box-sizing: border-box;
 }
 
-body, html {
+body {
   min-height: auto;
+  padding: 10px;
+  margin: auto;
+}
+
+div#buttonGroup {
+  width: 770px;
+  margin: auto;
 }
 
 section#print {
   margin: 10px;
-  width:770px;
+  width: 770px;
   margin: auto;
-  padding:10px;
 }
 
 div#header {
@@ -134,12 +140,6 @@ div.Info {
  width: 100%;
 }
 
-div#buttonGroup {
-  width:770px;
-  margin: auto;
-  padding:0px 0px 10px 10px;
-}
-
 .bg-t {
   background-color: var(--blue1);
 }
@@ -200,7 +200,7 @@ tr {
   overflow: hidden;
   border:1px solid black !important;
   border-radius: 6px;
-  margin: 15px 0px;
+  margin: 15px 0px 0px;
 }
 
 .b-half-table {

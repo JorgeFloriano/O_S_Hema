@@ -11,6 +11,16 @@
                     </div>
                 @endif
 
+                @if ($errors->any())
+                    <div class="alert alert-warning">
+                        <ul>
+                            @foreach ($errors->all() as $msg)
+                                <li>{{$msg}}</li>
+                            @endforeach
+                        </ul>
+                    </div>
+                @endif
+
                 <div id="header" class="my-2">
                     <h2>Ordens de Serviço</h2>
                 </div>
@@ -31,33 +41,40 @@
                     </div>
                 @endif
 
-                <form action="{{route('orders.index')}}" id="filter_form" method="get">
+                <form action="{{route('orders.filter', ['order' => 1])}}" id="filter_form" method="get">
 
                     @csrf
                     <div class="row g-2 mb-2">
-                        <div class="col-md-6 col-12">
+                        <div class="col-md-3 col-6">
                             <div class="form-floating">
                                 <select class="form-select" id="client" name="client" aria-label="Floating label select example" required>
                                     <option value="0">0 - Todos</option>
-                                    {{-- @foreach ($clients as $client)
-                                        <option value="{{$client->id}}">{{$client->id}} - {{$client->name}}</option>
-                                    @endforeach --}}
 
                                     @foreach ($clients as $client)
-                                    @if ($client->id == $old_client)
-                                        <option selected value="{{$client->id}}">{{$client->id.' - '.$client->name}}</option>
-                                    @else
-                                        <option value="{{$client->id}}">{{$client->id.' - '.$client->name}}</option>
-                                    @endif
-                                @endforeach
-                            </select>
-                            <label for="client">Selecionar Cliente(s) para exibir</label>
+                                        @if ($client->id == $old_client)
+                                            <option selected value="{{$client->id}}">{{$client->id.' - '.$client->name}}</option>
+                                        @else
+                                            <option value="{{$client->id}}">{{$client->id.' - '.$client->name}}</option>
+                                        @endif
+                                    @endforeach
+                                </select>
+                                <label for="client">Selecionar Cliente</label>
+                            </div>
+                        </div>
+
+                        <div class="col-md-3 col-6">
+                            <div class="form-floating">
+                                <select class="form-select" id="finished" name="finished" aria-label="Floating label select example" required>
+                                    <option {{$fin_select[2] ?? ''}} value="2">Todas</option>
+                                    <option {{$fin_select[0] ?? ''}} value="0">Não Finalizadas</option>
+                                    <option {{$fin_select[1] ?? ''}} value="1">Finalizadas</option>
+                                </select>
+                                <label for="finished">Selecionar ordens</label>
                             </div>
                         </div>
     
                         <div class="col-md-3 col-6">
                             <div class="form-floating">
-                                {{-- value="{{\Carbon\Carbon::now()->subYear()->format('Y-m-d')}}" --}}
                                 <input type="date" class="form-control" id="Start" name="date_start" placeholder="Início" value="{{$date_s}}">
                                 <label for="Start">De</label>
                             </div>

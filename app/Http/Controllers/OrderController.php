@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Http\Requests\FormFilterRequest;
 use App\Http\Requests\FormOrderRequest;
 use App\Models\Client;
 use App\Models\NoteTec;
@@ -43,65 +44,96 @@ class OrderController extends Controller
         // user is technician or not
         $this->t = auth()->user()->tec()->first();
     }
-    public function index(Request $request)
+
+    public function index()
     {
         // If user is not suprevisor or administrator, redirect to login
         if (!$this->s && !$this->a) {return view('login');}
 
-        if ($request->date_start) {
-            $date_s = $request->date_start;
-        } else {
-            $date_s = \Carbon\Carbon::now()->subMonth()->format('Y-m-d');
-        }
-
-        if ($request->date_end) {
-            $date_e = $request->date_end;
-        } else {
-            $date_e = \Carbon\Carbon::now()->format('Y-m-d');
-        }
-
-        
-        if (!$request->client && !$request->date_start && !$request->date_end) {
-            $orders = $this->os
-            ->select('id', 'order_type_id','client_id', 'tec_id','req_date', 'finished')
-            ->orderBy('id', 'desc')
-            ->simplePaginate(20);
-        } else {
-            if ($request->client) {
-                $orders = $this->os
-                ->where('client_id', $request->client)
-                ->where('req_date', '>=', $date_s)
-                ->where('req_date', '<=', $date_e)
-                ->select('id', 'order_type_id','client_id', 'tec_id','req_date', 'finished')
-                ->orderBy('id', 'desc')
-                ->simplePaginate(20);
-            } else {
-                $orders = $this->os
-                ->where('req_date', '>=', $date_s)
-                ->where('req_date', '<=', $date_e)
-                ->select('id', 'order_type_id','client_id', 'tec_id','req_date', 'finished')
-                ->orderBy('id', 'desc')
-                ->simplePaginate(20);
-            }
-        }
-
-
-        $tecs = Tec::all();
-
         $clients = Client::all();
+
+        // create session variable wich contains 0 and all clients ids to validated in FormFilterRequest
+        $cli_ids_array = $clients->pluck('id')->toArray();
+        array_unshift($cli_ids_array, 0);
+        session()->put('client_ids', $cli_ids_array);
+
+        // get orders
+        $orders = $this->os
+        ->select('id', 'order_type_id','client_id', 'tec_id','req_date', 'finished')
+        ->orderBy('id', 'desc')
+        ->simplePaginate(20);
 
         session()->put('ords', $orders);
 
         return view('order.orders_list' , [
             'orders' => $orders,
-            'tecs' => $tecs,
+            'tecs' => Tec::all(),
             'clients' => $clients,
             'main' => $this->m ?? null,
             'sup' => $this->s ?? null,
             'adm' => $this->a ?? null,
-            'date_s' => $date_s,
-            'date_e' => $date_e,
-            'old_client' => $request->client ?? null
+            'old_client' => 0,
+            'old_finished' => 2,
+            'date_s' => \Carbon\Carbon::now()->subMonth()->format('Y-m-d'),
+            'date_e' => \Carbon\Carbon::now()->format('Y-m-d'),
+        ]);
+    }
+
+    // Show the form for filtering orders
+    public function filter(FormFilterRequest  $request)
+    {
+        
+        // If user is not suprevisor or administrator, redirect to login
+        if (!$this->s && !$this->a) {return view('login');}
+        
+        $request->validated();
+
+        // create session variable wich contains 0 and all clients ids to validated in FormFilterRequest
+        $cli_ids_array = Client::all()->pluck('id')->toArray();
+        array_unshift($cli_ids_array, 0);
+        session()->put('client_ids', $cli_ids_array);
+
+        // Return the view with the last finished selected option
+        $fin_select = [];
+        for ($i = 0; $i < 3; $i++) {     
+            $fin_select[$i] = '';
+            if ($i == $request->finished) {
+                $fin_select[$i] = 'selected';
+            }
+        }
+
+        // Filter query
+        $orders = $this->os
+        ->when($request->client, function ($query) use ($request) {
+            $query->where('client_id', $request->client);
+        })
+        ->when($request->date_start, function ($query) use ($request) {
+            $query->where('req_date', '>=', $request->date_start);
+        })
+        ->when($request->date_end, function ($query) use ($request) {
+            $query->where('req_date', '<=', $request->date_end);
+        })
+        ->when($request->finished != 2, function ($query) use ($request) {
+            $query->where('finished', $request->finished);
+        })
+        ->select('id', 'order_type_id','client_id', 'tec_id','req_date', 'finished')
+        ->orderBy('id', 'desc')
+        ->simplePaginate(20);
+
+        session()->put('ords', $orders);
+
+        return view('order.orders_list' , [
+            'orders' => $orders,
+            'tecs' => Tec::all(),
+            'clients' => Client::all(),
+            'main' => $this->m ?? null,
+            'sup' => $this->s ?? null,
+            'adm' => $this->a ?? null,
+            'date_s' => $request->date_start,
+            'date_e' => $request->date_end,
+            'old_client' => $request->client ?? null,
+            'old_finished' => $request->finished ?? null,
+            'fin_select' => $fin_select ?? ['','', ''],
         ]);
     }
 
@@ -113,14 +145,17 @@ class OrderController extends Controller
         
         $clients = Client::select('id', 'name')->get();
 
+        // Create session variable wich contains all order types ids to validated in FormOrderRequest
         $types = OrderType::all();
         session()->put('types_ids', $types->pluck('id')->toArray());
 
-        $tecs = Tec::all();
+       // Create session variable wich contains all clients ids to validated in FormOrderRequest
+       $cli_ids_array = Client::all()->pluck('id')->toArray();
+       session()->put('client_ids', $cli_ids_array);
 
         return view('order.order_create', [
             'clients' => $clients,
-            'tecs' => $tecs,
+            'tecs' => Tec::all(),
             'types' => $types
         ]);
     }
@@ -188,8 +223,13 @@ class OrderController extends Controller
 
         $tecs = Tec::all();
 
+        // Create session variable wich contains all order types ids to validated in FormOrderRequest
         $types = OrderType::all();
         session()->put('types_ids', $types->pluck('id')->toArray());
+
+       // Create session variable wich contains all clients ids to validated in FormOrderRequest
+       $cli_ids_array = $clients->pluck('id')->toArray();
+       session()->put('client_ids', $cli_ids_array);
 
         $user = User::select('name')->find($order->user_id);
 
@@ -278,6 +318,16 @@ class OrderController extends Controller
     // Shows the PDF for the order
     public function show_pdf(Order $order)
     {
+        // Null values will be replaced by - - : - - and the time will be formatted without seconds
+        foreach ($order->notes as $note) {
+            $note->go_start ? $note->go_start = date('H:i',strtotime($note->go_start)) : $note->go_start = ' - - : - -';
+            $note->go_end ? $note->go_end = date('H:i',strtotime($note->go_end)) : $note->go_end = ' - - : - -';
+            $note->start ? $note->start = date('H:i',strtotime($note->start)) : $note->start = ' - - : - -';
+            $note->end ? $note->end = date('H:i',strtotime($note->end)) : $note->end = ' - - : - -';
+            $note->back_start ? $note->back_start = date('H:i',strtotime($note->back_start)) : $note->back_start = ' - - : - -';
+            $note->back_end ? $note->back_end = date('H:i',strtotime($note->back_end)) : $note->back_end = ' - - : - -';
+        }
+
         return view('order.order_pdf', ['order' => $order]);
     }
 

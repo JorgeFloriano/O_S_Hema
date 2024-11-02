@@ -4,28 +4,28 @@
             <th colspan="6" style="border-right: none">Apontamento de horas dos Técnicos</th>
         </tr>
 
-        <tr>
+        {{-- <tr>
             <th colspan="2" style="width: 33.3%">Ida</th>
             <th colspan="2" style="width: 33.3%">Intervenção</th>
             <th colspan="2" style="border-right: none">Volta</th>
+        </tr> --}}
+
+        <tr>
+            <th style="width: 16.6%">Sáida (ida)</th>
+            <th style="width: 16.6%">Chegada (ida)</th>
+            <th style="width: 16.6%">Início</th>
+            <th style="width: 16.6%">Término</th>
+            <th style="width: 16.6%">Saída (volta)</th>
+            <th style="border-right: none">Chegada (volta)</th>
         </tr>
 
         <tr>
-            <th style="width: 16.6%">Sáida</th>
-            <th>Chegada</th>
-            <th>Início</th>
-            <th>Término</th>
-            <th>Saída</th>
-            <th style="border-right: none">Chegada</th>
-        </tr>
-
-        <tr>
-            <td style="text-align: center; width: 16.6%">{{date('H:i',strtotime($note->go_start))}}</td>
-            <td style="text-align: center">{{date('H:i',strtotime($note->go_end))}}</td>
-            <td style="text-align: center">{{date('H:i',strtotime($note->start))}}</td>
-            <td style="text-align: center">{{date('H:i',strtotime($note->end))}}</td>
-            <td style="text-align: center">{{date('H:i',strtotime($note->back_start))}}</td>
-            <td style="text-align: center; border-right: none">{{date('H:i',strtotime($note->back_end))}}</td>
+            <td style="text-align: center; width: 16.6%">{{$note->go_start}}</td>
+            <td style="text-align: center">{{$note->go_end}}</td>
+            <td style="text-align: center">{{$note->start}}</td>
+            <td style="text-align: center">{{$note->end}}</td>
+            <td style="text-align: center">{{$note->back_start}}</td>
+            <td style="text-align: center; border-right: none">{{$note->back_end}}</td>
         </tr>
 
         <tr style="border-bottom: none">

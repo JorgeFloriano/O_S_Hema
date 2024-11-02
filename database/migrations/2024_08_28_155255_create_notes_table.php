@@ -1,4 +1,4 @@
-<?php
+->nullable()<?php
 
 use Illuminate\Database\Migrations\Migration;
 use Illuminate\Database\Schema\Blueprint;
@@ -22,12 +22,12 @@ return new class extends Migration
             $table->integer('defect_id')->nullable();
             $table->text('services')->nullable();
             $table->date('date');
-            $table->time('go_start');
-            $table->time('go_end');
+            $table->time('go_start')->nullable();
+            $table->time('go_end')->nullable();
             $table->time('start');
             $table->time('end');
-            $table->time('back_start');
-            $table->time('back_end');
+            $table->time('back_start')->nullable();
+            $table->time('back_end')->nullable();
             $table->float('food', 8, 2)->nullable();
             $table->float('km_start', 8, 2)->nullable();
             $table->float('km_end', 8, 2)->nullable();

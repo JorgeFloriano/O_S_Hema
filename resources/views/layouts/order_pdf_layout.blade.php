@@ -22,7 +22,7 @@
     </head>
 
     <body>
-        <div id="buttonGroup" class="mt-2">
+        <div id="buttonGroup">
             <button id="btnPdf" class="btn btn-primary">Baixar PDF</button>
             @if (auth()->user()->sup()->first())
                 <a href="{{route('orders.reopen', ['order' => $order->id])}}" class="btn btn-primary ms-2">

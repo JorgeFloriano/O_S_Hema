@@ -60,6 +60,13 @@ section.insp {
   margin: 5px 0;
 }
 
+.form-floating :is(input, textarea, select):required + label::before {
+  content: "*";
+  color: #dc3545; /* Bootstrap's default danger color */
+  font-size: 1.2rem;
+  margin-right: 0.2rem;
+}
+
 input, select {
   border: var(--inputBorder);
   border-radius: 2px;
