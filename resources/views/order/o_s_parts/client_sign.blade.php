@@ -12,7 +12,7 @@
         </tr>
 
         <tr style="border-bottom: none">
-            <td colspan="2" style="border-bottom: 1px solid"><strong>Função: </strong>{{$order->cl_function ?? '-'}}</td>
+            <td colspan="2" style="border-bottom: 1px solid"><strong>Função: </strong>{{$order->cl_function ?? ''}}</td>
         </tr>
 
         <tr style="border-bottom: none">

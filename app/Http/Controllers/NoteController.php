@@ -200,12 +200,13 @@ class NoteController extends Controller
         }
 
         // Remove seconds from requests time format
-        $note->go_start = date_format(date_create($note->go_start), 'H:i');
-        $note->go_end = date_format(date_create($note->go_end), 'H:i');
-        $note->start = date_format(date_create($note->start), 'H:i');
-        $note->end = date_format(date_create($note->end), 'H:i');
-        $note->back_start = date_format(date_create($note->back_start), 'H:i');
-        $note->back_end = date_format(date_create($note->back_end), 'H:i');
+        $properties = ['go_start', 'go_end', 'start', 'end', 'back_start', 'back_end'];
+
+        foreach ($properties as $property) {
+            if ($note->{$property}) {
+                $note->{$property} = date_format(date_create($note->{$property}), 'H:i');
+            }
+        }
 
         return view('note.note_edit', [
             'note' => $note,

@@ -143,13 +143,13 @@
                         <div class="row g-2 mb-2">
                             <div class="col">
                                 <div class="form-floating">
-                                    <input type="time" class="form-control" id="goStart" name="go_start" value="{{$note->go_start}}" required>
+                                    <input type="time" class="form-control" id="goStart" name="go_start" value="{{$note->go_start}}">
                                     <label for="goStart">Saída (Ida)</label>
                                 </div>
                             </div>
                             <div class="col">
                                 <div class="form-floating">
-                                    <input type="time" class="form-control" id="goEnd" name="go_end" value="{{$note->go_end}}" required>
+                                    <input type="time" class="form-control" id="goEnd" name="go_end" value="{{$note->go_end}}">
                                     <label for="goEnd">Chegada (Ida)</label>
                                 </div>
                             </div>
@@ -173,13 +173,13 @@
                         <div class="row g-2 mb-2">
                             <div class="col">
                                 <div class="form-floating">
-                                    <input type="time" class="form-control" id="backStart" name="back_start" value="{{$note->back_start}}" required>
+                                    <input type="time" class="form-control" id="backStart" name="back_start" value="{{$note->back_start}}">
                                     <label for="backStart">Saída (Volta)</label>
                                 </div>
                             </div>
                             <div class="col"> 
                                 <div class="form-floating">
-                                    <input type="time" class="form-control" id="backEnd" name="back_end" value="{{$note->back_end}}" required>
+                                    <input type="time" class="form-control" id="backEnd" name="back_end" value="{{$note->back_end}}">
                                     <label for="goStart">Chegada (Volta)</label>
                                 </div>
                             </div>

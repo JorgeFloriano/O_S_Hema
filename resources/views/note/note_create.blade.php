@@ -133,45 +133,13 @@
                             <label for="equipType">Tipo do Equipamento</label>
                         </div>
 
-                        <div class="form-floating my-2">
-                            <select class="form-select" id="note_type_id" name="note_type_id" aria-label="Floating label select example" required>
-                                <option value="0">Selecione o Tipo do Serviço</option>
-                                @foreach ($types as $type)
-                                    <option value="{{$type->id}}">{{$type->id}} - {{$type->description}}</option>
-                                @endforeach
-                            </select>
-                            <label for="note_type_id">Tipo de Atendimento</label>
-                        </div>
+                        <x-selected-old nam="note_type_id" :tab="$types" des="description" nom="Tipo de Atendimento" />
 
-                        <div class="form-floating my-2">
-                            <select class="form-select" id="defect_id" name="defect_id" aria-label="Floating label select example" required>
-                                <option value="0">Selecione o defeito encontrado</option>
-                                @foreach ($defects as $defect)
-                                    <option value="{{$defect->id}}">{{$defect->id}} - {{$defect->description}}</option>
-                                @endforeach
-                            </select>
-                            <label for="defect_id">Defeito</label>
-                        </div>
+                        <x-selected-old nam="defect_id" :tab="$defects" des="description" nom="Defeito" />
 
-                        <div class="form-floating my-2">
-                            <select class="form-select" id="cause_id" name="cause_id" aria-label="Floating label select example" required>
-                                <option value="0">Selecione a possível causa</option>
-                                @foreach ($causes as $cause)
-                                    <option value="{{$cause->id}}">{{$cause->id}} - {{$cause->description}}</option>
-                                @endforeach
-                            </select>
-                            <label for="cause_id">Causa</label>
-                        </div>
-
-                        <div class="form-floating my-2">
-                            <select class="form-select" id="solution_id" name="solution_id" aria-label="Floating label select example" required>
-                                <option value="0">Selecione a solução executada</option>
-                                @foreach ($solutions as $solution)
-                                    <option value="{{$solution->id}}">{{$solution->id}} - {{$solution->description}}</option>
-                                @endforeach
-                            </select>
-                            <label for="solution_id">Solução</label>
-                        </div>
+                        <x-selected-old nam="cause_id" :tab="$causes" des="description" nom="Causa" />
+                        
+                        <x-selected-old nam="solution_id" :tab="$solutions" des="description" nom="Solução" />
 
                         <div class="form-floating my-2">
                             <textarea id="services" name="services" placeholder="Serviços executados" maxlength="850" class='autoExpand form-control' rows='1' data-min-rows='1'>{{old('services')}}</textarea>
@@ -186,13 +154,13 @@
                         <div class="row g-2 mb-2">
                             <div class="col">
                                 <div class="form-floating">
-                                    <input type="time" class="form-control" id="goStart" required name="go_start" placeholder="Saída (Ida)" value="{{\Carbon\Carbon::now()->format('H:i')}}">
+                                    <input type="time" class="form-control" id="goStart" name="go_start" placeholder="Saída (Ida)">
                                     <label for="goStart">Saída (Ida)</label>
                                 </div>
                             </div>
                             <div class="col">
                                 <div class="form-floating">
-                                    <input type="time" class="form-control" id="goEnd" required name="go_end" placeholder="Chegada (Ida)" value={{\Carbon\Carbon::now()->format('H:i')}}>
+                                    <input type="time" class="form-control" id="goEnd" name="go_end" placeholder="Chegada (Ida)">
                                     <label for="goEnd">Chegada (Ida)</label>
                                 </div>
                             </div>
@@ -216,13 +184,13 @@
                         <div class="row g-2 mb-2">
                             <div class="col">
                                 <div class="form-floating">
-                                    <input type="time" class="form-control" id="backStart" required name="back_start" placeholder="Saída (Volta)" value={{\Carbon\Carbon::now()->format('H:i')}}>
+                                    <input type="time" class="form-control" id="backStart" name="back_start" placeholder="Saída (Volta)">
                                     <label for="backStart">Saída (Volta)</label>
                                 </div>
                             </div>
                             <div class="col"> 
                                 <div class="form-floating">
-                                    <input type="time" class="form-control" id="backEnd" required name="back_end" placeholder="Chegada (Volta)" value={{\Carbon\Carbon::now()->format('H:i')}}>
+                                    <input type="time" class="form-control" id="backEnd" name="back_end" placeholder="Chegada (Volta)">
                                     <label for="goStart">Chegada (Volta)</label>
                                 </div>
                             </div>

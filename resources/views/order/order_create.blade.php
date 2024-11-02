@@ -34,25 +34,9 @@
                     <form action="{{route('orders.store')}}" id="form" method="post" autocomplete="on">
                         @csrf
 
-                        <div class="form-floating">
-                            <select class="form-select" id="client_id" name="client_id" aria-label="Floating label select example" required>
-                                <option value="0">Selecione o Cliente</option>
-                                @foreach ($clients as $client)
-                                    <option value="{{$client->id}}">{{$client->id}} - {{$client->name}}</option>
-                                @endforeach
-                            </select>
-                            <label for="client_id">Cliente</label>
-                        </div>
+                        <x-selected-old :tab="$clients" nam="client_id" nom="Cliente" des="name"/>
 
-                        <div class="form-floating my-2">
-                            <select class="form-select" id="type_id" name="order_type_id" aria-label="Floating label select example" required>
-                                <option value="0">Selecione o Tipo do Serviço</option>
-                                @foreach ($types as $type)
-                                    <option value="{{$type->id}}">{{$type->id}} - {{$type->description}}</option>
-                                @endforeach
-                            </select>
-                            <label for="order_type_id">Tipo</label>
-                        </div>
+                        <x-selected-old :tab="$types" nam="order_type_id" nom="Serviço" des="description"/>
 
                         <div class="form-floating my-2">
                             <input type="text" class="form-control" id="sector" name="sector" maxlength="30" placeholder="Setor" required value={{old('sector')}}>
