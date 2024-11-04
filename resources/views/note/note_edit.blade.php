@@ -4,6 +4,10 @@
 
 </head>
 
+@php
+    use Illuminate\Support\Facades\Crypt;
+@endphp
+
 <body id="body">
     <div class="container">
         <div class="row mt-1">
@@ -131,7 +135,7 @@
                         </div> 
 
                         <div class="form-floating my-2">
-                            <textarea id="services" name="services" maxlength="850" class='autoExpand form-control' rows='1' data-min-rows='1'>{{$note->services}}</textarea>
+                            <textarea id="services" name="services" maxlength="1290" class='autoExpand form-control' rows='1' data-min-rows='1'>{{$note->services}}</textarea>
                             <label for="services">Descrição dos serviços executados</label>
                         </div>
 
@@ -309,7 +313,7 @@
                             <button id="submitButton" type="button" class="btn btn-primary me-2" data-bs-dismiss="modal">
                                 Salvar
                             </button>
-                            <a href="{{route('notes.create', ['order' => $note->order->id])}}" class="btn btn-secondary">
+                            <a href="{{route('notes.create', ['order' => Crypt::encryptString($note->order_id)])}}" class="btn btn-secondary">
                                 Voltar
                             </a>
                         </div>

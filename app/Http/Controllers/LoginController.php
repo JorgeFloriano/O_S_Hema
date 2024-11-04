@@ -113,11 +113,6 @@ class LoginController extends Controller
                 'success'=>'Olá',
             ]);
         }
-        
-        if (!isset($user_cat->id)) {
-            return redirect()->route('login.index')->withErrors(['error' => 'Credenciais inválidas']);
-        }
-
     }
 
     public function destroy()

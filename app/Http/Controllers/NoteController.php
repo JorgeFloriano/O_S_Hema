@@ -12,6 +12,8 @@ use App\Models\Order;
 use App\Models\Solution;
 use App\Models\Tec;
 use Illuminate\Http\RedirectResponse;
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Contracts\Encryption\DecryptException;
 
 class NoteController extends Controller
 {
@@ -38,10 +40,17 @@ class NoteController extends Controller
     }
 
     // Only technicians can access the service order filling form
-    public function create(Order $order)
+    public function create($order)
     {
         if (!$this->t) {
             return view('login');
+        }
+
+        // Decrypt the order id
+        try {
+            $order = Order::find(Crypt::decryptString($order));
+        } catch (DecryptException $e) {
+            return redirect()->back()->withErrors(['error' => 'Falha de desencriptação.']);
         }
 
         $tecs = Tec::all();
@@ -148,8 +157,16 @@ class NoteController extends Controller
     }
 
     // Show the form for deleting a note on the service orders
-    public function show(Note $note)
+    public function show($note)
     {
+
+        // Decrypt the note id
+        try {
+            $note = $this->note->find(Crypt::decryptString($note));
+        } catch (DecryptException $e) {
+            return redirect()->back()->withErrors(['error' => 'Falha de desencriptação.']);
+        }
+ 
         // Get the first technician of the note
         $note->first_tec = Note::find($note->id)->tecs[0];
 
@@ -176,9 +193,24 @@ class NoteController extends Controller
     /**
      * Show the form for editing the specified resource.
      */
-    public function edit(Note $note)
+    public function edit($note)
     {
+        // Check if user is logged is a technician
+        if (!$this->t) {
+            return view('login');
+        }
+
+        // Decrypt the note id
+        try {
+            $note = $this->note->find(Crypt::decryptString($note));
+        } catch (DecryptException $e) {
+            return redirect()->back()->withErrors(['error' => 'Falha de desencriptação.']);
+        }
+
         $note->first_tec = Note::find($note->id)->tecs[0];
+        if ($this->t->id != $note->first_tec->id) {
+            return redirect()->back()->withErrors(['error' => 'Acesso não autorizado para editar anotacões de outro técnico.']);
+        }
 
         if (isset(Note::find($note->id)->tecs[1])) {
             $note->second_tec = Note::find($note->id)->tecs[1];
@@ -223,8 +255,16 @@ class NoteController extends Controller
      */
     public function update(FormNoteRequest $request, string $id)
     {      
+        // Check if user is logged is a technician
         if (!$this->t) {
             return view('login');
+        }
+
+        //dd(Note::find($id)->tecs[0]);
+        $note_first_tec = Note::find($id)->tecs[0];
+
+        if ($this->t->id != $note_first_tec->id) {
+            return redirect()->back()->withErrors(['error' => 'Acesso não autorizado para editar anotacões de outro técnico.']);
         }
 
         $request->validated();
@@ -275,7 +315,7 @@ class NoteController extends Controller
      * Mark the specified Note as finished.
      */
 
-    public function destroy(Note $note): RedirectResponse
+    public function destroy(Note $note)
     {
         if (!$this->t) {
             return view('login');
@@ -290,11 +330,11 @@ class NoteController extends Controller
             }
 
             if ($note->delete()) {
-                return redirect()->route('notes.create', ['order' => $note->order->id])
+                return redirect()->route('notes.create', ['order' => Crypt::encryptString($note->order_id)])
                     ->with('message', 'Registro deletado com sucesso.');
             }
 
-            return redirect()->route('notes.create', ['order' => $note->order->id])
+            return redirect()->route('notes.create', ['order' => Crypt::encryptString($note->order_id)])
                 ->with('message', 'Erro ao deletar registro.');
         }
 

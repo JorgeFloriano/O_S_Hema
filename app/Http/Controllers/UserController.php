@@ -11,6 +11,8 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Contracts\Encryption\DecryptException;
 
 class UserController extends Controller
 {
@@ -149,22 +151,40 @@ class UserController extends Controller
     }
 
     // Shows the form to delete the user registration
-    public function show(User $user)
+    public function show($user)
     {
-        if (!$this->m) {
+        // Decrypt the user id
+        try {
+            $user = $this->user->find(Crypt::decryptString($user));
+        } catch (DecryptException $e) {
             return view('login');
         }
 
+        // If user main try to edit another user main return false
+        if (!auth()->user()->editUserPermission($user->id)) {
+            return view('login');
+        }
+       
         return view('user.user_delete', ['user' => $user]);
     }
 
     // Shows the form to edit the user registration
-    public function edit(User $user)
+    public function edit($user)
     {
-        if (!$this->m) {
-            return view('login');
+    
+        // Decrypt the user id
+        try {
+            $user = $this->user->find(Crypt::decryptString($user));
+        } catch (DecryptException $e) {
+            return redirect()->back()->withErrors(['error' => 'Falha de desencriptação.']);
         }
 
+        // If user main try to edit another user main return false
+        if (!auth()->user()->editUserPermission($user->id)) {
+            return redirect()->back()->with('message', 'Sem permissão para editar este usuário.');
+
+        }
+        
         // Checks if the user has any access and this will be selected
         $tec_checked = '';
         if (isset($user->tec)) {
@@ -201,7 +221,8 @@ class UserController extends Controller
     // If logged in user is adm main, validate and update the user registration
     public function update(Request $request, string $id)
     {
-        if (!$this->m) {
+        // If user main try to edit another user main return false
+        if (!auth()->user()->editUserPermission($id)) {
             return view('login');
         }
 
@@ -380,7 +401,8 @@ class UserController extends Controller
     // If logged in user is adm main, delete the selected user
     public function destroy(string $id)
     {
-        if (!$this->m) {
+        // If user main try to edit another user main return false
+        if (!auth()->user()->editUserPermission($id)) {
             return view('login');
         }
 

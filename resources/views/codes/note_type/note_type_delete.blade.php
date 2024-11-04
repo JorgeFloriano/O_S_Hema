@@ -26,7 +26,7 @@
                         </div>
 
                         <div class="form-floating my-2">
-                            <input type="text" class="form-control" id="description" name="description" maxlength="60" placeholder="Descrição" value="{{$note_type->description}}" disabled>
+                            <input type="text" class="form-control" id="description" name="description" maxlength="25" placeholder="Descrição" value="{{$note_type->description}}" disabled>
                             <label for="description">Descrição</label>
                         </div>
 

@@ -1,3 +1,6 @@
+@php
+    use Illuminate\Support\Facades\Crypt;
+@endphp
 <style>
     .ico {
         background-color: rgb(35, 33, 33);
@@ -75,7 +78,7 @@
 
                 @if (session('main') == auth()->user()->id)
                     <li>
-                        <a class="dropdown-item btn-lg" href="{{route('users.edit', ['user' => auth()->user()->id])}}">
+                        <a class="dropdown-item btn-lg" href="{{route('users.edit', ['user' => Crypt::encryptString(auth()->user()->id)])}}">
                             <i class="fa fa-user" aria-hidden="true"></i>
                             Perfil
                         </a>

@@ -1,7 +1,10 @@
 @extends('layouts.o_s_form_layout')
 
 @section('content')
-    
+
+@php
+    use Illuminate\Support\Facades\Crypt;
+@endphp
      <div class="container">
         <div class="row">
             <div class="col">
@@ -42,12 +45,12 @@
                                     <td>{{$client->name}}</td>
                                     <td>{{$client->unit}}</td>
                                     <td>
-                                        <a href="{{route('clients.edit', ['client' => $client->id])}}" class="btn btn-primary btn-sm">
+                                        <a href="{{route('clients.edit', ['client' => Crypt::encryptString($client->id)])}}" class="btn btn-primary btn-sm">
                                             <i class="fa fa-edit"></i>
                                         </a>
                                     </td>
                                     <td>
-                                        <a href="{{route('clients.show', ['client' => $client->id])}}" class="btn btn-danger btn-sm">
+                                        <a href="{{route('clients.show', ['client' => Crypt::encryptString($client->id)])}}" class="btn btn-danger btn-sm">
                                             <i class="fa fa-trash"></i>
                                         </a>
                                     </td>

@@ -2,6 +2,10 @@
 
 @section('content')
 
+@php
+    use Illuminate\Support\Facades\Crypt;
+@endphp
+
 </head>
 
 <body id="body">
@@ -78,21 +82,18 @@
                                                     <div class="mt-2"> 
                                                         @if ($note->tecs->first()->user_id == auth()->user()->id)
                                                             <a href="{{route('notes.edit', [
-                                                                'order' => $order->id,
-                                                                'note' => $note->id
+                                                                'note' => Crypt::encryptString($note->id),
                                                             ])}}" class="btn btn-primary btn-sm">
                                                                 Editar
                                                             </a>
                                                             <a href="{{route('notes.show', [
-                                                                'order' => $order->id,
-                                                                'note' => $note->id,
+                                                                'note' => Crypt::encryptString($note->id),
                                                             ])}}" class="btn btn-danger btn-sm">
                                                                 Excluir
                                                             </a>
                                                         @else
                                                             <a href="{{route('notes.show', [
-                                                                'order' => $order->id,
-                                                                'note' => $note->id,
+                                                                'note' => Crypt::encryptString($note->id),
                                                             ])}}" class="btn btn-info btn-sm">
                                                                 Exibir
                                                             </a>
@@ -142,7 +143,7 @@
                         <x-selected-old nam="solution_id" :tab="$solutions" des="description" nom="Solução" />
 
                         <div class="form-floating my-2">
-                            <textarea id="services" name="services" placeholder="Serviços executados" maxlength="850" class='autoExpand form-control' rows='1' data-min-rows='1'>{{old('services')}}</textarea>
+                            <textarea id="services" name="services" placeholder="Serviços executados" maxlength="1290" class='autoExpand form-control' rows='1' data-min-rows='1'>{{old('services')}}</textarea>
                             <label for="services">Descrição dos Serviços Executados</label>
                         </div>
 
@@ -309,55 +310,52 @@
                             </div>
                         </div>
 
-                        <div class="form-floating my-2">
-                            <input type="text" name="cl_name" class="form-control" id="clName" value="{{old('cl_name')}}" placeholder="Cliente" maxlength="40">
-                            <label for="clName">Cliente:</label>
-                        </div>
-
-                        <div class="form-floating my-2">
-                            <input type="text" name="cl_function" class="form-control" id="clFunction" value="{{old('cl_function')}}" placeholder="Função" maxlength="40">
-                            <label for="clFunction">Função:</label>
-                        </div>
-
-                        <div class="form-floating my-2">
-                            <input type="text" name="cl_contact" class="form-control" id="clContact" value="{{old('cl_contact')}}" placeholder="Contato" maxlength="40">
-                            <label for="clContact">Contato:</label>
-                        </div>
-
-                        <button class="btn btn-info mb-2" id="pen3" href="#" class="signature-button" data-bs-toggle="modal" data-bs-target="#signature3Modal"><i class="fa fa-pencil" aria-hidden="true"></i>Assinatura do Cliente
-                        </button>
-
-                        <!-- Modal signature 03-->
-                        <div class="modal fade" id="signature3Modal" tabindex="-1" aria-labelledby="signature3ModalLabel" aria-hidden="true">
-                            <div class="modal-dialog modal-dialog-centered">
-                                <div class="modal-content">
-                                    <div class="modal-header">
-                                    <h5 class="modal-title" id="signature3ModalLabel">Assinatura do Cliente</h5>
-                                    <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                    </div>
-                                    
-                                    <div class="modal-body signature">
-                                        <canvas height="200" width="320" class="signature-pad" id="canv3" aria-placeholder="assine aqui"></canvas>
-                                        <input type="hidden" name="cl_sign" id="idSignCl">
-                                    </div>
-
-                                    <div class="modal-footer">
-                                    <a id="okSign3" href="#" class="signature-button" data-bs-dismiss="modal"><i class="fa fa-check" aria-hidden="true"></i>Ok </a>
-                                    <a id="clear3" href="#" class="signature-button"><i class="fa fa-eraser" aria-hidden="true"></i>Apagar </a>
-                                    </div>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="my-3">
+                        <div class="my-2">
                             <div class="form-check">
-                                <input required class="form-check-input" type="radio" name="finished" id="save" value="0">
+                                <input required class="form-check-input" onchange="toggleClientFields()" type="radio" name="finished" id="save" value="0">
                                 <label class="form-check-label" for="save"><i class="fa fa-floppy-o" aria-hidden="true"></i>Salvar (atendimento pendente)</label>
                             </div>
                               
                             <div class="form-check">
-                                <input required class="form-check-input" type="radio" name="finished" id="finished" value="1">
+                                <input required class="form-check-input" onchange="toggleClientFields()" type="radio" name="finished" id="finished" value="1">
                                 <label class="form-check-label" for="finished"><i class="fa fa-check-square-o" aria-hidden="true"></i>Concluir (atendimento finalizado)</label>
+                            </div>
+                        </div>
+
+                        <div id='clientFields' style="display: none">
+                            <div class="form-floating my-2">
+                                <input type="text" name="cl_name" class="form-control" id="clName" value="{{old('cl_name')}}" placeholder="Cliente" maxlength="40">
+                                <label for="clName">Nome do Cliente:</label>
+                            </div>
+                            <div class="form-floating my-2">
+                                <input type="text" name="cl_function" class="form-control" id="clFunction" value="{{old('cl_function')}}" placeholder="Função" maxlength="40">
+                                <label for="clFunction">Função:</label>
+                            </div>
+                            <div class="form-floating my-2">
+                                <input type="text" name="cl_contact" class="form-control" id="clContact" value="{{old('cl_contact')}}" placeholder="Contato" maxlength="40">
+                                <label for="clContact">Contato:</label>
+                            </div>
+                            <button class="btn btn-info mb-2" id="pen3" href="#" class="signature-button" data-bs-toggle="modal" data-bs-target="#signature3Modal"><i class="fa fa-pencil" aria-hidden="true"></i>Assinatura do Cliente
+                            </button>
+                            <!-- Modal signature 03-->
+                            <div class="modal fade" id="signature3Modal" tabindex="-1" aria-labelledby="signature3ModalLabel" aria-hidden="true">
+                                <div class="modal-dialog modal-dialog-centered">
+                                    <div class="modal-content">
+                                        <div class="modal-header">
+                                        <h5 class="modal-title" id="signature3ModalLabel">Assinatura do Cliente</h5>
+                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                        </div>
+                            
+                                        <div class="modal-body signature">
+                                            <canvas height="200" width="320" class="signature-pad" id="canv3" aria-placeholder="assine aqui"></canvas>
+                                            <input type="hidden" name="cl_sign" id="idSignCl">
+                                        </div>
+                                        <div class="modal-footer">
+                                        <a id="okSign3" href="#" class="signature-button" data-bs-dismiss="modal"><i class="fa fa-check" aria-hidden="true"></i>Ok </a>
+                                        <a id="clear3" href="#" class="signature-button"><i class="fa fa-eraser" aria-hidden="true"></i>Apagar </a>
+                                        </div>
+                                    </div>
+                                </div>
                             </div>
                         </div>
 

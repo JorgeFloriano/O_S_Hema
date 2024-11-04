@@ -1,7 +1,10 @@
 @extends('layouts.o_s_form_layout')
 
 @section('content')
-    
+
+@php
+    use Illuminate\Support\Facades\Crypt;
+@endphp
      <div class="container">
         <div class="row">
 
@@ -47,7 +50,7 @@
 
                                     @if ($order->finished)
                                         <td>
-                                            <a href="{{route('orders.show_pdf', ['order' => $order->id])}}" class="btn btn-outline-danger btn-sm">
+                                            <a href="{{route('orders.show_pdf', ['order' => Crypt::encryptString($order->id)])}}" class="btn btn-outline-danger btn-sm">
                                                 <i class="fa fa-file-pdf-o"></i>
                                             </a>
                                         </td>
@@ -59,14 +62,14 @@
                                         </td>
                                     @else
                                         <td>
-                                            <a href="{{route('notes.create', ['order' => $order->id])}}" class="btn btn-info btn-sm">
+                                            <a href="{{route('notes.create', ['order' => Crypt::encryptString($order->id)])}}" class="btn btn-info btn-sm">
                                                 <i class="fa fa-edit"></i>
                                             </a>
                                         </td>
 
                                         @if ($order->notes->count() > 0)
                                             <td>
-                                                <a href="{{route('orders.finish', ['order' => $order->id])}}" class="btn btn-primary btn-sm">
+                                                <a href="{{route('orders.finish', ['order' => Crypt::encryptString($order->id)])}}" class="btn btn-primary btn-sm">
                                                     <i class="fa fa-check-square-o"></i>
                                                 </a>
                                             </td>

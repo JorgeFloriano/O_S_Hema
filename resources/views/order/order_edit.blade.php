@@ -117,8 +117,7 @@
                                                     <div>Registro nº {{$note->id}}, Téc. {{$note->tecs->first()->id}}-{{$note->tecs->first()->user->name}},    {{date('d/m/Y',strtotime($note->date))}}</div>
                                                         <div class="mt-2"> 
                                                             <a href="{{route('notes.show', [
-                                                                'order' => $order->id,
-                                                                'note' => $note->id,
+                                                                'note' => Crypt::encryptString($note->id),
                                                             ])}}" class="btn btn-info btn-sm">
                                                                 Exibir
                                                             </a>

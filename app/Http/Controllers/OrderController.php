@@ -11,6 +11,8 @@ use App\Models\OrderType;
 use App\Models\Tec;
 use App\Models\User;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Contracts\Encryption\DecryptException;
 
 class OrderController extends Controller
 {
@@ -201,22 +203,36 @@ class OrderController extends Controller
     }
 
     // Shows the form to delete the order
-    public function show(Order $order)
+    public function show($order)
     {
         // Only administrator can delete orders
         if (!$this->a) {
             return view('login');
         }
 
+        // Decrypt the order id
+        try {
+            $order = $this->os->find(Crypt::decryptString($order));
+        } catch (DecryptException $e) {
+            return redirect()->back()->withErrors(['error' => 'Falha de desencriptação.']);
+        }
+
         return view('order.order_delete', ['order' => $order]);
     }
 
     // Shows the form to edit the order
-    public function edit(Order $order)
+    public function edit($order)
     {
         // Only administrators can edit orders, supervisors can just see them
         if (!$this->a && !$this->s) {
             return view('login');
+        }
+
+        // Decrypt the order id
+        try {
+            $order = $this->os->find(Crypt::decryptString($order));
+        } catch (DecryptException $e) {
+            return redirect()->back()->withErrors(['error' => 'Falha de desencriptação.']);
         }
 
         $clients = Client::select(['id', 'name'])->get();
@@ -290,10 +306,17 @@ class OrderController extends Controller
         return redirect()->route('orders.index')->with('message', $msg);
     }
 
-    public function finish(Order $order)
+    public function finish($order)
     {
         if (!$this->t) {
             return view('login');
+        }
+
+        // Decrypt the order id
+        try {
+            $order = $this->os->find(Crypt::decryptString($order));
+        } catch (DecryptException $e) {
+            return redirect()->back()->withErrors(['error' => 'Falha de desencriptação.']);
         }
 
         $order->finished = true;
@@ -316,8 +339,15 @@ class OrderController extends Controller
     }
 
     // Shows the PDF for the order
-    public function show_pdf(Order $order)
+    public function show_pdf($order)
     {
+        // Decrypt the order id
+        try {
+            $order = $this->os->find(Crypt::decryptString($order));
+        } catch (DecryptException $e) {
+            return redirect()->back()->withErrors(['error' => 'Falha de desencriptação.']);
+        }
+
         // Null values will be replaced by - - : - - and the time will be formatted without seconds
         foreach ($order->notes as $note) {
             $note->go_start ? $note->go_start = date('H:i',strtotime($note->go_start)) : $note->go_start = ' - - : - -';
