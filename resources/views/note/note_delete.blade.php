@@ -155,7 +155,7 @@
 
                             @if(isset(auth()->user()->tec))
                                 @if (auth()->user()->tec->id == $note->first_tec->id)
-                                    <button id="submitButton" type="submit" class="btn btn-danger me-2" data-bs-dismiss="modal">
+                                    <button id="submitButton" type="submit" class="btn btn-danger me-2">
                                         Deletar
                                     </button>
                                 @endif

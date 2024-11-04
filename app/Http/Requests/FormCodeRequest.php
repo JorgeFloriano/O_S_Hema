@@ -12,7 +12,7 @@ class FormCodeRequest extends FormRequest
     {
         return [
             'id' => ['min:0', Rule::unique(session('table'))],
-            'description' => 'required|max:60',
+            'description' => 'required|max:25',
         ];
     }
 

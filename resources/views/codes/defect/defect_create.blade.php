@@ -34,7 +34,7 @@
                         </div>
 
                         <div class="form-floating my-2">
-                            <input type="text" class="form-control" id="description" name="description" maxlength="60" placeholder="Descrição" value="{{old('description')}}" required>
+                            <input type="text" class="form-control" id="description" name="description" maxlength="25" placeholder="Descrição" value="{{old('description')}}" required>
                             <label for="description">Descrição</label>
                         </div>
 

@@ -21,7 +21,7 @@ function getScrollHeight(elm){
    !elm._baseScrollHeight && getScrollHeight(elm)
  
    elm.rows = minRows
-   rows = Math.ceil((elm.scrollHeight - elm._baseScrollHeight) / 22)
+   rows = Math.ceil((elm.scrollHeight - elm._baseScrollHeight) / 20)
    elm.rows = minRows + rows
  }
  
@@ -98,6 +98,11 @@ function enableDisable(id) {
       div.disabled = false;
    }
 }
+
+function toggleClientFields() {
+   const clientFieldsDiv = document.getElementById('clientFields');
+   clientFieldsDiv.style.display = document.getElementById('finished').checked ? 'block' : 'none';
+ }
 
  // global delegated event listener
  document.addEventListener('input', onExpandableTextareaInput)

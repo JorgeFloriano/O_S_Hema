@@ -50,17 +50,17 @@
                         </div>
 
                         <div class="form-floating my-2">
-                            <input type="text" class="form-control" id="username" name="username" value="{{old('username')}}" placeholder="Nome de Usúario" min="10" max="100" required>
+                            <input type="text" class="form-control" id="username" name="username" value="{{old('username')}}" placeholder="Nome de Usúario" minlength="10" maxlength="100" required>
                             <label for="username">Nome de Usúario</label>
                         </div>
 
                         <div class="form-floating my-2">
-                            <input type="password" class="form-control" id="password" minlength="5" maxlength="60" name="password" autocomplete="new-password" placeholder="Senha" required>
+                            <input type="password" class="form-control" id="password" minlength="5" maxlength="25" name="password" autocomplete="new-password" placeholder="Senha" required>
                             <label for="password">Senha</label>
                         </div>
 
                         <div class="form-floating my-2">
-                            <input type="password" class="form-control" id="password_confirmation" minlength="5" maxlength="60" name="password_confirmation" placeholder="Confirmar Senha" required>
+                            <input type="password" class="form-control" id="password_confirmation" minlength="5" maxlength="25" name="password_confirmation" placeholder="Confirmar Senha" required>
                             <label for="password_confirmation">Confirmar Senha</label>
                         </div>
 

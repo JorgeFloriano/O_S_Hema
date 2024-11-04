@@ -1,7 +1,10 @@
 @extends('layouts.o_s_form_layout')
 
 @section('content')
-    
+
+@php
+    use Illuminate\Support\Facades\Crypt;
+@endphp
      <div class="container">
         <div class="row">
             <div class="col">
@@ -34,8 +37,9 @@
                         </button>
                     </div>
                 @else
-                    <div class="my-2">
-                        <button onclick="formSubmit('filter_form')" id="submitButton" type="submit" class="btn btn-secondary">
+                    <div class="my-2" style="height: 42px">
+                        <a href="{{route('orders.create')}}" hidden class="btn btn-primary">Criar nova</a>
+                        <button onclick="formSubmit('filter_form')" id="submitButton" style="float: right" type="submit" class="btn btn-secondary">
                             <i class="fa fa-filter" aria-hidden="true"></i> Filtrar
                         </button>
                     </div>
@@ -47,7 +51,7 @@
                     <div class="row g-2 mb-2">
                         <div class="col-md-3 col-6">
                             <div class="form-floating">
-                                <select class="form-select" id="client" name="client" aria-label="Floating label select example" required>
+                                <select class="form-select" id="client" name="client" aria-label="Floating label select example">
                                     <option value="0">0 - Todos</option>
 
                                     @foreach ($clients as $client)
@@ -58,18 +62,18 @@
                                         @endif
                                     @endforeach
                                 </select>
-                                <label for="client">Selecionar Cliente</label>
+                                <label for="client">Cliente</label>
                             </div>
                         </div>
 
                         <div class="col-md-3 col-6">
                             <div class="form-floating">
-                                <select class="form-select" id="finished" name="finished" aria-label="Floating label select example" required>
+                                <select class="form-select" id="finished" name="finished" aria-label="Floating label select example">
                                     <option {{$fin_select[2] ?? ''}} value="2">Todas</option>
                                     <option {{$fin_select[0] ?? ''}} value="0">Não Finalizadas</option>
                                     <option {{$fin_select[1] ?? ''}} value="1">Finalizadas</option>
                                 </select>
-                                <label for="finished">Selecionar ordens</label>
+                                <label for="finished">Ordens</label>
                             </div>
                         </div>
     
@@ -82,7 +86,7 @@
                        
                         <div class="col-md-3 col-6">    
                             <div class="form-floating">
-                                <input type="date" class="form-control" id="End" required name="date_end" placeholder="Término" value="{{$date_e}}">
+                                <input type="date" class="form-control" id="End" name="date_end" placeholder="Término" value="{{$date_e}}">
                                 <label for="End">Até</label>
                             </div>
                         </div>
@@ -151,14 +155,14 @@
                                         <td>{{date('d/m/y',strtotime($order->req_date))}}</td>
                                         @if ($order->finished)
                                             <td>
-                                                <a href="{{route('orders.show_pdf', ['order' => $order->id])}}" class="btn btn-outline-danger btn-sm">
+                                                <a href="{{route('orders.show_pdf', ['order' => Crypt::encryptString($order->id)])}}" class="btn btn-outline-danger btn-sm">
                                                     <i class="fa fa-file-pdf-o"></i>
                                                 </a>
                                             </td>
 
                                             @if ($main)
                                                 <td>
-                                                    <a href="{{route('orders.show', ['order' => $order->id])}}" class="btn btn-danger btn-sm">
+                                                    <a href="{{route('orders.show', ['order' => Crypt::encryptString($order->id)])}}" class="btn btn-danger btn-sm">
                                                         <i class="fa fa-trash"></i>
                                                     </a>
                                                 </td>
@@ -174,13 +178,13 @@
                                         @else
                                             @if ($adm)
                                                 <td>
-                                                    <a href="{{route('orders.edit', ['order' => $order->id])}}" class="btn btn-primary btn-sm">
+                                                    <a href="{{route('orders.edit', ['order' => Crypt::encryptString($order->id)])}}" class="btn btn-primary btn-sm">
                                                         <i class="fa fa-edit"></i>
                                                     </a>
                                                 </td>
                                             @else
                                                 <td>
-                                                    <a href="{{route('orders.edit', ['order' => $order->id])}}" class="btn btn-primary btn-sm">
+                                                    <a href="{{route('orders.edit', ['order' => Crypt::encryptString($order->id)])}}" class="btn btn-primary btn-sm">
                                                         <i class="fa fa-file-text"></i>
                                                     </a>
                                                 </td>
@@ -188,7 +192,7 @@
                                             @if ($order->notes->count() > 0)
                                                 @if ($main)
                                                     <td>
-                                                        <a href="{{route('orders.show', ['order' => $order->id])}}" class="btn btn-danger btn-sm">
+                                                        <a href="{{route('orders.show', ['order' => Crypt::encryptString($order->id)])}}" class="btn btn-danger btn-sm">
                                                             <i class="fa fa-trash"></i>
                                                         </a>
                                                     </td>
@@ -204,7 +208,7 @@
                                             @else
                                                 <td>
                                                     @if ($adm)
-                                                        <a href="{{route('orders.show', ['order' => $order->id])}}" class="btn btn-danger btn-sm">
+                                                        <a href="{{route('orders.show', ['order' => Crypt::encryptString($order->id)])}}" class="btn btn-danger btn-sm">
                                                             <i class="fa fa-trash"></i>
                                                         </a>
                                                     @endif

@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\FormCliRequest;
 use App\Models\Client;
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Contracts\Encryption\DecryptException;
 
 class ClientController extends Controller
 {
@@ -30,9 +32,6 @@ class ClientController extends Controller
         return view('client.clients_list' , ['clients' => $clients]);
     }
 
-    /**
-     * Show the form for creating a new resource.
-     */
     public function create()
     {
         // If the user isn't main and isn't client, redirect to login page
@@ -43,9 +42,6 @@ class ClientController extends Controller
         return view('client.client_create');
     }
 
-    /**
-     * Store a newly created resource in storage.
-     */
     public function store(FormCliRequest $request)
     {
         // If the user isn't main and isn't client, redirect to login page
@@ -71,35 +67,40 @@ class ClientController extends Controller
         return redirect()->route('clients.index')->with('message', 'Erro ao cadastrar cliente.');
     }
 
-    /**
-     * Display the specified resource.
-     */
-    public function show(Client $client)
+    public function show($client)
     {
         // If the user isn't main and isn't client, redirect to login page
         if (!$this->m && session('cli') !== auth()->user()->id) {
             return view('login');
+        }
+
+        // Decrypt the client id
+        try {
+            $client = $this->client->find(Crypt::decryptString($client));
+        } catch (DecryptException $e) {
+            return redirect()->back()->withErrors(['error' => 'Falha de desencriptação.']);
         }
         
         return view('client.client_delete', ['client' => $client]);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(Client $client)
+    public function edit($client)
     {
         // If the user isn't main and isn't client, redirect to login page
         if (!$this->m && session('cli') !== auth()->user()->id) {
             return view('login');
         }
+
+        // Decrypt the client id
+        try {
+            $client = $this->client->find(Crypt::decryptString($client));
+        } catch (DecryptException $e) {
+            return redirect()->back()->withErrors(['error' => 'Falha de desencriptação.']);
+        }
         
         return view('client.client_edit', ['client' => $client]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(FormCliRequest $request, string $id)
     {
         // If the user isn't main and isn't client, redirect to login page
@@ -117,9 +118,6 @@ class ClientController extends Controller
         return redirect()->back()->with('message', 'Erro ao atualizar cadastro.');
     }
 
-    /**
-     * Remove the specified resource from storage.
-     */
     public function destroy(string $id)
     {
         // If the user isn't main and isn't client, redirect to login page

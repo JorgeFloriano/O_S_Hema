@@ -70,4 +70,29 @@ class User extends Authenticatable
     {
         return $this->hasOne(Sup::class);
     }
+
+    // Checks if the user is allowed to edit another user
+    public function editUserPermission($user_id) {
+
+        if (!$this->adm) {   
+            return false;
+        }
+
+        if (!$this->adm->main) {
+            return false;
+        }
+
+        $user_adm = Adm::where('user_id', $user_id)->first();
+
+        if ($user_adm) {
+            if ($user_adm->main) {
+                if ($user_id == $this->id) {
+                    return true;
+                }
+                return false;
+            }
+            return true;
+        }
+        return true;
+    }
 }

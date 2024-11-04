@@ -37,7 +37,7 @@
                         <input type="hidden" name="_method" id="idNum" value="PUT">
 
                         <div class="form-floating my-2">
-                            <input type="text" class="form-control" id="description" name="description" maxlength="60" placeholder="Descrição" value="{{$order_type->description}}" required>
+                            <input type="text" class="form-control" id="description" name="description" maxlength="25" placeholder="Descrição" value="{{$order_type->description}}" required>
                             <label for="description">Descrição</label>
                         </div>
 
