@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\FormCodeRequest;
 use App\Models\NoteType;
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Contracts\Encryption\DecryptException;
 
 class NoteTypeController extends Controller
 {
@@ -99,10 +101,17 @@ class NoteTypeController extends Controller
     }
 
     
-    public function edit(NoteType $note_type)
+    public function edit($note_type)
     {
         if (session('main') !== auth()->user()->id) {
             return view('login');
+        }
+
+        try {
+            $note_type = $this->note_type->find(Crypt::decryptString($note_type));
+        } catch (DecryptException $e) {
+            echo 'Erro de desencriptação.';
+            die;
         }
 
         return view('codes.note_type.note_type_edit', ['note_type' => $note_type]);
@@ -145,6 +154,14 @@ class NoteTypeController extends Controller
         if (session('main') !== auth()->user()->id) {
             return view('login');
         }
+
+        try {
+            $id = Crypt::decryptString($id);
+        } catch (DecryptException $e) {
+            echo 'Erro de desencriptação.';
+            die;
+        }
+
         $restored = $this->note_type->where('id', $id)->restore();
 
         if ($restored) {
@@ -157,6 +174,13 @@ class NoteTypeController extends Controller
     {
         if (session('main') !== auth()->user()->id) {
             return view('login');
+        }
+
+        try {
+            $id = Crypt::decryptString($id);
+        } catch (DecryptException $e) {
+            echo 'Erro de desencriptação.';
+            die;
         }
         
         $deleted = $this->note_type->where('id', $id)->delete();

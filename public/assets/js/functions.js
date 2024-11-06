@@ -100,8 +100,16 @@ function enableDisable(id) {
 }
 
 function toggleClientFields() {
+   const saveRadio = document.getElementById('save');
+   const finishedRadio = document.getElementById('finished');
    const clientFieldsDiv = document.getElementById('clientFields');
-   clientFieldsDiv.style.display = document.getElementById('finished').checked ? 'block' : 'none';
+ 
+   if (finishedRadio.checked) {
+     clientFieldsDiv.style.display = 'block';
+     window.scrollTo(0, clientFieldsDiv.offsetTop); // Add this line
+   } else {
+     clientFieldsDiv.style.display = 'none';
+   }
  }
 
  // global delegated event listener

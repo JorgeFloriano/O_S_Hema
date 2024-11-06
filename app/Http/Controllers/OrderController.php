@@ -214,7 +214,8 @@ class OrderController extends Controller
         try {
             $order = $this->os->find(Crypt::decryptString($order));
         } catch (DecryptException $e) {
-            return redirect()->back()->withErrors(['error' => 'Falha de desencriptação.']);
+            echo 'Erro de desencriptação.';
+            die;
         }
 
         return view('order.order_delete', ['order' => $order]);
@@ -232,7 +233,8 @@ class OrderController extends Controller
         try {
             $order = $this->os->find(Crypt::decryptString($order));
         } catch (DecryptException $e) {
-            return redirect()->back()->withErrors(['error' => 'Falha de desencriptação.']);
+            echo 'Erro de desencriptação.';
+            die;
         }
 
         $clients = Client::select(['id', 'name'])->get();
@@ -316,7 +318,8 @@ class OrderController extends Controller
         try {
             $order = $this->os->find(Crypt::decryptString($order));
         } catch (DecryptException $e) {
-            return redirect()->back()->withErrors(['error' => 'Falha de desencriptação.']);
+            echo 'Erro de desencriptação.';
+            die;
         }
 
         $order->finished = true;
@@ -345,7 +348,8 @@ class OrderController extends Controller
         try {
             $order = $this->os->find(Crypt::decryptString($order));
         } catch (DecryptException $e) {
-            return redirect()->back()->withErrors(['error' => 'Falha de desencriptação.']);
+            echo 'Erro de desencriptação.';
+            die;
         }
 
         // Null values will be replaced by - - : - - and the time will be formatted without seconds

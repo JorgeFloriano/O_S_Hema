@@ -50,7 +50,8 @@ class NoteController extends Controller
         try {
             $order = Order::find(Crypt::decryptString($order));
         } catch (DecryptException $e) {
-            return redirect()->back()->withErrors(['error' => 'Falha de desencriptação.']);
+            echo 'Erro de desencriptação.';
+            die;
         }
 
         $tecs = Tec::all();
@@ -164,7 +165,8 @@ class NoteController extends Controller
         try {
             $note = $this->note->find(Crypt::decryptString($note));
         } catch (DecryptException $e) {
-            return redirect()->back()->withErrors(['error' => 'Falha de desencriptação.']);
+            echo 'Erro de desencriptação.';
+            die;
         }
  
         // Get the first technician of the note
@@ -204,7 +206,8 @@ class NoteController extends Controller
         try {
             $note = $this->note->find(Crypt::decryptString($note));
         } catch (DecryptException $e) {
-            return redirect()->back()->withErrors(['error' => 'Falha de desencriptação.']);
+            echo 'Erro de desencriptação.';
+            die;
         }
 
         $note->first_tec = Note::find($note->id)->tecs[0];
