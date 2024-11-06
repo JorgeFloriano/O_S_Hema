@@ -1,6 +1,10 @@
 @extends('layouts.o_s_form_layout')
 
 @section('content')
+
+@php
+    use Illuminate\Support\Facades\Crypt;
+@endphp
     
      <div class="container">
         <div class="row">
@@ -51,14 +55,14 @@
 
                                     @if ($opt === 0)
                                         <td>
-                                            <a href="{{route('note_types.edit', ['note_type' => $note_type->id])}}" class="btn btn-primary btn-sm">
+                                            <a href="{{route('note_types.edit', ['note_type' => Crypt::encryptString($note_type->id)])}}" class="btn btn-primary btn-sm">
                                                 <i class="fa fa-edit"></i>
                                             </a>
                                         </td>
                                     @endif
 
                                     <td>
-                                        <a href="{{route($route, ['note_type' => $note_type->id])}}" class="btn btn-sm {{$btn_color}}">
+                                        <a href="{{route($route, ['note_type' => Crypt::encryptString($note_type->id)])}}" class="btn btn-sm {{$btn_color}}">
                                             <i class="fa fa-exchange"></i>
                                         </a>
                                     </td>

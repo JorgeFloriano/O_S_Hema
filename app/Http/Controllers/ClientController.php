@@ -78,7 +78,8 @@ class ClientController extends Controller
         try {
             $client = $this->client->find(Crypt::decryptString($client));
         } catch (DecryptException $e) {
-            return redirect()->back()->withErrors(['error' => 'Falha de desencriptação.']);
+            echo 'Erro de desencriptação.';
+            die;
         }
         
         return view('client.client_delete', ['client' => $client]);
@@ -95,7 +96,8 @@ class ClientController extends Controller
         try {
             $client = $this->client->find(Crypt::decryptString($client));
         } catch (DecryptException $e) {
-            return redirect()->back()->withErrors(['error' => 'Falha de desencriptação.']);
+            echo 'Erro de desencriptação.';
+            die;
         }
         
         return view('client.client_edit', ['client' => $client]);

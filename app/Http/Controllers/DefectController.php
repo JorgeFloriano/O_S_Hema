@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\FormCodeRequest;
 use App\Models\Defect;
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Contracts\Encryption\DecryptException;
 
 class DefectController extends Controller
 {
@@ -99,10 +101,17 @@ class DefectController extends Controller
     }
 
     
-    public function edit(Defect $defect)
+    public function edit($defect)
     {
         if (session('main') !== auth()->user()->id) {
             return view('login');
+        }
+
+        try {
+            $defect = $this->defect->find(Crypt::decryptString($defect));
+        } catch (DecryptException $e) {
+            echo 'Erro de desencriptação.';
+            die;
         }
 
         return view('codes.defect.defect_edit', ['defect' => $defect]);
@@ -145,6 +154,14 @@ class DefectController extends Controller
         if (session('main') !== auth()->user()->id) {
             return view('login');
         }
+
+        try {
+            $id = Crypt::decryptString($id);
+        } catch (DecryptException $e) {
+            echo 'Erro de desencriptação.';
+            die;
+        }
+
         $restored = $this->defect->where('id', $id)->restore();
 
         if ($restored) {
@@ -157,6 +174,13 @@ class DefectController extends Controller
     {
         if (session('main') !== auth()->user()->id) {
             return view('login');
+        }
+
+        try {
+            $id = Crypt::decryptString($id);
+        } catch (DecryptException $e) {
+            echo 'Erro de desencriptação.';
+            die;
         }
         
         $deleted = $this->defect->where('id', $id)->delete();

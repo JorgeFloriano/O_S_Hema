@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\FormCodeRequest;
 use App\Models\OrderType;
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Contracts\Encryption\DecryptException;
 
 class OrderTypeController extends Controller
 {
@@ -99,10 +101,17 @@ class OrderTypeController extends Controller
     }
 
     
-    public function edit(OrderType $order_type)
+    public function edit($order_type)
     {
         if (session('main') !== auth()->user()->id) {
             return view('login');
+        }
+
+        try {
+            $order_type = $this->order_type->find(Crypt::decryptString($order_type));
+        } catch (DecryptException $e) {
+            echo 'Erro de desencriptação.';
+            die;
         }
 
         return view('codes.order_type.order_type_edit', ['order_type' => $order_type]);
@@ -145,6 +154,14 @@ class OrderTypeController extends Controller
         if (session('main') !== auth()->user()->id) {
             return view('login');
         }
+
+        try {
+            $id = Crypt::decryptString($id);
+        } catch (DecryptException $e) {
+            echo 'Erro de desencriptação.';
+            die;
+        }
+
         $restored = $this->order_type->where('id', $id)->restore();
 
         if ($restored) {
@@ -157,6 +174,13 @@ class OrderTypeController extends Controller
     {
         if (session('main') !== auth()->user()->id) {
             return view('login');
+        }
+
+        try {
+            $id = Crypt::decryptString($id);
+        } catch (DecryptException $e) {
+            echo 'Erro de desencriptação.';
+            die;
         }
         
         $deleted = $this->order_type->where('id', $id)->delete();

@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\FormCodeRequest;
 use App\Models\Solution;
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Contracts\Encryption\DecryptException;
 
 class SolutionController extends Controller
 {
@@ -99,10 +101,17 @@ class SolutionController extends Controller
     }
 
     
-    public function edit(Solution $solution)
+    public function edit($solution)
     {
         if (session('main') !== auth()->user()->id) {
             return view('login');
+        }
+
+        try {
+            $solution = $this->solution->find(Crypt::decryptString($solution));
+        } catch (DecryptException $e) {
+            echo 'Erro de desencriptação.';
+            die;
         }
 
         return view('codes.solution.solution_edit', ['solution' => $solution]);
@@ -145,6 +154,14 @@ class SolutionController extends Controller
         if (session('main') !== auth()->user()->id) {
             return view('login');
         }
+
+        try {
+            $id = Crypt::decryptString($id);
+        } catch (DecryptException $e) {
+            echo 'Erro de desencriptação.';
+            die;
+        }
+
         $restored = $this->solution->where('id', $id)->restore();
 
         if ($restored) {
@@ -157,6 +174,13 @@ class SolutionController extends Controller
     {
         if (session('main') !== auth()->user()->id) {
             return view('login');
+        }
+
+        try {
+            $id = Crypt::decryptString($id);
+        } catch (DecryptException $e) {
+            echo 'Erro de desencriptação.';
+            die;
         }
         
         $deleted = $this->solution->where('id', $id)->delete();

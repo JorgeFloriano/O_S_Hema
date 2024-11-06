@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\FormCodeRequest;
 use App\Models\Cause;
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Contracts\Encryption\DecryptException;
 
 class CauseController extends Controller
 {
@@ -98,12 +100,18 @@ class CauseController extends Controller
         
         return view('codes.cause.cause_delete', ['cause' => $cause]);
     }
-
     
-    public function edit(Cause $cause)
+    public function edit($cause)
     {
         if (session('main') !== auth()->user()->id) {
             return view('login');
+        }
+
+        try {
+            $cause = $this->cause->find(Crypt::decryptString($cause));
+        } catch (DecryptException $e) {
+            echo 'Erro de desencriptação.';
+            die;
         }
 
         return view('codes.cause.cause_edit', ['cause' => $cause]);
@@ -146,6 +154,14 @@ class CauseController extends Controller
         if (session('main') !== auth()->user()->id) {
             return view('login');
         }
+
+        try {
+            $id = Crypt::decryptString($id);
+        } catch (DecryptException $e) {
+            echo 'Erro de desencriptação.';
+            die;
+        }
+
         $restored = $this->cause->where('id', $id)->restore();
 
         if ($restored) {
@@ -158,6 +174,13 @@ class CauseController extends Controller
     {
         if (session('main') !== auth()->user()->id) {
             return view('login');
+        }
+
+        try {
+            $id = Crypt::decryptString($id);
+        } catch (DecryptException $e) {
+            echo 'Erro de desencriptação.';
+            die;
         }
         
         $deleted = $this->cause->where('id', $id)->delete();

@@ -157,7 +157,8 @@ class UserController extends Controller
         try {
             $user = $this->user->find(Crypt::decryptString($user));
         } catch (DecryptException $e) {
-            return view('login');
+            echo 'Erro de desencriptação.';
+            die;
         }
 
         // If user main try to edit another user main return false
@@ -176,7 +177,8 @@ class UserController extends Controller
         try {
             $user = $this->user->find(Crypt::decryptString($user));
         } catch (DecryptException $e) {
-            return redirect()->back()->withErrors(['error' => 'Falha de desencriptação.']);
+            echo 'Erro de desencriptação.';
+            die;
         }
 
         // If user main try to edit another user main return false
