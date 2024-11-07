@@ -49,7 +49,7 @@
 
                     @csrf
                     <div class="row g-2 mb-2">
-                        <div class="col-md-3 col-6">
+                        <div class="col-md-3 col-12">
                             <div class="form-floating">
                                 <select class="form-select" id="client" name="client" aria-label="Floating label select example">
                                     <option value="0">0 - Todos</option>
@@ -66,7 +66,7 @@
                             </div>
                         </div>
 
-                        <div class="col-md-3 col-6">
+                        <div class="col-md-2 col-6">
                             <div class="form-floating">
                                 <select class="form-select" id="finished" name="finished" aria-label="Floating label select example">
                                     <option {{$fin_select[2] ?? ''}} value="2">Todas</option>
@@ -76,18 +76,28 @@
                                 <label for="finished">Ordens</label>
                             </div>
                         </div>
-    
+
                         <div class="col-md-3 col-6">
                             <div class="form-floating">
+                                <select class="form-select" id="date_type" name="date_type" aria-label="Floating label select example">
+                                    <option {{$order_open_select ?? ''}} value="order_open_date">Abertura</option>
+                                    <option {{$last_note_select ?? ''}} value="last_note_date">Última anotação</option>
+                                </select>
+                                <label for="date_type">Considerar data da:</label>
+                            </div>
+                        </div>
+    
+                        <div class="col-md-2 col-6">
+                            <div class="form-floating">
                                 <input type="date" class="form-control" id="Start" name="date_start" placeholder="Início" value="{{$date_s}}">
-                                <label for="Start">De</label>
+                                <label for="Start">De:</label>
                             </div>
                         </div>
                        
-                        <div class="col-md-3 col-6">    
+                        <div class="col-md-2 col-6">    
                             <div class="form-floating">
                                 <input type="date" class="form-control" id="End" name="date_end" placeholder="Término" value="{{$date_e}}">
-                                <label for="End">Até</label>
+                                <label for="End">Até:</label>
                             </div>
                         </div>
                     </div>
@@ -219,9 +229,6 @@
                                 @endforeach
                             </tbody> 
                         </table>
-                        <div>
-                            {{ $orders->links() }}
-                        </div>
                     </form>
                 @endif
             </div>
