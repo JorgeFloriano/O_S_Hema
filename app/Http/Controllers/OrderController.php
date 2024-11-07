@@ -63,7 +63,7 @@ class OrderController extends Controller
         $orders = $this->os
         ->select('id', 'order_type_id','client_id', 'tec_id','req_date', 'finished')
         ->orderBy('id', 'desc')
-        ->simplePaginate(20);
+        ->get();
 
         session()->put('ords', $orders);
 
@@ -104,23 +104,60 @@ class OrderController extends Controller
             }
         }
 
+        // Return the view with the last date_type selected option
+        $order_open_select = 'selected';
+        $last_note_select = '';
+        if ($request->date_type == 'last_note_date') {
+            $order_open_select = '';
+            $last_note_select = 'selected';
+        }
+
         // Filter query
+        // $orders = $this->os
+        // ->when($request->client, function ($query) use ($request) {
+        //     $query->where('client_id', $request->client);
+        // })
+        // ->when($request->date_start, function ($query) use ($request) {
+        //     $query->where('req_date', '>=', $request->date_start);
+        // })
+        // ->when($request->date_end, function ($query) use ($request) {
+        //     $query->where('req_date', '<=', $request->date_end);
+        // })
+        // ->when($request->finished != 2, function ($query) use ($request) {
+        //     $query->where('finished', $request->finished);
+        // })
+        // ->select('id', 'order_type_id','client_id', 'tec_id','req_date', 'finished')
+        // ->orderBy('id', 'desc')
+        // ->get();
+
         $orders = $this->os
         ->when($request->client, function ($query) use ($request) {
             $query->where('client_id', $request->client);
         })
         ->when($request->date_start, function ($query) use ($request) {
-            $query->where('req_date', '>=', $request->date_start);
+            if ($request->date_type == 'order_open_date') {
+                $query->where('req_date', '>=', $request->date_start);
+            } elseif ($request->date_type == 'last_note_date') {
+                $query->whereHas('notes', function ($query) use ($request) {
+                    $query->latest('created_at')->where('created_at', '>=', $request->date_start);
+                });
+            }
         })
         ->when($request->date_end, function ($query) use ($request) {
-            $query->where('req_date', '<=', $request->date_end);
+            if ($request->date_type == 'order_open_date') {
+                $query->where('req_date', '<=', $request->date_end);
+            } elseif ($request->date_type == 'last_note_date') {
+                $query->whereHas('notes', function ($query) use ($request) {
+                    $query->latest('created_at')->where('created_at', '<=', $request->date_end);
+                });
+            }
         })
         ->when($request->finished != 2, function ($query) use ($request) {
             $query->where('finished', $request->finished);
         })
         ->select('id', 'order_type_id','client_id', 'tec_id','req_date', 'finished')
         ->orderBy('id', 'desc')
-        ->simplePaginate(20);
+        ->get();
 
         session()->put('ords', $orders);
 
@@ -136,6 +173,8 @@ class OrderController extends Controller
             'old_client' => $request->client ?? null,
             'old_finished' => $request->finished ?? null,
             'fin_select' => $fin_select ?? ['','', ''],
+            'order_open_select' => $order_open_select,
+            'last_note_select' => $last_note_select
         ]);
     }
 

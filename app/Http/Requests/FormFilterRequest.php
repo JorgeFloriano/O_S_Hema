@@ -10,7 +10,7 @@ class FormFilterRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'date_start' => 'required|date_format:Y-m-d',
+            'date_start' => 'nullable|date_format:Y-m-d',
             'date_end' => 'required|date_format:Y-m-d',
             'finished' => 'required|numeric|min:0|max:2',
             'client' => ['required','numeric',Rule::in(session('client_ids'))],
@@ -20,7 +20,6 @@ class FormFilterRequest extends FormRequest
     public function messages(): array
     {
         return [
-            'date_start.required' => 'Selecione uma data inicial',
             'date_end.required' => 'Selecione uma data final',
             'date_start.date_format' => 'Data inicial inválida',
             'date_end.date_format' => 'Data final inválida',
