@@ -49,7 +49,7 @@ class UserController extends Controller
             return view('login');
         }
 
-        $tecs = Tec::simplePaginate(20);
+        $tecs = Tec::whereNotIn('user_id', [1, 2, 9999, 0])->simplePaginate(20);
 
         session()->put('tecs', $tecs);
 
