@@ -139,7 +139,7 @@ class OrderController extends Controller
                 $query->where('req_date', '>=', $request->date_start);
             } elseif ($request->date_type == 'last_note_date') {
                 $query->whereHas('notes', function ($query) use ($request) {
-                    $query->latest('created_at')->where('created_at', '>=', $request->date_start);
+                    $query->latest('date')->where('date', '>=', $request->date_start);
                 });
             }
         })
@@ -148,7 +148,7 @@ class OrderController extends Controller
                 $query->where('req_date', '<=', $request->date_end);
             } elseif ($request->date_type == 'last_note_date') {
                 $query->whereHas('notes', function ($query) use ($request) {
-                    $query->latest('created_at')->where('created_at', '<=', $request->date_end);
+                    $query->latest('date')->where('date', '<=', $request->date_end);
                 });
             }
         })
