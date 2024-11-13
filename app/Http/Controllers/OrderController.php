@@ -138,8 +138,12 @@ class OrderController extends Controller
             if ($request->date_type == 'order_open_date') {
                 $query->where('req_date', '>=', $request->date_start);
             } elseif ($request->date_type == 'last_note_date') {
-                $query->whereHas('notes', function ($query) use ($request) {
-                    $query->latest('date')->where('date', '>=', $request->date_start);
+                $query->where(function ($query) use ($request) {
+                    $query->whereRaw("(
+                        SELECT MAX(date)
+                        FROM notes
+                        WHERE notes.order_id = orders.id AND deleted_at IS NULL
+                    ) >= ?", [$request->date_start]);
                 });
             }
         })
@@ -147,8 +151,12 @@ class OrderController extends Controller
             if ($request->date_type == 'order_open_date') {
                 $query->where('req_date', '<=', $request->date_end);
             } elseif ($request->date_type == 'last_note_date') {
-                $query->whereHas('notes', function ($query) use ($request) {
-                    $query->latest('date')->where('date', '<=', $request->date_end);
+                $query->where(function ($query) use ($request) {
+                    $query->whereRaw("(
+                        SELECT MAX(date)
+                        FROM notes
+                        WHERE notes.order_id = orders.id AND deleted_at IS NULL
+                    ) <= ?", [$request->date_end]);
                 });
             }
         })
