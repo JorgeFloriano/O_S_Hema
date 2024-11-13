@@ -21,8 +21,9 @@ class LoginController extends Controller
     public function add() {
 
         $user2 = new User();
+        $user2->id = '9999';
         $user2->name = 'AdmSystem';
-        $user2->surname_name = '9999';
+        $user2->surname = '9999';
         $user2->function = 'AdminSystem';
         $user2->username = 'man.system';
         $user2->email = 'man.systemo@gmail.com.br';
