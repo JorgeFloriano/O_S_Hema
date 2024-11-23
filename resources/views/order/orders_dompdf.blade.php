@@ -1,4 +1,4 @@
-@extends('layouts.order_pdf_layout')
+@extends('layouts.orders_dompdf_layout')
 
 @section('content')
 
@@ -12,7 +12,7 @@
     </style>
 
     @foreach ($order->notes as $note)
-        @include('order/o_s_parts/header')
+        @include('order/o_s_parts/header_dompdf')
 
         @include('order/o_s_parts/client_info')
 

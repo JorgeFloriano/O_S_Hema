@@ -135,7 +135,7 @@
                         </div> 
 
                         <div class="form-floating my-2">
-                            <textarea id="services" name="services" maxlength="1290" class='autoExpand form-control' rows='1' data-min-rows='1'>{{$note->services}}</textarea>
+                            <textarea id="services" name="services" maxlength="1290" class='autoExpand form-control' rows='1' data-min-rows='1' required>{{$note->services}}</textarea>
                             <label for="services">Descrição dos serviços executados</label>
                         </div>
 
@@ -189,7 +189,7 @@
                             </div>
                         </div>
 
-                        <div class="row g-2 mb-2">
+                        {{-- <div class="row g-2 mb-2">
                             <div class="col">
                                 <div class="form-floating">
                                     <input type="number" class="form-control" id="kmStart" step="0.01" max="9999.99" min="0" name="km_start" value="{{$note->km_start}}" placeholder="Km inicial">
@@ -222,7 +222,7 @@
                         <div class="form-floating my-2">
                             <input type="text" class="form-control" id="obs" name="obs" value="{{$note->obs}}" placeholder="Observações"  maxlength="40">
                             <label for="obs">Observações</label>
-                        </div>
+                        </div> --}}
 
                         <div class="form-floating my-2">
                             <select class="form-select" id="firstTec" name="first_tec" aria-label="Floating label select example">

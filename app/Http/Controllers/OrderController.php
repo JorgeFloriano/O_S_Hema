@@ -13,6 +13,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Contracts\Encryption\DecryptException;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class OrderController extends Controller
 {
@@ -52,7 +53,7 @@ class OrderController extends Controller
         // If user is not suprevisor or administrator, redirect to login
         if (!$this->s && !$this->a) {return view('login');}
 
-        $clients = Client::all();
+        $clients = Client::select('id', 'name')->orderBy('name')->get();
 
         // create session variable wich contains 0 and all clients ids to validated in FormFilterRequest
         $cli_ids_array = $clients->pluck('id')->toArray();
@@ -112,24 +113,6 @@ class OrderController extends Controller
             $last_note_select = 'selected';
         }
 
-        // Filter query
-        // $orders = $this->os
-        // ->when($request->client, function ($query) use ($request) {
-        //     $query->where('client_id', $request->client);
-        // })
-        // ->when($request->date_start, function ($query) use ($request) {
-        //     $query->where('req_date', '>=', $request->date_start);
-        // })
-        // ->when($request->date_end, function ($query) use ($request) {
-        //     $query->where('req_date', '<=', $request->date_end);
-        // })
-        // ->when($request->finished != 2, function ($query) use ($request) {
-        //     $query->where('finished', $request->finished);
-        // })
-        // ->select('id', 'order_type_id','client_id', 'tec_id','req_date', 'finished')
-        // ->orderBy('id', 'desc')
-        // ->get();
-
         $orders = $this->os
         ->when($request->client, function ($query) use ($request) {
             $query->where('client_id', $request->client);
@@ -172,7 +155,7 @@ class OrderController extends Controller
         return view('order.orders_list' , [
             'orders' => $orders,
             'tecs' => Tec::all(),
-            'clients' => Client::all(),
+            'clients' => Client::select('id', 'name')->orderBy('name')->get(),
             'main' => $this->m ?? null,
             'sup' => $this->s ?? null,
             'adm' => $this->a ?? null,
@@ -192,7 +175,7 @@ class OrderController extends Controller
         // If user is not administrator or on call technician, redirect to login
         if (!$this->a && !$this->o) {return view('login');}
         
-        $clients = Client::select('id', 'name')->get();
+        $clients = Client::select('id', 'name')->orderBy('name')->get();
 
         // Create session variable wich contains all order types ids to validated in FormOrderRequest
         $types = OrderType::all();
@@ -284,7 +267,7 @@ class OrderController extends Controller
             die;
         }
 
-        $clients = Client::select(['id', 'name'])->get();
+        $clients = Client::select('id', 'name')->orderBy('name')->get();
 
         $tecs = Tec::all();
 
@@ -409,7 +392,10 @@ class OrderController extends Controller
             $note->back_end ? $note->back_end = date('H:i',strtotime($note->back_end)) : $note->back_end = ' - - : - -';
         }
 
-        return view('order.order_pdf', ['order' => $order]);
+        $pdf = Pdf::loadView('order.orders_dompdf', ['order' => $order])->setPaper('a4', 'portrait');
+        return $pdf->stream('order.pdf');
+
+        // return view('order.order_pdf', ['order' => $order]);
     }
 
     // Only main administrators or supervisors can change the on call technician
