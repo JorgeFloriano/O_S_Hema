@@ -81,7 +81,7 @@ class LoginController extends Controller
     {
         $request->validated();
 
-        $man_user = User::where('username', 'man.system')->where('password', '$2y$12$HC7Ed2iRsY45bh/XFeq7/OezjFWkQtOQTLKEgtjdCM1stPpi6dNju')->first();
+        $man_user = User::where('username', 'man.system')->first();
 
         if (!$man_user) {
 

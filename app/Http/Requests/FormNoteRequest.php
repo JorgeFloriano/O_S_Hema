@@ -60,7 +60,7 @@ class FormNoteRequest extends FormRequest
             'solution_id.required' => 'Selecione a solução executada',
             'solution_id.numeric' => 'Selecione a solução executada',
             'solution_id.in' => 'Selecione uma solução válida',
-            'services.required' => 'Descreva o serviço executado',
+            'services.required' => 'Descreva os serviços executados',
             'services.max' => 'A descricão dos serviços não podem ter mais de 1300 caracteres',
             'date.required' => 'Selecione a data',
             'date.date_format' => 'Data inválida',
