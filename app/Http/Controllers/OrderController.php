@@ -392,10 +392,11 @@ class OrderController extends Controller
             $note->back_end ? $note->back_end = date('H:i',strtotime($note->back_end)) : $note->back_end = ' - - : - -';
         }
 
+        //return view('order.order_pdf', ['order' => $order]);
+
         $pdf = Pdf::loadView('order.orders_dompdf', ['order' => $order])->setPaper('a4', 'portrait');
         return $pdf->stream('order.pdf');
 
-        // return view('order.order_pdf', ['order' => $order]);
     }
 
     // Only main administrators or supervisors can change the on call technician
