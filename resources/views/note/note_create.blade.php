@@ -143,7 +143,7 @@
                         <x-selected-old nam="solution_id" :tab="$solutions" des="description" nom="Solução" />
 
                         <div class="form-floating my-2">
-                            <textarea id="services" name="services" placeholder="Serviços executados" maxlength="1290" class='autoExpand form-control' rows='1' data-min-rows='1'>{{old('services')}}</textarea>
+                            <textarea id="services" name="services" placeholder="Serviços executados" maxlength="1290" class='autoExpand form-control' rows='1' data-min-rows='1' required>{{old('services')}}</textarea>
                             <label for="services">Descrição dos Serviços Executados</label>
                         </div>
 
