@@ -34,7 +34,20 @@
                     <form action="{{route('orders.store')}}" id="form" method="post" autocomplete="on">
                         @csrf
 
-                        <x-selected-old :tab="$clients" nam="client_id" nom="Cliente" des="name"/>
+                        <div class="form-floating my-2">
+                            <select class="form-select" id="client_id" name="client_id" aria-label="Floating label select example" required >
+                                <option value=""> Selecionar Cliente</option>
+                        
+                                @foreach ($clients as $client)
+                                    @if(old('client_id') == $client->id)
+                                        <option selected value={{$client->id}}>{{$client->name}}</option>
+                                    @else
+                                        <option value={{$client->id}}>{{$client->name}}</option>
+                                    @endif
+                                @endforeach
+                            </select>
+                            <label for="client_id">Cliente</label>
+                        </div>
 
                         <x-selected-old :tab="$types" nam="order_type_id" nom="Serviço" des="description"/>
 

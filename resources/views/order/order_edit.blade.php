@@ -44,9 +44,9 @@
                             <select class="form-select" {{$disabled}} id="client_id" name="client_id" aria-label="Floating label select example">
                                 @foreach ($clients as $client)
                                     @if ($client->id == $order->client_id)
-                                        <option selected value="{{$client->id}}">{{$client->id.' - '.$client->name}}</option>
+                                        <option selected value="{{$client->id}}">{{$client->name}}</option>
                                     @else
-                                        <option value="{{$client->id}}">{{$client->id.' - '.$client->name}}</option>
+                                        <option value="{{$client->id}}">{{$client->name}}</option>
                                     @endif
                                 @endforeach
                             </select>

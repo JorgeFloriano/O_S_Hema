@@ -52,13 +52,13 @@
                         <div class="col-md-3 col-12">
                             <div class="form-floating">
                                 <select class="form-select" id="client" name="client" aria-label="Floating label select example">
-                                    <option value="0">0 - Todos</option>
+                                    <option value="0">Todos</option>
 
                                     @foreach ($clients as $client)
                                         @if ($client->id == $old_client)
-                                            <option selected value="{{$client->id}}">{{$client->id.' - '.$client->name}}</option>
+                                            <option selected value="{{$client->id}}">{{$client->name}}</option>
                                         @else
-                                            <option value="{{$client->id}}">{{$client->id.' - '.$client->name}}</option>
+                                            <option value="{{$client->id}}">{{$client->name}}</option>
                                         @endif
                                     @endforeach
                                 </select>
