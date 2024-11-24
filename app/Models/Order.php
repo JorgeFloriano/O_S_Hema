@@ -55,4 +55,16 @@ class Order extends Model
     public function type(): BelongsTo {
         return $this->belongsTo(OrderType::class, 'order_type_id')->withTrashed();
     }
+
+    // Null values will be replaced by - - : - - and the time will be formatted without seconds
+    public function notes_time_format() {
+        foreach ($this->notes as $note) {
+            $note->go_start ? $note->go_start = date('H:i',strtotime($note->go_start)) : $note->go_start = ' - - : - -';
+            $note->go_end ? $note->go_end = date('H:i',strtotime($note->go_end)) : $note->go_end = ' - - : - -';
+            $note->start ? $note->start = date('H:i',strtotime($note->start)) : $note->start = ' - - : - -';
+            $note->end ? $note->end = date('H:i',strtotime($note->end)) : $note->end = ' - - : - -';
+            $note->back_start ? $note->back_start = date('H:i',strtotime($note->back_start)) : $note->back_start = ' - - : - -';
+            $note->back_end ? $note->back_end = date('H:i',strtotime($note->back_end)) : $note->back_end = ' - - : - -';
+        }
+    }
 }
