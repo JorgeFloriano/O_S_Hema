@@ -31,14 +31,21 @@
 
                 @if ($adm)
                     <div class="my-2">
-                        <a href="{{route('orders.create')}}" class="btn btn-primary">Criar nova</a>
-                        <button onclick="formSubmit('filter_form')" id="submitButton" style="float: right" type="submit" class="btn btn-secondary">
+                        <a href="{{route('orders.create')}}" class="btn btn-primary me-2">Criar nova</a>
+
+                        <button onclick="formSubmit('filter_form')" id="submitButton" type="submit" class="btn btn-secondary">
                             <i class="fa fa-filter" aria-hidden="true"></i> Filtrar
                         </button>
+
+                        <a href="{{route('orders.orders_pdf', ['ids' => $order_ids])}}" class="btn-outline-danger">
+                            <button class="btn btn-outline-danger" style="float: right" {{$show_pdf_btn ?? ''}}>
+                                <i class="fa fa-file-pdf-o"></i> Gerar PDF
+                            </button>
+                        </a>
                     </div>
                 @else
                     <div class="my-2" style="height: 42px">
-                        <a href="{{route('orders.create')}}" hidden class="btn btn-primary">Criar nova</a>
+                        <a href="{{route('orders.create')}}" class="btn btn-primary">Criar nova</a>
                         <button onclick="formSubmit('filter_form')" id="submitButton" style="float: right" type="submit" class="btn btn-secondary">
                             <i class="fa fa-filter" aria-hidden="true"></i> Filtrar
                         </button>

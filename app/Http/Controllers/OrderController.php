@@ -150,10 +150,23 @@ class OrderController extends Controller
         ->orderBy('id', 'desc')
         ->get();
 
+        // create an array with the orders ids for generate the pdf
+        $order_ids = $orders->pluck('id')->implode(',');
+
+        if ($order_ids == '' || $order_ids == null) {
+            $order_ids = 0;
+        }
+
+        if ($request->finished != 1) {
+            $show_pdf_btn = 'disabled';
+        }
+
         session()->put('ords', $orders);
 
         return view('order.orders_list' , [
             'orders' => $orders,
+            'order_ids' => $order_ids,
+            'show_pdf_btn' => $show_pdf_btn ?? '',
             'tecs' => Tec::all(),
             'clients' => Client::select('id', 'name')->orderBy('name')->get(),
             'main' => $this->m ?? null,
@@ -383,20 +396,34 @@ class OrderController extends Controller
         }
 
         // Null values will be replaced by - - : - - and the time will be formatted without seconds
-        foreach ($order->notes as $note) {
-            $note->go_start ? $note->go_start = date('H:i',strtotime($note->go_start)) : $note->go_start = ' - - : - -';
-            $note->go_end ? $note->go_end = date('H:i',strtotime($note->go_end)) : $note->go_end = ' - - : - -';
-            $note->start ? $note->start = date('H:i',strtotime($note->start)) : $note->start = ' - - : - -';
-            $note->end ? $note->end = date('H:i',strtotime($note->end)) : $note->end = ' - - : - -';
-            $note->back_start ? $note->back_start = date('H:i',strtotime($note->back_start)) : $note->back_start = ' - - : - -';
-            $note->back_end ? $note->back_end = date('H:i',strtotime($note->back_end)) : $note->back_end = ' - - : - -';
+        $order->notes_time_format();
+
+        return view('order.order_pdf', ['order' => $order]);
+    }
+
+    // Show the PDF for the selected orders
+    public function orders_pdf($ids)
+    {
+        if (!$this->a) {
+            return view('login');
         }
 
-        //return view('order.order_pdf', ['order' => $order]);
+        if ($ids == 0 || $ids == '0') {
+            return redirect()->back()->with('message', 'Nenhum registro selecionado para gerar o PDF.');
+        }
 
-        $pdf = Pdf::loadView('order.orders_dompdf', ['order' => $order])->setPaper('a4', 'portrait');
-        return $pdf->stream('order.pdf');
+        $orders = Order::whereIn('id', explode(',', $ids))->get();
+        foreach ($orders as $order) {
+            
+            if (!$order->finished) {
+                return redirect()->back()->with('message', 'Não é possível gerar um PDF para uma ordem de serviço em andamento.');
+            }
 
+            // Null values will be replaced by - - : - - and the time will be formatted without seconds
+            $order->notes_time_format();
+        }
+        $pdf = Pdf::loadView('order.orders_dompdf', ['orders' => $orders])->setPaper('A4', 'portrait');
+        return $pdf->stream('Solicitações de Assiatência Técnica.pdf');
     }
 
     // Only main administrators or supervisors can change the on call technician
