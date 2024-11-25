@@ -68,8 +68,19 @@ class OrderController extends Controller
 
         session()->put('ords', $orders);
 
+        // create an array with the orders ids for generate the pdf
+        $order_ids = $orders->pluck('id')->implode(',');
+
+        // Verify if all orders are finished to ability "Gerar pdf" button
+        $finisheds = $orders->pluck('finished')->toArray();
+        if (in_array(0, $finisheds)) {
+            $show_pdf_btn = 'disabled';
+        }
+
         return view('order.orders_list' , [
             'orders' => $orders,
+            'order_ids' => $order_ids,
+            'show_pdf_btn' => $show_pdf_btn ?? '',
             'tecs' => Tec::all(),
             'clients' => $clients,
             'main' => $this->m ?? null,
