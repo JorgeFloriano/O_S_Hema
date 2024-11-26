@@ -176,7 +176,7 @@ class OrderController extends Controller
 
         return view('order.orders_list' , [
             'orders' => $orders,
-            'order_ids' => $order_ids,
+            'ids' => $order_ids ?? 0,
             'show_pdf_btn' => $show_pdf_btn ?? '',
             'tecs' => Tec::all(),
             'clients' => Client::select('id', 'name')->orderBy('name')->get(),
@@ -268,7 +268,7 @@ class OrderController extends Controller
         try {
             $order = $this->os->find(Crypt::decryptString($order));
         } catch (DecryptException $e) {
-            echo 'Erro de desencriptação.';
+            echo 'Erro de desencriptação 4.';
             die;
         }
 
@@ -287,7 +287,7 @@ class OrderController extends Controller
         try {
             $order = $this->os->find(Crypt::decryptString($order));
         } catch (DecryptException $e) {
-            echo 'Erro de desencriptação.';
+            echo 'Erro de desencriptação 1.';
             die;
         }
 
@@ -372,7 +372,7 @@ class OrderController extends Controller
         try {
             $order = $this->os->find(Crypt::decryptString($order));
         } catch (DecryptException $e) {
-            echo 'Erro de desencriptação.';
+            echo 'Erro de desencriptação 2.';
             die;
         }
 
@@ -402,7 +402,7 @@ class OrderController extends Controller
         try {
             $order = $this->os->find(Crypt::decryptString($order));
         } catch (DecryptException $e) {
-            echo 'Erro de desencriptação.';
+            echo 'Erro de desencriptação 3.';
             die;
         }
 
@@ -413,17 +413,20 @@ class OrderController extends Controller
     }
 
     // Show the PDF for the selected orders
-    public function orders_pdf($ids)
+    public function orders_pdf(Request $request)
     {
         if (!$this->a) {
             return view('login');
         }
 
-        if ($ids == 0 || $ids == '0') {
+        if ($request->ids == 0 || $request->ids == '0') {
             return redirect()->back()->with('message', 'Nenhum registro selecionado para gerar o PDF.');
         }
 
-        $orders = Order::whereIn('id', explode(',', $ids))->get();
+        // Orders will be ordered by client name
+        $orders = Order::whereIn('id', explode(',', $request->ids))->with('client')->get();
+        $orders = $orders->sortBy('client.name');
+            
         foreach ($orders as $order) {
             
             if (!$order->finished) {
@@ -433,7 +436,11 @@ class OrderController extends Controller
             // Null values will be replaced by - - : - - and the time will be formatted without seconds
             $order->notes_time_format();
         }
-        $pdf = Pdf::loadView('order.orders_dompdf', ['orders' => $orders])->setPaper('A4', 'portrait');
+
+        $pdf = Pdf::loadView('order.orders_dompdf', [
+            'orders' => $orders,
+            'title' => $request->title ?? 'Relatório de Solicitações de Assiatência Técnica',
+            ])->setPaper('A4', 'portrait');
         return $pdf->stream('Solicitações de Assiatência Técnica.pdf');
     }
 

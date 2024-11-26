@@ -26,7 +26,13 @@
                     Reabrir
                 </a>
             @endif
-            <a href="{{url()->previous()}}" class="btn btn-secondary ms-2" >Voltar</a>
+            @if (auth()->user()->adm()->first() || auth()->user()->sup()->first())
+                <a href="{{route('orders.index')}}" class="btn btn-secondary">
+                    Voltar
+                </a>
+            @else
+                <a href="{{url()->previous()}}" class="btn btn-secondary ms-2" >Voltar</a>
+            @endif
         </div>
         <section id="print">
             @yield('content')
