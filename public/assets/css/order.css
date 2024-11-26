@@ -209,3 +209,8 @@ tr {
   border-radius: 6px 6px 0px 0px;
   margin-bottom: -1px;
 }
+
+.page-info {
+  text-align: right;
+  margin-top: 10px;
+}

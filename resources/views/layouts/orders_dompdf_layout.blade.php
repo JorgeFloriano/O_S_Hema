@@ -6,20 +6,20 @@
         <link rel="shortcut icon" href="{{asset('favicon.ico')}}">
         <style>
             :root {
-            --blue1: #e2eaee;
+                --blue1: #e2eaee;
             }
 
             * {
-            font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
-            padding: 0px;
-            margin: 0px;
-            box-sizing: border-box;
+                font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+                padding: 0px;
+                margin: 0px;
+                box-sizing: border-box;
             }
 
             body {
-            min-height: auto;
-            padding: 10px;
-            margin: auto;
+                min-height: auto;
+                padding: 15px;
+                margin: auto;
             }
 
             div#header {
@@ -28,150 +28,150 @@
             }
 
             div#header1 {
-            padding-top: 20px;
-            float: left;
-            width: 70px;
+                padding-top: 20px;
+                float: left;
+                width: 70px;
             }
 
             div#header2 {
-            float: left;
-            text-align: center;
-            font-weight: bold;
-            font-size: 14px;
-            width: 302px;
+                float: left;
+                text-align: center;
+                font-weight: bold;
+                font-size: 14px;
+                width: 302px;
             }
 
             div#header3 {
-            padding: 20px;
-            float: right;
-            font-size: 17px;
-            font-weight: bold;
+                padding: 20px;
+                float: right;
+                font-size: 17px;
+                font-weight: bold;
             }
 
             div#osId {
-            text-align: center;
-            font-size: 25px;
-            color: rgb(211, 21, 21);
+                text-align: center;
+                font-size: 25px;
+                color: rgb(211, 21, 21);
             }
 
             div.Info {
-            margin: 5px 0px;
-            font-size: 15px;
+                margin: 5px 0px;
+                font-size: 15px;
             }
 
             .center {
-            text-align: center;
-            float: none;
-            width: 33.3%;
-            padding: 0px;
+                text-align: center;
+                float: none;
+                width: 33.3%;
+                padding: 0px;
             }
 
             .FirstInfoLine {
-            height: 22px;
-            width: 100%;
-            overflow-wrap: break-word;
-            border-radius:6px 6px 0px 0px;
-            border-top: 1px solid black;
-            border-left: 1px solid black;
-            border-right: 1px solid black;
+                height: 22px;
+                width: 100%;
+                overflow-wrap: break-word;
+                border-radius:6px 6px 0px 0px;
+                border-top: 1px solid black;
+                border-left: 1px solid black;
+                border-right: 1px solid black;
             }
 
             .InfoLine {
-            height: 22px;
-            width: 100%;
-            overflow-wrap: break-word;
-            border-top: 1px solid black;
-            border-left: 1px solid black;
-            border-right: 1px solid black;
+                height: 22px;
+                width: 100%;
+                overflow-wrap: break-word;
+                border-top: 1px solid black;
+                border-left: 1px solid black;
+                border-right: 1px solid black;
             }
 
             .LastInfoLine {
-            height: 23px;
-            width: 100%;
-            overflow-wrap: break-word;
-            border: 1px solid black;
-            border-radius:0px 0px 6px 6px;
+                height: 23px;
+                width: 100%;
+                overflow-wrap: break-word;
+                border: 1px solid black;
+                border-radius:0px 0px 6px 6px;
             }
 
             .InfoFirstCollum {
-            overflow: hidden;
-            padding: 0 6px 0 6px;
-            float: left;
-            height: 22px;
-            width: 100%;
+                overflow: hidden;
+                padding: 0 6px 0 6px;
+                float: left;
+                height: 22px;
+                width: 100%;
             }
 
             .InfoTitle {
-            overflow: hidden;
-            padding: 0 6px 0 6px;
-            text-align: center;
-            height: 22px;
+                overflow: hidden;
+                padding: 0 6px 0 6px;
+                text-align: center;
+                height: 22px;
             }
 
             .InfoCollum {
-            overflow: hidden;
-            padding: 0 6px 0 6px;
-            float: left;
-            height: 22px;
-            border-left: 1px solid black;
+                overflow: hidden;
+                padding: 0 6px 0 6px;
+                float: left;
+                height: 22px;
+                border-left: 1px solid black;
             }
 
             .ThirdCollum {
-            text-align: center;
-            overflow: hidden;
-            float: left;
-            padding: 0px;
-            height: 22px;
-            width: 33.3%;
+                text-align: center;
+                overflow: hidden;
+                float: left;
+                padding: 0px;
+                height: 22px;
+                width: 33.3%;
             }
 
             .QuarterCollum {
-            text-align: center;
-            overflow: hidden;
-            float: left;
-            padding: 0px;
-            height: 22px;
-            width: 25%;
+                text-align: center;
+                overflow: hidden;
+                float: left;
+                padding: 0px;
+                height: 22px;
+                width: 25%;
             }
 
             .b-l {
-            border-left: 1px solid black;
+                border-left: 1px solid black;
             }
 
             .LongText {
-            overflow: hidden;
-            height: 100%;
-            width: 99%;
+                overflow: hidden;
+                height: 100%;
+                width: 99%;
             }
 
             .bg-t {
-            background-color: var(--blue1);
+                background-color: var(--blue1);
             }
 
             table {
-            font-size: 15px;
-            width: 100%;
-            overflow:hidden;
-            border-collapse:collapse;
-            -webkit-border-radius: 6px;
-                -moz-border-radius: 6px;
-                    border-radius: 6px;
+                font-size: 15px;
+                width: 100%;
+                overflow:hidden;
+                border-collapse:collapse;
+                -webkit-border-radius: 6px;
+                    -moz-border-radius: 6px;
+                        border-radius: 6px;
             }
 
             .w3-striped tbody tr:nth-child(even){ 
-            background-color:#ececf8
-            }
+                background-color:#ececf8
+                }
 
             table.z tr:nth-child(odd) {
-            background-color:#fff
+                background-color:#fff
             }
 
             table.z tr:nth-child(even){
-            background-color:#f0f0f3b2
+                background-color:#f0f0f3b2
             }
 
             .w3-hoverable tbody tr:hover,.w3-ul.w3-hoverable li:hover {
-            background-color:#ccc
+                background-color:#ccc
             }
 
             .w3-centered tr th,.w3-centered tr td, thead, th {
@@ -212,6 +212,45 @@
 
             .page-break {
                 page-break-after: always;
+            }
+
+            .resume-H1 {
+                text-align: center;
+                font-size: 27px;
+                margin: 25px;
+            }
+
+            .resume-line {
+                font-size: 18px;
+                height: 23px;
+                width: 600px;
+                margin: auto;
+                padding-top: 4px;
+                overflow-wrap: break-word;
+                border: hidden;
+                border-bottom: 1.5px solid black;
+            }
+
+            .resume-c1 {
+                width: 50%;
+                overflow: hidden;
+                float: left;
+                height: 23px;
+                width: 100%;
+            }
+
+            .resume-c2 {
+                overflow: hidden;
+                float: left;
+                height: 23px;
+            }
+
+            .page-number {
+                position: absolute;
+                bottom: 10;
+                right: 10;
+                font-size: 16px;
+                color: #3b3939;
             }
         </style>
         <title>Sistema de Gerenciamento Hema</title>

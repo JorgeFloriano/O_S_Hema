@@ -16,7 +16,11 @@
 
         @include('order/o_s_parts/client_info')
 
-        <div><strong>Informações do Atendimento (data {{date('d/m/Y',strtotime($note->date))}})</strong></div>
+        <div>
+            <strong>
+                Intervenção {{ $loop->iteration }} de {{ count($order->notes) }} (data {{date('d/m/Y',strtotime($note->date))}})
+            </strong>
+        </div>
 
         @include('order/o_s_parts/note_info')
 
@@ -25,6 +29,10 @@
         @include('order/o_s_parts/tec_note')
 
         @include('order/o_s_parts/client_sign')
+
+        <div class="page-number">página {{$loop->iteration}}</div>
+    
+        <div class="page-break"></div>
 
         @if (!$loop->last)
             <div class="page-break"></div>

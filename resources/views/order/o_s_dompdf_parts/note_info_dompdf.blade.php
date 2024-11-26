@@ -10,7 +10,7 @@
     </div>
 
     <div class="InfoLine bg-t">
-        <div class="InfoTitle"><strong>Dados da Intervenção</strong></div>
+        <div class="InfoTitle"><strong>Dados da Atividade Realizada</strong></div>
     </div>
 
     <div class="InfoLine">
@@ -28,6 +28,6 @@
     </div>
 
     <div class="LastInfoLine" style="height: 250px">
-        <div class="InfoFirstCollum LongText"><p><strong>Descrição da Intervenção: </strong>{{$note->services ?? ''}}</p></div>
+        <div class="InfoFirstCollum LongText"><p><strong>Descrição dos Serviços Executados: </strong>{{$note->services ?? ''}}</p></div>
     </div>
 </div>
