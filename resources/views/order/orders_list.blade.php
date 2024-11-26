@@ -107,15 +107,15 @@
                         <div class="row g-2 mb-2">
                             <input type="hidden" name="ids" id="ids" value="{{$ids ?? '0'}}">
 
-                            <div class="col-2 p-2">
+                            <div class="col-xxl-2 col-lg-2 col-12 p-2">
                                 <label for="title">Titulo da capa:</label>
                             </div>
 
-                            <div class="col-8">
+                            <div class="col-xxl-8 col-lg-7 col-12">
                                 <input type="text" name="title" class="form-control" id="title" placeholder="Digite um título e filtre ordens de serviço finalizadas para gerar relatório">
                             </div>
 
-                            <div class="col-2">
+                            <div class="col-xxl-2 col-lg-3 col-12">
                                 <button class="btn btn-outline-danger w-100" style="float: right" {{$show_pdf_btn ?? ''}}>
                                     <i class="fa fa-file-pdf-o"></i> Gerar Relatório
                                 </button>
