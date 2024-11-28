@@ -214,3 +214,10 @@ tr {
   text-align: right;
   margin-top: 10px;
 }
+
+.page-number {
+  margin: 10px 0px;
+  float: right;
+  font-size: 16px;
+  color: #3b3939;
+}

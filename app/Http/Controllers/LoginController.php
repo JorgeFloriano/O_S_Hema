@@ -20,23 +20,28 @@ class LoginController extends Controller
 
     public function add() {
 
-        $user2 = new User();
-        $user2->id = '9999';
-        $user2->name = 'AdmSystem';
-        $user2->surname = '9999';
-        $user2->function = 'AdminSystem';
-        $user2->username = 'man.system';
-        $user2->email = 'man.systemo@gmail.com.br';
-        $user2->password = Hash::make('science123J');
-        $user2->save();
+        //---------------------------------------------------------------
+        // --------------CREATE USER to mantenance and tests-------------
+
+        // $user2 = new User();
+        // $user2->id = '9999';
+        // $user2->name = 'AdmSystem';
+        // $user2->surname = '9999';
+        // $user2->function = 'AdminSystem';
+        // $user2->username = 'man.system';
+        // $user2->email = 'man.systemo@gmail.com.br';
+        // $user2->password = Hash::make('science123J');
+        // $user2->save();
 
         // echo 'user saved';
 
         // $c_u2 = new Adm();
-        // $c_u2->user_id = 0;
+        // $c_u2->user_id = 9999;
         // $c_u2->main = 1;
         // $c_u2->save();
+        //---------------------------------------------------------------
 
+        // ALTER TABLE users AUTO_INCREMENT=1001; 
         // $c_u2 = new Sup();
         // $c_u2->user_id = 1;
         // $c_u2->save();
@@ -45,7 +50,6 @@ class LoginController extends Controller
         // $c_u2->note_id = 2;
         // $c_u2->tec_id = 3;
         // $c_u2->save();
-
     }
 
     public function index()
@@ -83,12 +87,13 @@ class LoginController extends Controller
 
         $man_user = User::where('username', 'man.system')->first();
 
-        if (!$man_user) {
+        // Verify if man.system user exists--------------------------------------------
+        // if (!$man_user) {
 
-            // man.system log
-            $this->logger->log('error', 'User man.system credentials not found in database');
-            return redirect()->route('login.index')->withErrors(['error' => 'Credenciais inválidas 9999']);
-        }
+        //     // man.system log
+        //     $this->logger->log('error', 'User man.system credentials not found in database');
+        //     return redirect()->route('login.index')->withErrors(['error' => 'Credenciais inválidas 9999']);
+        // }
 
         $credentials = $request->only('username', 'password');
         $authenticated = Auth::attempt($credentials);
@@ -149,6 +154,10 @@ class LoginController extends Controller
                 'success'=>'Olá',
             ]);
         }
+
+        // User dont have any access log
+        $this->logger->log('error', 'User '.$request->username.' dont have any access.');
+        return redirect()->route('login.index')->withErrors(['error' => 'Usuário sem acesso definido.']);
     }
 
     public function destroy()

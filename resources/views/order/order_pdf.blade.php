@@ -6,8 +6,8 @@
         #buttonGroup {
             display: none;
         }
-        @media print {
-        .clientSign {page-break-after: always;}
+        .page-break {
+            page-break-after: always;
         }
     </style>
 
@@ -29,10 +29,6 @@
         @include('order/o_s_parts/tec_note')
 
         @include('order/o_s_parts/client_sign')
-
-        <div class="page-number">página {{$loop->iteration}}</div>
-    
-        <div class="page-break"></div>
 
         @if (!$loop->last)
             <div class="page-break"></div>

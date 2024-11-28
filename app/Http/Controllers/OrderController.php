@@ -10,6 +10,7 @@ use App\Models\Order;
 use App\Models\OrderType;
 use App\Models\Tec;
 use App\Models\User;
+use App\Class\Logger;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Contracts\Encryption\DecryptException;
@@ -27,6 +28,9 @@ class OrderController extends Controller
     {
         // Set a nem service order
         $this->os = new Order();
+
+        // Set a logger
+        $this->logger = new Logger();
 
         // user is admin main or not
         if (isset(auth()->user()->adm)) {
@@ -168,7 +172,9 @@ class OrderController extends Controller
             $order_ids = 0;
         }
 
-        if ($request->finished != 1) {
+        // Verify if all orders are finished to ability "Gerar pdf" button
+        $finisheds = $orders->pluck('finished')->toArray();
+        if (in_array(0, $finisheds)) {
             $show_pdf_btn = 'disabled';
         }
 
@@ -268,8 +274,8 @@ class OrderController extends Controller
         try {
             $order = $this->os->find(Crypt::decryptString($order));
         } catch (DecryptException $e) {
-            echo 'Erro de desencriptação 4.';
-            die;
+            $this->logger->log('error', 'Decryption error (order/show).');
+            return redirect()->back()->with('error', 'Erro de desencriptação (order/show).');
         }
 
         return view('order.order_delete', ['order' => $order]);
@@ -287,7 +293,8 @@ class OrderController extends Controller
         try {
             $order = $this->os->find(Crypt::decryptString($order));
         } catch (DecryptException $e) {
-            echo 'Erro de desencriptação 1.';
+                $this->logger->log('error', 'Decryption error (order/edit).');
+                return redirect()->back()->with('error', 'Erro de desencriptação (order/edit).');
             die;
         }
 
@@ -372,7 +379,8 @@ class OrderController extends Controller
         try {
             $order = $this->os->find(Crypt::decryptString($order));
         } catch (DecryptException $e) {
-            echo 'Erro de desencriptação 2.';
+                $this->logger->log('error', 'Decryption error (order/finish).');
+                return redirect()->back()->with('error', 'Erro de desencriptação (order/finish).');
             die;
         }
 
@@ -402,7 +410,8 @@ class OrderController extends Controller
         try {
             $order = $this->os->find(Crypt::decryptString($order));
         } catch (DecryptException $e) {
-            echo 'Erro de desencriptação 3.';
+                $this->logger->log('error', 'Decryption error (order/show_pdf).');
+                return redirect()->back()->with('error', 'Erro de desencriptação (order/show_pdf).');
             die;
         }
 
