@@ -40,65 +40,53 @@
 
                     @csrf
                     <div class="row g-2 mb-2">
-                        <div class="col-md-3 col-12">
-                            <div class="form-floating">
-                                <select class="form-select" id="client" name="client" aria-label="Floating label select example">
-                                    <option value="0">Todos</option>
+                        <div class="col-lg-3 col-12">
+                            <select class="form-select" id="client" name="client" aria-label="Floating label select example">
+                                <option value="0">Clientes (todos)</option>
 
-                                    @foreach ($clients as $client)
-                                        @if ($client->id == $old_client)
-                                            <option selected value="{{$client->id}}">{{$client->name}}</option>
-                                        @else
-                                            <option value="{{$client->id}}">{{$client->name}}</option>
-                                        @endif
-                                    @endforeach
-                                </select>
-                                <label for="client">Cliente</label>
-                            </div>
+                                @foreach ($clients as $client)
+                                    @if ($client->id == $old_client)
+                                        <option selected value="{{$client->id}}">{{$client->name}}</option>
+                                    @else
+                                        <option value="{{$client->id}}">{{$client->name}}</option>
+                                    @endif
+                                @endforeach
+                            </select>
                         </div>
 
-                        <div class="col-md-2 col-6">
-                            <div class="form-floating">
-                                <select class="form-select" id="finished" name="finished" aria-label="Floating label select example">
-                                    <option {{$fin_select[2] ?? ''}} value="2">Todas</option>
-                                    <option {{$fin_select[0] ?? ''}} value="0">Não Finalizadas</option>
-                                    <option {{$fin_select[1] ?? ''}} value="1">Finalizadas</option>
-                                </select>
-                                <label for="finished">Ordens</label>
-                            </div>
+                        <div class="col-lg-2 col-6">
+                            <select class="form-select" id="finished" name="finished" aria-label="Floating label select example">
+                                <option {{$fin_select[2] ?? ''}} value="2">Ordens (todas)</option>
+                                <option {{$fin_select[0] ?? ''}} value="0">Não Finalizadas</option>
+                                <option {{$fin_select[1] ?? ''}} value="1">Finalizadas</option>
+                            </select>
                         </div>
 
-                        <div class="col-md-2 col-6">
-                            <div class="form-floating">
-                                <select class="form-select" id="date_type" name="date_type" aria-label="Floating label select example">
-                                    <option {{$order_open_select ?? ''}} value="order_open_date">Abertura</option>
-                                    <option {{$last_note_select ?? ''}} value="last_note_date">Última anotação</option>
-                                </select>
-                                <label for="date_type">Data da:</label>
-                            </div>
+                        <div class="col-lg-2 col-6">
+                            <select class="form-select" id="date_type" name="date_type" aria-label="Floating label select example">
+                                <option {{$order_open_select ?? ''}} value="order_open_date">Abertura</option>
+                                <option {{$last_note_select ?? ''}} value="last_note_date">Última anotação</option>
+                            </select>
                         </div>
     
-                        <div class="col-md-2 col-5">
-                            <div class="form-floating">
-                                <input type="date" class="form-control" id="Start" name="date_start" placeholder="Início" value="{{$date_s}}">
-                                <label for="Start">De:</label>
-                            </div>
+                        <div class="col-lg-2 col-5">
+                            <label for="Start" class="col-form-label" style="width: 20%;float: left">de</label>
+                            <input type="date" class="form-control" id="Start" style="width: 80%;float: right" name="date_start" placeholder="Início" value="{{$date_s}}">
                         </div>
                        
-                        <div class="col-md-2 col-5">    
-                            <div class="form-floating">
-                                <input type="date" class="form-control" id="End" name="date_end" placeholder="Término" value="{{$date_e}}">
-                                <label for="End">Até:</label>
-                            </div>
+                        <div class="col-lg-2 col-5">    
+                            <label for="End" class="col-form-label" style="width: 20%;float: left">até</label>
+                            <input type="date" class="form-control" id="End" style="width: 80%;float: right" name="date_end" placeholder="Término" value="{{$date_e}}">
                         </div>
 
-                        <div class="col-md-1 col-2">
+                        <div class="col-lg-1 col-2">
                             <button onclick="formSubmit('filter_form')" id="submitButton" type="submit" class="btn btn-secondary h-100 w-100">
                                 Filtrar
                             </button>
                         </div>
                     </div>
                 </form>
+                <hr>
 
                  @if ($adm)
                     <form action="{{route('orders.orders_pdf')}}" id="dompdf_form" method="post">
@@ -107,12 +95,12 @@
                         <div class="row g-2 mb-2">
                             <input type="hidden" name="ids" id="ids" value="{{$ids ?? '0'}}">
 
-                            <div class="col-xxl-2 col-lg-2 col-12 p-2">
-                                <label for="title">Titulo da capa:</label>
+                            <div class="col-xxl-1 col-lg-1 col-2  p-2">
+                                <label for="title">Titulo:</label>
                             </div>
 
-                            <div class="col-xxl-8 col-lg-7 col-12">
-                                <input type="text" name="title" class="form-control" id="title" placeholder="Digite um título e filtre ordens de serviço finalizadas para gerar relatório">
+                            <div class="col-xxl-9 col-lg-8 col-10 ">
+                                <input type="text" name="title" class="form-control" maxlength="120" id="title" placeholder="Digite um título para a capa e filtre ordens de serviço finalizadas para gerar relatório">
                             </div>
 
                             <div class="col-xxl-2 col-lg-3 col-12">
