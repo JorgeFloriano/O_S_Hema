@@ -1,18 +1,18 @@
-<div id="header">
-    <div id="header1">
+<div class="header">
+    <span class="header1">
         <img src="assets/img/logo2_hema.png" width="100%" alt="logo hema">
-    </div>
+    </span>
 
-    <div id="header2">
+    <span class="header2">
         MONITORAMENTO IP<br>
         CABEAMENTO ESTRUTURADO<br>
         SINALIZAÇÃO SEMAFÓRICA<br>
         Fone: (15) 3243-4707<br>
         e-mail: atendimento@hema.com.br
-    </div>
+    </span>
 
-    <div id="header3">
+    <span class="header3">
         SAT - Solicitação de Assistência Técnica
         <div id="osId">{{number_format($order->id, 0, ',', '.')}}</div>
-    </div>
+    </span>
 </div>

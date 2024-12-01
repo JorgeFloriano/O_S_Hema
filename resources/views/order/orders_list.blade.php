@@ -64,7 +64,7 @@
 
                         <div class="col-lg-2 col-6">
                             <select class="form-select" id="date_type" name="date_type" aria-label="Floating label select example">
-                                <option {{$order_open_select ?? ''}} value="order_open_date">Abertura</option>
+                                <option {{$order_open_select ?? ''}} value="order_open_date">Data de abertura</option>
                                 <option {{$last_note_select ?? ''}} value="last_note_date">Última anotação</option>
                             </select>
                         </div>
