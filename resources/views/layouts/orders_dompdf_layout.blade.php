@@ -22,18 +22,21 @@
                 margin: auto;
             }
 
-            div#header {
+            .header {
             margin: 15px 0px;
             height: 108px;
+            width: 100%;
+            display: flex;
+            flex-direction: row;
             }
 
-            div#header1 {
+            .header1 {
                 padding-top: 20px;
                 float: left;
                 width: 70px;
             }
 
-            div#header2 {
+            .header2 {
                 float: left;
                 text-align: center;
                 font-weight: bold;
@@ -41,14 +44,14 @@
                 width: 302px;
             }
 
-            div#header3 {
+            .header3 {
                 padding: 20px;
                 float: right;
                 font-size: 17px;
                 font-weight: bold;
             }
 
-            div#osId {
+            #osId {
                 text-align: center;
                 font-size: 25px;
                 color: rgb(211, 21, 21);

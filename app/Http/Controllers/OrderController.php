@@ -446,10 +446,17 @@ class OrderController extends Controller
             $order->notes_time_format();
         }
 
+        // return view('order.orders_dompdf', [
+        //     'orders' => $orders,
+        //     'title' => $request->title ?? 'Relatório de Solicitações de Assiatência Técnica',
+        // ]);
+
         $pdf = Pdf::loadView('order.orders_dompdf', [
             'orders' => $orders,
             'title' => $request->title ?? 'Relatório de Solicitações de Assiatência Técnica',
-            ])->setPaper('A4', 'portrait');
+        ])->setPaper('A4', 'portrait');
+        
+
         return $pdf->stream('Solicitações de Assiatência Técnica.pdf');
     }
 
