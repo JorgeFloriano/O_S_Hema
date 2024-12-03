@@ -15,6 +15,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Contracts\Encryption\DecryptException;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Webklex\PDFMerger\Facades\PDFMergerFacade as PDFMerger;
 
 class OrderController extends Controller
 {
@@ -442,22 +443,102 @@ class OrderController extends Controller
                 return redirect()->back()->with('message', 'Não é possível gerar um PDF para uma ordem de serviço em andamento.');
             }
 
-            // Null values will be replaced by - - : - - and the time will be formatted without seconds
-            $order->notes_time_format();
+            session()->forget('order_count_client_ids');
+            session()->forget('order_client_ids');
         }
 
-        // return view('order.orders_dompdf', [
-        //     'orders' => $orders,
-        //     'title' => $request->title ?? 'Relatório de Solicitações de Assiatência Técnica',
-        // ]);
+        // Delete all pdf files-----------------------------------------------------------------------
+        $files = glob(public_path('storage/*.pdf'));
+        foreach ($files as $file) {
+            unlink($file);
+        }
 
-        $pdf = Pdf::loadView('order.orders_dompdf', [
+
+        // Group the orders by client---------------------------------------------------------------
+        $ordersByClient = $orders->groupBy('client_id');
+
+        $i = 0;
+        $order_client_ids = [];
+        session()->put('order_count_client_ids', 0);
+        session()->put('page', 1);
+
+        // Generate the PDF for each client-----------------------------------------------------------
+        foreach ($ordersByClient as $key => $orders) {
+            $order_client_ids[$i] = [];
+            foreach ($orders as $order) {
+                $order_client_ids[$i][] = $order->id;
+            }
+            $i++;
+        }
+
+        // Generate front page-----------------------------------------------------------------------
+        $pdf = Pdf::loadView('order.report_parts.front', [
             'orders' => $orders,
-            'title' => $request->title ?? 'Relatório de Solicitações de Assiatência Técnica',
+            'title' => $request->title ?? 'Relatório de Ordem de serviço',
         ])->setPaper('A4', 'portrait');
-        
 
-        return $pdf->stream('Solicitações de Assiatência Técnica.pdf');
+        $pdf->save('storage/00_front_'.date('d_m_Y').'.pdf');
+
+        session()->put('order_count_client_ids', session('order_count_client_ids') + 1);
+        
+        session()->put('order_client_ids', $order_client_ids);
+        
+        // for ($i=0; $i < 600; $i++) { 
+        //     $pdf->save('storage/my_600_file'.$i.'.pdf');
+        // }
+
+        return redirect()->route('orders.generate_report', ['msg' => 'Gerando relatório, aguarde...'])->with('message', 'Gerando relatório, aguarde....');
+    }
+
+    // Function to loop for each client and generate the report
+    public function generate_report($msg) {
+
+        if ($msg == 'Back' || $msg == 'Gerando relatório, aguarde...') {
+            if (session()->has('order_client_ids')) {
+                if (session('order_count_client_ids') < count(session('order_client_ids'))) {
+
+                    // Get the orders for the current client
+                    $orders = Order::whereIn('id', session('order_client_ids')[session('order_count_client_ids')])->get();
+
+                    // Generate the PDF-----------------------------------------------------------------------
+                    $pdf = Pdf::loadView('order.report_parts.client', [
+                        'orders' => $orders,
+                        'page' => session('page'),
+                    ])->setPaper('A4', 'portrait');
+
+                    // Zero on left for the file name
+                    $zero = '0';
+                    if ($zero.session('order_count_client_ids') < 10) {
+                        $zero = '0';
+                    } else {
+                        $zero = '';
+                    }
+
+                    $pdf->save('storage/'.$zero.session('order_count_client_ids').'_'.$orders->first()->client->name.'_'.date('d_m_Y').'.pdf');
+
+                    session()->put('order_count_client_ids', session('order_count_client_ids') + 1);
+
+                    return view('order.generate_report')->with('message', 'Gerando relatório, aguarde...');
+                }
+
+                $oMerger = PDFMerger::init();
+
+                $files = glob(public_path('storage/*.pdf'));
+                
+                foreach ($files as $file) {
+                    $oMerger->addPDF($file, 'all');
+                }
+
+                $oMerger->merge();
+                $oMerger->save('relatório.pdf');
+                return $oMerger->stream('relatório.pdf');
+            }
+            return redirect()->route('orders.index');
+        }
+
+        session()->forget('order_count_client_ids');
+        session()->forget('order_client_ids');
+        return redirect()->route('orders.index');
     }
 
     // Only main administrators or supervisors can change the on call technician

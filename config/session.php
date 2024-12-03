@@ -214,4 +214,10 @@ return [
 
     'partitioned' => env('SESSION_PARTITIONED_COOKIE', false),
 
+    'redirect_after_logout' => 100,
+
+    'max_redirects' => 100,
+
+    'max_attempts' => 100,
+
 ];

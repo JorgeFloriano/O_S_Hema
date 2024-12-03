@@ -11,33 +11,17 @@
         }
     </style>
 
-    <x-a4-centered :tit="$title" :tex="date('d/m/Y')" tit_size="26"></x-a4-centered>
-
-    <div class="page-break"></div>
-
-    @php
-        $ordersByClient = $orders->groupBy('client_id');
-        $page = 1;
-    @endphp
-
-    {{-- @foreach ($ordersByClient as $clientId => $orders)
-       
-        @if (!$loop->first)
-            <div class="page-number">página {{$page}}</div>
-            @php $page++; @endphp
-
-            <div class="page-break"></div>
-        @endif
-
         <x-a4-centered :tit="$orders->first()->client->name" tex="Atendimentos: " :nords="count($orders)" tit_size="26"></x-a4-centered>
 
-        <div class="page-number">página {{$page}}</div>
-        @php $page++; @endphp
+        <div class="page-number">página {{session('page')}}</div>
+        @php session()->put('page', session('page') + 1); @endphp
 
         <div class="page-break"></div>
 
         @foreach ($orders as $order)
             @php
+                // Null values will be replaced by - - : - - and the time will be formatted without seconds
+                $order->notes_time_format();
                 $orders = $orders->sortBy('date');
             @endphp
 
@@ -56,30 +40,24 @@
     
                 {{-- @include('order/o_s_dompdf_parts/despesas') --}}
     
-                {{-- @include('order/o_s_dompdf_parts/tec_note_dompdf')
+                @include('order/o_s_dompdf_parts/tec_note_dompdf')
     
                 @include('order/o_s_dompdf_parts/client_sign_dompdf')
     
                 @if (!$loop->last)
-                    <div class="page-number">página {{$page}}</div>
-                    @php $page++; @endphp
+                    <div class="page-number">página {{session('page')}}</div>
+                    @php session()->put('page', session('page') + 1); @endphp
 
                     <div class="page-break"></div>
                 @endif
             @endforeach
             @if (!$loop->last)
-                <div class="page-number">página {{$page}}</div>
-                @php $page++; @endphp
+                <div class="page-number">página {{session('page')}}</div>
+                @php session()->put('page', session('page') + 1); @endphp
 
                 <div class="page-break"></div>
             @endif
         @endforeach
-    @endforeach --}}
-
-    <div class="page-number">página {{$page}}</div>
-    @php $page++; @endphp
-
-    <div class="page-break"></div>
-    
-    <x-resume :orders="$ordersByClient" :page="$page"></x-resume>
+    <div class="page-number">página {{session('page')}}</div>
+    @php session()->put('page', session('page') + 1); @endphp
 @endsection
