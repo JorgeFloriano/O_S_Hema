@@ -16,6 +16,12 @@ class Adm extends Model
         return $this->belongsTo(User::class);
     }
 
+    function fileCountPages(string $path): int
+    {
+        $pdf = file_get_contents($path);
+        return preg_match_all("/\/Page\W/", $pdf, $dummy);
+    }
+
     protected $fillable = [
         'user_id',
         'main',
