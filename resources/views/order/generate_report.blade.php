@@ -10,12 +10,25 @@
     </head>
 
     <body>
+
+        @include('userbar')
+
         <div class="container">
             <div class="row mt-5">
                 <div class="col">
-                    <div class="alert alert-info" role="alert">
-                        Gerando Relatório, aguarde...
+                    <div id="header" class="my-2">
+                        <h2>
+                            Gerando Relatório!
+                        </h2>
+                        <hr>
                     </div>
+                   
+                    <div class="alert alert-info text-center" role="alert">
+                        <div>Carregando informações das Solicitações de Serviço, aguarde {{session('dot')}}</div>
+                        <br>  
+                        <div style="text-align: center">{{$percentage ?? ''}} %</div>
+                    </div>
+
                     @if ($errors->any())
                         <div class="alert alert-warning">
                             <ul>
@@ -25,17 +38,21 @@
                             </ul>
                         </div>
                     @endif
+
+                    <div style="display: none">
+                        <a id='continue' href="{{route('orders.generate_report', ['msg' => 'continue'])}}" class="btn btn-secondary">
+                            Continuar carregando...
+                        </a>
+                    </div>
+            
+                    <div>
+                        <a id='cancel' href="{{route('orders.index')}}" class="btn btn-secondary">
+                            Cancelar
+                        </a>
+                    </div>
                 </div>
             </div>
         </div>
-        <div style="display: none">
-            <a id='continue' href="{{route('orders.generate_report', ['msg' => 'Back'])}}" class="btn btn-secondary">
-                Continuar carregando...
-            </a>
-        </div>
-        @php
-            redirect()->route('orders.generate_report', ['msg' => 'Back']);
-        @endphp
     <script src="{{asset('assets/js/button_click.js')}}"></script>
     </body>
  </html>

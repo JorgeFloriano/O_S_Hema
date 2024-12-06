@@ -17,5 +17,6 @@
 
     <script src="{{asset('assets/boodstrap/bootstrap.bundle.min.js')}}"></script>
     <script src="{{asset('assets/js/functions.js')}}"></script>
+    
 </body>
 </html>

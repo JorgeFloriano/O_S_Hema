@@ -72,6 +72,7 @@
             .FirstInfoLine {
                 height: 22px;
                 width: 100%;
+                overflow: hidden;
                 overflow-wrap: break-word;
                 border-radius:6px 6px 0px 0px;
                 border-top: 1px solid black;
@@ -82,6 +83,7 @@
             .InfoLine {
                 height: 22px;
                 width: 100%;
+                overflow: hidden;
                 overflow-wrap: break-word;
                 border-top: 1px solid black;
                 border-left: 1px solid black;
@@ -91,6 +93,7 @@
             .LastInfoLine {
                 height: 23px;
                 width: 100%;
+                overflow: hidden;
                 overflow-wrap: break-word;
                 border: 1px solid black;
                 border-radius:0px 0px 6px 6px;

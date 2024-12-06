@@ -56,7 +56,9 @@ class OrderController extends Controller
     public function index()
     {
         // If user is not suprevisor or administrator, redirect to login
-        if (!$this->s && !$this->a) {return view('login');}
+        if (!$this->s && !$this->a) {
+            return view('login');
+        }
 
         $clients = Client::select('id', 'name')->orderBy('name')->get();
 
@@ -67,22 +69,22 @@ class OrderController extends Controller
 
         // get orders
         $orders = $this->os
-        ->select('id', 'order_type_id','client_id', 'tec_id','req_date', 'finished')
-        ->orderBy('id', 'desc')
-        ->get();
+            ->select('id', 'order_type_id', 'client_id', 'tec_id', 'req_date', 'finished')
+            ->orderBy('id', 'desc')
+            ->get();
 
         session()->put('ords', $orders);
 
         // create an array with the orders ids for generate the pdf
         $order_ids = $orders->pluck('id')->implode(',');
 
-        // Verify if all orders are finished to ability "Gerar pdf" button
+        // Verify if the list of orders is not empty and if all orders are finished to ability "Gerar pdf" button
         $finisheds = $orders->pluck('finished')->toArray();
-        if (in_array(0, $finisheds)) {
+        if (in_array(0, $finisheds) || count($finisheds) == 0) {
             $show_pdf_btn = 'disabled';
         }
 
-        return view('order.orders_list' , [
+        return view('order.orders_list', [
             'orders' => $orders,
             'order_ids' => $order_ids,
             'show_pdf_btn' => $show_pdf_btn ?? '',
@@ -101,10 +103,12 @@ class OrderController extends Controller
     // Show the form for filtering orders
     public function filter(FormFilterRequest  $request)
     {
-        
+
         // If user is not suprevisor or administrator, redirect to login
-        if (!$this->s && !$this->a) {return view('login');}
-        
+        if (!$this->s && !$this->a) {
+            return view('login');
+        }
+
         $request->validated();
 
         // create session variable wich contains 0 and all clients ids to validated in FormFilterRequest
@@ -114,7 +118,7 @@ class OrderController extends Controller
 
         // Return the view with the last finished selected option
         $fin_select = [];
-        for ($i = 0; $i < 3; $i++) {     
+        for ($i = 0; $i < 3; $i++) {
             $fin_select[$i] = '';
             if ($i == $request->finished) {
                 $fin_select[$i] = 'selected';
@@ -130,41 +134,41 @@ class OrderController extends Controller
         }
 
         $orders = $this->os
-        ->when($request->client, function ($query) use ($request) {
-            $query->where('client_id', $request->client);
-        })
-        ->when($request->date_start, function ($query) use ($request) {
-            if ($request->date_type == 'order_open_date') {
-                $query->where('req_date', '>=', $request->date_start);
-            } elseif ($request->date_type == 'last_note_date') {
-                $query->where(function ($query) use ($request) {
-                    $query->whereRaw("(
+            ->when($request->client, function ($query) use ($request) {
+                $query->where('client_id', $request->client);
+            })
+            ->when($request->date_start, function ($query) use ($request) {
+                if ($request->date_type == 'order_open_date') {
+                    $query->where('req_date', '>=', $request->date_start);
+                } elseif ($request->date_type == 'last_note_date') {
+                    $query->where(function ($query) use ($request) {
+                        $query->whereRaw("(
                         SELECT MAX(date)
                         FROM notes
                         WHERE notes.order_id = orders.id AND deleted_at IS NULL
                     ) >= ?", [$request->date_start]);
-                });
-            }
-        })
-        ->when($request->date_end, function ($query) use ($request) {
-            if ($request->date_type == 'order_open_date') {
-                $query->where('req_date', '<=', $request->date_end);
-            } elseif ($request->date_type == 'last_note_date') {
-                $query->where(function ($query) use ($request) {
-                    $query->whereRaw("(
+                    });
+                }
+            })
+            ->when($request->date_end, function ($query) use ($request) {
+                if ($request->date_type == 'order_open_date') {
+                    $query->where('req_date', '<=', $request->date_end);
+                } elseif ($request->date_type == 'last_note_date') {
+                    $query->where(function ($query) use ($request) {
+                        $query->whereRaw("(
                         SELECT MAX(date)
                         FROM notes
                         WHERE notes.order_id = orders.id AND deleted_at IS NULL
                     ) <= ?", [$request->date_end]);
-                });
-            }
-        })
-        ->when($request->finished != 2, function ($query) use ($request) {
-            $query->where('finished', $request->finished);
-        })
-        ->select('id', 'order_type_id','client_id', 'tec_id','req_date', 'finished')
-        ->orderBy('id', 'desc')
-        ->get();
+                    });
+                }
+            })
+            ->when($request->finished != 2, function ($query) use ($request) {
+                $query->where('finished', $request->finished);
+            })
+            ->select('id', 'order_type_id', 'client_id', 'tec_id', 'req_date', 'finished')
+            ->orderBy('id', 'desc')
+            ->get();
 
         // create an array with the orders ids for generate the pdf
         $order_ids = $orders->pluck('id')->implode(',');
@@ -173,15 +177,15 @@ class OrderController extends Controller
             $order_ids = 0;
         }
 
-        // Verify if all orders are finished to ability "Gerar pdf" button
+        // Verify if the list of orders is not empty and if all orders are finished to ability "Gerar pdf" button
         $finisheds = $orders->pluck('finished')->toArray();
-        if (in_array(0, $finisheds)) {
+        if (in_array(0, $finisheds) || count($finisheds) == 0) {
             $show_pdf_btn = 'disabled';
         }
 
         session()->put('ords', $orders);
 
-        return view('order.orders_list' , [
+        return view('order.orders_list', [
             'orders' => $orders,
             'ids' => $order_ids ?? 0,
             'show_pdf_btn' => $show_pdf_btn ?? '',
@@ -194,7 +198,7 @@ class OrderController extends Controller
             'date_e' => $request->date_end,
             'old_client' => $request->client ?? null,
             'old_finished' => $request->finished ?? null,
-            'fin_select' => $fin_select ?? ['','', ''],
+            'fin_select' => $fin_select ?? ['', '', ''],
             'order_open_select' => $order_open_select,
             'last_note_select' => $last_note_select
         ]);
@@ -204,17 +208,19 @@ class OrderController extends Controller
     public function create()
     {
         // If user is not administrator or on call technician, redirect to login
-        if (!$this->a && !$this->o) {return view('login');}
-        
+        if (!$this->a && !$this->o) {
+            return view('login');
+        }
+
         $clients = Client::select('id', 'name')->orderBy('name')->get();
 
         // Create session variable wich contains all order types ids to validated in FormOrderRequest
         $types = OrderType::all();
         session()->put('types_ids', $types->pluck('id')->toArray());
 
-       // Create session variable wich contains all clients ids to validated in FormOrderRequest
-       $cli_ids_array = Client::all()->pluck('id')->toArray();
-       session()->put('client_ids', $cli_ids_array);
+        // Create session variable wich contains all clients ids to validated in FormOrderRequest
+        $cli_ids_array = Client::all()->pluck('id')->toArray();
+        session()->put('client_ids', $cli_ids_array);
 
         return view('order.order_create', [
             'clients' => $clients,
@@ -228,7 +234,9 @@ class OrderController extends Controller
     {
 
         // If user is not administrator or on call technician, redirect to login
-        if (!$this->a && !$this->o) {return view('login');}
+        if (!$this->a && !$this->o) {
+            return view('login');
+        }
 
         $request->validated();
 
@@ -257,9 +265,9 @@ class OrderController extends Controller
             'req_time' => $request->req_time,
             'req_descr' => $request->req_descr,
         ]);
-        
+
         $msg = $created ? 'Ordem de serviço criada com sucesso.' : 'Erro ao criar ordem de serviço.';
-        $route = $this->o && !$this->a ? 'notes.index' : 'orders.index';     
+        $route = $this->o && !$this->a ? 'notes.index' : 'orders.index';
         return redirect()->route($route)->with('message', $msg);
     }
 
@@ -294,8 +302,8 @@ class OrderController extends Controller
         try {
             $order = $this->os->find(Crypt::decryptString($order));
         } catch (DecryptException $e) {
-                $this->logger->log('error', 'Decryption error (order/edit).');
-                return redirect()->back()->with('error', 'Erro de desencriptação (order/edit).');
+            $this->logger->log('error', 'Decryption error (order/edit).');
+            return redirect()->back()->with('error', 'Erro de desencriptação (order/edit).');
             die;
         }
 
@@ -307,9 +315,9 @@ class OrderController extends Controller
         $types = OrderType::all();
         session()->put('types_ids', $types->pluck('id')->toArray());
 
-       // Create session variable wich contains all clients ids to validated in FormOrderRequest
-       $cli_ids_array = $clients->pluck('id')->toArray();
-       session()->put('client_ids', $cli_ids_array);
+        // Create session variable wich contains all clients ids to validated in FormOrderRequest
+        $cli_ids_array = $clients->pluck('id')->toArray();
+        session()->put('client_ids', $cli_ids_array);
 
         $user = User::select('name')->find($order->user_id);
 
@@ -318,7 +326,7 @@ class OrderController extends Controller
 
         $disabled = $this->a ? '' : 'disabled';
         $title = $this->a ? 'Editar ' : 'Informações da ';
-        
+
         return view('order.order_edit', [
             'order' => $order,
             'types' => $types,
@@ -333,11 +341,15 @@ class OrderController extends Controller
     // Only administrators can update orders.
     public function update(FormOrderRequest $request, string $id)
     {
-        if (!$this->a) {return view('login');}
+        if (!$this->a) {
+            return view('login');
+        }
 
         $request->validated();
 
-        if ($request->client_id == '0') {return redirect()->back()->with('message', 'Selecione um cliente para prosseguir.');}
+        if ($request->client_id == '0') {
+            return redirect()->back()->with('message', 'Selecione um cliente para prosseguir.');
+        }
 
         $updated = $this->os->where('id', $id)->update($request->except(['_token', '_method', 'adm_id', 'tec_id']));
 
@@ -352,10 +364,12 @@ class OrderController extends Controller
     // Only administrators can delete orders
     public function destroy(string $id)
     {
-        if (!$this->a) {return view('login');}
+        if (!$this->a) {
+            return view('login');
+        }
 
         $order = $this->os->find($id);
-        
+
         foreach ($order->notes as $key => $note) {
             foreach ($note->tecs as $key => $tec) {
                 $note_tec = NoteTec::where('note_id', $note->id)->where('tec_id', $tec->id)->first();
@@ -380,8 +394,8 @@ class OrderController extends Controller
         try {
             $order = $this->os->find(Crypt::decryptString($order));
         } catch (DecryptException $e) {
-                $this->logger->log('error', 'Decryption error (order/finish).');
-                return redirect()->back()->with('error', 'Erro de desencriptação (order/finish).');
+            $this->logger->log('error', 'Decryption error (order/finish).');
+            return redirect()->back()->with('error', 'Erro de desencriptação (order/finish).');
             die;
         }
 
@@ -411,8 +425,8 @@ class OrderController extends Controller
         try {
             $order = $this->os->find(Crypt::decryptString($order));
         } catch (DecryptException $e) {
-                $this->logger->log('error', 'Decryption error (order/show_pdf).');
-                return redirect()->back()->with('error', 'Erro de desencriptação (order/show_pdf).');
+            $this->logger->log('error', 'Decryption error (order/show_pdf).');
+            return redirect()->back()->with('error', 'Erro de desencriptação (order/show_pdf).');
             die;
         }
 
@@ -422,32 +436,42 @@ class OrderController extends Controller
         return view('order.order_pdf', ['order' => $order]);
     }
 
-    // Show the PDF for the selected orders
+    // Starts the process of generating the report (generate front page)----------------------------------------------------------------------
     public function orders_pdf(Request $request)
     {
         if (!$this->a) {
+            $this->logger->log('error', 'Error, access denied (order/orders_pdf), user is not an administrator.');
             return view('login');
         }
 
         if ($request->ids == 0 || $request->ids == '0') {
-            return redirect()->back()->with('message', 'Nenhum registro selecionado para gerar o PDF.');
+            $this->logger->log('error', 'Error, access denied (order/orders_pdf), no orders selected.');
+            return redirect()->route('orders.index')->withErrors('Nenhum registro selecionado para gerar o relatório!');
         }
 
         // Orders will be ordered by client name
         $orders = Order::whereIn('id', explode(',', $request->ids))->with('client')->get();
-        $orders = $orders->sortBy('client.name');
-            
-        foreach ($orders as $order) {
-            
-            if (!$order->finished) {
-                return redirect()->back()->with('message', 'Não é possível gerar um PDF para uma ordem de serviço em andamento.');
-            }
 
-            session()->forget('order_count_client_ids');
-            session()->forget('order_client_ids');
+        if ($orders->isEmpty() || !$orders) {
+            $this->logger->log('error', 'Error (order/orders_pdf), error requesting order data.');
+            return redirect()->route('orders.index')->withErrors('Erro ao requisar os dados das ordens de serviço!');
         }
 
-        // Delete all pdf files-----------------------------------------------------------------------
+        $orders = $orders->sortBy('client.name');
+
+        // Clear session variables from the previous report-----------------------------------------------
+        session()->forget('order_count_client_ids');
+        session()->forget('order_client_ids');
+        session()->forget('page');
+
+        foreach ($orders as $order) {
+            if (!$order->finished) {
+                $this->logger->log('error', 'Error (order/orders_pdf), order is not finished.');
+                return redirect()->route('orders.index')->withErrors('Não é possível gerar um relatório com ordens de serviço não finalizadas!');
+            }
+        }
+
+        // Delete all pdf files in storage folder----------------------------------------------------
         $files = glob(public_path('storage/*.pdf'));
         foreach ($files as $file) {
             unlink($file);
@@ -457,107 +481,201 @@ class OrderController extends Controller
         // Group the orders by client---------------------------------------------------------------
         $ordersByClient = $orders->groupBy('client_id');
 
+        // Expected number of pages of the final report for comparison with the real number of pages---------------------
+        $pages = 1; // First page
+        $clients = 1; // First client
+
+        foreach ($ordersByClient as $orders) {
+            $pages++;
+            $clients++;
+
+            foreach ($orders as $order) {
+                $pages = $pages + count($order->notes);
+            }
+        }
+
+        $resume_pages = ceil($clients / 32);
+
+        session()->put('expected_pages', $pages + $resume_pages);
+
+        // Create an array with the orders ids for each client and the client names-----------------------------------------------
         $i = 0;
         $order_client_ids = [];
+        session()->put('dot', '');
         session()->put('order_count_client_ids', 0);
         session()->put('page', 1);
 
-        // Generate the PDF for each client-----------------------------------------------------------
         foreach ($ordersByClient as $key => $orders) {
-            $order_client_ids[$i] = [];
+            $order_client_ids[$i]['name'] = $orders->first()->client->name;
+            $order_client_ids[$i]['orders'] = [];
             foreach ($orders as $order) {
-                $order_client_ids[$i][] = $order->id;
+                $order_client_ids[$i]['orders'][] = $order->id;
             }
             $i++;
         }
 
-        // Generate front page-----------------------------------------------------------------------
+        session()->put('order_client_ids', $order_client_ids);
+
+        // Generate the report front page-----------------------------------------------------------------------
         $pdf = Pdf::loadView('order.report_parts.front', [
             'orders' => $orders,
             'title' => $request->title ?? 'Relatório de Ordem de serviço',
         ])->setPaper('A4', 'portrait');
 
-        $pdf->save('storage/00_front_'.date('d_m_Y').'.pdf');
+        $front_page = $pdf->save('storage/00_front_' . date('d_m_Y') . '.pdf');
 
-        session()->put('order_count_client_ids', session('order_count_client_ids') + 1);
-        
-        session()->put('order_client_ids', $order_client_ids);
-        
-        // for ($i=0; $i < 600; $i++) { 
-        //     $pdf->save('storage/my_600_file'.$i.'.pdf');
-        // }
+        if (!$front_page) {
+            $this->logger->log('error', 'Error (order/orders_pdf), error generating front page.');
+            return redirect()->route('orders.index')->withErrors('Erro ao gerar capa do relatório !');
+        }
 
-        return redirect()->route('orders.generate_report', ['msg' => 'Gerando relatório, aguarde...'])->with('message', 'Gerando relatório, aguarde....');
+        // Call the function to loop for each client and continue the report creation (pages and resume)----------------------------------
+        return redirect()->route('orders.generate_report', ['msg' => 'continue']);
     }
 
-    // Function to loop for each client and generate the report
-    public function generate_report($msg) {
+    // Function to loop for each client continuing the report (pages and resume)--------------------------------------------------
+    public function generate_report($msg)
+    {
 
-        if ($msg == 'Back' || $msg == 'Gerando relatório, aguarde...') {
-            if (session()->has('order_client_ids')) {
+        if ($msg == 'continue') {
+            if (session()->has('order_client_ids') || session()->has('order_count_client_ids')) {
                 if (session('order_count_client_ids') < count(session('order_client_ids'))) {
 
                     // Get the orders for the current client
-                    $orders = Order::whereIn('id', session('order_client_ids')[session('order_count_client_ids')])->get();
+                    $orders = Order::whereIn('id', session('order_client_ids')[session('order_count_client_ids')]['orders'])->get();
 
-                    // Generate the PDF-----------------------------------------------------------------------
+                    if ($orders->isEmpty() || !$orders) {
+                        $this->logger->log('error', 'Error (order/generate_report), error requesting order data.');
+                        return redirect()->route('orders.index')->withErrors('Erro ao requisar os dados das ordens de serviço do cliente ' . session('order_client_ids')[session('order_count_client_ids')]['name'] . '!');
+                    }
+
+                    // Client id index to increment
+                    session()->put('order_count_client_ids', session('order_count_client_ids') + 1);
+
+                    // Generate the PDF for the orders of the current client-----------------------------------------------------------------------
                     $pdf = Pdf::loadView('order.report_parts.client', [
                         'orders' => $orders,
-                        'page' => session('page'),
                     ])->setPaper('A4', 'portrait');
+
+                    if (!$pdf) {
+                        $this->logger->log('error', 'Error (order/generate_report), error generating '.$orders->first()->client->name.' client pages.');
+                        return redirect()->route('orders.index')->withErrors('Erro ao gerar a paginas do cliente ' . $orders->first()->client->name . '!');
+                    }
 
                     // Zero on left for the file name
                     $zero = '0';
-                    if ($zero.session('order_count_client_ids') < 10) {
+                    if ($zero . session('order_count_client_ids') < 10) {
                         $zero = '0';
                     } else {
                         $zero = '';
                     }
 
-                    $pdf->save('storage/'.$zero.session('order_count_client_ids').'_'.$orders->first()->client->name.'_'.date('d_m_Y').'.pdf');
+                    $percentage = intdiv((session('order_count_client_ids') * 100), count(session('order_client_ids')));
 
-                    session()->put('order_count_client_ids', session('order_count_client_ids') + 1);
+                    if (session('dot') == '') {session()->put('dot', ' .');}
+                    elseif (session('dot') == ' .') {session()->put('dot', ' . .');}
+                    elseif (session('dot') == ' . .') {session()->put('dot', ' . . .');}
+                    elseif (session('dot') == ' . . .') {session()->put('dot', '');}
 
-                    return view('order.generate_report')->with('message', 'Gerando relatório, aguarde...');
+                    // Saves current client orders with name organized numerically
+                    $save = $pdf->save('storage/' . $zero . session('order_count_client_ids') . '_' . $orders->first()->client->name . '_' . date('d_m_Y') . '.pdf');
+
+                    if (!$save) {
+                        $this->logger->log('error', 'Error (order/generate_report), error saving ' . $orders->first()->client->name . ' client pages.');
+                        return redirect()->route('orders.index')->withErrors('Erro ao salvar a paginas do cliente ' . $orders->first()->client->name . '!');
+                    }
+
+                    return view('order.generate_report', ['percentage' => $percentage])->with('message', 'Gerando relatório, aguarde...');
+                }
+
+                // Generate the PDF resume---------------------------------------------------------------------------------------
+                $pdf = Pdf::loadView('order.report_parts.resume')->setPaper('A4', 'portrait');
+
+                if (!$pdf) {
+                    $this->logger->log('error', 'Error (order/generate_report), error generating resume.');
+                    return redirect()->route('orders.index')->withErrors('Erro ao gerar o resumo do relatório !');
+                }
+
+                // Zero on left for the file name
+                $zero = '0';
+                if ($zero . session('order_count_client_ids') < 10) {
+                    $zero = '0';
+                } else {
+                    $zero = '';
+                }
+
+                // Number for resume file name
+                $number = session('order_count_client_ids') + 1;
+
+
+                $save = $pdf->save('storage/' . $zero . $number . '_resume_' . date('d_m_Y') . '.pdf');
+
+                if (!$save) {
+                    $this->logger->log('error', 'Error (order/generate_report), error saving resume.');
+                    return redirect()->route('orders.index')->withErrors('Erro ao salvar o resumo do relatório !');
                 }
 
                 $oMerger = PDFMerger::init();
 
                 $files = glob(public_path('storage/*.pdf'));
-                
+
+                if (!$files) {
+                    $this->logger->log('error', 'Error (order/generate_report), error grouping files.');
+                    return redirect()->route('orders.index')->withErrors('Erro ao agrupar os arquivos !');
+                }
+
                 foreach ($files as $file) {
                     $oMerger->addPDF($file, 'all');
                 }
 
                 $oMerger->merge();
                 $oMerger->save('relatório.pdf');
+
+                $file = public_path('relatório.pdf');
+
+                // Get the total number of pages of the "relatório.pdf"
+                $totalPages = $this->a->fileCountPages($file);
+
+                // If dont exists $totalPages, if $totalPages < 4, if $totalPages != $expected_pages or any session variable doesnt exists return error
+                if (!isset($totalPages) 
+                || $totalPages < 4 
+                || $totalPages != session('expected_pages')
+                || !session('order_count_client_ids')
+                || !session('order_client_ids')
+                || !session('page'))
+                {
+                    $this->logger->log('error', 'Error (order/generate_report), error finalizing report.');
+                    return redirect()->route('orders.index')->withErrors('Erro ao finalizar o relatório !');
+                }
+
                 return $oMerger->stream('relatório.pdf');
             }
-            return redirect()->route('orders.index');
+
+            return redirect()->route('orders.index')->withErrors('Erro sessão ao gerar o relatório !');
         }
 
-        session()->forget('order_count_client_ids');
-        session()->forget('order_client_ids');
-        return redirect()->route('orders.index');
+        return redirect()->route('orders.index')->withErrors('Erro de parâmetro ao gerar o relatório !');
     }
 
     // Only main administrators or supervisors can change the on call technician
     public function ord_tec_update(Request $request)
     {
-        if (!$this->s && !$this->m) {return view('login');}
+        if (!$this->s && !$this->m) {
+            return view('login');
+        }
 
         $ords = session('ords');
 
         foreach ($ords as  $ord) {
-            if ($request->input('ord_'.$ord->id) != null) {
-                $ord->tec_id = $request->input('ord_'.$ord->id);
+            if ($request->input('ord_' . $ord->id) != null) {
+                $ord->tec_id = $request->input('ord_' . $ord->id);
                 $ord = $ord->save();
                 if (!$ord) {
-                    return redirect()->back()->with('message', 'Erro ao selecionar técnico.'); 
+                    return redirect()->route('orders.index')->with('message', 'Erro ao selecionar técnico.');
                 }
             }
         }
 
-        return redirect()->back()->with('message', 'Técnico selecionado com sucesso.');
+        return redirect()->route('orders.index')->with('message', 'Técnico selecionado com sucesso.');
     }
 }
