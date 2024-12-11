@@ -11,7 +11,7 @@ use App\Http\Controllers\NoteTypeController;
 use App\Http\Controllers\DefectController;
 use App\Http\Controllers\CauseController;
 use App\Http\Controllers\SolutionController;
-
+use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
 
 Route::controller(LoginController::class)->group(function () {
@@ -76,6 +76,10 @@ Route::middleware(CheckSession::class)->group(function(){
     Route::get('/notes/{note}/edit', [NoteController::class, 'edit'])->name('notes.edit');
     Route::put('/notes/{note}', [NoteController::class, 'update'])->name('notes.update');
     Route::delete('/notes/{note}', [NoteController::class, 'destroy'])->name('notes.destroy');
+
+    Route::get('/foo', function () {
+        Artisan::call('storage:link');
+    });
 });
 
 

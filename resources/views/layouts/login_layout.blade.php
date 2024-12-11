@@ -8,7 +8,6 @@
     <link rel="stylesheet" href="{{ asset('assets/boodstrap/bootstrap.min.css')}}" type="text/css">
     <link rel="shortcut icon" href="{{asset('favicon.ico')}}">
     <style>
-
         body {
             background-image: linear-gradient(to left, #606d7f, #293a4e);
         }
