@@ -7,12 +7,32 @@
         <link rel="shortcut icon" href="{{asset('favicon.ico')}}">
 
         <style>
+            body {
+                background: rgb(241, 234, 234);
+            }
             .card {
                 margin-top: 20vh;
                 padding: 15px;
                 border-radius: 15px;
                 box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.746);
-                background: rgb(225, 223, 223)
+                background: rgb(225, 223, 223);
+            }
+
+            .progress-bar {
+                margin: 10px 0;
+                padding: 2px;
+                background-color: rgb(225, 223, 223);
+                overflow: hidden;
+                border-radius: 5px;
+                height: 30px;
+                width: 100%;
+                border: solid 1px rgb(165, 160, 160);
+            }
+
+            .loaded {
+                height: 100%;
+                border-radius: 2px 0 0 2px;
+                background: #198754;
             }
         </style>
         
@@ -36,7 +56,13 @@
                         </div>
                         <div class="my-3">
                             Carregando informações {{session('dot')}}<br>
-                            <h3 class="text-center mt-3 text-success"> {{$percentage ?? ''}} % </h3>
+
+                            <div class="text-center">{{$percentage ?? ''}} %</div>
+
+                            <div class="progress-bar">
+                                <div class="loaded" style="width: {{$percentage ?? ''}}%"></div>
+                            </div>
+                        
                             Por favor, aguarde!
                         </div>
                         @if ($errors->any())
@@ -62,6 +88,6 @@
                 </div>
             </div>
         </div>
-    {{-- <script src="{{asset('assets/js/button_click.js')}}"></script> --}}
+    <script src="{{asset('assets/js/button_click.js')}}"></script>
     </body>
  </html>

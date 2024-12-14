@@ -11,6 +11,10 @@
         }
     </style>
 
+        <div style="margin-top: 30px">
+            <img src="/opt/lampp/htdocs/Hema/public/assets/img/logo2_hema.png" width="10%" alt="logo hema">
+        </div>
+
         <x-a4-centered :tit="$orders->first()->client->name" tex="Atendimentos: " :nords="count($orders)" tit_size="26"></x-a4-centered>
 
         <div class="page-number">página {{session('page')}}</div>

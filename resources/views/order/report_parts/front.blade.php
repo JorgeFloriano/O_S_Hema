@@ -1,4 +1,4 @@
-@extends('layouts.orders_dompdf_layout')
+@extends('layouts.front_page_layout')
 
 @section('content')
 
@@ -10,6 +10,10 @@
         .clientSign {page-break-after: always;}
         }
     </style>
+
+    <div class="logo">
+        <img src="/opt/lampp/htdocs/Hema/public/assets/img/logo_hema.png" width="60%" alt="logo hema">
+    </div>
 
     <x-a4-centered :tit="$title" :tex="date('d/m/Y')" tit_size="26"></x-a4-centered>
 
