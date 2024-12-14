@@ -122,94 +122,62 @@
 
                         @csrf
                         <input type="hidden" name="_method" id="idNum" value="PUT">
-                        <table class="table table-striped">
-                            <thead class="table-dark">
-                                <tr>
-                                    <th>Nº</th>
-                                    <th>Cliente</th>
-                                    <th>Técnico</th>
-                                    <th>Data</th>
-                                    @if ($adm)
-                                        <th>Edit</th>
-                                        <th>Del.</th>
-                                    @else
-                                        <th>Ver</th>
-                                    @endif
-                                </tr>
-                            </thead>
-
-                            <tbody>
-                                @foreach ($orders as $order)
+                        <div class="table-responsive">
+                            <table class="table table-striped">
+                                <thead class="table-dark">
                                     <tr>
-                                        <td>{{number_format($order->id, 0, ',', '.')}}</td>
-                                        <td>{{$order->client->name ?? ''}}</td>
-                                        <td>
-                                            @if ($order->finished || (!$main && !$sup))
-                                                <input class="form-control" disabled id="ord_{{$order->id}}" value="{{$order->tec->id ?? 0}} - {{$order->tec->user->name ?? 'Indefinido'}}">
-                                            @else
-                                                <select onchange="formSubmit('form')" class="form-select" id="ord_{{$order->id}}" name="ord_{{$order->id}}" aria-label="Floating label select example">
-                                                    @if (!isset($order->tec->id))
-                                                        <option selected value="0">0 - Indefinido</option>
-                                                    @else
-                                                        <option  value="0">0 - Indefinido</option>
-                                                    @endif
-                                                    
-                                                    @foreach ($tecs as $tec)
-                                                        @if (isset($order->tec->id))
-                                                            @if ($order->tec->id === $tec->id)
-                                                                <option selected value="{{$tec->id}}">{{$tec->id}} - {{$tec->user->name}}</option>
-                                                            @endif
+                                        <th>Nº</th>
+                                        <th style="min-width: 150px">Cliente</th>
+                                        <th style="min-width: 150px">Técnico</th>
+                                        <th>Data</th>
+                                        @if ($adm)
+                                            <th>Edit</th>
+                                            <th>Del.</th>
+                                        @else
+                                            <th>Ver</th>
+                                        @endif
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    @foreach ($orders as $order)
+                                        <tr>
+                                            <td>{{number_format($order->id, 0, ',', '.')}}</td>
+                                            <td>{{$order->client->name ?? ''}}</td>
+                                            <td>
+                                                @if ($order->finished || (!$main && !$sup))
+                                                    <input class="form-control" disabled id="ord_{{$order->id}}" value="{{$order->tec->id ?? 0}} - {{$order->tec->user->name ?? 'Indefinido'}}">
+                                                @else
+                                                    <select onchange="formSubmit('form')" class="form-select" id="ord_{{$order->id}}" name="ord_{{$order->id}}" aria-label="Floating label select example">
+                                                        @if (!isset($order->tec->id))
+                                                            <option selected value="0">0 - Indefinido</option>
+                                                        @else
+                                                            <option  value="0">0 - Indefinido</option>
                                                         @endif
-
-                                                        @if (isset($order->tec->id))
-                                                            @if (($order->tec->id !== $tec->id))
+                            
+                                                        @foreach ($tecs as $tec)
+                                                            @if (isset($order->tec->id))
+                                                                @if ($order->tec->id === $tec->id)
+                                                                    <option selected value="{{$tec->id}}">{{$tec->id}} - {{$tec->user->name}}</option>
+                                                                @endif
+                                                            @endif
+                                                            @if (isset($order->tec->id))
+                                                                @if (($order->tec->id !== $tec->id))
+                                                                    <option value="{{$tec->id}}">{{$tec->id}} - {{$tec->user->name}}</option>
+                                                                @endif
+                                                            @else
                                                                 <option value="{{$tec->id}}">{{$tec->id}} - {{$tec->user->name}}</option>
                                                             @endif
-                                                        @else
-                                                            <option value="{{$tec->id}}">{{$tec->id}} - {{$tec->user->name}}</option>
-                                                        @endif
-                                                    @endforeach
-                                                </select>
-                                            @endif
-                                        </td>
-                                        <td>{{date('d/m/y',strtotime($order->req_date))}}</td>
-                                        @if ($order->finished)
-                                            <td>
-                                                <a href="{{route('orders.show_pdf', ['order' => Crypt::encryptString($order->id)])}}" class="btn btn-outline-danger btn-sm">
-                                                    <i class="fa fa-file-pdf-o"></i>
-                                                </a>
-                                            </td>
-
-                                            @if ($main)
-                                                <td>
-                                                    <a href="{{route('orders.show', ['order' => Crypt::encryptString($order->id)])}}" class="btn btn-danger btn-sm">
-                                                        <i class="fa fa-trash"></i>
-                                                    </a>
-                                                </td>
-                                            @else
-                                                @if ($adm)
-                                                    <td>
-                                                        <a class="btn btn-danger btn-sm disabled">
-                                                            <i class="fa fa-trash"></i>
-                                                        </a>
-                                                    </td>
+                                                        @endforeach
+                                                    </select>
                                                 @endif
-                                            @endif
-                                        @else
-                                            @if ($adm)
+                                            </td>
+                                            <td>{{date('d/m/y',strtotime($order->req_date))}}</td>
+                                            @if ($order->finished)
                                                 <td>
-                                                    <a href="{{route('orders.edit', ['order' => Crypt::encryptString($order->id)])}}" class="btn btn-primary btn-sm">
-                                                        <i class="fa fa-edit"></i>
+                                                    <a href="{{route('orders.show_pdf', ['order' => Crypt::encryptString($order->id)])}}" class="btn btn-outline-danger btn-sm">
+                                                        <i class="fa fa-file-pdf-o"></i>
                                                     </a>
                                                 </td>
-                                            @else
-                                                <td>
-                                                    <a href="{{route('orders.edit', ['order' => Crypt::encryptString($order->id)])}}" class="btn btn-primary btn-sm">
-                                                        <i class="fa fa-file-text"></i>
-                                                    </a>
-                                                </td>
-                                            @endif
-                                            @if ($order->notes->count() > 0)
                                                 @if ($main)
                                                     <td>
                                                         <a href="{{route('orders.show', ['order' => Crypt::encryptString($order->id)])}}" class="btn btn-danger btn-sm">
@@ -226,19 +194,50 @@
                                                     @endif
                                                 @endif
                                             @else
-                                                <td>
-                                                    @if ($adm)
-                                                        <a href="{{route('orders.show', ['order' => Crypt::encryptString($order->id)])}}" class="btn btn-danger btn-sm">
-                                                            <i class="fa fa-trash"></i>
+                                                @if ($adm)
+                                                    <td>
+                                                        <a href="{{route('orders.edit', ['order' => Crypt::encryptString($order->id)])}}" class="btn btn-primary btn-sm">
+                                                            <i class="fa fa-edit"></i>
                                                         </a>
+                                                    </td>
+                                                @else
+                                                    <td>
+                                                        <a href="{{route('orders.edit', ['order' => Crypt::encryptString($order->id)])}}" class="btn btn-primary btn-sm">
+                                                            <i class="fa fa-file-text"></i>
+                                                        </a>
+                                                    </td>
+                                                @endif
+                                                @if ($order->notes->count() > 0)
+                                                    @if ($main)
+                                                        <td>
+                                                            <a href="{{route('orders.show', ['order' => Crypt::encryptString($order->id)])}}" class="btn btn-danger btn-sm">
+                                                                <i class="fa fa-trash"></i>
+                                                            </a>
+                                                        </td>
+                                                    @else
+                                                        @if ($adm)
+                                                            <td>
+                                                                <a class="btn btn-danger btn-sm disabled">
+                                                                    <i class="fa fa-trash"></i>
+                                                                </a>
+                                                            </td>
+                                                        @endif
                                                     @endif
-                                                </td>
+                                                @else
+                                                    <td>
+                                                        @if ($adm)
+                                                            <a href="{{route('orders.show', ['order' => Crypt::encryptString($order->id)])}}" class="btn btn-danger btn-sm">
+                                                                <i class="fa fa-trash"></i>
+                                                            </a>
+                                                        @endif
+                                                    </td>
+                                                @endif
                                             @endif
-                                        @endif
-                                    </tr>
-                                @endforeach
-                            </tbody> 
-                        </table>
+                                        </tr>
+                                    @endforeach
+                                </tbody>
+                            </table>
+                        </div>
                     </form>
                 @endif
             </div>

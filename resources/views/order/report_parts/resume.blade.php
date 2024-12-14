@@ -10,7 +10,7 @@
         .clientSign {page-break-after: always;}
         }
     </style>
-
+    
     <x-resume :orders="session('order_client_ids')" :page="session('page')"></x-resume>
 
 @endsection

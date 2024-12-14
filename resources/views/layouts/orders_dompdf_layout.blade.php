@@ -221,9 +221,12 @@
             }
 
             .resume-H1 {
+                float: left;
                 text-align: center;
-                font-size: 27px;
-                margin: 25px;
+                font-weight: bold;
+                width: 600px;
+                padding-top: 40px;
+                font-size: 20px;
             }
 
             .resume-line {

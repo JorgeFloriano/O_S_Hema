@@ -17,12 +17,12 @@
             box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.746);
             border: none;
         }
+
         .card-img-top {
             background-color: rgb(35, 33, 33);
             border-radius:15px 15px 0 0;
             padding: 40px 15px;
         }
-
     </style>
     <title>Sistema de Gerenciamento Hema</title>
 </head>

@@ -494,7 +494,7 @@ class OrderController extends Controller
             }
         }
 
-        $resume_pages = ceil($clients / 32);
+        $resume_pages = ceil($clients / 30);
 
         session()->put('expected_pages', $pages + $resume_pages);
 
