@@ -37,7 +37,7 @@ Route::middleware(CheckSession::class)->group(function(){
     Route::get('/orders/{order}/reopen', [OrderController::class, 'reopen'])->name('orders.reopen');
     Route::get('/orders/{order}/show_pdf', [OrderController::class, 'show_pdf'])->name('orders.show_pdf');
     Route::get('/orders/{msg}/generate_report', [OrderController::class, 'generate_report'])->name('orders.generate_report');
-
+    Route::get('/orders/{qtd}/add', [OrderController::class, 'add'])->name('orders.add');
 
     Route::resource('clients', ClientController::class);
     
@@ -80,6 +80,8 @@ Route::middleware(CheckSession::class)->group(function(){
     Route::get('/notes/{note}/edit', [NoteController::class, 'edit'])->name('notes.edit');
     Route::put('/notes/{note}', [NoteController::class, 'update'])->name('notes.update');
     Route::delete('/notes/{note}', [NoteController::class, 'destroy'])->name('notes.destroy');
+    Route::get('/notes/{qtd}/add', [NoteController::class, 'add'])->name('notes.add');
+
 });
 
 
