@@ -15,6 +15,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Contracts\Encryption\DecryptException;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Faker\Provider\Lorem;
 use Webklex\PDFMerger\Facades\PDFMergerFacade as PDFMerger;
 
 class OrderController extends Controller
@@ -463,6 +464,8 @@ class OrderController extends Controller
         session()->forget('order_count_client_ids');
         session()->forget('order_client_ids');
         session()->forget('page');
+        session()->forget('order_index');
+        session()->forget('expected_pages');
 
         foreach ($orders as $order) {
             if (!$order->finished) {
@@ -495,16 +498,18 @@ class OrderController extends Controller
         }
 
         $resume_pages = ceil($clients / 30);
-
         session()->put('expected_pages', $pages + $resume_pages);
 
-        // Create an array with the orders ids for each client and the client names-----------------------------------------------
-        $i = 0;
-        $order_client_ids = [];
+        // Create session variables to control the report process-----------------------------------------------
         session()->put('dot', '');
         session()->put('order_count_client_ids', 0);
         session()->put('page', 1);
+        session()->put('order_front', true);
+        session()->put('order_index', 0);
 
+        // Create an array with the orders ids for each client and the client names--------------------------------
+        $i = 0;
+        $order_client_ids = [];
         foreach ($ordersByClient as $key => $orders) {
             $order_client_ids[$i]['name'] = $orders->first()->client->name;
             $order_client_ids[$i]['orders'] = [];
@@ -513,16 +518,15 @@ class OrderController extends Controller
             }
             $i++;
         }
-
         session()->put('order_client_ids', $order_client_ids);
 
         // Generate the report front page-----------------------------------------------------------------------
         $pdf = Pdf::loadView('order.report_parts.front', [
             'orders' => $orders,
-            'title' => $request->title ?? 'Relatório de Ordem de serviço',
+            'title' => $request->title ?? 'Relatório de Solicitações de Assistência Técnica',
         ])->setPaper('A4', 'portrait');
 
-        $front_page = $pdf->save('storage/00_front_' . date('d_m_Y') . '.pdf');
+        $front_page = $pdf->save('storage/0000_front_' . date('d_m_Y') . '.pdf');
 
         if (!$front_page) {
             $this->logger->log('error', 'Error (order/orders_pdf), error generating front page.');
@@ -539,38 +543,57 @@ class OrderController extends Controller
 
         if ($msg == 'continue') {
             if (session()->has('order_client_ids') || session()->has('order_count_client_ids')) {
-                if (session('order_count_client_ids') < count(session('order_client_ids'))) {
+                if (session('order_count_client_ids') < count(session('order_client_ids'))) {     
 
                     // Get the orders for the current client
-                    $orders = Order::whereIn('id', session('order_client_ids')[session('order_count_client_ids')]['orders'])->get();
 
-                    if ($orders->isEmpty() || !$orders) {
-                        $this->logger->log('error', 'Error (order/generate_report), error requesting order data.');
-                        return redirect()->route('orders.index')->withErrors('Erro ao requisar os dados das ordens de serviço do cliente ' . session('order_client_ids')[session('order_count_client_ids')]['name'] . '!');
-                    }
+                    $order_ids = session('order_client_ids')[session('order_count_client_ids')]['orders'];
+                    $order_id = $order_ids[session('order_index')];
 
-                    // Client id index to increment
-                    session()->put('order_count_client_ids', session('order_count_client_ids') + 1);
+                    // Generate the front client page report
+                    if (session('order_front') == true) {
 
-                    // Generate the PDF for the orders of the current client-----------------------------------------------------------------------
-                    $pdf = Pdf::loadView('order.report_parts.client', [
-                        'orders' => $orders,
-                    ])->setPaper('A4', 'portrait');
+                        $client_name = session('order_client_ids')[session('order_count_client_ids')]['name'];
 
-                    if (!$pdf) {
-                        $this->logger->log('error', 'Error (order/generate_report), error generating '.$orders->first()->client->name.' client pages.');
-                        return redirect()->route('orders.index')->withErrors('Erro ao gerar a paginas do cliente ' . $orders->first()->client->name . '!');
+                        // Generate the PDF for the front page orders of the current client----------------------------------------------
+                        $pdf = Pdf::loadView('order.report_parts.client_front', [
+                            'client_name' => $client_name,
+                            'count_orders' => count($order_ids)
+                        ])->setPaper('A4', 'portrait');
+
+                        session()->put('order_front', false);
+
+                        if (!$pdf) {
+                            $this->logger->log('error', 'Error (order/generate_report), error to generate front page of client '.$$client_name.'.');
+                            return redirect()->route('orders.index')->withErrors('Erro ao gerar capa do relatório do cliente ' . $$client_name . '!');
+                        }
+                    } else {
+                        // Generate the PDF for the order of the current client-----------------------------------------------------------------------
+                        $order = Order::find($order_id);
+
+                        $pdf = Pdf::loadView('order.report_parts.client', [
+                            'order' => $order,
+                        ])->setPaper('A4', 'portrait');
+
+                        if (!$pdf) {
+                            $this->logger->log('error', 'Error (order/generate_report), error generating order number '.$order_id.'.');
+                            return redirect()->route('orders.index')->withErrors('Erro ao gerar ordem número ' . $order_id . '!');
+                        }
+
+                        session()->put('order_index', session('order_index') + 1);
                     }
 
                     // Zero on left for the file name
-                    $zero = '0';
-                    if ($zero . session('order_count_client_ids') < 10) {
+                    $zero = '';
+                    if (session('page') < 10) {
+                        $zero = '000';
+                    } elseif (session('page') < 100) {
+                        $zero = '00';
+                    } elseif (session('page') < 1000) {
                         $zero = '0';
-                    } else {
-                        $zero = '';
                     }
 
-                    $percentage = intdiv((session('order_count_client_ids') * 100), count(session('order_client_ids')));
+                    $percentage = intdiv((session('page') * 100), session('expected_pages'));
 
                     if (session('dot') == '') {session()->put('dot', ' .');}
                     elseif (session('dot') == ' .') {session()->put('dot', ' . .');}
@@ -578,11 +601,17 @@ class OrderController extends Controller
                     elseif (session('dot') == ' . . .') {session()->put('dot', '');}
 
                     // Saves current client orders with name organized numerically
-                    $save = $pdf->save('storage/' . $zero . session('order_count_client_ids') . '_' . $orders->first()->client->name . '_' . date('d_m_Y') . '.pdf');
+                    $save = $pdf->save('storage/' . $zero . session('page') . '_' . $order_id . '_' . date('d_m_Y') . '.pdf');
 
                     if (!$save) {
-                        $this->logger->log('error', 'Error (order/generate_report), error saving ' . $orders->first()->client->name . ' client pages.');
-                        return redirect()->route('orders.index')->withErrors('Erro ao salvar a paginas do cliente ' . $orders->first()->client->name . '!');
+                        $this->logger->log('error', 'Error (order/generate_report), error saving order number ' . $order_id . '.');
+                        return redirect()->route('orders.index')->withErrors('Erro ao salvar a ordem número ' . $order_id . '!');
+                    }
+
+                    if (session('order_index') >= count($order_ids)) {
+                        session()->put('order_count_client_ids', session('order_count_client_ids') + 1);
+                        session()->put('order_index', 0);
+                        session()->put('order_front', true);
                     }
 
                     return view('order.generate_report', ['percentage' => $percentage])->with('message', 'Gerando relatório, aguarde...');
@@ -596,19 +625,19 @@ class OrderController extends Controller
                     return redirect()->route('orders.index')->withErrors('Erro ao gerar o resumo do relatório !');
                 }
 
-                // Zero on left for the file name
-                $zero = '0';
-                if ($zero . session('order_count_client_ids') < 10) {
-                    $zero = '0';
-                } else {
-                    $zero = '';
-                }
+                 // Zero on left for the file name
+                 $zero = '';
+                 if (session('page') < 10) {
+                     $zero = '000';
+                 } elseif (session('page') < 100) {
+                     $zero = '00';
+                 } elseif (session('page') < 1000) {
+                     $zero = '0';
+                 }
 
                 // Number for resume file name
-                $number = session('order_count_client_ids') + 1;
 
-
-                $save = $pdf->save('storage/' . $zero . $number . '_resume_' . date('d_m_Y') . '.pdf');
+                $save = $pdf->save('storage/' . $zero . session('page') . '_resume_' . date('d_m_Y') . '.pdf');
 
                 if (!$save) {
                     $this->logger->log('error', 'Error (order/generate_report), error saving resume.');
@@ -642,7 +671,9 @@ class OrderController extends Controller
                 || $totalPages != session('expected_pages')
                 || !session('order_count_client_ids')
                 || !session('order_client_ids')
-                || !session('page'))
+                || !session('page')
+                || !session('order_index'))
+                
                 {
                     $this->logger->log('error', 'Error (order/generate_report), error finalizing report.');
                     return redirect()->route('orders.index')->withErrors('Erro ao finalizar o relatório !');
@@ -677,5 +708,35 @@ class OrderController extends Controller
         }
 
         return redirect()->route('orders.index')->with('message', 'Técnico selecionado com sucesso.');
+    }
+
+    // Add orders for testing
+    public function add($qtd)
+    {
+
+        // If user is not administrator or on call technician, redirect to login
+        if (!$this->a && !$this->o) {
+            return view('login');
+        }
+
+        for ($i=0; $i < $qtd; $i++) { 
+            //Create new orders
+            $created = $this->os->create([
+                'client_id' => 1,
+                'order_type_id' => 1,
+                'sector' => 'Sector'.$i,
+                'req_name' => 'Solicitante'.$i,
+                'user_id' => auth()->user()->id,
+                'tec_id' => auth()->user()->tec()->first()->id,
+                'equipment' => 'Equipamento'.$i,
+                'req_date' => date('Y-m-d'),
+                'req_time' => date('H:i'),
+                'req_descr' => 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Pariatur aut sequi quaerat blanditiis est similique perspiciatis nihil cupiditate assumenda dignissimos sed iste fugit dicta consequuntur quae, explicabo voluptatem, laborum incidunt.'.$i
+            ]);
+        }
+
+        $msg = $created ? 'Ordes de serviço para testes criadas com sucesso.' : 'Erro ao criar ordes de serviço para testes.';
+        $route = $this->o && !$this->a ? 'notes.index' : 'orders.index';
+        return redirect()->route($route)->with('message', $msg);
     }
 }

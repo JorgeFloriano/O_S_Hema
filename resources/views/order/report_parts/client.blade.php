@@ -11,50 +11,30 @@
         }
     </style>
 
-        <div style="margin-top: 30px">
-            <img src="assets/img/logo2_hema.png" width="10%" alt="logo hema">
-        </div>
+        @php
+            // Null values will be replaced by - - : - - and the time will be formatted without seconds
+            $order->notes_time_format();
+        @endphp
 
-        <x-a4-centered :tit="$orders->first()->client->name" tex="Atendimentos: " :nords="count($orders)" tit_size="26"></x-a4-centered>
+        @foreach ($order->notes as $note)
+            @include('order/o_s_dompdf_parts/header_dompdf')
 
-        <div class="page-number">página {{session('page')}}</div>
-        @php session()->put('page', session('page') + 1); @endphp
+            @include('order/o_s_dompdf_parts/client_info_dompdf')
 
-        <div class="page-break"></div>
+            <div>
+                <strong>
+                    Intervenção {{ $loop->iteration }} de {{ count($order->notes) }} (data {{date('d/m/Y',strtotime($note->date))}})
+                </strong>
+            </div>
 
-        @foreach ($orders as $order)
-            @php
-                // Null values will be replaced by - - : - - and the time will be formatted without seconds
-                $order->notes_time_format();
-                $orders = $orders->sortBy('date');
-            @endphp
+            @include('order/o_s_dompdf_parts/note_info_dompdf')
 
-            @foreach ($order->notes as $note)
-                @include('order/o_s_dompdf_parts/header_dompdf')
-    
-                @include('order/o_s_dompdf_parts/client_info_dompdf')
-    
-                <div>
-                    <strong>
-                        Intervenção {{ $loop->iteration }} de {{ count($order->notes) }} (data {{date('d/m/Y',strtotime($note->date))}})
-                    </strong>
-                </div>
-    
-                @include('order/o_s_dompdf_parts/note_info_dompdf')
-    
-                {{-- @include('order/o_s_dompdf_parts/despesas') --}}
-    
-                @include('order/o_s_dompdf_parts/tec_note_dompdf')
-    
-                @include('order/o_s_dompdf_parts/client_sign_dompdf')
-    
-                @if (!$loop->last)
-                    <div class="page-number">página {{session('page')}}</div>
-                    @php session()->put('page', session('page') + 1); @endphp
+            {{-- @include('order/o_s_dompdf_parts/despesas') --}}
 
-                    <div class="page-break"></div>
-                @endif
-            @endforeach
+            @include('order/o_s_dompdf_parts/tec_note_dompdf')
+
+            @include('order/o_s_dompdf_parts/client_sign_dompdf')
+
             @if (!$loop->last)
                 <div class="page-number">página {{session('page')}}</div>
                 @php session()->put('page', session('page') + 1); @endphp

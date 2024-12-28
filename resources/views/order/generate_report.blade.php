@@ -50,12 +50,14 @@
                         </div>
                         <div class="text-center my-3">
                             <h2>
-                                Gerando Relatório de Solicitações de Serviço.
+                                Gerando Relatório de Solicitações de Assistência Técnica.
                             </h2>
                             <hr>
                         </div>
                         <div class="my-3">
                             Carregando informações {{session('dot')}}<br>
+                            Cliente: {{session('order_client_ids')[session('order_count_client_ids')]['name'] ?? 'Finalizando!'}}<br>
+                            SAT número {{session('order_client_ids')[session('order_count_client_ids')]['orders'][session('order_index')] ?? ''}}
 
                             <div class="text-center">{{$percentage ?? ''}} %</div>
 
