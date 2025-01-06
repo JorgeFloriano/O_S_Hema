@@ -11,11 +11,11 @@ use App\Models\OrderType;
 use App\Models\Tec;
 use App\Models\User;
 use App\Class\Logger;
+use App\Class\ReportHelpers;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Contracts\Encryption\DecryptException;
 use Barryvdh\DomPDF\Facade\Pdf;
-use Faker\Provider\Lorem;
 use Webklex\PDFMerger\Facades\PDFMergerFacade as PDFMerger;
 
 class OrderController extends Controller
@@ -457,7 +457,6 @@ class OrderController extends Controller
             $this->logger->log('error', 'Error (order/orders_pdf), error requesting order data.');
             return redirect()->route('orders.index')->withErrors('Erro ao requisar os dados das ordens de serviço!');
         }
-
         $orders = $orders->sortBy('client.name');
 
         // Clear session variables from the previous report-----------------------------------------------
@@ -484,7 +483,7 @@ class OrderController extends Controller
         // Group the orders by client---------------------------------------------------------------
         $ordersByClient = $orders->groupBy('client_id');
 
-        // Expected number of pages of the final report for comparison with the real number of pages---------------------
+        // Expected number of pages of the final report for comparison with the real number of pages------------
         $pages = 1; // First page
         $clients = 1; // First client
 
@@ -501,13 +500,12 @@ class OrderController extends Controller
         session()->put('expected_pages', $pages + $resume_pages);
 
         // Create session variables to control the report process-----------------------------------------------
-        session()->put('dot', '');
         session()->put('order_count_client_ids', 0);
         session()->put('page', 1);
         session()->put('order_front', true);
         session()->put('order_index', 0);
 
-        // Create an array with the orders ids for each client and the client names--------------------------------
+        // Create an array with the orders ids for each client and the client names------------------------------
         $i = 0;
         $order_client_ids = [];
         foreach ($ordersByClient as $key => $orders) {
@@ -533,20 +531,23 @@ class OrderController extends Controller
             return redirect()->route('orders.index')->withErrors('Erro ao gerar capa do relatório !');
         }
 
-        // Call the function to loop for each client and continue the report creation (pages and resume)----------------------------------
+        // Call the function to loop for each client and continue the report creation (pages and resume)---------
         return redirect()->route('orders.generate_report', ['msg' => 'continue']);
     }
 
-    // Function to loop for each client continuing the report (pages and resume)--------------------------------------------------
+    // Function to loop for each client continuing the report (pages and resume)----------------------------------   
     public function generate_report($msg)
     {
 
         if ($msg == 'continue') {
             if (session()->has('order_client_ids') || session()->has('order_count_client_ids')) {
+                
+                // Zero on left for the file name
+                $rep = new ReportHelpers;
+
                 if (session('order_count_client_ids') < count(session('order_client_ids'))) {     
 
                     // Get the orders for the current client
-
                     $order_ids = session('order_client_ids')[session('order_count_client_ids')]['orders'];
                     $order_id = $order_ids[session('order_index')];
 
@@ -583,25 +584,10 @@ class OrderController extends Controller
                         session()->put('order_index', session('order_index') + 1);
                     }
 
-                    // Zero on left for the file name
-                    $zero = '';
-                    if (session('page') < 10) {
-                        $zero = '000';
-                    } elseif (session('page') < 100) {
-                        $zero = '00';
-                    } elseif (session('page') < 1000) {
-                        $zero = '0';
-                    }
-
                     $percentage = intdiv((session('page') * 100), session('expected_pages'));
 
-                    if (session('dot') == '') {session()->put('dot', ' .');}
-                    elseif (session('dot') == ' .') {session()->put('dot', ' . .');}
-                    elseif (session('dot') == ' . .') {session()->put('dot', ' . . .');}
-                    elseif (session('dot') == ' . . .') {session()->put('dot', '');}
-
                     // Saves current client orders with name organized numerically
-                    $save = $pdf->save('storage/' . $zero . session('page') . '_' . $order_id . '_' . date('d_m_Y') . '.pdf');
+                    $save = $pdf->save('storage/' . $rep->leftZeros(session('page')) . session('page') . '_' . $order_id . '_' . date('d_m_Y') . '.pdf');
 
                     if (!$save) {
                         $this->logger->log('error', 'Error (order/generate_report), error saving order number ' . $order_id . '.');
@@ -625,19 +611,9 @@ class OrderController extends Controller
                     return redirect()->route('orders.index')->withErrors('Erro ao gerar o resumo do relatório !');
                 }
 
-                 // Zero on left for the file name
-                 $zero = '';
-                 if (session('page') < 10) {
-                     $zero = '000';
-                 } elseif (session('page') < 100) {
-                     $zero = '00';
-                 } elseif (session('page') < 1000) {
-                     $zero = '0';
-                 }
-
                 // Number for resume file name
 
-                $save = $pdf->save('storage/' . $zero . session('page') . '_resume_' . date('d_m_Y') . '.pdf');
+                $save = $pdf->save('storage/' . $rep->leftZeros(session('page')) . session('page') . '_resume_' . date('d_m_Y') . '.pdf');
 
                 if (!$save) {
                     $this->logger->log('error', 'Error (order/generate_report), error saving resume.');
@@ -671,8 +647,7 @@ class OrderController extends Controller
                 || $totalPages != session('expected_pages')
                 || !session('order_count_client_ids')
                 || !session('order_client_ids')
-                || !session('page')
-                || !session('order_index'))
+                || !session('page'))
                 
                 {
                     $this->logger->log('error', 'Error (order/generate_report), error finalizing report.');

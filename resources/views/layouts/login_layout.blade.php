@@ -14,7 +14,7 @@
         .card {
             /*padding: 15px;*/
             border-radius: 15px;
-            box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.746);
+            box-shadow: 5px 5px 15px rgba(0, 0, 0, 0.557);
             border: none;
         }
 

@@ -13,13 +13,16 @@
     a:hover, i:hover {
         color: rgb(129, 190, 208)
     }
+    #userbar {
+        padding: 0 10px;
+    }
 </style>
-<div class="container-fluid" id="userbar">
+<div id="userbar">
     <div class="row pe-1 mb-2 ico">
         <div class="col-4 py-2">
             <img src="{{asset('assets/img/logo_hema.png')}}" alt="logo hema" width="100px">
         </div>
-        <div class="col-6 pt-4" style="font-size: large">
+        <div class="col-6 pt-3" style="font-size: large">
             @if (session()->has('success'))
                 {{session()->get('success')}}
             @endif

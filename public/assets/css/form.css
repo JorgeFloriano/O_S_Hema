@@ -4,7 +4,7 @@
   --blue1: rgb(41, 50, 184);
   --blue2: rgb(105, 111, 196);
   --gray1: rgb(198, 194, 194);
-  --gray2: rgb(241, 234, 234);
+  --gray2: rgb(239, 242, 249);
   --inputBorder:1px solid #86b7fe;
   --focusBoxShadow: 0 0 0 .25rem rgba(13,110,253,.25);
 }
@@ -16,6 +16,11 @@ body, html {
 
 .container , .container-fluid {
   background-color: var(--gray2);
+  border-radius: 5px;
+  padding-top: 10px;
+  padding-bottom: 10px;
+  margin-top: 5px;
+  box-shadow: 0px 0px 14px 0px rgba(0, 0, 0, 0.346);
 }
 
 div#hForm {
@@ -141,6 +146,14 @@ table.med {
 
 table {
   font-size: 15px;
+}
+
+/*Hidden collum for smaller screens*/
+@media only screen and (max-width: 768px) {
+  #notes_list th:nth-child(3),
+  #notes_list tr td:nth-child(3) {
+    display: none;
+  }
 }
 
 .resp-table {

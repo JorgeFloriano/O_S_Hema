@@ -8,14 +8,14 @@
 
         <style>
             body {
-                background: rgb(241, 234, 234);
+                background: white;
             }
             .card {
                 margin-top: 20vh;
                 padding: 15px;
                 border-radius: 15px;
-                box-shadow: 5px 5px 5px rgba(0, 0, 0, 0.746);
-                background: rgb(225, 223, 223);
+                box-shadow: 0px 0px 14px 0px rgba(0, 0, 0, 0.346);
+                background: rgb(239, 242, 249);
             }
 
             .progress-bar {
@@ -55,7 +55,7 @@
                             <hr>
                         </div>
                         <div class="my-3">
-                            Carregando informações {{session('dot')}}<br>
+                            Carregando informações...<br>
                             Cliente: {{session('order_client_ids')[session('order_count_client_ids')]['name'] ?? 'Finalizando!'}}<br>
                             SAT número {{session('order_client_ids')[session('order_count_client_ids')]['orders'][session('order_index')] ?? ''}}
 

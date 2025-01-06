@@ -30,11 +30,12 @@
                         Nenhum registro encontrado !
                     </p>
                 @else
-                    <table class="table table-striped">
+                    <table class="table table-striped" id="notes_list">
                         <thead class="table-dark">
                             <tr>
                                 <th>O.S.</th>
                                 <th>Cliente</th>
+                                <th>Relato</th>
                                 <th>Data</th>
                                 <th>Exec.</th>
                                 <th>Encerr.</th>
@@ -46,6 +47,7 @@
                                 <tr>
                                     <td>{{number_format($order->id, 0, ',', '.')}}</td>
                                     <td>{{$order->client->name}}</td>
+                                    <td>{{mb_substr($order->req_descr, 0, 120, 'UTF-8')}}</td>
                                     <td>{{date('d/m/y',strtotime($order->req_date))}}</td>
 
                                     @if ($order->finished)
