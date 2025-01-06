@@ -80,7 +80,7 @@
                         </div>
 
                         <div class="col-lg-1 col-2">
-                            <button onclick="formSubmit('filter_form')" id="submitButton" type="submit" class="btn btn-secondary h-100 w-100">
+                            <button onclick="formSubmit('filter_form')" id="submitButton" type="submit" class="btn btn-secondary p-1 h-100 w-100">
                                 Filtrar
                             </button>
                         </div>
