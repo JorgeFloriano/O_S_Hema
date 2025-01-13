@@ -11,12 +11,12 @@
     <title>Sistema de Gerenciamento Hema</title>
 </head>
 <body>
-    
     @include('userbar')
     @yield('content')
 
     <script src="{{asset('assets/boodstrap/bootstrap.bundle.min.js')}}"></script>
     <script src="{{asset('assets/js/functions.js')}}"></script>
-    
+    {{-- @vite(['resources/js/alpine/start.js', 'resources/js/app.js']) --}}
+    <script src="{{asset('assets/js/start-BYHTzsLu.js')}}"></script>
 </body>
 </html>

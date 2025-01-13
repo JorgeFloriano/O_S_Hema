@@ -31,7 +31,7 @@
     @yield('content')
 
     <div class="text-center my-2 text-white">
-        <small>Created by Jorge Luis &copy; {{date('Y')}}</small>
+        <small>Created by Jorge Luis &copy; 2024</small>
     </div>
 
     <script src="{{asset('assets/boodstrap/bootstrap.bundle.min.js')}}"></script>

@@ -33,8 +33,8 @@
                             <label for="name">Nome da Empresa</label>
                         </div>
 
-                        <div class="form-floating my-2">
-                            <input type="text" class="form-control" id="cnpj_cpf" name="cnpj_cpf" maxlength="20" placeholder="CNPJ" value="{{old('cnpj_cpf')}}">
+                        <div class="form-floating my-2" x-data>
+                            <input type="text" class="form-control" id="cnpj_cpf" name="cnpj_cpf" maxlength="20" placeholder="CNPJ" value="{{old('cnpj_cpf')}}" x-mask="99.999.999/9999-99">
                             <label for="cnpj_cpf">CNPJ</label>
                         </div>
  
@@ -58,8 +58,8 @@
                             <label for="email">E-mail</label>
                         </div>
 
-                        <div class="form-floating my-2">
-                            <input type="text" class="form-control" id="phone" name="phone" maxlength="20" placeholder="Telefone" required value="{{old('phone')}}">
+                        <div class="form-floating my-2" x-data>
+                            <input type="text" class="form-control" id="phone" name="phone" maxlength="20" placeholder="Telefone" required value="{{old('phone')}}" x-mask="(99) 99999-9999">
                             <label for="phone">Telefone</label>
                         </div>
                         

@@ -8,20 +8,20 @@
 
         <style>
             body {
-                background: white;
+                background: rgb(239, 242, 249);
             }
             .card {
                 margin-top: 20vh;
                 padding: 15px;
                 border-radius: 15px;
                 box-shadow: 0px 0px 14px 0px rgba(0, 0, 0, 0.346);
-                background: rgb(239, 242, 249);
+                background: white;
             }
 
             .progress-bar {
                 margin: 10px 0;
                 padding: 2px;
-                background-color: rgb(225, 223, 223);
+                background-color: white;
                 overflow: hidden;
                 border-radius: 5px;
                 height: 30px;
