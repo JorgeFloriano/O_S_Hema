@@ -11,11 +11,11 @@
 
 
 body, html {
-  background-color: white;
+  background-color: var(--gray2);
 }
 
 .container , .container-fluid {
-  background-color: var(--gray2);
+  background-color: white;
   border-radius: 5px;
   padding-top: 10px;
   padding-bottom: 10px;
