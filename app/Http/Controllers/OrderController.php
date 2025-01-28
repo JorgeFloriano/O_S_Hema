@@ -70,7 +70,7 @@ class OrderController extends Controller
 
         // get orders
         $orders = $this->os
-            ->select('id', 'order_type_id', 'client_id', 'tec_id', 'req_date', 'finished')
+            ->select('id', 'order_type_id', 'req_descr', 'client_id', 'tec_id', 'req_date', 'finished')
             ->orderBy('id', 'desc')
             ->get();
 
@@ -167,7 +167,7 @@ class OrderController extends Controller
             ->when($request->finished != 2, function ($query) use ($request) {
                 $query->where('finished', $request->finished);
             })
-            ->select('id', 'order_type_id', 'client_id', 'tec_id', 'req_date', 'finished')
+            ->select('id', 'order_type_id', 'req_descr', 'client_id', 'tec_id', 'req_date', 'finished')
             ->orderBy('id', 'desc')
             ->get();
 

@@ -123,12 +123,13 @@
                         @csrf
                         <input type="hidden" name="_method" id="idNum" value="PUT">
                         <div class="table-responsive">
-                            <table class="table table-striped">
+                            <table class="table table-striped table-hover" id="orders_list">
                                 <thead class="table-dark">
                                     <tr>
                                         <th>Nº</th>
                                         <th style="min-width: 150px">Cliente</th>
-                                        <th style="min-width: 150px">Técnico</th>
+                                        <th>Problema relatado</th>
+                                        <th style="min-width: 170px">Técnico</th>
                                         <th>Data</th>
                                         @if ($adm)
                                             <th>Edit</th>
@@ -143,6 +144,7 @@
                                         <tr>
                                             <td>{{number_format($order->id, 0, ',', '.')}}</td>
                                             <td>{{$order->client->name ?? ''}}</td>
+                                            <td>{{$order->req_descr}}</td>
                                             <td>
                                                 @if ($order->finished || (!$main && !$sup))
                                                     <input class="form-control" disabled id="ord_{{$order->id}}" value="{{$order->tec->id ?? 0}} - {{$order->tec->user->name ?? 'Indefinido'}}">
