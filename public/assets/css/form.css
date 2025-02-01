@@ -14,12 +14,13 @@ body, html {
   background-color: var(--gray2);
 }
 
-.container , .container-fluid {
+.box {
+  margin-top: 20px;
+  margin-bottom: 20px;
   background-color: white;
   border-radius: 5px;
-  padding-top: 10px;
   padding-bottom: 10px;
-  margin-top: 5px;
+  padding-top: 10px;
   box-shadow: 0px 0px 14px 0px rgba(0, 0, 0, 0.346);
 }
 
@@ -259,8 +260,3 @@ div.signature {
   margin:auto;
   text-align: center;
 }
-
-/* hr {
-  margin-top: 7px;
-  margin-bottom: 0px;
-} */

@@ -5,7 +5,7 @@
 @php
     use Illuminate\Support\Facades\Crypt;
 @endphp
-     <div class="container">
+     <div class="container box">
         <div class="row">
             <div class="col">
                 @if (session()->has('message'))

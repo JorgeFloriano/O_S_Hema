@@ -2,7 +2,7 @@
 
 @section('content')
     
-     <div class="container">
+     <div class="container box">
         <div class="row">
             <div class="col">
                 @if (session()->has('message'))
