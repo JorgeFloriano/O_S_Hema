@@ -41,7 +41,7 @@
 
     <body>
 
-        <div class="container">
+        <div class="container box">
             <div class="row">
                 <div class="col-md-8 offset-md-2 col-sm-10 offset-sm-1">
                     <div class="card">

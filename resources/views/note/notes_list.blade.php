@@ -5,16 +5,15 @@
 @php
     use Illuminate\Support\Facades\Crypt;
 @endphp
-     <div class="container">
+     <div class="container box">
         <div class="row">
-
-            @if (session()->has('message'))
-                <div class="alert alert-info" role="alert">
-                    {{session()->get('message')}}
-                </div>
-            @endif
-
             <div class="col">
+                @if (session()->has('message'))
+                    <div class="alert alert-info" role="alert">
+                        {{session()->get('message')}}
+                    </div>
+                @endif
+
                 <div id="header" class="my-2">
                     <h2>Programação</h2>
                 </div>

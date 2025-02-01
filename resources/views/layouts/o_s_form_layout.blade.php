@@ -11,7 +11,8 @@
     <title>Sistema de Gerenciamento Hema</title>
 </head>
 <body>
-    @include('userbar')
+
+    @include('navbar')
     @yield('content')
 
     <script src="{{asset('assets/boodstrap/bootstrap.bundle.min.js')}}"></script>

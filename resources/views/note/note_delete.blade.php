@@ -5,7 +5,7 @@
 </head>
 
 <body id="body">
-    <div class="container">
+    <div class="container box">
         <div class="row mt-1">
             <div class="col-lg-6 offset-lg-3">
 
