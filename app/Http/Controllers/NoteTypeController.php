@@ -39,7 +39,7 @@ class NoteTypeController extends Controller
             $opt = 1;
             $msg = 'Desativados';
             $cond = 'Ativar';
-            $title = 'Mostrar Ativos';
+            $title = 'Ativos';
             $btn_color = 'btn-success';
             $route = 'note_types.restore';
         } else {
@@ -47,7 +47,7 @@ class NoteTypeController extends Controller
             $opt = 0;
             $msg = 'Ativos';
             $cond = 'Desativar';
-            $title = 'Mostrar Desativados';
+            $title = 'Desativados';
             $btn_color = 'btn-danger';
             $route = 'note_types.desativate';
         }
