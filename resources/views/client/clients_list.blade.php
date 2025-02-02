@@ -59,7 +59,7 @@
                         </tbody> 
                     </table>
                 @endif
-                <div>
+                <div class="d-flex justify-content-center">
                     {{$clients->links()}}
                 </div>
             </div>
