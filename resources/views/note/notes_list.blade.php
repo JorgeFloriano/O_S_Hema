@@ -29,63 +29,62 @@
                         Nenhum registro encontrado !
                     </p>
                 @else
-                    <table class="table table-striped table-hover" id="notes_list">
-                        <thead class="table-dark">
-                            <tr>
-                                <th>O.S.</th>
-                                <th>Cliente</th>
-                                <th>Problema relatado</th>
-                                <th>Data</th>
-                                <th>Exec.</th>
-                                <th>Encerr.</th>
-                            </tr>
-                        </thead>
-
-                        <tbody>
-                            @foreach ($orders as $order)
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover" id="notes_list">
+                            <thead class="table-dark">
                                 <tr>
-                                    <td>{{number_format($order->id, 0, ',', '.')}}</td>
-                                    <td>{{$order->client->name}}</td>
-                                    <td>{{$order->req_descr}}</td>
-                                    <td>{{date('d/m/y',strtotime($order->req_date))}}</td>
-
-                                    @if ($order->finished)
-                                        <td>
-                                            <a href="{{route('orders.show_pdf', ['order' => Crypt::encryptString($order->id)])}}" class="btn btn-outline-danger btn-sm">
-                                                <i class="fa fa-file-pdf-o"></i>
-                                            </a>
-                                        </td>
-                                        
-                                        <td>
-                                            <a class="btn btn-secondary btn-sm disabled">
-                                                <i class="fa fa-check-square-o"></i>
-                                            </a>
-                                        </td>
-                                    @else
-                                        <td>
-                                            <a href="{{route('notes.create', ['order' => Crypt::encryptString($order->id)])}}" class="btn btn-info btn-sm">
-                                                <i class="fa fa-edit"></i>
-                                            </a>
-                                        </td>
-
-                                        @if ($order->notes->count() > 0)
+                                    <th>O.S.</th>
+                                    <th>Cliente</th>
+                                    <th>Problema relatado</th>
+                                    <th>Data</th>
+                                    <th>Exec.</th>
+                                    <th>Encerr.</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($orders as $order)
+                                    <tr>
+                                        <td>{{number_format($order->id, 0, ',', '.')}}</td>
+                                        <td>{{$order->client->name}}</td>
+                                        <td>{{$order->req_descr}}</td>
+                                        <td>{{date('d/m/y',strtotime($order->req_date))}}</td>
+                                        @if ($order->finished)
                                             <td>
-                                                <a href="{{route('orders.finish', ['order' => Crypt::encryptString($order->id)])}}" class="btn btn-primary btn-sm">
-                                                    <i class="fa fa-check-square-o"></i>
+                                                <a href="{{route('orders.show_pdf', ['order' => Crypt::encryptString($order->id)])}}" class="btn btn-outline-danger btn-sm">
+                                                    <i class="fa fa-file-pdf-o"></i>
                                                 </a>
                                             </td>
-                                        @else
+                        
                                             <td>
                                                 <a class="btn btn-secondary btn-sm disabled">
                                                     <i class="fa fa-check-square-o"></i>
                                                 </a>
                                             </td>
+                                        @else
+                                            <td>
+                                                <a href="{{route('notes.create', ['order' => Crypt::encryptString($order->id)])}}" class="btn btn-info btn-sm">
+                                                    <i class="fa fa-edit"></i>
+                                                </a>
+                                            </td>
+                                            @if ($order->notes->count() > 0)
+                                                <td>
+                                                    <a href="{{route('orders.finish', ['order' => Crypt::encryptString($order->id)])}}" class="btn btn-primary btn-sm">
+                                                        <i class="fa fa-check-square-o"></i>
+                                                    </a>
+                                                </td>
+                                            @else
+                                                <td>
+                                                    <a class="btn btn-secondary btn-sm disabled">
+                                                        <i class="fa fa-check-square-o"></i>
+                                                    </a>
+                                                </td>
+                                            @endif
                                         @endif
-                                    @endif
-                                </tr>
-                            @endforeach
-                        </tbody> 
-                    </table>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
                 @endif
                 
                 <div>

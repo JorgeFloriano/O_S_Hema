@@ -39,7 +39,7 @@ class CauseController extends Controller
             $opt = 1;
             $msg = 'Desativados';
             $cond = 'Ativar';
-            $title = 'Mostrar Ativos';
+            $title = 'Ativos';
             $btn_color = 'btn-success';
             $route = 'causes.restore';
         } else {
@@ -47,7 +47,7 @@ class CauseController extends Controller
             $opt = 0;
             $msg = 'Ativos';
             $cond = 'Desativar';
-            $title = 'Mostrar Desativados';
+            $title = 'Desativados';
             $btn_color = 'btn-danger';
             $route = 'causes.desativate';
         }
