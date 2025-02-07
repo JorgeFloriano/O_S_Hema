@@ -85,11 +85,13 @@ class OrderController extends Controller
             $show_pdf_btn = 'disabled';
         }
 
+        $tecs = Tec::all();
+
         return view('order.orders_list', [
             'orders' => $orders,
             'order_ids' => $order_ids,
             'show_pdf_btn' => $show_pdf_btn ?? '',
-            'tecs' => Tec::all(),
+            'tecs' => $tecs->sortBy('user.name'),
             'clients' => $clients,
             'main' => $this->m ?? null,
             'sup' => $this->s ?? null,
