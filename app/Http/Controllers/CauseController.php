@@ -62,8 +62,6 @@ class CauseController extends Controller
             'route' => $route
         ]);
     }
-
-
     public function create()
     {    
         if (session('main') !== auth()->user()->id) {
@@ -72,8 +70,6 @@ class CauseController extends Controller
 
         return view('codes.cause.cause_create');
     }
-
-   
     public function store(FormCodeRequest $request)
     {
         if (session('main') !== auth()->user()->id) {

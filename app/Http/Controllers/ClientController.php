@@ -27,9 +27,42 @@ class ClientController extends Controller
             return view('login');
         }
 
-        $clients = $this->client->select('id', 'name','unit')->orderBy('name')->simplePaginate(20);
+        return redirect()->route('clients.list' , 1);
+    }
 
-        return view('client.clients_list' , ['clients' => $clients]);
+    public function list(bool $opt)
+    {
+
+        if ($opt == 0) {
+            $clients = $this->client->select('id', 'name','unit')->orderBy('name')->onlyTrashed()->simplePaginate(20);
+            $opt = 1;
+            $icon = 'undo';
+            $msg = 'Desativados';
+            $cond = 'Reativar';
+            $title = 'Ativos';
+            $btn_color = 'success';
+            $route = 'clients.restore';
+        } else {
+            $clients = $this->client->select('id', 'name','unit')->orderBy('name')->simplePaginate(20);
+            $opt = 0;
+            $icon = 'archive';
+            $msg = 'Cadastrados';
+            $cond = 'Arquivar';
+            $title = 'Arquivados';
+            $btn_color = 'danger';
+            $route = 'clients.desativate';
+        }
+
+        return view('client.clients_list', [
+            'clients' => $clients,
+            'opt' => $opt,
+            'msg' => $msg,
+            'cond' => $cond,
+            'title' => $title,
+            'btn_color' => $btn_color,
+            'icon' => $icon,
+            'route' => $route
+        ]);
     }
 
     public function create()
@@ -133,5 +166,49 @@ class ClientController extends Controller
             return redirect()->route('clients.index')->with('message', 'Cadastro deletado com sucesso.');
         }
         return redirect()->route('clients.index')->with('message', 'Erro ao deletar cadastro.');
+    }
+
+    public function restore(string $id)
+    {
+        // If the user isn't main and isn't client, redirect to login page
+        if (!$this->m && session('cli') !== auth()->user()->id) {
+            return view('login');
+        }
+
+        try {
+            $id = Crypt::decryptString($id);
+        } catch (DecryptException $e) {
+            echo 'Erro de desencriptação.';
+            die;
+        }
+
+        $restored = $this->client->where('id', $id)->restore();
+
+        if ($restored) {
+            return redirect()->route('clients.list', 0)->with('message', 'Cadastro restaurado com sucesso.');
+        }
+        return redirect()->route('clients.list', 0)->with('message', 'Erro ao restaurar cadastro.');
+    }
+
+    public function desativate(string $id)
+    {
+        // If the user isn't main and isn't client, redirect to login page
+        if (!$this->m && session('cli') !== auth()->user()->id) {
+            return view('login');
+        }
+
+        try {
+            $id = Crypt::decryptString($id);
+        } catch (DecryptException $e) {
+            echo 'Erro de desencriptação.';
+            die;
+        }
+        
+        $deleted = $this->client->where('id', $id)->delete();
+
+        if ($deleted) {
+            return redirect()->route('clients.list', 1)->with('message', 'Cadastro desativado com sucesso.');
+        }
+        return redirect()->route('clients.list', 1)->with('message', 'Erro ao desativar cadastro.');
     }
 }

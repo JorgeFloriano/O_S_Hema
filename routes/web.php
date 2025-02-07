@@ -40,6 +40,10 @@ Route::middleware(CheckSession::class)->group(function(){
     Route::get('/orders/{qtd}/add', [OrderController::class, 'add'])->name('orders.add');
 
     Route::resource('clients', ClientController::class);
+    Route::get('clients/{opt}/list', [ClientController::class, 'list'])->name('clients.list');
+    Route::get('clients/{client}/restore', [ClientController::class, 'restore'])->name('clients.restore');
+    Route::get('clients/{client}/desativate', [ClientController::class, 'desativate'])->name('clients.desativate');
+
     
     Route::resource('order_types', OrderTypeController::class);
     Route::get('order_types/{opt}/list', [OrderTypeController::class, 'list'])->name('order_types.list');
