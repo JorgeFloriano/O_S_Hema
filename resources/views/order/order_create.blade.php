@@ -35,19 +35,17 @@
                         @csrf
 
                         <div class="form-floating my-2">
-                            <select class="form-select" id="client_id" name="client_id" aria-label="Floating label select example" required >
-                                <option value=""> Selecionar Cliente</option>
+                            <input list="clients" onchange="getOptId('client','client_id', 'client_option')" class="form-control" id="client" name="client" placeholder="Cliente" required>
+                            <label for="client">Cliente</label>
                         
+                            <datalist id="clients">
                                 @foreach ($clients as $client)
-                                    @if(old('client_id') == $client->id)
-                                        <option selected value={{$client->id}}>{{$client->name}}</option>
-                                    @else
-                                        <option value={{$client->id}}>{{$client->name}}</option>
-                                    @endif
+                                    <option class="client_option" value="{{$client->name.' - ['.$client->id.']'}}">
                                 @endforeach
-                            </select>
-                            <label for="client_id">Cliente</label>
+                            </datalist>
                         </div>
+
+                        <input type="hidden" name="client_id" id="client_id">
 
                         <x-selected-old :tab="$types" nam="order_type_id" nom="Serviço" des="description"/>
 
@@ -57,7 +55,7 @@
                         </div>
 
                         <div class="form-floating my-2">
-                            <input type="text" class="form-control" id="req_name" name="req_name" maxlength="20" placeholder="Solicitante do Solicitante" value={{old('req_name')}}>
+                            <input type="text" class="form-control" id="req_name" name="req_name" maxlength="20" placeholder="Solicitante do Solicitante" required value={{old('req_name')}}>
                             <label for="req_name">Nome do Solicitante</label>
                         </div>
 

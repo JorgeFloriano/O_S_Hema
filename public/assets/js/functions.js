@@ -115,3 +115,26 @@ function toggleClientFields() {
  // global delegated event listener
  document.addEventListener('input', onExpandableTextareaInput)
 
+ // input datalist client get only client id, not name, acept only datalist option values
+ function getOptId(inp_list, data_id, data_opt) {
+   const inp_list_val = document.getElementById(inp_list).value;
+   const regex = /\[(\d+)\]/;
+   const match = inp_list_val.match(regex);
+   const data_options = window.document.getElementsByClassName(data_opt);
+   var opt_valid = false;
+
+   for (let data_opt of data_options) {
+      if (data_opt.value == inp_list_val) {
+         opt_valid = true
+      }
+   }
+   
+   if (!opt_valid || !match) {
+      document.getElementById(data_id).value = ''
+      document.getElementById(inp_list).value = ''
+      return
+   }
+
+   const client_id = inp_list_val.match(/\[(\d+)\]/)[1];
+   document.getElementById(data_id).value = client_id
+ }
