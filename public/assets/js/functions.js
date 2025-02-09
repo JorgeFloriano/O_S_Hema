@@ -130,11 +130,51 @@ function toggleClientFields() {
    }
    
    if (!opt_valid || !match) {
-      document.getElementById(data_id).value = ''
+      document.getElementById(data_id).value = '0'
       document.getElementById(inp_list).value = ''
       return
    }
 
    const client_id = inp_list_val.match(/\[(\d+)\]/)[1];
    document.getElementById(data_id).value = client_id
+ }
+ 
+ // Add material select
+ function addMat(thisId) {
+   const select = document.getElementById(thisId);
+   const descr = select.options[select.selectedIndex].text;
+   const form = document.getElementById('form');
+   const div = document.createElement('div');
+   div.classList.add('input-group');
+   div.classList.add('my-2');
+
+   const referencePositionElement = document.getElementById('serv');
+   form.insertBefore(div, referencePositionElement);
+
+   const matDscr = document.createElement('span');
+   matDscr.id = 'matDscr';
+   matDscr.classList.add('input-group-text');
+   matDscr.innerHTML = descr;
+   matDscr.style.width = '70%';
+   div.appendChild(matDscr);
+
+   const matInput = document.createElement('input');
+   matInput.type = 'number';
+   matInput.name = 'matCampo';
+   matInput.id = 'matCampo';
+   matInput.classList.add('form-control');
+   matInput.placeholder = 'Material';
+   matInput.required = true;
+   matInput.autocomplete = 'off';
+   matInput.value = 1;
+   matInput.min = 0;
+   div.appendChild(matInput);
+
+   const matUnit = document.createElement('span');
+   matUnit.id = 'matUnit';
+   matUnit.classList.add('input-group-text');
+   matUnit.innerHTML = 'pç';
+   matUnit.style.width = '12%';
+   div.appendChild(matUnit);
+
  }

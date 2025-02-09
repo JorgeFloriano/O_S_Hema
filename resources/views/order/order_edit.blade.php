@@ -40,18 +40,7 @@
                             <label for="adm_id">Editada por</label>
                         </div>
 
-                        <div class="form-floating">
-                            <select class="form-select" {{$disabled}} id="client_id" name="client_id" aria-label="Floating label select example">
-                                @foreach ($clients as $client)
-                                    @if ($client->id == $order->client_id)
-                                        <option selected value="{{$client->id}}">{{$client->name}}</option>
-                                    @else
-                                        <option value="{{$client->id}}">{{$client->name}}</option>
-                                    @endif
-                                @endforeach
-                            </select>
-                            <label for="client_id">Cliente</label>
-                        </div>
+                        <x-datalist :objs="$clients" obj="client" tit="Cliente" :val="$order->client->name.' - ['.$order->client->id.']'"/>
 
                         <div class="form-floating my-2">
                             <select class="form-select" {{$disabled}} id="type_id" name="order_type_id" aria-label="Floating label select example">

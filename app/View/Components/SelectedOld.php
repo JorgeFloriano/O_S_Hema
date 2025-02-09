@@ -11,13 +11,15 @@ class SelectedOld extends Component
     public $table;
     public $name;
     public $nome;
-    public$description;
-    public function __construct($tab, $nam, $nom, $des)
+    public $description;
+    public $jsfunction;
+    public function __construct($tab, $nam, $nom, $des, $jsfunc='')
     {
         $this->table = $tab;
         $this->name = $nam;
         $this->nome = $nom;
         $this->description = $des;
+        $this->jsfunction = $jsfunc;
     }
 
     public function render(): View|Closure|string
