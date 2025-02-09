@@ -149,28 +149,8 @@
                                                 @if ($order->finished || (!$main && !$sup))
                                                     <input class="form-control" disabled id="ord_{{$order->id}}" value="{{$order->tec->id ?? 0}} - {{$order->tec->user->name ?? 'Indefinido'}}">
                                                 @else
-                                                    <select onchange="formSubmit('form')" class="form-select" id="ord_{{$order->id}}" name="ord_{{$order->id}}" aria-label="Floating label select example">
-                                                        @if (!isset($order->tec->id))
-                                                            <option selected value="0">0 - Indefinido</option>
-                                                        @else
-                                                            <option  value="0">0 - Indefinido</option>
-                                                        @endif
-                            
-                                                        @foreach ($tecs as $tec)
-                                                            @if (isset($order->tec->id))
-                                                                @if ($order->tec->id === $tec->id)
-                                                                    <option selected value="{{$tec->id}}">{{$tec->id}} - {{$tec->user->name}}</option>
-                                                                @endif
-                                                            @endif
-                                                            @if (isset($order->tec->id))
-                                                                @if (($order->tec->id !== $tec->id))
-                                                                    <option value="{{$tec->id}}">{{$tec->id}} - {{$tec->user->name}}</option>
-                                                                @endif
-                                                            @else
-                                                                <option value="{{$tec->id}}">{{$tec->id}} - {{$tec->user->name}}</option>
-                                                            @endif
-                                                        @endforeach
-                                                    </select>
+
+                                                    <x-unlabeled-dlist :objs="$tecs" obj="tec" place="Indefinido" val="{{$order->tec->user->name ?? ''}} - [{{$order->tec->id ?? ''}}]" ind="{{$order->id}}"/>
                                                 @endif
                                             </td>
                                             <td>{{date('d/m/y',strtotime($order->req_date))}}</td>

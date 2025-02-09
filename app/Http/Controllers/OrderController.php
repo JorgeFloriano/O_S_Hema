@@ -354,7 +354,7 @@ class OrderController extends Controller
             return redirect()->back()->with('message', 'Selecione um cliente para prosseguir.');
         }
 
-        $updated = $this->os->where('id', $id)->update($request->except(['_token', '_method', 'adm_id', 'tec_id']));
+        $updated = $this->os->where('id', $id)->update($request->except(['_token', '_method', 'adm_id', 'tec_id', 'client']));
 
         $os = Order::find($id);
         $os->user_id = auth()->user()->id;
@@ -675,7 +675,7 @@ class OrderController extends Controller
         $ords = session('ords');
 
         foreach ($ords as  $ord) {
-            if ($request->input('ord_' . $ord->id) != null) {
+            if ($request->input('ord_' . $ord->id) != null && $request->input('ord_' . $ord->id) != "") {
                 $ord->tec_id = $request->input('ord_' . $ord->id);
                 $ord = $ord->save();
                 if (!$ord) {

@@ -34,23 +34,12 @@
                     <form action="{{route('orders.store')}}" id="form" method="post" autocomplete="on">
                         @csrf
 
-                        <div class="form-floating my-2">
-                            <input list="clients" onchange="getOptId('client','client_id', 'client_option')" class="form-control" id="client" name="client" placeholder="Cliente" required>
-                            <label for="client">Cliente</label>
-                        
-                            <datalist id="clients">
-                                @foreach ($clients as $client)
-                                    <option class="client_option" value="{{$client->name.' - ['.$client->id.']'}}">
-                                @endforeach
-                            </datalist>
-                        </div>
-
-                        <input type="hidden" name="client_id" id="client_id">
+                        <x-datalist :objs="$clients" obj="client" tit="Cliente" :val="old('client')"/>
 
                         <x-selected-old :tab="$types" nam="order_type_id" nom="Serviço" des="description"/>
 
                         <div class="form-floating my-2">
-                            <input type="text" class="form-control" id="sector" name="sector" maxlength="30" placeholder="Setor" required value={{old('sector')}}>
+                            <input type="text" class="form-control" id="sector" name="sector" maxlength="30" placeholder="Setor" required value="{{old('sector')}}">
                             <label for="sector">Setor</label>
                         </div>
 
