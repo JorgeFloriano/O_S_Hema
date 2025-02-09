@@ -51,12 +51,24 @@
                             Usuários
                         </a>
                     </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{route('materials.index')}}">
+                            Materiais
+                        </a>
+                    </li>
                 @endif
 
                 @if (session('cli') == auth()->user()->id)
                     <li class="nav-item">
                         <a class="nav-link" href="{{route('clients.index')}}">
                             Clientes
+                        </a>
+                    </li>
+
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{route('materials.index')}}">
+                            Materiais
                         </a>
                     </li>
                 @endif

@@ -6,6 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Note extends Model
@@ -67,5 +68,9 @@ class Note extends Model
     public function solution(): BelongsTo
     {
         return $this->belongsTo(Solution::class)->withTrashed();
+    }
+    public function materials(): HasMany
+    {
+        return $this->hasMany(Material::class)->withPivot('quantity')->withPivot('id')->withTimestamps()->withTrashed()->orderBy('pivot_id');
     }
 }

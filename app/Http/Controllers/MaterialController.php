@@ -2,19 +2,19 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\FormCodeRequest;
-use App\Models\Defect;
+use App\Http\Requests\FormMaterialRequest;
+use App\Models\Material;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Contracts\Encryption\DecryptException;
 
-class DefectController extends Controller
+class MaterialController extends Controller
 {
    
-    public readonly Defect $defect;
+    public readonly Material $material;
 
     public function __construct()
     {
-        $this->defect = new Defect();
+        $this->material = new Material();
     }
     public function index()
     {
@@ -22,9 +22,9 @@ class DefectController extends Controller
             return view('login');
         }
 
-        session()->put('table', 'defects');
+        session()->put('table', 'materials');
 
-        return redirect()->route('defects.list' , 1);
+        return redirect()->route('materials.list' , 1);
     }
 
     public function list(bool $opt)
@@ -35,25 +35,25 @@ class DefectController extends Controller
         }
 
         if ($opt == 0) {
-            $defects = $this->defect->select('id', 'description')->onlyTrashed()->simplePaginate(20);
+            $materials = $this->material->select('id', 'description')->onlyTrashed()->simplePaginate(20);
             $opt = 1;
             $msg = 'Desativados';
             $cond = 'Ativar';
             $title = 'Ativos';
             $btn_color = 'btn-success';
-            $route = 'defects.restore';
+            $route = 'materials.restore';
         } else {
-            $defects = $this->defect->select('id', 'description')->simplePaginate(20);
+            $materials = $this->material->select('id', 'description')->simplePaginate(20);
             $opt = 0;
             $msg = 'Ativos';
             $cond = 'Desativar';
             $title = 'Desativados';
             $btn_color = 'btn-danger';
-            $route = 'defects.desativate';
+            $route = 'materials.desativate';
         }
 
-        return view('codes.defect.defects_list', [
-            'defects' => $defects,
+        return view('material.materials_list', [
+            'materials' => $materials,
             'opt' => $opt,
             'msg' => $msg,
             'cond' => $cond,
@@ -69,11 +69,11 @@ class DefectController extends Controller
             return view('login');
         }
 
-        return view('codes.defect.defect_create');
+        return view('material.material_create');
     }
 
    
-    public function store(FormCodeRequest $request)
+    public function store(FormMaterialRequest $request)
     {
         if (session('main') !== auth()->user()->id) {
             return view('login');
@@ -81,44 +81,45 @@ class DefectController extends Controller
 
         $request->validated();
 
-        $created = $this->defect->create([
+        $created = $this->material->create([
             'id' => $request->id,
             'description' => $request->description,
+            'unit' => $request->unit
         ]);
         if ($created) {
-            return redirect()->route('defects.index')->with('message', 'Código cadastrado com sucesso.');
+            return redirect()->route('materials.index')->with('message', 'Código cadastrado com sucesso.');
         }
-        return redirect()->route('defects.index')->with('message', 'Erro ao cadastrar código.');
+        return redirect()->route('materials.index')->with('message', 'Erro ao cadastrar código.');
     }
 
-    public function show(Defect $defect)
+    public function show(Material $material)
     {
         if (session('main') !== auth()->user()->id) {
             return view('login');
         }
         
-        return view('codes.defect.defect_delete', ['defect' => $defect]);
+        return view('material.material_delete', ['material' => $material]);
     }
 
     
-    public function edit($defect)
+    public function edit($material)
     {
         if (session('main') !== auth()->user()->id) {
             return view('login');
         }
 
         try {
-            $defect = $this->defect->find(Crypt::decryptString($defect));
+            $material = $this->material->find(Crypt::decryptString($material));
         } catch (DecryptException $e) {
             echo 'Erro de desencriptação.';
             die;
         }
 
-        return view('codes.defect.defect_edit', ['defect' => $defect]);
+        return view('material.material_edit', ['material' => $material]);
     }
 
     
-    public function update(FormCodeRequest $request, string $id)
+    public function update(FormMaterialRequest $request, string $id)
     {
         if (session('main') !== auth()->user()->id) {
             return view('login');
@@ -126,12 +127,12 @@ class DefectController extends Controller
 
         $request->validated();
         
-        $updated = $this->defect->where('id', $id)->update($request->except(['_token', '_method']));
+        $updated = $this->material->where('id', $id)->update($request->except(['_token', '_method']));
 
         if ($updated) {
-            return redirect()->route('defects.index')->with('message', 'Cadastro atualizado com sucesso.');
+            return redirect()->route('materials.index')->with('message', 'Cadastro atualizado com sucesso.');
         }
-        return redirect()->route('defects.index')->with('message', 'Erro ao atualizar cadastro.');
+        return redirect()->route('materials.index')->with('message', 'Erro ao atualizar cadastro.');
     }
 
     
@@ -141,12 +142,12 @@ class DefectController extends Controller
             return view('login');
         }
         
-        $deleted = $this->defect->where('id', $id)->delete();
+        $deleted = $this->material->where('id', $id)->delete();
 
         if ($deleted) {
-            return redirect()->route('defects.index')->with('message', 'Cadastro deletado com sucesso.');
+            return redirect()->route('materials.index')->with('message', 'Cadastro deletado com sucesso.');
         }
-        return redirect()->route('defects.index')->with('message', 'Erro ao deletar cadastro.');
+        return redirect()->route('materials.index')->with('message', 'Erro ao deletar cadastro.');
     }
 
     public function restore(string $id)
@@ -162,12 +163,12 @@ class DefectController extends Controller
             die;
         }
 
-        $restored = $this->defect->where('id', $id)->restore();
+        $restored = $this->material->where('id', $id)->restore();
 
         if ($restored) {
-            return redirect()->route('defects.list', 0)->with('message', 'Cadastro restaurado com sucesso.');
+            return redirect()->route('materials.list', 0)->with('message', 'Cadastro restaurado com sucesso.');
         }
-        return redirect()->route('defects.list', 0)->with('message', 'Erro ao restaurar cadastro.');
+        return redirect()->route('materials.list', 0)->with('message', 'Erro ao restaurar cadastro.');
     }
 
     public function desativate(string $id)
@@ -183,11 +184,11 @@ class DefectController extends Controller
             die;
         }
         
-        $deleted = $this->defect->where('id', $id)->delete();
+        $deleted = $this->material->where('id', $id)->delete();
 
         if ($deleted) {
-            return redirect()->route('defects.list', 1)->with('message', 'Cadastro desativado com sucesso.');
+            return redirect()->route('materials.list', 1)->with('message', 'Cadastro desativado com sucesso.');
         }
-        return redirect()->route('defects.list', 1)->with('message', 'Erro ao desativar cadastro.');
+        return redirect()->route('materials.list', 1)->with('message', 'Erro ao desativar cadastro.');
     }
 }
