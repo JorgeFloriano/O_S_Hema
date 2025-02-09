@@ -11,6 +11,7 @@ use App\Http\Controllers\NoteTypeController;
 use App\Http\Controllers\DefectController;
 use App\Http\Controllers\CauseController;
 use App\Http\Controllers\SolutionController;
+use App\Http\Controllers\MaterialController;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
 
@@ -69,6 +70,11 @@ Route::middleware(CheckSession::class)->group(function(){
     Route::get('solutions/{opt}/list', [SolutionController::class, 'list'])->name('solutions.list');
     Route::get('solutions/{solution}/restore', [SolutionController::class, 'restore'])->name('solutions.restore');
     Route::get('solutions/{solution}/desativate', [SolutionController::class, 'desativate'])->name('solutions.desativate');
+
+    Route::resource('materials', MaterialController::class);
+    Route::get('materials/{opt}/list', [MaterialController::class, 'list'])->name('materials.list');
+    Route::get('materials/{material}/restore', [MaterialController::class, 'restore'])->name('materials.restore');
+    Route::get('materials/{material}/desativate', [MaterialController::class, 'desativate'])->name('materials.desativate');
 
     Route::resource('users', UserController::class);
 

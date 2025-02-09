@@ -142,7 +142,7 @@
                         
                         <x-selected-old nam="solution_id" :tab="$solutions" des="description" nom="Solução"/>
 
-                        <x-selected-old jsfunc="addMat" nam="materials_id" :tab="$solutions" des="description" nom="Materiais"/>
+                        <x-datalist :objs="$types" obj="type" tit="type" :val="old('client')"/>
 
                         <div id="serv" class="form-floating my-2">
                             <textarea id="services" name="services" placeholder="Serviços executados" maxlength="1290" class='autoExpand form-control' rows='1' data-min-rows='1' required>{{old('services')}}</textarea>
