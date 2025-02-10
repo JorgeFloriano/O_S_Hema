@@ -14,7 +14,7 @@ return new class extends Migration
         Schema::create('materials', function (Blueprint $table) {
             $table->id();
             $table->string('description', 100);
-            $table->tinyInteger('unit', 5)->default(1);
+            $table->string('unit', 5)->default('Un');
             $table->timestamps();
             $table->softDeletes();
         });

@@ -11,10 +11,12 @@ class MaterialController extends Controller
 {
    
     public readonly Material $material;
+    public readonly array $units;
 
     public function __construct()
     {
         $this->material = new Material();
+        $this->units = ['Pc', 'M', 'Kg', 'Litro', 'M2', 'M3', 'Kit'];
     }
     public function index()
     {
@@ -35,7 +37,7 @@ class MaterialController extends Controller
         }
 
         if ($opt == 0) {
-            $materials = $this->material->select('id', 'description')->onlyTrashed()->simplePaginate(20);
+            $materials = $this->material->onlyTrashed()->simplePaginate(20);
             $opt = 1;
             $msg = 'Desativados';
             $cond = 'Ativar';
@@ -43,7 +45,7 @@ class MaterialController extends Controller
             $btn_color = 'btn-success';
             $route = 'materials.restore';
         } else {
-            $materials = $this->material->select('id', 'description')->simplePaginate(20);
+            $materials = $this->material->simplePaginate(20);
             $opt = 0;
             $msg = 'Ativos';
             $cond = 'Desativar';
@@ -69,7 +71,7 @@ class MaterialController extends Controller
             return view('login');
         }
 
-        return view('material.material_create');
+        return view('material.material_create', ['units' => $this->units]);
     }
 
    
@@ -115,7 +117,10 @@ class MaterialController extends Controller
             die;
         }
 
-        return view('material.material_edit', ['material' => $material]);
+        return view('material.material_edit', [
+            'material' => $material,
+            'units' => $this->units
+        ]);
     }
 
     

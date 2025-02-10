@@ -81,7 +81,7 @@
                                 <div class="form-check">
                                     <input disabled class="form-check-input" type="checkbox" value="1" name="cli" id="cli">
                                     <label class="form-check-label" for="cli">
-                                        Acesso a Clientes
+                                        Acesso a Clientes e Materiais
                                     </label>
                                 </div>
                             </div>

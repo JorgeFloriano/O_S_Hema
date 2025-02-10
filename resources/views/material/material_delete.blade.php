@@ -10,23 +10,23 @@
             <div class="col-lg-8 offset-lg-2">
 
                 <div id="header" class="my-2">
-                    <h2>Deletar Código de Causa Nº {{$cause->id}}</h2>
+                    <h2>Deletar Cadastro de Material Nº {{$material->id}}</h2>
                 </div>
                 <hr>
                 <main>
                 
-                    <form action="{{route('causes.destroy', ['cause' => $cause->id])}}" id="form" method="post">
+                    <form action="{{route('materials.destroy', ['material' => $material->id])}}" id="form" method="post">
                         @csrf
                         
                         <input type="hidden" name="_method" id="idNum" value="DELETE">
 
                         <div class="form-floating my-2">
-                            <input type="number" class="form-control" id="id" name="id" placeholder="Número" value="{{$cause->id}}" disabled>
+                            <input type="number" class="form-control" id="id" name="id" placeholder="Número" value="{{$material->id}}" disabled>
                             <label for="id">Número</label>
                         </div>
 
                         <div class="form-floating my-2">
-                            <input type="text" class="form-control" id="description" name="description" maxlength="25" placeholder="Descrição" value="{{$cause->description}}" disabled>
+                            <input type="text" class="form-control" id="description" name="description" maxlength="25" placeholder="Descrição" value="{{$material->description}}" disabled>
                             <label for="description">Descrição</label>
                         </div>
 
