@@ -40,13 +40,9 @@
 
                         <div class="form-floating my-2">
                             <select class="form-select" id="unit" name="unit" aria-label="Floating label select example" required >
-                                <option value="1">Un</option>
-                                <option value="2">M</option>
-                                <option value="3">Kg</option>
-                                <option value="4">L</option>
-                                <option value="5">M²</option>
-                                <option value="6">M³</option>
-                                <option value="7">Kit</option>
+                                @foreach ($units as $unit)
+                                    <option value="{{$unit}}">{{$unit}}</option>
+                                @endforeach
                             </select>
                             <label for="unit">Unidade de Medida</label>
                         </div>

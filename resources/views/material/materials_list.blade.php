@@ -37,6 +37,7 @@
                             <tr>
                                 <th>Nº</th>
                                 <th>Descrição</th>
+                                <th>Unidade de Medida</th>
                                 @if ($opt === 0)
                                     <th>Editar</th>
                                 @endif
@@ -50,6 +51,9 @@
                                     <td>{{$material->id}}</td>
 
                                     <td>{{$material->description}}</td>
+
+                                    <td>{{$material->unit}}</td>
+
                                     @if ($opt === 0)
                                         <td>
                                             <a href="{{route('materials.edit', ['material' => Crypt::encryptString($material->id)])}}" class="btn btn-primary btn-sm">
