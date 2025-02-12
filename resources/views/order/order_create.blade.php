@@ -34,7 +34,7 @@
                     <form action="{{route('orders.store')}}" id="form" method="post" autocomplete="on">
                         @csrf
 
-                        <x-datalist :objs="$clients" obj="client" tit="Cliente" :val="old('client')"/>
+                        <x-datalist :objs="$clients" obj="client" tit="Cliente" :val="old('client')" des="name" req='required'/>
 
                         <x-selected-old :tab="$types" nam="order_type_id" nom="Serviço" des="description"/>
 
