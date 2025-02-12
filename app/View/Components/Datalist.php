@@ -12,12 +12,18 @@ class Datalist extends Component
     public $object;
     public $title;
     public $value;
-    public function __construct($objs, $obj, $tit, $val='')
+    public $description;
+    public $jsfunction;
+    public $required;
+    public function __construct($objs, $obj, $tit, $val='',$des, $jsf='', $req='')
     {
         $this->objects = $objs;
         $this->object = $obj;
         $this->title = $tit;
         $this->value = $val;
+        $this->description = $des;
+        $this->jsfunction = $jsf;
+        $this->required = $req;
     }
 
     public function render(): View|Closure|string

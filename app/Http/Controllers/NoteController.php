@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\FormNoteRequest;
 use App\Models\Cause;
 use App\Models\Defect;
+use App\Models\Material;
 use App\Models\Note;
 use App\Models\NoteTec;
 use App\Models\NoteType;
@@ -70,6 +71,10 @@ class NoteController extends Controller
             session()->put($key.'_ids', $codes->pluck('id')->toArray());
         }
 
+        // Get all materials order by name
+        $materials = Material::all();
+        $materials = $materials->sortBy('description');
+
         return view('note.note_create', [
             'order' => $order,
             'tecs' => $tecs,
@@ -77,6 +82,7 @@ class NoteController extends Controller
             'defects' => $c_l['defects'],
             'causes' => $c_l['causes'],
             'solutions' =>  $c_l['solutions'],
+            'materials' => $materials
         ]);
     }
 

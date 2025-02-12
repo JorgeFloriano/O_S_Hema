@@ -20,7 +20,7 @@ class MaterialController extends Controller
     }
     public function index()
     {
-        if (session('main') !== auth()->user()->id) {
+        if (session('main') !== auth()->user()->id && session('cli') !== auth()->user()->id) {
             return view('login');
         }
 
@@ -32,7 +32,7 @@ class MaterialController extends Controller
     public function list(bool $opt)
     {
         
-        if (session('main') !== auth()->user()->id) {
+        if (session('main') !== auth()->user()->id && session('cli') !== auth()->user()->id) {
             return view('login');
         }
 
@@ -67,7 +67,7 @@ class MaterialController extends Controller
 
     public function create()
     {    
-        if (session('main') !== auth()->user()->id) {
+        if (session('main') !== auth()->user()->id && session('cli') !== auth()->user()->id) {
             return view('login');
         }
 
@@ -77,7 +77,7 @@ class MaterialController extends Controller
    
     public function store(FormMaterialRequest $request)
     {
-        if (session('main') !== auth()->user()->id) {
+        if (session('main') !== auth()->user()->id && session('cli') !== auth()->user()->id) {
             return view('login');
         }
 
@@ -96,7 +96,7 @@ class MaterialController extends Controller
 
     public function show(Material $material)
     {
-        if (session('main') !== auth()->user()->id) {
+        if (session('main') !== auth()->user()->id && session('cli') !== auth()->user()->id) {
             return view('login');
         }
         
@@ -106,7 +106,7 @@ class MaterialController extends Controller
     
     public function edit($material)
     {
-        if (session('main') !== auth()->user()->id) {
+        if (session('main') !== auth()->user()->id && session('cli') !== auth()->user()->id) {
             return view('login');
         }
 
@@ -126,7 +126,7 @@ class MaterialController extends Controller
     
     public function update(FormMaterialRequest $request, string $id)
     {
-        if (session('main') !== auth()->user()->id) {
+        if (session('main') !== auth()->user()->id && session('cli') !== auth()->user()->id) {
             return view('login');
         }
 
@@ -143,7 +143,7 @@ class MaterialController extends Controller
     
     public function destroy(string $id)
     {
-        if (session('main') !== auth()->user()->id) {
+        if (session('main') !== auth()->user()->id && session('cli') !== auth()->user()->id) {
             return view('login');
         }
         
@@ -157,7 +157,7 @@ class MaterialController extends Controller
 
     public function restore(string $id)
     {
-        if (session('main') !== auth()->user()->id) {
+        if (session('main') !== auth()->user()->id && session('cli') !== auth()->user()->id) {
             return view('login');
         }
 
@@ -178,7 +178,7 @@ class MaterialController extends Controller
 
     public function desativate(string $id)
     {
-        if (session('main') !== auth()->user()->id) {
+        if (session('main') !== auth()->user()->id && session('cli') !== auth()->user()->id) {
             return view('login');
         }
 
