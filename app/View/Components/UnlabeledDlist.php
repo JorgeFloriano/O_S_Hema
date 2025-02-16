@@ -13,8 +13,10 @@ class UnlabeledDlist extends Component
     public $value;
     public $placeholder;
     public $index;
+    public $description;
+    public $subdescription;
 
-    public function __construct($objs, $obj, $val='', $place='', $ind='')
+    public function __construct($objs, $obj, $des, $val='', $place='', $ind='', $subdes='')
     {
         $this->objects = $objs;
         $this->object = $obj;
@@ -27,6 +29,8 @@ class UnlabeledDlist extends Component
 
         $this->placeholder = $place;
         $this->index = $ind;
+        $this->description = $des;
+        $this->subdescription = $subdes;
     }
     public function render(): View|Closure|string
     {

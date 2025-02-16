@@ -77,7 +77,7 @@
                             </div>
                         @endif
                         <div style="display: none">
-                            <a id='continue' href="{{route('orders.generate_report', ['msg' => 'continue'])}}" class="btn btn-secondary">
+                            <a id='continue' href="{{route('orders.generate_pdf', ['msg' => 'continue'])}}" class="btn btn-secondary">
                                 Continuar carregando...
                             </a>
                         </div>

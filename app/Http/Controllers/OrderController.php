@@ -68,9 +68,14 @@ class OrderController extends Controller
         array_unshift($cli_ids_array, 0);
         session()->put('client_ids', $cli_ids_array);
 
+        // Create date start_date and end_date
+        $start_date = \Carbon\Carbon::now()->subMonth()->format('Y-m-d');
+        $end_date = \Carbon\Carbon::now()->format('Y-m-d');
+
         // get orders
         $orders = $this->os
-            ->select('id', 'order_type_id', 'req_descr', 'client_id', 'tec_id', 'req_date', 'finished')
+            ->select('id', 'order_type_id', 'req_descr', 'client_id', 'tec_id', 'req_date', 'finished',)
+            ->whereBetween('req_date', [$start_date, $end_date])
             ->orderBy('id', 'desc')
             ->get();
 
@@ -82,7 +87,7 @@ class OrderController extends Controller
         // Verify if the list of orders is not empty and if all orders are finished to ability "Gerar pdf" button
         $finisheds = $orders->pluck('finished')->toArray();
         if (in_array(0, $finisheds) || count($finisheds) == 0) {
-            $show_pdf_btn = 'disabled';
+            $able_btn = 'Não é possívle gerar arquivo de ordens de serviço não finalizadas, tente filtar novamente';
         }
 
         $tecs = Tec::all();
@@ -90,7 +95,7 @@ class OrderController extends Controller
         return view('order.orders_list', [
             'orders' => $orders,
             'order_ids' => $order_ids,
-            'show_pdf_btn' => $show_pdf_btn ?? '',
+            'able_btn' => $able_btn ?? '',
             'tecs' => $tecs->sortBy('user.name'),
             'clients' => $clients,
             'main' => $this->m ?? null,
@@ -98,8 +103,8 @@ class OrderController extends Controller
             'adm' => $this->a ?? null,
             'old_client' => 0,
             'old_finished' => 2,
-            'date_s' => \Carbon\Carbon::now()->subMonth()->format('Y-m-d'),
-            'date_e' => \Carbon\Carbon::now()->format('Y-m-d'),
+            'date_s' => $start_date,
+            'date_e' => $end_date
         ]);
     }
 
@@ -183,7 +188,7 @@ class OrderController extends Controller
         // Verify if the list of orders is not empty and if all orders are finished to ability "Gerar pdf" button
         $finisheds = $orders->pluck('finished')->toArray();
         if (in_array(0, $finisheds) || count($finisheds) == 0) {
-            $show_pdf_btn = 'disabled';
+            $able_btn = 'Não é possívle gerar arquivo de ordens de serviço não finalizadas, tente filtrar novamente';
         }
 
         session()->put('ords', $orders);
@@ -191,7 +196,7 @@ class OrderController extends Controller
         return view('order.orders_list', [
             'orders' => $orders,
             'ids' => $order_ids ?? 0,
-            'show_pdf_btn' => $show_pdf_btn ?? '',
+            'able_btn' => $able_btn ?? '',
             'tecs' => Tec::all(),
             'clients' => Client::select('id', 'name')->orderBy('name')->get(),
             'main' => $this->m ?? null,
@@ -534,11 +539,11 @@ class OrderController extends Controller
         }
 
         // Call the function to loop for each client and continue the report creation (pages and resume)---------
-        return redirect()->route('orders.generate_report', ['msg' => 'continue']);
+        return redirect()->route('orders.generate_pdf', ['msg' => 'continue']);
     }
 
     // Function to loop for each client continuing the report (pages and resume)----------------------------------   
-    public function generate_report($msg)
+    public function generate_pdf($msg)
     {
 
         if ($msg == 'continue') {
@@ -567,7 +572,7 @@ class OrderController extends Controller
                         session()->put('order_front', false);
 
                         if (!$pdf) {
-                            $this->logger->log('error', 'Error (order/generate_report), error to generate front page of client '.$$client_name.'.');
+                            $this->logger->log('error', 'Error (order/generate_pdf), error to generate front page of client '.$$client_name.'.');
                             return redirect()->route('orders.index')->withErrors('Erro ao gerar capa do relatório do cliente ' . $$client_name . '!');
                         }
                     } else {
@@ -579,7 +584,7 @@ class OrderController extends Controller
                         ])->setPaper('A4', 'portrait');
 
                         if (!$pdf) {
-                            $this->logger->log('error', 'Error (order/generate_report), error generating order number '.$order_id.'.');
+                            $this->logger->log('error', 'Error (order/generate_pdf), error generating order number '.$order_id.'.');
                             return redirect()->route('orders.index')->withErrors('Erro ao gerar ordem número ' . $order_id . '!');
                         }
 
@@ -592,7 +597,7 @@ class OrderController extends Controller
                     $save = $pdf->save('storage/' . $rep->leftZeros(session('page')) . session('page') . '_' . $order_id . '_' . date('d_m_Y') . '.pdf');
 
                     if (!$save) {
-                        $this->logger->log('error', 'Error (order/generate_report), error saving order number ' . $order_id . '.');
+                        $this->logger->log('error', 'Error (order/generate_pdf), error saving order number ' . $order_id . '.');
                         return redirect()->route('orders.index')->withErrors('Erro ao salvar a ordem número ' . $order_id . '!');
                     }
 
@@ -602,14 +607,14 @@ class OrderController extends Controller
                         session()->put('order_front', true);
                     }
 
-                    return view('order.generate_report', ['percentage' => $percentage])->with('message', 'Gerando relatório, aguarde...');
+                    return view('order.generate_pdf', ['percentage' => $percentage])->with('message', 'Gerando relatório, aguarde...');
                 }
 
                 // Generate the PDF resume---------------------------------------------------------------------------------------
                 $pdf = Pdf::loadView('order.report_parts.resume')->setPaper('A4', 'portrait');
 
                 if (!$pdf) {
-                    $this->logger->log('error', 'Error (order/generate_report), error generating resume.');
+                    $this->logger->log('error', 'Error (order/generate_pdf), error generating resume.');
                     return redirect()->route('orders.index')->withErrors('Erro ao gerar o resumo do relatório !');
                 }
 
@@ -618,7 +623,7 @@ class OrderController extends Controller
                 $save = $pdf->save('storage/' . $rep->leftZeros(session('page')) . session('page') . '_resume_' . date('d_m_Y') . '.pdf');
 
                 if (!$save) {
-                    $this->logger->log('error', 'Error (order/generate_report), error saving resume.');
+                    $this->logger->log('error', 'Error (order/generate_pdf), error saving resume.');
                     return redirect()->route('orders.index')->withErrors('Erro ao salvar o resumo do relatório !');
                 }
 
@@ -627,7 +632,7 @@ class OrderController extends Controller
                 $files = glob(public_path('storage/*.pdf'));
 
                 if (!$files) {
-                    $this->logger->log('error', 'Error (order/generate_report), error grouping files.');
+                    $this->logger->log('error', 'Error (order/generate_pdf), error grouping files.');
                     return redirect()->route('orders.index')->withErrors('Erro ao agrupar os arquivos !');
                 }
 
@@ -652,7 +657,7 @@ class OrderController extends Controller
                 || !session('page'))
                 
                 {
-                    $this->logger->log('error', 'Error (order/generate_report), error finalizing report.');
+                    $this->logger->log('error', 'Error (order/generate_pdf), error finalizing report.');
                     return redirect()->route('orders.index')->withErrors('Erro ao finalizar o relatório !');
                 }
 
@@ -716,4 +721,65 @@ class OrderController extends Controller
         $route = $this->o && !$this->a ? 'notes.index' : 'orders.index';
         return redirect()->route($route)->with('message', $msg);
     }
+
+    // Funcion to generate csv file of the selected orders
+    public function orders_csv(Request $request)
+    {
+        if (!$this->a) {
+            $this->logger->log('error', 'Error, access denied (order/orders_pdf), user is not an administrator.');
+            return view('login');
+        }
+
+        if ($request->ids == 0 || $request->ids == '0') {
+            $this->logger->log('error', 'Error, access denied (order/orders_pdf), no orders selected.');
+            return redirect()->route('orders.index')->withErrors('Nenhum registro selecionado para gerar o relatório!');
+        }
+
+        // Orders will be ordered by client name
+        $orders = Order::whereIn('id', explode(',', $request->ids))->with('client')->get();
+
+        if ($orders->isEmpty() || !$orders) {
+            $this->logger->log('error', 'Error (order/orders_pdf), error requesting order data.');
+            return redirect()->route('orders.index')->withErrors('Erro ao requisar os dados das ordens de serviço!');
+        }
+        $orders = $orders->sortBy('client.name');
+
+        // Create the CSV file
+        $fileName = $request->title . date('d_m_Y') . '.csv';
+        
+        $headers = [
+            'Content-Type' => 'text/csv',
+            'Content-Disposition' => "attachment; filename=$fileName",
+        ];
+        
+        $callback = function () use ($orders) {
+            $file = fopen('php://output', 'w');
+        
+            // Add CSV headers
+            fputcsv($file, ['Order ID', 'Note', 'Cliente', 'Created At']);
+        
+            // Add rows
+            foreach ($orders as $order) {
+                foreach ($order->notes as $key => $note) {
+                    fputcsv($file, [
+                        $order->id,
+                        $key + 1,
+                        $order->client->name,
+                        $note->created_at
+                    ]);
+                }
+            }
+        
+            fclose($file);
+        };
+        
+        return response()->stream($callback, 200, $headers);
+    }
 }
+
+
+
+
+
+
+

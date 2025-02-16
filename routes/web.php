@@ -37,8 +37,10 @@ Route::middleware(CheckSession::class)->group(function(){
     Route::get('/orders/{order}/finish', [OrderController::class, 'finish'])->name('orders.finish');
     Route::get('/orders/{order}/reopen', [OrderController::class, 'reopen'])->name('orders.reopen');
     Route::get('/orders/{order}/show_pdf', [OrderController::class, 'show_pdf'])->name('orders.show_pdf');
-    Route::get('/orders/{msg}/generate_report', [OrderController::class, 'generate_report'])->name('orders.generate_report');
+    Route::get('/orders/{msg}/generate_pdf', [OrderController::class, 'generate_pdf'])->name('orders.generate_pdf');
     Route::get('/orders/{qtd}/add', [OrderController::class, 'add'])->name('orders.add');
+    Route::post('/orders/orders_csv', [OrderController::class, 'orders_csv'])->name('orders.orders_csv');
+
 
     Route::resource('clients', ClientController::class);
     Route::get('clients/{opt}/list', [ClientController::class, 'list'])->name('clients.list');

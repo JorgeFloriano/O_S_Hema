@@ -3,7 +3,11 @@
 
     <datalist id="{{$objects}}">
         @foreach ($objects as $item)
-            <option class="{{$index}}_{{$object}}_option" value="{{$item->user->name}} - [{{$item->id}}]">
+        @if ($subdescription != null && $subdescription != "")
+            <option class="{{$index}}_{{$object}}_option" value="{{$item->$description->$subdescription}} - [{{$item->id}}]">
+        @else
+            <option class="{{$index}}_{{$object}}_option" value="{{$item->$description}} - [{{$item->id}}]">
+        @endif
         @endforeach
     </datalist>
     

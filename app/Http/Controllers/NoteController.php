@@ -6,6 +6,7 @@ use App\Http\Requests\FormNoteRequest;
 use App\Models\Cause;
 use App\Models\Defect;
 use App\Models\Material;
+use App\Models\MaterialNote;
 use App\Models\Note;
 use App\Models\NoteTec;
 use App\Models\NoteType;
@@ -142,6 +143,9 @@ class NoteController extends Controller
                         'tec_id' => $second_tec,
                         'signature' => $request->input('sign_t_2') ?? null,
                     ]);
+                    if (!$cr_note_tec2) {
+                        return redirect()->back()->with('message', 'Erro ao salvar assinatura do Técnico 02.');
+                    }
                 }
             }
     
@@ -155,6 +159,22 @@ class NoteController extends Controller
             $os->finished = $request->input('finished');
             $updated_os = $os->save();
     
+            // Save materials in note
+            if ($request->input('material_ids_array')) {
+                $material_ids = explode(",", $request->input('material_ids_array'));
+                foreach ($material_ids as $material_id) {
+                    $note_material = MaterialNote::create([
+                        'note_id' => $created_note->id,
+                        'material_id' => $request->input('material_'.$material_id.'_id'),
+                        'quantity' => $request->input('material_'.$material_id.'_qtd'),
+                    ]);
+                    if (!$note_material) {
+                        return redirect()->back()->with('message', 'Erro ao salvar materiais.');
+                    }
+                }
+            }
+
+
             if ($cr_note_tec1 && $updated_os) {
                 if ($request->input('finished')) {
                     return redirect()->route('notes.index')->with('message', 'Solicitação de Serviço finalizada com sucesso.');
@@ -222,10 +242,12 @@ class NoteController extends Controller
             return redirect()->back()->withErrors(['error' => 'Acesso não autorizado para editar anotacões de outro técnico.']);
         }
 
+        // Get the second technician of the note if he exists
         if (isset(Note::find($note->id)->tecs[1])) {
             $note->second_tec = Note::find($note->id)->tecs[1];
         }
 
+        // Get all technicians except the first
         $tecs = Tec::where('id','!=', $note->first_tec->id)->get();
 
         // Generate tables with all codes list
@@ -250,6 +272,14 @@ class NoteController extends Controller
             }
         }
 
+        // Generate materials string to show material list in view
+        $materials_string = '[';
+        foreach ($note->materials as $material) {
+            $materials_string .= '['.$material->description.', '.$material->pivot->quantity.', '.$material->unit.'],';
+        }
+        $materials_string = substr($materials_string, 0, -1);
+        $materials_string .= ']';
+
         return view('note.note_edit', [
             'note' => $note,
             'tecs' => $tecs,
@@ -257,6 +287,7 @@ class NoteController extends Controller
             'defects' => $c_l['defects'],
             'causes' => $c_l['causes'],
             'solutions' =>  $c_l['solutions'],
+            'materials_string' => $materials_string,
         ]);
     }
 
