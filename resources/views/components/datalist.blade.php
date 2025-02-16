@@ -1,5 +1,5 @@
 <div class="form-floating my-2">
-    <input list="{{$objects}}" onclick="this.value=''" onchange="getOptId('{{$object}}','{{$object}}_id', '{{$object}}_option'){{$jsfunction}}" type="text" class="form-control" id="{{$object}}" name="{{$object}}" placeholder="{{$title}}" {{$required}} value="{{$value}}">
+    <input list="{{$objects}}" onchange="getOptId('{{$object}}','{{$object}}_id', '{{$object}}_option'){{$onchange}}" type="text" class="form-control" id="{{$object}}" name="{{$object}}" placeholder="{{$title}}" {{$required}} value="{{$value}}" onfocus="{{$onfocus}}">
     <label for="{{$object}}">{{$title}}</label>
 
     <datalist id="{{$objects}}">
@@ -10,6 +10,9 @@
         @endforeach
     </datalist>
     
-    <input name="{{$object}}_id" id="{{$object}}_id">
-    <input name="{{$object}}_ids_array" id="{{$object}}_ids_array">
+    <input type="hidden" name="{{$object}}_id" id="{{$object}}_id">
+    <input type="hidden" name="{{$object}}_ids_array" id="{{$object}}_ids_array">
+    <div id="material_list">
+
+    </div>
 </div>

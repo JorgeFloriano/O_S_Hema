@@ -48,6 +48,22 @@
     </div> --}}
 
     <div class="LastInfoLine" style="height: 250px">
-        <div class="InfoFirstCollum LongText"><p><strong>Descrição dos Serviços Executados: </strong>{{$note->services ?? ''}}</p></div>
+        <div class="InfoFirstCollum LongText">
+            <p>
+                @if($note->materials->count() > 0)
+                    <strong>Descrição dos Materiais Utilizados: </strong><br>
+                    @foreach ($note->materials as $material)
+                        {{$material->description.' ('.$material->pivot->quantity.' '.$material->unit.')'}}
+                        @if ($loop->last)
+                            . 
+                        @else
+                            , 
+                        @endif
+                    @endforeach
+                    <br>
+                @endif
+                <strong>Descrição dos Serviços Executados: </strong><br>{{$note->services ?? ''}}
+            </p>
+        </div>
     </div>
 </div>

@@ -29,7 +29,26 @@
                         Ordens de Serviço
                         @if ($adm)
                             <span class="float-end">
-                                <a href="{{route('orders.create')}}" class="btn btn-primary">Criar nova</a>
+                                <button onclick="formSubmit('filter_form')" data-bs-toggle="tooltip" title="Filtrar ordens de serviço conforme opções selecionadas" id="submitButton" type="submit" class="btn btn-secondary">
+                                    <i class="fa fa-filter"></i>
+                                </button>
+
+                                <button type="button" data-bs-toggle="tooltip" title="Gerar relatório PDF das ordens de serviço filtradas" 
+                                    onclick="submitRoute('{{route('orders.orders_pdf')}}', 'archive_form', '{{$able_btn ?? ''}}')" 
+                                    class="btn btn-danger">
+                                    <i class="fa fa-file-pdf-o"></i>
+                                </button>
+
+                                <button type="button" data-bs-toggle="tooltip" title="Gerar arquivo CSV das ordens de serviço filtradas" 
+                                    onclick="submitRoute('{{route('orders.orders_csv')}}', 'archive_form', '{{$able_btn ?? ''}}')" 
+                                    class="btn btn-success">
+                                    <i class="fa fa-file-excel-o"></i>
+                                </button>
+                                <a href="{{route('orders.create')}}">
+                                    <button class="btn btn-primary" data-bs-toggle="tooltip" title="Criar nova ordem de serviço">
+                                        <i class="fa fa-plus"></i>
+                                    </button>
+                                </a>
                             </span>
                         @endif
                     </h2>
@@ -40,21 +59,11 @@
 
                     @csrf
                     <div class="row g-2 mb-2">
-                        <div class="col-lg-3 col-12">
-                            <select class="form-select" id="client" name="client" aria-label="Floating label select example">
-                                <option value="0">Clientes (todos)</option>
-
-                                @foreach ($clients as $client)
-                                    @if ($client->id == $old_client)
-                                        <option selected value="{{$client->id}}">{{$client->name}}</option>
-                                    @else
-                                        <option value="{{$client->id}}">{{$client->name}}</option>
-                                    @endif
-                                @endforeach
-                            </select>
+                        <div class="col-lg-2 col-4">
+                            <x-unlabeled-dlist :objs="$clients" obj="client" des="name" place="Cliente (todos)"/>
                         </div>
 
-                        <div class="col-lg-2 col-6">
+                        <div class="col-lg-2 col-4">
                             <select class="form-select" id="finished" name="finished" aria-label="Floating label select example">
                                 <option {{$fin_select[2] ?? ''}} value="2">Ordens (todas)</option>
                                 <option {{$fin_select[0] ?? ''}} value="0">Não Finalizadas</option>
@@ -62,34 +71,32 @@
                             </select>
                         </div>
 
-                        <div class="col-lg-2 col-6">
+                        <div class="col-lg-2 col-4">
+                            <x-unlabeled-dlist :objs="$tecs" obj="tec" des="user" place="Técnico (todos)" subdes="name"/>
+                        </div>
+
+                        <div class="col-lg-2 col-4">
                             <select class="form-select" id="date_type" name="date_type" aria-label="Floating label select example">
                                 <option {{$order_open_select ?? ''}} value="order_open_date">Data de abertura</option>
                                 <option {{$last_note_select ?? ''}} value="last_note_date">Última anotação</option>
                             </select>
                         </div>
     
-                        <div class="col-lg-2 col-5">
+                        <div class="col-lg-2 col-4">
                             <label for="Start" class="col-form-label" style="width: 20%;float: left">de</label>
                             <input type="date" class="form-control" id="Start" style="width: 80%;float: right" name="date_start" placeholder="Início" value="{{$date_s}}">
                         </div>
                        
-                        <div class="col-lg-2 col-5">    
+                        <div class="col-lg-2 col-4">    
                             <label for="End" class="col-form-label" style="width: 20%;float: left">até</label>
                             <input type="date" class="form-control" id="End" style="width: 80%;float: right" name="date_end" placeholder="Término" value="{{$date_e}}">
-                        </div>
-
-                        <div class="col-lg-1 col-2">
-                            <button onclick="formSubmit('filter_form')" id="submitButton" type="submit" class="btn btn-secondary p-1 h-100 w-100">
-                                Filtrar
-                            </button>
                         </div>
                     </div>
                 </form>
                 <hr>
 
-                 @if ($adm)
-                    <form action="{{route('orders.orders_pdf')}}" id="dompdf_form" method="post">
+                @if ($adm)
+                    <form action="{{route('orders.orders_pdf')}}" id="archive_form" method="post">
                         @csrf
 
                         <div class="row g-2 mb-2">
@@ -100,13 +107,12 @@
                             </div>
 
                             <div class="col-xxl-9 col-lg-8 col-10 ">
-                                <input type="text" name="title" class="form-control" maxlength="120" id="title" placeholder="Digite um título para a capa e filtre ordens de serviço finalizadas para gerar relatório">
+                                <input type="text" name="title" class="form-control" maxlength="120" id="title" 
+                                placeholder="Digite um título e filtre ordens de serviço finalizadas para gerar relatório">
                             </div>
-
-                            <div class="col-xxl-2 col-lg-3 col-12">
-                                <button class="btn btn-outline-danger w-100" style="float: right" {{$show_pdf_btn ?? ''}}>
-                                    <i class="fa fa-file-pdf-o"></i> Gerar Relatório
-                                </button>
+                            
+                            <div class="col-xxl-2 col-lg-3">
+                                
                             </div>
                         </div>
                     </form>
@@ -147,10 +153,9 @@
                                             <td>{{$order->req_descr}}</td>
                                             <td>
                                                 @if ($order->finished || (!$main && !$sup))
-                                                    <input class="form-control" disabled id="ord_{{$order->id}}" value="{{$order->tec->id ?? 0}} - {{$order->tec->user->name ?? 'Indefinido'}}">
+                                                    <input class="form-control" disabled id="ord_{{$order->id}}" value="{{$order->tec->user->name ?? 'Indefinido'}} - [{{$order->tec->id ?? ''}}]">
                                                 @else
-
-                                                    <x-unlabeled-dlist :objs="$tecs" obj="tec" place="Indefinido" val="{{$order->tec->user->name ?? ''}} - [{{$order->tec->id ?? ''}}]" ind="{{$order->id}}"/>
+                                                    <x-unlabeled-dlist :objs="$tecs" obj="tec" des="user" place="Indefinido" val="{{$order->tec->user->name ?? ''}} - [{{$order->tec->id ?? ''}}]" ind="{{$order->id}}" subdes="name"/>
                                                 @endif
                                             </td>
                                             <td>{{date('d/m/y',strtotime($order->req_date))}}</td>

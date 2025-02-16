@@ -13,16 +13,25 @@ class Datalist extends Component
     public $title;
     public $value;
     public $description;
-    public $jsfunction;
+    public $onchange;
     public $required;
-    public function __construct($objs, $obj, $tit, $val='',$des, $jsf='', $req='')
+    public $onfocus;
+    public function __construct($objs, $obj, $tit, $val='',$des, $list='', $req='')
     {
         $this->objects = $objs;
         $this->object = $obj;
         $this->title = $tit;
         $this->value = $val;
         $this->description = $des;
-        $this->jsfunction = $jsf;
+
+        if ($list == "true") {
+            $this->onchange = ", manageList('material')";
+            $this->onfocus = "this.value = ''";
+        } else {
+            $this->onchange = '';
+            $this->onfocus = '';
+        }
+
         $this->required = $req;
     }
 

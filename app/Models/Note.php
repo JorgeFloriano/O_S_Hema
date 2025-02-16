@@ -69,8 +69,8 @@ class Note extends Model
     {
         return $this->belongsTo(Solution::class)->withTrashed();
     }
-    public function materials(): HasMany
+    public function materials(): BelongsToMany
     {
-        return $this->hasMany(Material::class)->withPivot('quantity')->withPivot('id')->withTimestamps()->withTrashed()->orderBy('pivot_id');
+        return $this->belongsToMany(Material::class)->withPivot('quantity', 'id')->withTimestamps()->withTrashed()->orderBy('pivot_id');
     }
 }

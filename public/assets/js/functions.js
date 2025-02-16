@@ -146,9 +146,11 @@ function toggleClientFields() {
    // Verify if object is already added
    if (document.querySelector('.'+object +'-added-descr') !== null) {
       const options = document.getElementsByClassName(object +'-added-descr');
+      const regex = / - \[\d+\]$/;
+      const descr_whichout_id = descr.replace(regex, '');
       
       for (let option of options) {
-         if (option.innerHTML == descr ) {
+         if (option.innerHTML == descr_whichout_id ) {
             document.getElementById(object).value = '';
             document.getElementById(object).blur();
             alert('Ítem já adicionado, utilize o campo numérico para determinar a quantidade, digitando zero ou deixando o campo vazio o ítem será removido !')
@@ -179,7 +181,7 @@ function toggleClientFields() {
 
  // Function to get values and set them in the result input
  function getValuesAndSetInput(object) {
-   // Select all elements with the class "form-control"
+   // Select all elements that was added in list
    const elements = document.querySelectorAll('.'+object+'-added-id');
 
    // Extract their values into an array
@@ -193,23 +195,28 @@ function toggleClientFields() {
 }
 
 // Function to create elements to constitute the datalist items
-function createListItemElements(descr, object, obj_selected_id, obj_selected_unit, ref_pos_elem_id) {
+function createListItemElements(descr, object, obj_selected_id, obj_selected_unit) {
    // Create div from the object selected
    const div = document.createElement('div');
+   const object_list = document.getElementById(object+'_list');
+   object_list.style.background = '#e9ecef';
+   object_list.style.border = '1px solid #ced4da';
+   object_list.style.borderRadius = '.25rem';
+   object_list.classList.add('my-2');
    div.classList.add('input-group');
-   div.classList.add('my-2');
    div.id = object +'_'+obj_selected_id+'_div';
-
-   // Add div with object to form, inserting before the element with id "serv"
-   const referencePositionElement = document.getElementById(ref_pos_elem_id);
-   form.insertBefore(div, referencePositionElement);
+   object_list.appendChild(div);
 
    // Add span with object description
+   const regex = / - \[\d+\]$/;
+   const descr_whichout_id = descr.replace(regex, '');
    const objDscr = document.createElement('span');
    objDscr.classList.add('input-group-text');
    objDscr.classList.add(object +'-added-descr');
-   objDscr.innerHTML = descr ;
+   objDscr.innerHTML = descr_whichout_id ;
    objDscr.style.width = '70%';
+   objDscr.style.background = 'transparent';
+   objDscr.style.border = 'none';
    div.appendChild(objDscr);
    objDscr.id = object +'_'+obj_selected_id+'_descr';
 
@@ -219,6 +226,7 @@ function createListItemElements(descr, object, obj_selected_id, obj_selected_uni
    objInput.name = object +'_'+obj_selected_id+'_qtd';
    objInput.classList.add('form-control');
    objInput.classList.add(object +'-added-qtd');
+   objInput.style.border = 'none';
    objInput.placeholder = 'Quantidade';
    objInput.required = true;
    objInput.autocomplete = 'off';
@@ -242,6 +250,8 @@ function createListItemElements(descr, object, obj_selected_id, obj_selected_uni
    objUnit.classList.add('input-group-text');
    objUnit.innerHTML = obj_selected_unit;
    objUnit.style.width = '12%';
+   objUnit.style.background = 'transparent';
+   objUnit.style.border = 'none';
    objUnit.id = object +'_'+obj_selected_id+'_unit';
    div.appendChild(objUnit);
 
@@ -253,7 +263,44 @@ function createListItemElements(descr, object, obj_selected_id, obj_selected_uni
          objInput.remove(); // Remove the input with object quantity
          objUnit.remove(); // Remove the span with unit of measurement
          objSelectedId.remove(); // Remove the input hidden with object id
+
+         // Select all elements that was added in list
+         const elements = document.querySelectorAll('.'+object+'-added-id');
+         if (elements.length < 1) {
+            const object_list = document.getElementById(object+'_list');
+            object_list.style.background = 'none';
+            object_list.style.border = 'none';
+            object_list.style.borderRadius = 'none';
+            object_list.classList.remove('my-2');
+        }
          getValuesAndSetInput(object);// Call the function to get values and set them in the result input
       }
    });
+}
+
+// Function to convert string to array
+function strToArr(inputString) {
+   alert('test');
+   // Step 1: Remove the outer brackets
+   const trimmedString = inputString.slice(2, -2);
+
+   // Step 2: Split by "],[" to separate the inner arrays
+   const innerArrays = trimmedString.split("],[");
+
+   // Step 3: Map through the inner arrays, clean them up, and split by commas
+   const result = innerArrays.map((item) => {
+      // Remove any remaining brackets and trim whitespace
+      const cleanedItem = item.replace(/[\[\]]/g, "").trim();
+      // Split by commas and trim each element
+      cleanedItem.split(",").map((element) => element.trim());
+      alert('test');
+   });
+}
+function submitRoute(route, form, msg) {
+   if (msg != null && msg != '') {
+      alert(msg);
+      return
+   }
+   document.getElementById(form).action = route;
+   document.getElementById(form).submit();
 }
