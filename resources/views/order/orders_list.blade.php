@@ -60,7 +60,7 @@
                     @csrf
                     <div class="row g-2 mb-2">
                         <div class="col-lg-2 col-4">
-                            <x-unlabeled-dlist :objs="$clients" obj="client" des="name" place="Cliente (todos)"/>
+                            <x-unlabeled-dlist :objs="$clients" obj="client" des="name" :val="$old_client ?? ''" :place="'Cliente (todos)'" onfoc="clearInputs('client', 'client_id')"/>
                         </div>
 
                         <div class="col-lg-2 col-4">
@@ -72,7 +72,8 @@
                         </div>
 
                         <div class="col-lg-2 col-4">
-                            <x-unlabeled-dlist :objs="$tecs" obj="tec" des="user" place="Técnico (todos)" subdes="name"/>
+                            <x-unlabeled-dlist :objs="$tecs" obj="tec" des="user" :val="$old_tec ?? ''" :place="'Técnico (todos)'" subdes="name"
+                            onfoc="clearInputs('tec', 'tec_id')"/>
                         </div>
 
                         <div class="col-lg-2 col-4">
@@ -155,7 +156,7 @@
                                                 @if ($order->finished || (!$main && !$sup))
                                                     <input class="form-control" disabled id="ord_{{$order->id}}" value="{{$order->tec->user->name ?? 'Indefinido'}} - [{{$order->tec->id ?? ''}}]">
                                                 @else
-                                                    <x-unlabeled-dlist :objs="$tecs" obj="tec" des="user" place="Indefinido" val="{{$order->tec->user->name ?? ''}} - [{{$order->tec->id ?? ''}}]" ind="{{$order->id}}" subdes="name"/>
+                                                    <x-unlabeled-dlist :objs="$tecs" obj="tec" des="user" place="Não selecionado" val="{{$order->tec->user->name ?? ''}} - [{{$order->tec->id ?? ''}}]" ind="{{$order->id}}" subdes="name" onch="formSubmit('form')"/>
                                                 @endif
                                             </td>
                                             <td>{{date('d/m/y',strtotime($order->req_date))}}</td>

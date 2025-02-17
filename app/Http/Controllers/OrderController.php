@@ -101,7 +101,8 @@ class OrderController extends Controller
             'main' => $this->m ?? null,
             'sup' => $this->s ?? null,
             'adm' => $this->a ?? null,
-            'old_client' => 0,
+            'old_client' => 'Cliente (todos) - [0]',
+            'old_tec' => 'Técnico (todos) - [0]',
             'old_finished' => 2,
             'date_s' => $start_date,
             'date_e' => $end_date
@@ -141,9 +142,21 @@ class OrderController extends Controller
             $last_note_select = 'selected';
         }
 
+        // If techician selected is "Não selecionado", get orders where tec_id is 0
+        if ($request->tec == '0') {
+            $tec_selected = $request->tec;
+        } elseif ($request->tec == 'Todos - [0]') {
+            $tec_selected = null;
+        } else {
+            $tec_selected = $request->tec;
+        }
+
         $orders = $this->os
             ->when($request->client, function ($query) use ($request) {
                 $query->where('client_id', $request->client);
+            })
+            ->when($tec_selected, function ($query) use ($request) {
+                $query->where('tec_id', $request->tec);
             })
             ->when($request->date_start, function ($query) use ($request) {
                 if ($request->date_type == 'order_open_date') {
@@ -191,6 +204,25 @@ class OrderController extends Controller
             $able_btn = 'Não é possívle gerar arquivo de ordens de serviço não finalizadas, tente filtrar novamente';
         }
 
+        //Last client selected
+        $old_client = Client::select('id', 'name')->where('id', $request->client)->first();
+        if ($old_client) {
+            $old_client = $old_client->name.' - ['.$old_client->id.']';
+        }
+
+        // Last tecnician selected
+        if ($tec_selected == 'Não selecionado - [0]') {
+            $old_tec = 'Não selecionado - [0]';
+        } else {
+            $old_tec = Tec::with('user:id,name') // Eager load the user relationship
+                  ->where('id', $request->tec)
+                  ->first();
+            if ($old_tec) {
+                $old_tec = $old_tec->user->name.' - ['.$old_tec->id.']';
+            }
+        }
+
+        // Orders list, to updated tecnicians
         session()->put('ords', $orders);
 
         return view('order.orders_list', [
@@ -204,7 +236,8 @@ class OrderController extends Controller
             'adm' => $this->a ?? null,
             'date_s' => $request->date_start,
             'date_e' => $request->date_end,
-            'old_client' => $request->client ?? null,
+            'old_client' => $old_client ?? 'Cliente (todos) - [0]',
+            'old_tec' => $old_tec ?? 'Técnico (todos) - [0]',
             'old_finished' => $request->finished ?? null,
             'fin_select' => $fin_select ?? ['', '', ''],
             'order_open_select' => $order_open_select,
