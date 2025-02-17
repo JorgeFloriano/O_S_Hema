@@ -118,6 +118,19 @@ function toggleClientFields() {
  // input datalist client get only client id, not name, acept only datalist option values
  function getOptId(inp_list, data_id, data_opt) {
    const inp_list_val = document.getElementById(inp_list).value;
+
+   if (inp_list_val == 'Todos - []') {
+      document.getElementById(data_id).value = 'Todos - []'
+      document.getElementById(inp_list).value = 'Todos - []'
+      return
+   }
+
+   if (inp_list_val == '') {
+      document.getElementById(data_id).value = '0'
+      document.getElementById(inp_list).value = ''
+      return
+   }
+
    const matches = inp_list_val.match(/\[(\d+)\](?!.*\[\d+\])/);
    const data_options = window.document.getElementsByClassName(data_opt);
    var opt_valid = false;
@@ -303,4 +316,9 @@ function submitRoute(route, form, msg) {
    }
    document.getElementById(form).action = route;
    document.getElementById(form).submit();
+}
+
+function clearInputs(input, inputHidden) {
+   document.getElementById(input).value = '';
+   document.getElementById(inputHidden).value = '0';
 }
