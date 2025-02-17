@@ -58,6 +58,8 @@ function getScrollHeight(elm){
  }
 
 //border-color:#fe8686;outline:0;box-shadow:0 0 0 .25rem rgba(253, 13, 13, 0.25)
+
+// form submit---------------------------------------------------------------------------------------------------------------------------
 function formSubmit(form) {
    document.getElementById(form).submit();
 }
@@ -67,6 +69,7 @@ function scrollToBottom() {
    window.scroll(0 , height);
 }
 
+// Get address-----------------------------------------------------------------------------------------------------------------------------
 function getAddress() {
    let cep = document.querySelector('#cep').value
    if (cep.length !== 8) {
@@ -78,6 +81,8 @@ function getAddress() {
        response.json().then(showAddress)  
    })
 }
+
+// CEP-------------------------------------------------------------------------------------------------------------------------------------
 function showAddress(dados) {
    console.log(dados)
    if (dados.erro) {
@@ -99,6 +104,7 @@ function enableDisable(id) {
    }
 }
 
+// Toggle client fields----------------------------------------------------------------------------------------------------------------------
 function toggleClientFields() {
    const saveRadio = document.getElementById('save');
    const finishedRadio = document.getElementById('finished');
@@ -115,9 +121,10 @@ function toggleClientFields() {
  // global delegated event listener
  document.addEventListener('input', onExpandableTextareaInput)
 
- // input datalist client get only client id, not name, acept only datalist option values
- function getOptId(inp_list, data_id, data_opt) {
+ // input datalist client get only client id, not name, acept only datalist option values---------------------------------------------------
+ function getOptId(inp_list, data_id, data_opt, index) {
    const inp_list_val = document.getElementById(inp_list).value;
+
 
    if (inp_list_val == 'Todos - []') {
       document.getElementById(data_id).value = 'Todos - []'
@@ -128,7 +135,9 @@ function toggleClientFields() {
    if (inp_list_val == '') {
       document.getElementById(data_id).value = '0'
       document.getElementById(inp_list).value = ''
-      return
+      if (index == '' || index == null) {
+         return
+      }
    }
 
    const matches = inp_list_val.match(/\[(\d+)\](?!.*\[\d+\])/);
@@ -144,14 +153,41 @@ function toggleClientFields() {
    if (!opt_valid || !matches) {
       document.getElementById(data_id).value = '0'
       document.getElementById(inp_list).value = ''
-      return
+      if (index == '' || index == null) {
+         return
+      }
    }
 
-   const object_selected_id = matches[1]
+   var object_selected_id = 0
+   if (matches != null) {
+      object_selected_id = matches[1]
+   }
+
    document.getElementById(data_id).value = object_selected_id
+
+   if (index != '' && index != null) {
+
+      // Update tec_id in order , without reload page with fetch
+      const orderId = index;
+      const tecId = object_selected_id;
+
+      fetch(`/Hema/public/orders/${orderId}/ord_tec_update`, {
+         method: 'POST',
+         headers: {
+               'Content-Type': 'application/json',
+               'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content // Captura o token CSRF
+         },
+         body: JSON.stringify({ tec_id: tecId })
+      })
+      
+      .catch(error => {
+         console.error('Erro:', error);
+         alert('Erro ao atualizar técnico.');
+      });
+   }
  }
  
- // Manage list
+ // Manage list-----------------------------------------------------------------------------------------------------------------
  function manageList(object) {
    const input = document.getElementById(object);
    const descr = input.value;
@@ -192,7 +228,7 @@ function toggleClientFields() {
    getValuesAndSetInput(object);// Call the function to get values and set them in the result input
  }
 
- // Function to get values and set them in the result input
+ // Function to get values and set them in the result input---------------------------------------------------------------
  function getValuesAndSetInput(object) {
    // Select all elements that was added in list
    const elements = document.querySelectorAll('.'+object+'-added-id');
@@ -207,7 +243,7 @@ function toggleClientFields() {
    document.getElementById(object+'_ids_array').value = commaSeparatedValues;
 }
 
-// Function to create elements to constitute the datalist items
+// Function to create elements to constitute the datalist items------------------------------------------------------------
 function createListItemElements(descr, object, obj_selected_id, obj_selected_unit) {
    // Create div from the object selected
    const div = document.createElement('div');
@@ -220,7 +256,7 @@ function createListItemElements(descr, object, obj_selected_id, obj_selected_uni
    div.id = object +'_'+obj_selected_id+'_div';
    object_list.appendChild(div);
 
-   // Add span with object description
+   // Add span with object description------------------------------------------------------------------------------------
    const regex = / - \[\d+\]$/;
    const descr_whichout_id = descr.replace(regex, '');
    const objDscr = document.createElement('span');
@@ -233,7 +269,7 @@ function createListItemElements(descr, object, obj_selected_id, obj_selected_uni
    div.appendChild(objDscr);
    objDscr.id = object +'_'+obj_selected_id+'_descr';
 
-   // Add input with object quantity
+   // Add input with object quantity--------------------------------------------------------------------------------------
    const objInput = document.createElement('input');
    objInput.type = 'number';
    objInput.name = object +'_'+obj_selected_id+'_qtd';
@@ -248,7 +284,7 @@ function createListItemElements(descr, object, obj_selected_id, obj_selected_uni
    objInput.id = object +'_'+obj_selected_id+'_qtd';
    div.appendChild(objInput);
 
-   // Add input hidden with object id in value
+   // Add input hidden with object id in value---------------------------------------------------------------------------
    const objSelectedId = document.createElement('input');
    objSelectedId.type = 'hidden';
    objSelectedId.name = object +'_'+obj_selected_id+'_id';
@@ -258,7 +294,7 @@ function createListItemElements(descr, object, obj_selected_id, obj_selected_uni
    objSelectedId.id = object +'_'+obj_selected_id+'_id';
    div.appendChild(objSelectedId);
 
-   // Add span with unit of measurement of the object
+   // Add span with unit of measurement of the object------------------------------------------------------------------
    const objUnit = document.createElement('span');
    objUnit.classList.add('input-group-text');
    objUnit.innerHTML = obj_selected_unit;

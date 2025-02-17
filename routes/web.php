@@ -40,14 +40,13 @@ Route::middleware(CheckSession::class)->group(function(){
     Route::get('/orders/{msg}/generate_pdf', [OrderController::class, 'generate_pdf'])->name('orders.generate_pdf');
     Route::get('/orders/{qtd}/add', [OrderController::class, 'add'])->name('orders.add');
     Route::post('/orders/orders_csv', [OrderController::class, 'orders_csv'])->name('orders.orders_csv');
-
+    Route::post('/orders/{id}/ord_tec_update', [OrderController::class, 'ord_tec_update'])->name('orders.ord_tec_update');
 
     Route::resource('clients', ClientController::class);
     Route::get('clients/{opt}/list', [ClientController::class, 'list'])->name('clients.list');
     Route::get('clients/{client}/restore', [ClientController::class, 'restore'])->name('clients.restore');
     Route::get('clients/{client}/desativate', [ClientController::class, 'desativate'])->name('clients.desativate');
 
-    
     Route::resource('order_types', OrderTypeController::class);
     Route::get('order_types/{opt}/list', [OrderTypeController::class, 'list'])->name('order_types.list');
     Route::get('order_types/{order_type}/restore', [OrderTypeController::class, 'restore'])->name('order_types.restore');
@@ -82,8 +81,6 @@ Route::middleware(CheckSession::class)->group(function(){
 
     Route::get('/tec_on', [UserController::class, 'tec_on'])->name('tec_on');
     Route::put('/tec_on_update', [UserController::class, 'tec_on_update'])->name('tec_on_update');
-
-    Route::put('/ord_tec_update', [OrderController::class, 'ord_tec_update'])->name('ord_tec_update');
 
     Route::get('/notes', [NoteController::class, 'index'])->name('notes.index');
     Route::get('/notes/{order}/create', [NoteController::class, 'create'])->name('notes.create');

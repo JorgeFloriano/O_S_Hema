@@ -704,25 +704,18 @@ class OrderController extends Controller
     }
 
     // Only main administrators or supervisors can change the on call technician
-    public function ord_tec_update(Request $request)
+    public function ord_tec_update(Request $request , $id)
     {
         if (!$this->s && !$this->m) {
             return view('login');
         }
 
         $ords = session('ords');
+        $order = $ords->where('id', $id)->first();
+        $order->tec_id = $request->input('tec_id');
+        $order = $order->save();
 
-        foreach ($ords as  $ord) {
-            if ($request->input('ord_' . $ord->id) != null && $request->input('ord_' . $ord->id) != "") {
-                $ord->tec_id = $request->input('ord_' . $ord->id);
-                $ord = $ord->save();
-                if (!$ord) {
-                    return redirect()->route('orders.index')->with('message', 'Erro ao selecionar técnico.');
-                }
-            }
-        }
-
-        return redirect()->route('orders.index')->with('message', 'Técnico selecionado com sucesso.');
+        return response()->json(['success' => 'Técnico atualizado com sucesso!']);
     }
 
     // Add orders for testing
@@ -789,16 +782,36 @@ class OrderController extends Controller
             $file = fopen('php://output', 'w');
         
             // Add CSV headers
-            fputcsv($file, ['Order ID', 'Note', 'Cliente', 'Created At']);
+            fputcsv($file, [
+                'SAT', 
+                'Data', 
+                'Cliente', 
+                'Descrição do serviço',
+                'Início',
+                'Término',
+                'Tipo',
+                'Defeito',
+                'Causa',
+                'Solução',
+                'Atendente'
+            ]);
         
             // Add rows
             foreach ($orders as $order) {
+                $order->notes_time_format();
                 foreach ($order->notes as $key => $note) {
                     fputcsv($file, [
-                        $order->id,
-                        $key + 1,
+                        $order->id.'/'.$key + 1,
+                        date('d/m/y',strtotime($order->req_date)),
                         $order->client->name,
-                        $note->created_at
+                        $note->services,
+                        $note->start,
+                        $note->end,
+                        $note->type->id.' - '.$note->type->description,
+                        $note->defect->id.' - '.$note->defect->description,
+                        $note->cause->id.' - '.$note->cause->description,
+                        $note->solution->id.' - '.$note->solution->description,
+                        $note->tecs[0]->user->name
                     ]);
                 }
             }
