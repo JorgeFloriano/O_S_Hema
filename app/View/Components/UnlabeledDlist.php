@@ -30,7 +30,7 @@ class UnlabeledDlist extends Component
             $this->input_hidden_name = $obj;
         } else {
             $this->object = '_'.$obj;
-            $this->input_hidden_name = 'ord_'.$ind;
+            $this->input_hidden_name = 'tec_id';
             $this->value = '0';
         }
         $this->object = $obj;
