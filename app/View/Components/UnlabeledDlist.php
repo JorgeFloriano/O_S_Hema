@@ -38,22 +38,23 @@ class UnlabeledDlist extends Component
         // ' - []' this is id mask for object, if dont exist, the value will be empty
         if ($val == ' - []') {
             $this->value = '';
+        }
+        
+        if ($val == '') {
+            $this->value = '0';
         } else {
-            if ($val == '') {
-                $this->value = '0';
+            $this->value = $val;
+            // ' - []' this is id mask for object, if dont exist, the value will be empty
+        if ($val == ' - []') {
+            $this->value = '';
             } else {
-                $this->value = $val;
-                // ' - []' this is id mask for object, if dont exist, the value will be empty
-            if ($val == ' - []') {
-                $this->value = '';
-                } else {
-                    // Use preg_match to find the last number between []
-                    if (preg_match('/\[(\d+)\]([^\[\]]*)$/', $val, $matches)) {
-                        $last_number = $matches[1]; // The number inside the last []
-                        $this->input_hidden_value =  $last_number;
-                    } 
-                }
+                // Use preg_match to find the last number between []
+                if (preg_match('/\[(\d+)\]([^\[\]]*)$/', $val, $matches)) {
+                    $last_number = $matches[1]; // The number inside the last []
+                    $this->input_hidden_value =  $last_number;
+                } 
             }
+           
         }
 
         $this->placeholder = $place;

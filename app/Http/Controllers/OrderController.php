@@ -101,8 +101,8 @@ class OrderController extends Controller
             'main' => $this->m ?? null,
             'sup' => $this->s ?? null,
             'adm' => $this->a ?? null,
-            'old_client' => 'Cliente (todos) - [0]',
-            'old_tec' => 'Técnico (todos) - [0]',
+            'old_client' => 'Cliente (todos)',
+            'old_tec' => 'Técnico (todos)',
             'old_finished' => 2,
             'date_s' => $start_date,
             'date_e' => $end_date
@@ -144,8 +144,8 @@ class OrderController extends Controller
 
         // If techician selected is "Não selecionado", get orders where tec_id is 0
         if ($request->tec == '0') {
-            $tec_selected = $request->tec;
-        } elseif ($request->tec == 'Todos - [0]') {
+            $tec_selected = '0';
+        } elseif ($request->tec == null) {
             $tec_selected = null;
         } else {
             $tec_selected = $request->tec;
@@ -157,6 +157,9 @@ class OrderController extends Controller
             })
             ->when($tec_selected, function ($query) use ($request) {
                 $query->where('tec_id', $request->tec);
+            })
+            ->when($tec_selected == '0', function ($query) use ($request) {
+                $query->where('tec_id', '0');
             })
             ->when($request->date_start, function ($query) use ($request) {
                 if ($request->date_type == 'order_open_date') {
@@ -211,7 +214,9 @@ class OrderController extends Controller
         }
 
         // Last tecnician selected
-        if ($tec_selected == 'Não selecionado - [0]') {
+        if ($tec_selected == '') {
+            $old_tec = 'Técnico (todos)';
+        } elseif ($tec_selected == '0') {
             $old_tec = 'Não selecionado - [0]';
         } else {
             $old_tec = Tec::with('user:id,name') // Eager load the user relationship
@@ -225,19 +230,21 @@ class OrderController extends Controller
         // Orders list, to updated tecnicians
         session()->put('ords', $orders);
 
+        $tecs = Tec::all();
+
         return view('order.orders_list', [
             'orders' => $orders,
             'ids' => $order_ids ?? 0,
             'able_btn' => $able_btn ?? '',
-            'tecs' => Tec::all(),
+            'tecs' => $tecs->sortBy('user.name'),
             'clients' => Client::select('id', 'name')->orderBy('name')->get(),
             'main' => $this->m ?? null,
             'sup' => $this->s ?? null,
             'adm' => $this->a ?? null,
             'date_s' => $request->date_start,
             'date_e' => $request->date_end,
-            'old_client' => $old_client ?? 'Cliente (todos) - [0]',
-            'old_tec' => $old_tec ?? 'Técnico (todos) - [0]',
+            'old_client' => $old_client ?? 'Cliente (todos)',
+            'old_tec' => $old_tec ?? 'Técnico (todos)',
             'old_finished' => $request->finished ?? null,
             'fin_select' => $fin_select ?? ['', '', ''],
             'order_open_select' => $order_open_select,
@@ -477,7 +484,7 @@ class OrderController extends Controller
         return view('order.order_pdf', ['order' => $order]);
     }
 
-    // Starts the process of generating the report (generate front page)----------------------------------------------------------------------
+    // Starts the process of generating the report (generate front page)-----------------------------------------
     public function orders_pdf(Request $request)
     {
         if (!$this->a) {

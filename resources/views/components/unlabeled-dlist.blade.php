@@ -5,10 +5,10 @@
 
         @if ($object == 'tec')
             <option class="{{$index.$object}}_option" value="Não selecionado - [0]"></option>
-
-            @if ($index == '')
-                <option class="{{$index.$object}}_option" value="Todos - [0]"></option>
-            @endif
+        @endif
+        
+        @if ($index == '')
+            <option class="{{$index.$object}}_option" value="{{$placeholder}}"></option>
         @endif
 
         @foreach ($objects as $item)
@@ -20,9 +20,9 @@
         @endforeach
     </datalist>
     
-    <input type="hidden" name="{{$input_hidden_name}}" id="{{$index.$object}}_id" value="{{$input_hidden_value}}">
+    <input name="{{$input_hidden_name}}" id="{{$index.$object}}_id" value="{{$input_hidden_value}}">
 
     @if ($index != '')
-        <input type="hidden" name="order_id_{{$index}}" id="order_id_{{$index}}" value="{{$index}}">
+        <input name="order_id_{{$index}}" id="order_id_{{$index}}" value="{{$index}}">
     @endif
 </div>
