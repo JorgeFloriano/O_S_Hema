@@ -61,7 +61,7 @@
                 @csrf
                 <div class="row g-2 mb-2">
                     <div class="col-lg-2 col-4">
-                        <x-unlabeled-dlist :objs="$clients" obj="client" des="name" :val="$old_client ?? ''" :place="'Cliente (todos)'" onfoc="clearInputs('client', 'client_id')"/>
+                        <x-unlabeled-dlist :objs="$clients" obj="client" des="name" :val="$old_client ?? ''" :place="'Cliente (todos)'" onfoc="clearInputs('client', 'client_id' ,'0')"/>
                     </div>
 
                     <div class="col-lg-2 col-4">
@@ -74,7 +74,7 @@
 
                     <div class="col-lg-2 col-4">
                         <x-unlabeled-dlist :objs="$tecs" obj="tec" des="user" :val="$old_tec ?? ''" :place="'Técnico (todos)'" subdes="name"
-                        onfoc="clearInputs('tec', 'tec_id')"/>
+                        onfoc="clearInputs('tec', 'tec_id', '')"/>
                     </div>
 
                     <div class="col-lg-2 col-4">

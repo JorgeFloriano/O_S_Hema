@@ -122,49 +122,62 @@ function toggleClientFields() {
  document.addEventListener('input', onExpandableTextareaInput)
 
  // input datalist client get only client id, not name, acept only datalist option values---------------------------------------------------
- function getOptId(inp_list, data_id, data_opt, index) {
-   const inp_list_val = document.getElementById(inp_list).value;
+ function getOptId(inp_shown, inp_hidden, class_opt, index) {
+   // inp_shown -> Input id where the user will select the option
+   // inp_hidden -> Input id hidden where from the value of the selected option id will be stored (probably the id)
+   // class_opt -> Class of the option, to verify if the option is valid
+   // index -> If thi is called in a loop, the index was needed of the current iteration
+   const inp_shown_val = document.getElementById(inp_shown).value;
 
-
-   if (inp_list_val == 'Todos - []') {
-      document.getElementById(data_id).value = 'Todos - []'
-      document.getElementById(inp_list).value = 'Todos - []'
-      return
-   }
-
-   if (inp_list_val == '') {
-      document.getElementById(data_id).value = '0'
-      document.getElementById(inp_list).value = ''
+   // Verify if the user want to keep input empty
+   if (inp_shown_val == '') {
+      if (inp_shown == 'tec') {
+         document.getElementById(inp_hidden).value = '' 
+      } else {
+         document.getElementById(inp_hidden).value = '0'
+         document.getElementById(inp_shown).value = ''
+      }
       if (index == '' || index == null) {
          return
       }
    }
 
-   const matches = inp_list_val.match(/\[(\d+)\](?!.*\[\d+\])/);
-   const data_options = window.document.getElementsByClassName(data_opt);
-   var opt_valid = false;
+   // Get the last number of the selected option beteen [], to get the id
+   const matches = inp_shown_val.match(/\[(\d+)\](?!.*\[\d+\])/);
 
-   for (let data_opt of data_options) {
-      if (data_opt.value == inp_list_val) {
+   // Verify if the option is valid
+   const data_options = window.document.getElementsByClassName(class_opt);
+   var opt_valid = false;
+   for (let class_opt of data_options) {
+      if (class_opt.value == inp_shown_val) {
          opt_valid = true
       }
    }
    
-   if (!opt_valid || !matches) {
-      document.getElementById(data_id).value = '0'
-      document.getElementById(inp_list).value = ''
+   // If the option is valid but dont find the last number, id will be null and return
+   if (opt_valid && matches == null) {
+      document.getElementById(inp_hidden).value = null
       if (index == '' || index == null) {
          return
       }
    }
 
+   if (matches == null) {
+      document.getElementById(inp_hidden).value = '0'
+      document.getElementById(inp_shown).value = ''
+      if (index == '' || index == null) {
+         return
+      }
+   }
+
+   // Get the id, if is valid, else id = 0
    var object_selected_id = 0
    if (matches != null) {
       object_selected_id = matches[1]
    }
+   document.getElementById(inp_hidden).value = object_selected_id
 
-   document.getElementById(data_id).value = object_selected_id
-
+   // If this is called in a loop, update tec_id in order
    if (index != '' && index != null) {
 
       // Update tec_id in order , without reload page with fetch
@@ -174,10 +187,10 @@ function toggleClientFields() {
       fetch(`/Hema/public/orders/${orderId}/ord_tec_update`, {
          method: 'POST',
          headers: {
-               'Content-Type': 'application/json',
-               'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content // Captura o token CSRF
+               'Content-Type': 'application/json', // Include JSON header
+               'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content // Include CSRF token
          },
-         body: JSON.stringify({ tec_id: tecId })
+         body: JSON.stringify({ tec_id: tecId }) // Send JSON data
       })
       
       .catch(error => {
@@ -215,8 +228,8 @@ function toggleClientFields() {
    }
 
    // Instace variables
-   const inp_list_val = document.getElementById(object).value;
-   const matches = inp_list_val.match(/\[(\d+)\](?!.*\[\d+\])/);
+   const inp_shown_val = document.getElementById(object).value;
+   const matches = inp_shown_val.match(/\[(\d+)\](?!.*\[\d+\])/);
    const obj_selected_id = matches[1]; // object_selected_id 
    const obj_selected_unit = document.getElementById(obj_selected_id+'_unit').value; // object_selected_unit
    const form = document.getElementById('form');
@@ -228,7 +241,7 @@ function toggleClientFields() {
    getValuesAndSetInput(object);// Call the function to get values and set them in the result input
  }
 
- // Function to get values and set them in the result input---------------------------------------------------------------
+ // Function to get values fro the several inputs and set them in a input separated by commas-----------------------
  function getValuesAndSetInput(object) {
    // Select all elements that was added in list
    const elements = document.querySelectorAll('.'+object+'-added-id');
@@ -256,7 +269,7 @@ function createListItemElements(descr, object, obj_selected_id, obj_selected_uni
    div.id = object +'_'+obj_selected_id+'_div';
    object_list.appendChild(div);
 
-   // Add span with object description------------------------------------------------------------------------------------
+   // Add span with object description-
    const regex = / - \[\d+\]$/;
    const descr_whichout_id = descr.replace(regex, '');
    const objDscr = document.createElement('span');
@@ -269,7 +282,7 @@ function createListItemElements(descr, object, obj_selected_id, obj_selected_uni
    div.appendChild(objDscr);
    objDscr.id = object +'_'+obj_selected_id+'_descr';
 
-   // Add input with object quantity--------------------------------------------------------------------------------------
+   // Add input with object quantity
    const objInput = document.createElement('input');
    objInput.type = 'number';
    objInput.name = object +'_'+obj_selected_id+'_qtd';
@@ -284,7 +297,7 @@ function createListItemElements(descr, object, obj_selected_id, obj_selected_uni
    objInput.id = object +'_'+obj_selected_id+'_qtd';
    div.appendChild(objInput);
 
-   // Add input hidden with object id in value---------------------------------------------------------------------------
+   // Add input hidden with object id in value
    const objSelectedId = document.createElement('input');
    objSelectedId.type = 'hidden';
    objSelectedId.name = object +'_'+obj_selected_id+'_id';
@@ -294,7 +307,7 @@ function createListItemElements(descr, object, obj_selected_id, obj_selected_uni
    objSelectedId.id = object +'_'+obj_selected_id+'_id';
    div.appendChild(objSelectedId);
 
-   // Add span with unit of measurement of the object------------------------------------------------------------------
+   // Add span with unit of measurement of the object
    const objUnit = document.createElement('span');
    objUnit.classList.add('input-group-text');
    objUnit.innerHTML = obj_selected_unit;
@@ -327,7 +340,7 @@ function createListItemElements(descr, object, obj_selected_id, obj_selected_uni
    });
 }
 
-// Function to convert string to array
+// Function to convert string to array------------------------------------------------------------------------------------
 function strToArr(inputString) {
    alert('test');
    // Step 1: Remove the outer brackets
@@ -345,6 +358,8 @@ function strToArr(inputString) {
       alert('test');
    });
 }
+
+// Function to submit form-------------------------------------------------------------------------------------------
 function submitRoute(route, form, msg) {
    if (msg != null && msg != '') {
       alert(msg);
@@ -354,7 +369,8 @@ function submitRoute(route, form, msg) {
    document.getElementById(form).submit();
 }
 
-function clearInputs(input, inputHidden) {
+// Function to clear inputs-----------------------------------------------------------------------------------------
+function clearInputs(input, inputHidden, msg) {
    document.getElementById(input).value = '';
-   document.getElementById(inputHidden).value = '0';
+   document.getElementById(inputHidden).value = msg;
 }
