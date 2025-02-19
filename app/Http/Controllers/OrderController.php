@@ -399,7 +399,7 @@ class OrderController extends Controller
             return redirect()->back()->with('message', 'Selecione um cliente para prosseguir.');
         }
 
-        $updated = $this->os->where('id', $id)->update($request->except(['_token', '_method', 'adm_id', 'tec_id', 'client']));
+        $updated = $this->os->where('id', $id)->update($request->except(['_token', '_method', 'adm_id', 'tec_id']));
 
         $os = Order::find($id);
         $os->user_id = auth()->user()->id;
@@ -778,7 +778,7 @@ class OrderController extends Controller
         $orders = $orders->sortBy('client.name');
 
         // Create the CSV file
-        $fileName = $request->title . date('d_m_Y') . '.csv';
+        $fileName = 'dados_sat_hema_' . date('d_m_Y') . '.xlsx';
         
         $headers = [
             'Content-Type' => 'text/csv',

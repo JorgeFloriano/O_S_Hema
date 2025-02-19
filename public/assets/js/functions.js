@@ -181,22 +181,7 @@ function toggleClientFields() {
    if (index != '' && index != null) {
 
       // Update tec_id in order , without reload page with fetch
-      const orderId = index;
-      const tecId = object_selected_id;
-
-      fetch(`/Hema/public/orders/${orderId}/ord_tec_update`, {
-         method: 'POST',
-         headers: {
-               'Content-Type': 'application/json', // Include JSON header
-               'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content // Include CSRF token
-         },
-         body: JSON.stringify({ tec_id: tecId }) // Send JSON data
-      })
-      
-      .catch(error => {
-         console.error('Erro:', error);
-         alert('Erro ao atualizar técnico.');
-      });
+      updateOrderTec(index, object_selected_id)
    }
  }
  
@@ -373,4 +358,24 @@ function submitRoute(route, form, msg) {
 function clearInputs(input, inputHidden, msg) {
    document.getElementById(input).value = '';
    document.getElementById(inputHidden).value = msg;
+}
+
+// Update tec_id in order , without reload page with fetch----------------------------------------------------------
+function updateOrderTec(index, object_selected_id) {
+   const orderId = index;
+   const tecId = object_selected_id;
+
+   fetch(`/Hema/public/orders/${orderId}/ord_tec_update`, {
+      method: 'POST',
+      headers: {
+            'Content-Type': 'application/json', // Include JSON header
+            'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content // Include CSRF token
+      },
+      body: JSON.stringify({ tec_id: tecId }) // Send JSON data
+   })
+   
+   .catch(error => {
+      console.error('Erro:', error);
+      alert('Erro ao atualizar técnico.');
+   });
 }
