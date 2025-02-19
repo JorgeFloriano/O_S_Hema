@@ -20,13 +20,12 @@
 
             .progress-bar {
                 margin: 10px 0;
-                padding: 2px;
                 background-color: white;
                 overflow: hidden;
                 border-radius: 5px;
-                height: 30px;
+                height: 15px;
                 width: 100%;
-                border: solid 1px rgb(165, 160, 160);
+                border: solid 1px #198754;
             }
 
             .loaded {

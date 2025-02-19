@@ -28,30 +28,6 @@
             <div id="header" class="my-2">
                 <h2>
                     Ordens de Serviço
-                    @if ($adm)
-                        <span class="float-end">
-                            <button onclick="formSubmit('filter_form')" data-bs-toggle="tooltip" title="Filtrar ordens de serviço conforme opções selecionadas" id="submitButton" type="submit" class="btn btn-secondary">
-                                <i class="fa fa-filter"></i>
-                            </button>
-
-                            <button type="button" data-bs-toggle="tooltip" title="Gerar relatório PDF das ordens de serviço filtradas" 
-                                onclick="submitRoute('{{route('orders.orders_pdf')}}', 'archive_form', '{{$able_btn ?? ''}}')" 
-                                class="btn btn-danger">
-                                <i class="fa fa-file-pdf-o"></i>
-                            </button>
-
-                            <button type="button" data-bs-toggle="tooltip" title="Gerar arquivo CSV das ordens de serviço filtradas" 
-                                onclick="submitRoute('{{route('orders.orders_csv')}}', 'archive_form', '{{$able_btn ?? ''}}')" 
-                                class="btn btn-success">
-                                <i class="fa fa-file-excel-o"></i>
-                            </button>
-                            <a href="{{route('orders.create')}}">
-                                <button class="btn btn-primary" data-bs-toggle="tooltip" title="Criar nova ordem de serviço">
-                                    <i class="fa fa-plus"></i>
-                                </button>
-                            </a>
-                        </span>
-                    @endif
                 </h2>
             </div>
             <hr>
@@ -60,11 +36,11 @@
 
                 @csrf
                 <div class="row g-2 mb-2">
-                    <div class="col-lg-2 col-4">
+                    <div class="col-xl-2 col-md-4 col-6">
                         <x-unlabeled-dlist :objs="$clients" obj="client" des="name" :val="$old_client ?? ''" :place="'Cliente (todos)'" onfoc="clearInputs('client', 'client_id' ,'0')"/>
                     </div>
 
-                    <div class="col-lg-2 col-4">
+                    <div class="col-xl-2 col-md-4 col-6">
                         <select class="form-select" id="finished" name="finished" aria-label="Floating label select example">
                             <option {{$fin_select[2] ?? ''}} value="2">Ordens (todas)</option>
                             <option {{$fin_select[0] ?? ''}} value="0">Não Finalizadas</option>
@@ -72,54 +48,82 @@
                         </select>
                     </div>
 
-                    <div class="col-lg-2 col-4">
+                    <div class="col-xl-2 col-md-4 col-6">
                         <x-unlabeled-dlist :objs="$tecs" obj="tec" des="user" :val="$old_tec ?? ''" :place="'Técnico (todos)'" subdes="name"
                         onfoc="clearInputs('tec', 'tec_id', '')"/>
                     </div>
 
-                    <div class="col-lg-2 col-4">
+                    <div class="col-xl-2 col-md-4 col-6">
                         <select class="form-select" id="date_type" name="date_type" aria-label="Floating label select example">
                             <option {{$order_open_select ?? ''}} value="order_open_date">Data de abertura</option>
                             <option {{$last_note_select ?? ''}} value="last_note_date">Última anotação</option>
                         </select>
                     </div>
 
-                    <div class="col-lg-2 col-4">
+                    <div class="col-xl-2 col-md-4 col-6">
                         <label for="Start" class="col-form-label" style="width: 20%;float: left">de</label>
                         <input type="date" class="form-control" id="Start" style="width: 80%;float: right" name="date_start" placeholder="Início" value="{{$date_s}}">
                     </div>
                     
-                    <div class="col-lg-2 col-4">    
+                    <div class="col-xl-2 col-md-4 col-6">    
                         <label for="End" class="col-form-label" style="width: 20%;float: left">até</label>
                         <input type="date" class="form-control" id="End" style="width: 80%;float: right" name="date_end" placeholder="Término" value="{{$date_e}}">
                     </div>
                 </div>
             </form>
+            @if ($adm)
+                <a href="{{route('orders.create')}}" class="btn btn-primary" data-bs-toggle="tooltip" title="Criar nova ordem de serviço">
+                    Criar nova
+                </a>
+                
+                <div class="float-end">
+                    <button onclick="formSubmit('filter_form')" data-bs-toggle="tooltip" title="Filtrar ordens de serviço conforme opções   selecionadas" id="submitButton" type="submit" class="btn btn-secondary">
+                        <i class="fa fa-filter"></i>
+                    </button>
+
+                    <!-- Button trigger modal -->
+                    <button type="button" data-bs-toggle="modal" data-bs-target="#reportTitle" class="btn btn-danger mx-1">
+                        <i class="fa fa-file-pdf-o" data-bs-toggle="tooltip" title="Gerar relatório PDF das ordens de serviço filtradas"></i>
+                    </button>
+
+                    <button type="button" data-bs-toggle="tooltip" title="Gerar arquivo xlsx (Excel) das ordens de serviço filtradas" 
+                        onclick="submitRoute('{{route('orders.orders_csv')}}', 'csv_form', '{{$able_btn ?? ''}}')" 
+                        class="btn btn-success">
+                        <i class="fa fa-file-excel-o"></i>
+                    </button>
+                </div>
+            @endif
             <hr>
 
-            @if ($adm)
-                <form action="{{route('orders.orders_pdf')}}" id="archive_form" method="post">
-                    @csrf
+            <form action="{{route('orders.orders_csv')}}" id="csv_form" method="post">
+                @csrf
+                <input type="hidden" name="ids" id="ids" value="{{$ids ?? '0'}}">
+            </form>
+            
+            <!-- Modal -->
+            <form action="{{route('orders.orders_pdf')}}" id="pdf_form" method="post">
 
-                    <div class="row g-2 mb-2">
-                        <input type="hidden" name="ids" id="ids" value="{{$ids ?? '0'}}">
-
-                        <div class="col-xxl-1 col-lg-1 col-2  p-2">
-                            <label for="title">Titulo:</label>
+                @csrf
+                <input type="hidden" name="ids" id="ids" value="{{$ids ?? '0'}}">
+                <div class="modal fade" id="reportTitle" tabindex="-1" aria-labelledby="reportTitleLabel" aria-hidden="true">
+                    <div class="modal-dialog">
+                    <div class="modal-content">
+                        <div class="modal-header">
+                        <h5 class="modal-title" id="reportTitleLabel">Novo título da capa (opcional)</h5>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
-
-                        <div class="col-xxl-9 col-lg-8 col-10 ">
+                        <div class="modal-body">
                             <input type="text" name="title" class="form-control" maxlength="120" id="title" 
-                            placeholder="Digite um título e filtre ordens de serviço finalizadas para gerar relatório">
+                            placeholder="Padrão: Relatório de Solicitações de Assistência Técnica">
                         </div>
-                        
-                        <div class="col-xxl-2 col-lg-3">
-                            
+                        <div class="modal-footer">
+                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                        <button type="submit" class="btn btn-primary">Gerar Relatório</button>
                         </div>
                     </div>
-                </form>
-            @endif
-
+                    </div>
+                </div>
+            </form>
 
             @if ($orders->count() === 0)
                 <p>
@@ -153,7 +157,7 @@
                                         @if ($order->finished || (!$main && !$sup))
                                             <input class="form-control" disabled id="ord_{{$order->id}}" value="{{$order->tec->user->name ?? 'Indefinido'}} - [{{$order->tec->id ?? ''}}]">
                                         @else
-                                            <x-unlabeled-dlist :objs="$tecs" obj="tec" des="user" place="Não selecionado" val="{{$order->tec->user->name ?? ''}} - [{{$order->tec->id ?? ''}}]" ind="{{$order->id}}" subdes="name"/>
+                                            <x-unlabeled-dlist :objs="$tecs" obj="tec" des="user" place="Não selecionado" val="{{$order->tec->user->name ?? ''}} - [{{$order->tec->id ?? ''}}]" ind="{{$order->id}}" subdes="name" onfoc="clearInputs('{{$order->id}}tec', '{{$order->id}}tec_id' ,'0'), updateOrderTec('{{$order->id}}', 0)"/>
                                         @endif
                                     </td>
                                     <td>{{date('d/m/y',strtotime($order->req_date))}}</td>
