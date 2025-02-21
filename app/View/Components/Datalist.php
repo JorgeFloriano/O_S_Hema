@@ -16,15 +16,23 @@ class Datalist extends Component
     public $onchange;
     public $required;
     public $onfocus;
-    public function __construct($objs, $obj, $tit, $val='',$des, $list='', $req='')
+    public $type;
+    public $input_hidden_value;
+    public function __construct($objs, $obj, $tit, $val='',$des, $type='', $req='')
     {
         $this->objects = $objs;
         $this->object = $obj;
         $this->title = $tit;
         $this->value = $val;
         $this->description = $des;
+        $this->type = $type;
 
-        if ($list == "true") {
+        if (preg_match('/\[(\d+)\]([^\[\]]*)$/', $val, $matches)) {
+            $last_number = $matches[1]; // The number inside the last []
+            $this->input_hidden_value =  $last_number;
+        } 
+
+        if ($type == "list") {
             $this->onchange = ", manageList('material')";
             $this->onfocus = "this.value = ''";
         } else {

@@ -113,7 +113,6 @@ class CauseController extends Controller
         return view('codes.cause.cause_edit', ['cause' => $cause]);
     }
 
-    
     public function update(FormCodeRequest $request, string $id)
     {
         if (session('main') !== auth()->user()->id) {
@@ -130,7 +129,6 @@ class CauseController extends Controller
         return redirect()->route('causes.index')->with('message', 'Erro ao atualizar cadastro.');
     }
 
-    
     public function destroy(string $id)
     {
         if (session('main') !== auth()->user()->id) {

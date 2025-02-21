@@ -5,14 +5,19 @@
     <datalist id="{{$objects}}">
         @foreach ($objects as $item)
             <option id="{{$object}}_option_{{$item->id}}" class="{{$object}}_option" value="{{$item->$description}} - [{{$item->id}}]">
-            <input type="hidden" class="{{$object}}-option-id" name="{{$item->id}}_id" id="{{$item->id}}_id" value="{{$item->id}}">
-            <input type="hidden" name="{{$item->id}}_unit" id="{{$item->id}}_unit" value="{{$item->unit}}">
+                @if ($type == 'list')
+                    <input type="hidden" class="{{$object}}-option-id" name="{{$item->id}}_id" id="{{$item->id}}_id" value="{{$item->id}}">
+                    <input type="hidden" name="{{$item->id}}_unit" id="{{$item->id}}_unit" value="{{$item->unit}}">
+                @endif
         @endforeach
     </datalist>
     
-    <input type="hidden" name="{{$object}}_id" id="{{$object}}_id">
-    <input type="hidden" name="{{$object}}_ids_array" id="{{$object}}_ids_array">
-    <div id="material_list">
+    <input type="hidden" name="{{$object}}_id" id="{{$object}}_id" value="{{$input_hidden_value}}">
 
-    </div>
+    @if ($type == 'list')
+        <input type="hidden" name="{{$object}}_ids_array" id="{{$object}}_ids_array">
+        <div id="material_list">
+
+        </div>
+    @endif
 </div>
