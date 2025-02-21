@@ -37,7 +37,11 @@ class UserController extends Controller
 
         $admins = Adm::select('user_id')->where('main', 1)->get();
 
-        $users = $this->user->select('id', 'name','function')->whereNotIn('id', $admins)->simplePaginate(20);
+        $users = $this->user
+            ->select('id', 'name', 'function')
+            ->whereNotIn('id', $admins)
+            ->orderBy('name') // Order by the 'name' column
+            ->simplePaginate(20);
 
         return view('user.users_list' , ['users' => $users]);
     }
@@ -49,8 +53,12 @@ class UserController extends Controller
             return view('login');
         }
 
-        $tecs = Tec::whereNotIn('user_id', [1, 2, 9999, 0])->simplePaginate(20);
-
+        $tecs = Tec::join('users', 'tecs.user_id', '=', 'users.id')
+        ->whereNotIn('tecs.user_id', [1, 2, 9999, 0])
+        ->orderBy('users.name') // Order by the user's name
+        ->select('tecs.*') // Select only the Tec columns
+        ->simplePaginate(20);
+        
         session()->put('tecs', $tecs);
 
         return view('user.tec_on', [

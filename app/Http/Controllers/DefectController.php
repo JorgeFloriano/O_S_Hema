@@ -72,7 +72,6 @@ class DefectController extends Controller
         return view('codes.defect.defect_create');
     }
 
-   
     public function store(FormCodeRequest $request)
     {
         if (session('main') !== auth()->user()->id) {
@@ -100,7 +99,6 @@ class DefectController extends Controller
         return view('codes.defect.defect_delete', ['defect' => $defect]);
     }
 
-    
     public function edit($defect)
     {
         if (session('main') !== auth()->user()->id) {
@@ -117,7 +115,6 @@ class DefectController extends Controller
         return view('codes.defect.defect_edit', ['defect' => $defect]);
     }
 
-    
     public function update(FormCodeRequest $request, string $id)
     {
         if (session('main') !== auth()->user()->id) {
@@ -134,7 +131,6 @@ class DefectController extends Controller
         return redirect()->route('defects.index')->with('message', 'Erro ao atualizar cadastro.');
     }
 
-    
     public function destroy(string $id)
     {
         if (session('main') !== auth()->user()->id) {

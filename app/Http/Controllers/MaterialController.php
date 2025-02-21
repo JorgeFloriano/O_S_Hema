@@ -37,7 +37,7 @@ class MaterialController extends Controller
         }
 
         if ($opt == 0) {
-            $materials = $this->material->onlyTrashed()->simplePaginate(20);
+            $materials = $this->material->onlyTrashed()->orderBy('description')->simplePaginate(20);
             $opt = 1;
             $msg = 'Desativados';
             $cond = 'Ativar';
@@ -45,7 +45,7 @@ class MaterialController extends Controller
             $btn_color = 'btn-success';
             $route = 'materials.restore';
         } else {
-            $materials = $this->material->simplePaginate(20);
+            $materials = $this->material->orderBy('description')->simplePaginate(20);
             $opt = 0;
             $msg = 'Ativos';
             $cond = 'Desativar';
@@ -74,7 +74,6 @@ class MaterialController extends Controller
         return view('material.material_create', ['units' => $this->units]);
     }
 
-   
     public function store(FormMaterialRequest $request)
     {
         if (session('main') !== auth()->user()->id && session('cli') !== auth()->user()->id) {
@@ -103,7 +102,6 @@ class MaterialController extends Controller
         return view('material.material_delete', ['material' => $material]);
     }
 
-    
     public function edit($material)
     {
         if (session('main') !== auth()->user()->id && session('cli') !== auth()->user()->id) {
@@ -123,7 +121,6 @@ class MaterialController extends Controller
         ]);
     }
 
-    
     public function update(FormMaterialRequest $request, string $id)
     {
         if (session('main') !== auth()->user()->id && session('cli') !== auth()->user()->id) {
@@ -140,7 +137,6 @@ class MaterialController extends Controller
         return redirect()->route('materials.index')->with('message', 'Erro ao atualizar cadastro.');
     }
 
-    
     public function destroy(string $id)
     {
         if (session('main') !== auth()->user()->id && session('cli') !== auth()->user()->id) {
