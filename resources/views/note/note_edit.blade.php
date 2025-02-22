@@ -131,9 +131,12 @@
                         <label for="solution_id">Solução</label>
                     </div>
 
-                    {{$materials_string}}
-
                     <x-datalist :objs="$materials" obj="material" tit="Selecionar Materiais utilizados" :val="old('client')" des="description" type="list" req=""/>
+
+                    <input type="hidden" name="material_ids_array" id="material_ids_array">
+                    <div id="material_list"></div>
+
+                    <input type="hidden" name="json_list" data-object="material" id="json_list" value="{{$materials_json}}">
 
                     <div class="form-floating my-2">
                         <textarea id="services" name="services" maxlength="1290" class='autoExpand form-control' rows='1' data-min-rows='1' required>{{$note->services}}</textarea>
@@ -284,13 +287,9 @@
                         </a>
                     </div>
                 </form>
-                <script>
-                    function myFunction() {
-                        alert("Page has loaded!");
-                    }
-                </script>
                 <script src="{{asset('assets/js/signature.js')}}"></script>
                 <script src="{{asset('assets/js/signature2.js')}}"></script>
+                <script src="{{asset('assets/js/generate_list.js')}}"></script>
             </main>
         </div>
     </div>

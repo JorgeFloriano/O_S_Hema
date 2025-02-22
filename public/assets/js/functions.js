@@ -220,7 +220,7 @@ function toggleClientFields() {
    const form = document.getElementById('form');
 
    // Call the function to create elements to constitute the datalist items
-   createListItemElements(descr, object, obj_selected_id, obj_selected_unit, 'serv');
+   createListItemElements(descr, object, obj_selected_id, '1', obj_selected_unit);
    
    document.getElementById(object).blur();// remove focus
    getValuesAndSetInput(object);// Call the function to get values and set them in the result input
@@ -242,7 +242,7 @@ function toggleClientFields() {
 }
 
 // Function to create elements to constitute the datalist items------------------------------------------------------------
-function createListItemElements(descr, object, obj_selected_id, obj_selected_unit) {
+function createListItemElements(descr, object, obj_selected_id, obj_selected_qud, obj_selected_unit) {
    // Create div from the object selected
    const div = document.createElement('div');
    const object_list = document.getElementById(object+'_list');
@@ -277,7 +277,7 @@ function createListItemElements(descr, object, obj_selected_id, obj_selected_uni
    objInput.placeholder = 'Quantidade';
    objInput.required = true;
    objInput.autocomplete = 'off';
-   objInput.value = 1;
+   objInput.value = obj_selected_qud;
    objInput.min = 0;
    objInput.id = object +'_'+obj_selected_id+'_qtd';
    div.appendChild(objInput);
@@ -322,25 +322,6 @@ function createListItemElements(descr, object, obj_selected_id, obj_selected_uni
         }
          getValuesAndSetInput(object);// Call the function to get values and set them in the result input
       }
-   });
-}
-
-// Function to convert string to array------------------------------------------------------------------------------------
-function strToArr(inputString) {
-   alert('test');
-   // Step 1: Remove the outer brackets
-   const trimmedString = inputString.slice(2, -2);
-
-   // Step 2: Split by "],[" to separate the inner arrays
-   const innerArrays = trimmedString.split("],[");
-
-   // Step 3: Map through the inner arrays, clean them up, and split by commas
-   const result = innerArrays.map((item) => {
-      // Remove any remaining brackets and trim whitespace
-      const cleanedItem = item.replace(/[\[\]]/g, "").trim();
-      // Split by commas and trim each element
-      cleanedItem.split(",").map((element) => element.trim());
-      alert('test');
    });
 }
 

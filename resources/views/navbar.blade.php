@@ -41,19 +41,19 @@
             <ul class="navbar-nav me-auto mb-lg-0">
                 @if (session('main') == auth()->user()->id)
                     <li class="nav-item">
-                        <a class="nav-link" href="{{route('clients.index')}}">
+                        <a class="nav-link me-2" href="{{route('clients.index')}}">
                             Clientes
                         </a>
                     </li>
 
                     <li class="nav-item">
-                        <a class="nav-link" href="{{route('users.index')}}">
+                        <a class="nav-link me-2" href="{{route('users.index')}}">
                             Usuários
                         </a>
                     </li>
 
                     <li class="nav-item">
-                        <a class="nav-link" href="{{route('materials.index')}}">
+                        <a class="nav-link me-2" href="{{route('materials.index')}}">
                             Materiais
                         </a>
                     </li>
@@ -61,13 +61,13 @@
 
                 @if (session('cli') == auth()->user()->id)
                     <li class="nav-item">
-                        <a class="nav-link" href="{{route('clients.index')}}">
+                        <a class="nav-link me-2" href="{{route('clients.index')}}">
                             Clientes
                         </a>
                     </li>
 
                     <li class="nav-item">
-                        <a class="nav-link" href="{{route('materials.index')}}">
+                        <a class="nav-link me-2" href="{{route('materials.index')}}">
                             Materiais
                         </a>
                     </li>
@@ -75,7 +75,7 @@
 
                 @if (auth()->user()->tec()->first())
                     <li class="nav-item">
-                        <a class="nav-link" href="{{route('notes.index')}}">
+                        <a class="nav-link me-2" href="{{route('notes.index')}}">
                             Programação
                         </a>
                     </li>
@@ -83,7 +83,7 @@
 
                 @if (auth()->user()->sup()->first() || auth()->user()->adm()->first())
                     <li>
-                        <a class="nav-link" href="{{route('orders.index')}}">
+                        <a class="nav-link me-2" href="{{route('orders.index')}}">
                             Ordens
                         </a>
                     </li>
@@ -91,7 +91,7 @@
 
                 @if (auth()->user()->sup()->first())
                     <li>
-                        <a class="nav-link" href="{{route('tec_on')}}">
+                        <a class="nav-link me-2" href="{{route('tec_on')}}">
                             Sobreaviso
                         </a>
                     </li>
@@ -99,7 +99,7 @@
 
                 @if (session('main') == auth()->user()->id)
                     <li class="nav-item dropdown">
-                        <a class="nav-link dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <a class="nav-link me-2 dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         Códigos
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
