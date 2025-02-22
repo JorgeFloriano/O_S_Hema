@@ -5,10 +5,6 @@
 @php
     use Illuminate\Support\Facades\Crypt;
 @endphp
-
-</head>
-
-<body id="body">
     <div class="container box">
         <div class="row mt-1">
             <div class="col-lg-6 offset-lg-3">
@@ -142,7 +138,7 @@
                         
                         <x-selected-old nam="solution_id" :tab="$solutions" des="description" nom="Solução"/>
 
-                        <x-datalist :objs="$materials" obj="material" tit="Selecionar Materiais utilizados" :val="old('client')" des="description" type="list" req=""/>
+                        <x-datalist :objs="$materials" obj="material" tit="Selecionar Materiais utilizados" :val="old('material')" des="description" type="list" req=""/>
 
                         <div id="serv" class="form-floating my-2">
                             <textarea id="services" name="services" placeholder="Serviços executados" maxlength="1290" class='autoExpand form-control' rows='1' data-min-rows='1' required>{{old('services')}}</textarea>
@@ -198,41 +194,6 @@
                                 </div>
                             </div>
                         </div>
-
-                        {{-- <div class="row g-2 mb-2">
-                            <div class="col">
-                                <div class="form-floating">
-                                    <input type="number" class="form-control" id="kmStart" step="0.01" max="9999.99" min="0" name="km_start" placeholder="Km inicial" value="{{old('km_start')}}">
-                                    <label for="kmStart">Km inicial</label>
-                                </div>
-                            </div>
-                            <div class="col">    
-                                <div class="form-floating">
-                                    <input type="number" class="form-control" id="kmEnd" step="0.01" max="9999.99" min="0" name="km_end" placeholder="Km final" value="{{old('km_end')}}">
-                                    <label for="kmEnd">Km final</label>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="row g-2">
-                            <div class="col">
-                                <div class="form-floating">
-                                    <input type="number" class="form-control" id="food" step="0.01" max="9999.99" min="0" name="food" placeholder="Alimantação (R$)" value="{{old('food')}}">
-                                    <label for="food">Alimentação (R$)</label>
-                                </div>
-                            </div>
-                            <div class="col"> 
-                                <div class="form-floating">
-                                    <input type="number" class="form-control" id="expense" step="0.01" max="9999.99" min="0" name="expense" placeholder="Outras Despesas (R$)" value="{{old('expense')}}">
-                                    <label for="expense">Outros (R$)</label>
-                                </div>
-                            </div>
-                        </div>
-
-                        <div class="form-floating my-2">
-                            <input type="text" class="form-control" id="obs" name="obs" value="{{old('obs')}}" placeholder="Observações"  maxlength="40">
-                            <label for="obs">Observações das despesas</label>
-                        </div> --}}
 
                         <div class="form-floating my-2">
                             <select class="form-select" id="firstTec" required name="first_tec" aria-label="Floating label select example">
@@ -377,6 +338,4 @@
             </div>
         </div>
     </div>
-</body>
-</html>
 @endsection

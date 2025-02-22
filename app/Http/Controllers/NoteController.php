@@ -280,6 +280,10 @@ class NoteController extends Controller
         $materials_string = substr($materials_string, 0, -1);
         $materials_string .= ']';
 
+        // Get all materials order by name
+        $materials = Material::all();
+        $materials = $materials->sortBy('description');
+
         return view('note.note_edit', [
             'note' => $note,
             'tecs' => $tecs,
@@ -288,6 +292,7 @@ class NoteController extends Controller
             'causes' => $c_l['causes'],
             'solutions' =>  $c_l['solutions'],
             'materials_string' => $materials_string,
+            'materials' => $materials
         ]);
     }
 
