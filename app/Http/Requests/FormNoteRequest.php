@@ -9,14 +9,15 @@ class FormNoteRequest extends FormRequest
 {
     public function rules(): array
     {
-        return [
+        // Base rules for non-material fields
+        $rules = [
             'equip_mod' => 'required|max:20',
             'equip_id' => 'required|max:20',
             'equip_type' => 'required|max:20',
-            'note_type_id' => ['required','numeric',Rule::in(session('n_types_ids'))],
-            'defect_id' => ['required','numeric',Rule::in(session('defects_ids'))],
-            'cause_id' => ['required','numeric',Rule::in(session('causes_ids'))],
-            'solution_id' => ['required','numeric',Rule::in(session('solutions_ids'))],
+            'note_type_id' => ['required', 'numeric', Rule::in(session('n_types_ids'))],
+            'defect_id' => ['required', 'numeric', Rule::in(session('defects_ids'))],
+            'cause_id' => ['required', 'numeric', Rule::in(session('causes_ids'))],
+            'solution_id' => ['required', 'numeric', Rule::in(session('solutions_ids'))],
             'services' => 'required|max:1300',
             'date' => 'required|date_format:Y-m-d',
             'go_start' => 'nullable|date_format:H:i',
@@ -25,23 +26,35 @@ class FormNoteRequest extends FormRequest
             'end' => 'required|date_format:H:i',
             'back_start' => 'nullable|date_format:H:i',
             'back_end' => 'nullable|date_format:H:i',
-            // 'km_start' => 'min:0|max:9999.99',
-            // 'km_end' => 'min:0|max:9999.99',
-            // 'food' => 'min:0|max:9999.99',
-            // 'expense' => 'min:0|max:9999.99',
             'obs' => 'max:40',
             'first_tec' => 'required',
             'sign_t_1' => 'required',
             'cl_name' => 'max:40',
             'cl_function' => 'max:40',
             'cl_contact' => 'max:40',
-            'finished' => 'required'
+            'finished' => 'required',
+            'material_ids_array' => 'nullable|regex:/^\d+(,\d+)*$/', // Validate materialsList
         ];
+
+        // Check if materialsList is not empty
+        if (!empty($materialsList)) {
+            // Get the list of material IDs from the request
+            $materialsList = $this->input('material_ids_array', '');
+            $materialIds = array_filter(explode(',', $materialsList)); // Split into array and remove empty values
+
+            // Add dynamic rules for each material
+            foreach ($materialIds as $index => $materialId) {
+                $rules["material_{$materialId}_id"] = ['required', 'numeric', Rule::in(session('materials_ids'))];
+                $rules["material_{$materialId}_qtd"] = 'required|numeric|min:1';
+            }
+        }
+        return $rules;
     }
 
     public function messages(): array
     {
-        return [
+        // Base messages for non-material fields
+        $messages = [
             'equip_mod.required' => 'Digite o modelo do equipamento',
             'equip_mod.max' => 'Modelo do equipamento não deve ter mais de 20 caracteres',
             'equip_id.max' => 'ID do equipamento não deve ter mais de 20 caracteres',
@@ -72,6 +85,26 @@ class FormNoteRequest extends FormRequest
             'end.date_format' => 'Horário de término inválido',
             'back_start.date_format' => 'Horário de saída inválido (Retorno)',
             'back_end.date_format' => 'Horário de chegada inválido (Retorno)',
+            'materialsList.regex' => 'Algum caractere não numérico foi encontrado na lista de IDs de materiais.', // Custom message for regex validation
         ];
+
+        // Check if materialsList is not empty
+        if (!empty($materialsList)) {
+            // Get the list of material IDs from the request
+            $materialsList = $this->input('materialsList', '');
+            $materialIds = array_filter(explode(',', $materialsList)); // Split into array and remove empty values
+
+            // Add dynamic messages for each material
+            foreach ($materialIds as $index => $materialId) {
+                $messages["material_{$materialId}_id.required"] = "O sistema não identificou o material ID {$materialId}.";
+                $messages["material_{$materialId}_id.numeric"] = "O ID do material {$materialId} encontrado não é numérico.";
+                $messages["material_{$materialId}_id.in"] = "O ID do material {$materialId} não encontrado no sistema.";
+                $messages["material_{$materialId}_qtd.required"] = "Quantidade para o material ID {$materialId} não encontrada.";
+                $messages["material_{$materialId}_qtd.numeric"] = "Quantidade encontrada para o material ID {$materialId} não é numérica.";
+                $messages["material_{$materialId}_qtd.min"] = "Quantidade para o material ID {$materialId} não pode ser menor que 1.";
+            }
+        }
+
+        return $messages;
     }
 }

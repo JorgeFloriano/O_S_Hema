@@ -65,6 +65,7 @@ class NoteController extends Controller
             'defects' => Defect::all(),
             'causes' => Cause::all(),
             'solutions' => Solution::all(),
+            'materials' => Material::all()
         ];
 
         // Generate tables codes ids lists
@@ -159,9 +160,9 @@ class NoteController extends Controller
             $os->finished = $request->input('finished');
             $updated_os = $os->save();
     
-            // Save materials in note
+            // Save materials in note and validate materials list
             if ($request->input('material_ids_array')) {
-                $material_ids = explode(",", $request->input('material_ids_array'));
+                $material_ids = array_unique(explode(",", $request->input('material_ids_array')));
                 foreach ($material_ids as $material_id) {
                     $note_material = MaterialNote::create([
                         'note_id' => $created_note->id,
@@ -219,9 +220,6 @@ class NoteController extends Controller
         ]);
     }
 
-    /**
-     * Show the form for editing the specified resource.
-     */
     public function edit($note)
     {
         // Check if user is logged is a technician
@@ -256,6 +254,7 @@ class NoteController extends Controller
             'defects' => Defect::all(),
             'causes' => Cause::all(),
             'solutions' => Solution::all(),
+            'materials' => Material::all()
         ];
 
         // Generate tables codes ids lists to validate
@@ -272,13 +271,17 @@ class NoteController extends Controller
             }
         }
 
-        // Generate materials string to show material list in view
-        $materials_string = '[';
-        foreach ($note->materials as $material) {
-            $materials_string .= '['.$material->description.', '.$material->pivot->quantity.', '.$material->unit.'],';
+        // Convert $note->materials to a JSON string
+        if (isset($note->materials)) {
+            $materials_json = json_encode($note->materials->map(function ($material) {
+                return [
+                    'id' => $material->id,
+                    'description' => $material->description,
+                    'quantity' => $material->pivot->quantity,
+                    'unit' => $material->unit
+                ];
+            }));
         }
-        $materials_string = substr($materials_string, 0, -1);
-        $materials_string .= ']';
 
         // Get all materials order by name
         $materials = Material::all();
@@ -291,14 +294,11 @@ class NoteController extends Controller
             'defects' => $c_l['defects'],
             'causes' => $c_l['causes'],
             'solutions' =>  $c_l['solutions'],
-            'materials_string' => $materials_string,
+            'materials_json' => $materials_json ?? null,
             'materials' => $materials
         ]);
     }
 
-    /**
-     * Update the specified resource in storage.
-     */
     public function update(FormNoteRequest $request, string $id)
     {      
         // Check if user is logged is a technician
@@ -306,7 +306,6 @@ class NoteController extends Controller
             return view('login');
         }
 
-        //dd(Note::find($id)->tecs[0]);
         $note_first_tec = Note::find($id)->tecs[0];
 
         if ($this->t->id != $note_first_tec->id) {
@@ -348,7 +347,47 @@ class NoteController extends Controller
                 return redirect()->back()->with('message', 'Informações não podem ser salvas sem assinatura de um Técnico.');
             }
 
-            $updated = $this->note->where('id', $id)->update($request->except(['_token', '_method', 'submit_button', 'first_tec', 'second_tec', 'sign_t_1', 'sign_t_2', 'finished']));
+            // Update note
+            $note = Note::find($id);
+            $note->equip_mod = $request->equip_mod;
+            $note->equip_id = $request->equip_id;
+            $note->equip_type = $request->equip_type;
+            $note->note_type_id = $request->note_type_id;
+            $note->defect_id = $request->defect_id;
+            $note->cause_id = $request->cause_id;
+            $note->solution_id = $request->solution_id;
+            $note->services = $request->services;
+            $note->date = $request->date;
+            $note->go_start = $request->go_start;
+            $note->go_end = $request->go_end;
+            $note->start = $request->start;
+            $note->end = $request->end;
+            $note->back_start = $request->back_start;
+            $note->back_end = $request->back_end;
+            $updated = $note->save();
+
+            // Delete all materials in note
+            $material_notes = MaterialNote::where('note_id', $id)->get();
+            if (count($material_notes) > 0 || $material_notes != null) {
+                foreach ($material_notes as $material_note) {
+                    $material_note->delete();
+                }
+            }
+
+            // Save materials in note and validate materials list
+            if ($request->input('material_ids_array')) {
+                $material_ids = array_unique(explode(",", $request->input('material_ids_array')));
+                foreach ($material_ids as $material_id) {
+                    $note_material = MaterialNote::create([
+                        'note_id' => $id,
+                        'material_id' => $request->input('material_'.$material_id.'_id'),
+                        'quantity' => $request->input('material_'.$material_id.'_qtd'),
+                    ]);
+                    if (!$note_material) {
+                        return redirect()->back()->with('message', 'Erro ao salvar materiais.');
+                    }
+                }
+            }
     
             if ($updated) {
                 return redirect()->back()->with('message', 'Registro de serviço atualizado com sucesso.');
@@ -357,9 +396,6 @@ class NoteController extends Controller
         }
         return redirect()->back()->with('message', 'Registro pode ser editado apenas pelo técnico executante.');
     }
-    /**
-     * Mark the specified Note as finished.
-     */
 
     public function destroy(Note $note)
     {
@@ -373,6 +409,14 @@ class NoteController extends Controller
             $noteTecs = NoteTec::where('note_id', $note->id)->get();
             foreach ($noteTecs as $noteTec) {
                 $noteTec->delete();
+            }
+
+            // Delete all materials in note
+            $material_notes = MaterialNote::where('note_id', $note->id)->get();
+            if (count($material_notes) > 0 || $material_notes != null) {
+                foreach ($material_notes as $material_note) {
+                    $material_note->delete();
+                }
             }
 
             if ($note->delete()) {
