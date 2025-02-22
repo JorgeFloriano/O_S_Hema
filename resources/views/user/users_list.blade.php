@@ -2,9 +2,10 @@
 
 @section('content')
 
-@php
-    use Illuminate\Support\Facades\Crypt;
-@endphp
+    @php
+        use Illuminate\Support\Facades\Crypt;
+    @endphp
+    
      <div class="container box">
         <div class="row">
             <div class="col">

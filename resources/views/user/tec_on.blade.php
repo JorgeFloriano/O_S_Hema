@@ -1,7 +1,6 @@
 @extends('layouts.o_s_form_layout')
 
 @section('content')
-    
      <div class="container box">
         <div class="row">
             <div class="col">

@@ -1,10 +1,10 @@
 @extends('layouts.o_s_form_layout')
 
 @section('content')
+    @php
+        use Illuminate\Support\Facades\Crypt;
+    @endphp
 
-@php
-    use Illuminate\Support\Facades\Crypt;
-@endphp
      <div class="container box">
         <div class="row">
             <div class="col">

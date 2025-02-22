@@ -1,10 +1,6 @@
 @extends('layouts.o_s_form_layout')
 
 @section('content')
-
-</head>
-
-<body id="body">
     <div class="container box">
         <div class="row mt-1">
             <div class="col-lg-8 offset-lg-2">
@@ -51,6 +47,4 @@
             </div>
         </div>
     </div>
-</body>
-</html>
 @endsection

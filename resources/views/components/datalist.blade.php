@@ -15,7 +15,7 @@
     <input type="hidden" name="{{$object}}_id" id="{{$object}}_id" value="{{$input_hidden_value}}">
 
     @if ($type == 'list')
-        <input type="hidden" name="{{$object}}_ids_array" id="{{$object}}_ids_array">
+        <input  name="{{$object}}_ids_array" id="{{$object}}_ids_array">
         <div id="material_list">
 
         </div>
