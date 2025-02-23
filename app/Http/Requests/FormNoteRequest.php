@@ -37,7 +37,7 @@ class FormNoteRequest extends FormRequest
         ];
 
         // Check if materialsList is not empty
-        if (!empty($materialsList)) {
+        if (!empty($this->input('material_ids_array'))) {
             // Get the list of material IDs from the request
             $materialsList = $this->input('material_ids_array', '');
             $materialIds = array_filter(explode(',', $materialsList)); // Split into array and remove empty values
@@ -85,13 +85,13 @@ class FormNoteRequest extends FormRequest
             'end.date_format' => 'Horário de término inválido',
             'back_start.date_format' => 'Horário de saída inválido (Retorno)',
             'back_end.date_format' => 'Horário de chegada inválido (Retorno)',
-            'materialsList.regex' => 'Algum caractere não numérico foi encontrado na lista de IDs de materiais.', // Custom message for regex validation
+            'material_ids_array.regex' => 'Algum caractere não numérico foi encontrado na lista de IDs de materiais.', // Custom message for regex validation
         ];
 
         // Check if materialsList is not empty
-        if (!empty($materialsList)) {
+        if (!empty($this->input('material_ids_array'))) {
             // Get the list of material IDs from the request
-            $materialsList = $this->input('materialsList', '');
+            $materialsList = $this->input('material_ids_array', '');
             $materialIds = array_filter(explode(',', $materialsList)); // Split into array and remove empty values
 
             // Add dynamic messages for each material
