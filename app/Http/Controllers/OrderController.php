@@ -112,18 +112,12 @@ class OrderController extends Controller
     // Show the form for filtering orders
     public function filter(FormFilterRequest  $request)
     {
-
         // If user is not suprevisor or administrator, redirect to login
         if (!$this->s && !$this->a) {
             return view('login');
         }
 
         $request->validated();
-
-        // create session variable wich contains 0 and all clients ids to validated in FormFilterRequest
-        $cli_ids_array = Client::all()->pluck('id')->toArray();
-        array_unshift($cli_ids_array, 0);
-        session()->put('client_ids', $cli_ids_array);
 
         // Return the view with the last finished selected option
         $fin_select = [];
@@ -143,20 +137,20 @@ class OrderController extends Controller
         }
 
         // If techician selected is "Não selecionado", get orders where tec_id is 0
-        if ($request->tec == '0') {
+        if ($request->tec_id == '0') {
             $tec_selected = '0';
-        } elseif ($request->tec == null) {
+        } elseif ($request->tec_id == null) {
             $tec_selected = null;
         } else {
-            $tec_selected = $request->tec;
+            $tec_selected = $request->tec_id;
         }
 
         $orders = $this->os
-            ->when($request->client, function ($query) use ($request) {
-                $query->where('client_id', $request->client);
+            ->when($request->client_id, function ($query) use ($request) {
+                $query->where('client_id', $request->client_id);
             })
             ->when($tec_selected, function ($query) use ($request) {
-                $query->where('tec_id', $request->tec);
+                $query->where('tec_id', $request->tec_id);
             })
             ->when($tec_selected == '0', function ($query) use ($request) {
                 $query->where('tec_id', '0');
@@ -208,7 +202,7 @@ class OrderController extends Controller
         }
 
         //Last client selected
-        $old_client = Client::select('id', 'name')->where('id', $request->client)->first();
+        $old_client = Client::select('id', 'name')->where('id', $request->client_id)->first();
         if ($old_client) {
             $old_client = $old_client->name.' - ['.$old_client->id.']';
         }
@@ -220,7 +214,7 @@ class OrderController extends Controller
             $old_tec = 'Não selecionado - [0]';
         } else {
             $old_tec = Tec::with('user:id,name') // Eager load the user relationship
-                  ->where('id', $request->tec)
+                  ->where('id', $request->tec_id)
                   ->first();
             if ($old_tec) {
                 $old_tec = $old_tec->user->name.' - ['.$old_tec->id.']';
