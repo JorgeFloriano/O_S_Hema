@@ -113,12 +113,12 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
-                            <input type="text" name="title" class="form-control" maxlength="120" id="title" 
+                            <input type="text" name="title" class="form-control" id="title" 
                             placeholder="Padrão: Relatório de Solicitações de Assistência Técnica">
                         </div>
                         <div class="modal-footer">
                         <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
-                        <button type="submit" class="btn btn-primary">Gerar Relatório</button>
+                        <button onclick="submitRoute('{{route('orders.orders_pdf')}}', 'pdf_form', '{{$able_btn ?? ''}}')" class="btn btn-primary">Gerar Relatório</button>
                         </div>
                     </div>
                     </div>

@@ -20,7 +20,7 @@
         @endforeach
     </datalist>
     
-    <input type="hidden" name="{{$input_hidden_name}}" id="{{$index.$object}}_id" value="{{$input_hidden_value}}">
+    <input type="hidden" name="{{$input_hidden_name}}_id" id="{{$index.$object}}_id" value="{{$input_hidden_value}}">
 
     @if ($index != '')
         <input type="hidden" name="order_id_{{$index}}" id="order_id_{{$index}}" value="{{$index}}">
