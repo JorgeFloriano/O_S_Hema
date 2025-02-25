@@ -491,8 +491,33 @@ class OrderController extends Controller
             return redirect()->route('orders.index')->withErrors('Nenhum registro selecionado para gerar o relatório!');
         }
 
+        // Verify if title have more than 120 characters
+        if (strlen($request->title) > 120) {
+            $this->logger->log('error', 'Error, access denied (order/orders_pdf), title have more than 120 characters.');
+            return redirect()->route('orders.index')->withErrors('Título da ordem de serviço possui mais de 120 caracteres!');
+        }
+
+        // Generate an array of $request->ids (order filtered ids)
+        $ids_array = explode(',', $request->ids);
+
+        // Get all order ids
+        $all_order_ids = Order::all()->pluck('id')->toArray();
+        array_unshift($all_order_ids, 0);
+
+        // Check if the ids are numeric and if they are in the database
+        foreach ($ids_array as $id) {
+            if (!is_numeric($id)) {
+                $this->logger->log('error', 'Error, access denied (order/orders_pdf), invalid id (id is not numeric).');
+                return redirect()->route('orders.index')->withErrors('ID da ordem de serviço inválido (registro encontrado não numérico)!');
+            }
+            if (!in_array($id, $all_order_ids)) {
+                $this->logger->log('error', 'Error, access denied (order/orders_pdf), invalid id (id not found in database).');
+                return redirect()->route('orders.index')->withErrors('ID da ordem de serviço inválido (registro não encontrado na base de dados)!');
+            }
+        }
+
         // Orders will be ordered by client name
-        $orders = Order::whereIn('id', explode(',', $request->ids))->with('client')->get();
+        $orders = Order::whereIn('id', $ids_array)->with('client')->get();
 
         if ($orders->isEmpty() || !$orders) {
             $this->logger->log('error', 'Error (order/orders_pdf), error requesting order data.');
@@ -753,20 +778,39 @@ class OrderController extends Controller
     public function orders_csv(Request $request)
     {
         if (!$this->a) {
-            $this->logger->log('error', 'Error, access denied (order/orders_pdf), user is not an administrator.');
+            $this->logger->log('error', 'Error, access denied (order/orders_csv), user is not an administrator.');
             return view('login');
         }
 
-        if ($request->ids == 0 || $request->ids == '0') {
-            $this->logger->log('error', 'Error, access denied (order/orders_pdf), no orders selected.');
+        if ($request->csv_ids == 0 || $request->csv_ids == '0') {
+            $this->logger->log('error', 'Error, access denied (order/orders_csv), no orders selected.');
             return redirect()->route('orders.index')->withErrors('Nenhum registro selecionado para gerar o relatório!');
         }
 
+        // Generate an array of $request->csv_ids (order filtered ids)
+        $ids_array = explode(',', $request->csv_ids);
+
+        // Get all order ids
+        $all_order_ids = Order::all()->pluck('id')->toArray();
+        array_unshift($all_order_ids, 0);
+
+        // Check if the ids are numeric and if they are in the database
+        foreach ($ids_array as $id) {
+            if (!is_numeric($id)) {
+                $this->logger->log('error', 'Error, access denied (order/orders_csv), invalid id (id is not numeric).');
+                return redirect()->route('orders.index')->withErrors('ID da ordem de serviço inválido (registro encontrado não numérico)!');
+            }
+            if (!in_array($id, $all_order_ids)) {
+                $this->logger->log('error', 'Error, access denied (order/orders_csv), invalid id (id not found in database).');
+                return redirect()->route('orders.index')->withErrors('ID da ordem de serviço inválido (registro não encontrado na base de dados)!');
+            }
+        }
+
         // Orders will be ordered by client name
-        $orders = Order::whereIn('id', explode(',', $request->ids))->with('client')->get();
+        $orders = Order::whereIn('id', $ids_array)->with('client')->get();
 
         if ($orders->isEmpty() || !$orders) {
-            $this->logger->log('error', 'Error (order/orders_pdf), error requesting order data.');
+            $this->logger->log('error', 'Error (order/orders_csv), error requesting order data.');
             return redirect()->route('orders.index')->withErrors('Erro ao requisar os dados das ordens de serviço!');
         }
         $orders = $orders->sortBy('client.name');
@@ -775,7 +819,7 @@ class OrderController extends Controller
         $fileName = 'dados_sat_hema_' . date('d_m_Y') . '.xlsx';
         
         $headers = [
-            'Content-Type' => 'text/csv',
+            'Content-Type' => 'text/xlsx',
             'Content-Disposition' => "attachment; filename=$fileName",
         ];
         

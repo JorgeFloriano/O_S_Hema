@@ -93,11 +93,20 @@
                     </button>
                 </div>
             @endif
+
+            @if (!$adm || $sup)
+                <div class="text-end">
+                    <button onclick="formSubmit('filter_form')" data-bs-toggle="tooltip" title="Filtrar ordens de serviço conforme opções   selecionadas" id="submitButton" type="submit" class="btn btn-secondary">
+                        <i class="fa fa-filter"></i>Filtrar
+                    </button>
+                </div>
+            @endif
+
             <hr>
 
             <form action="{{route('orders.orders_csv')}}" id="csv_form" method="post">
                 @csrf
-                <input type="hidden" name="ids" id="ids" value="{{$ids ?? '0'}}">
+                <input type="hidden" name="csv_ids" id="csv_ids" value="{{$ids ?? '0'}}">
             </form>
             
             <!-- Modal -->
@@ -113,7 +122,7 @@
                         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
                         </div>
                         <div class="modal-body">
-                            <input type="text" name="title" class="form-control" id="title" 
+                            <input type="text" name="title" maxlength="120" class="form-control" id="title" 
                             placeholder="Padrão: Relatório de Solicitações de Assistência Técnica">
                         </div>
                         <div class="modal-footer">
