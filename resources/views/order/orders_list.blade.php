@@ -94,7 +94,7 @@
                 </div>
             @endif
 
-            @if (!$adm || $sup)
+            @if (!$adm && $sup)
                 <div class="text-end">
                     <button onclick="formSubmit('filter_form')" data-bs-toggle="tooltip" title="Filtrar ordens de serviço conforme opções   selecionadas" id="submitButton" type="submit" class="btn btn-secondary">
                         <i class="fa fa-filter"></i>Filtrar

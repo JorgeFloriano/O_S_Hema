@@ -72,7 +72,6 @@ class OrderTypeController extends Controller
         return view('codes.order_type.order_type_create');
     }
 
-   
     public function store(FormCodeRequest $request)
     {
         if (session('main') !== auth()->user()->id) {
@@ -100,7 +99,6 @@ class OrderTypeController extends Controller
         return view('codes.order_type.order_type_delete', ['order_type' => $order_type]);
     }
 
-    
     public function edit($order_type)
     {
         if (session('main') !== auth()->user()->id) {
@@ -117,7 +115,6 @@ class OrderTypeController extends Controller
         return view('codes.order_type.order_type_edit', ['order_type' => $order_type]);
     }
 
-    
     public function update(FormCodeRequest $request, string $id)
     {
         if (session('main') !== auth()->user()->id) {
@@ -134,7 +131,6 @@ class OrderTypeController extends Controller
         return redirect()->route('order_types.index')->with('message', 'Erro ao atualizar cadastro.');
     }
 
-    
     public function destroy(string $id)
     {
         if (session('main') !== auth()->user()->id) {

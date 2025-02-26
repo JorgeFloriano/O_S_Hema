@@ -72,7 +72,6 @@ class NoteTypeController extends Controller
         return view('codes.note_type.note_type_create');
     }
 
-   
     public function store(FormCodeRequest $request)
     {
         if (session('main') !== auth()->user()->id) {
@@ -100,7 +99,6 @@ class NoteTypeController extends Controller
         return view('codes.note_type.note_type_delete', ['note_type' => $note_type]);
     }
 
-    
     public function edit($note_type)
     {
         if (session('main') !== auth()->user()->id) {
@@ -117,7 +115,6 @@ class NoteTypeController extends Controller
         return view('codes.note_type.note_type_edit', ['note_type' => $note_type]);
     }
 
-    
     public function update(FormCodeRequest $request, string $id)
     {
         if (session('main') !== auth()->user()->id) {
@@ -134,7 +131,6 @@ class NoteTypeController extends Controller
         return redirect()->route('note_types.index')->with('message', 'Erro ao atualizar cadastro.');
     }
 
-    
     public function destroy(string $id)
     {
         if (session('main') !== auth()->user()->id) {

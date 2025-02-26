@@ -72,7 +72,6 @@ class SolutionController extends Controller
         return view('codes.solution.solution_create');
     }
 
-   
     public function store(FormCodeRequest $request)
     {
         if (session('main') !== auth()->user()->id) {
@@ -100,7 +99,6 @@ class SolutionController extends Controller
         return view('codes.solution.solution_delete', ['solution' => $solution]);
     }
 
-    
     public function edit($solution)
     {
         if (session('main') !== auth()->user()->id) {
@@ -117,7 +115,6 @@ class SolutionController extends Controller
         return view('codes.solution.solution_edit', ['solution' => $solution]);
     }
 
-    
     public function update(FormCodeRequest $request, string $id)
     {
         if (session('main') !== auth()->user()->id) {
@@ -134,7 +131,6 @@ class SolutionController extends Controller
         return redirect()->route('solutions.index')->with('message', 'Erro ao atualizar cadastro.');
     }
 
-    
     public function destroy(string $id)
     {
         if (session('main') !== auth()->user()->id) {
