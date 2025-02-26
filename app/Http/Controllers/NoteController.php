@@ -13,8 +13,6 @@ use App\Models\NoteType;
 use App\Models\Order;
 use App\Models\Solution;
 use App\Models\Tec;
-use Faker\Provider\Lorem;
-use Illuminate\Http\RedirectResponse;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Contracts\Encryption\DecryptException;
 
