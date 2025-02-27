@@ -13,7 +13,6 @@ function createList(json_list, object) {
 
     // Use forEach to iterate over the materials
     materials.forEach(material => {
-        console.log(`Id: ${material.id}, Description: ${material.description}, Quantity: ${material.quantity}, Unit: ${material.unit}`);
         createListItemElements(material.description, object, material.id, material.quantity, material.unit);
     });
     getValuesAndSetInput(object);

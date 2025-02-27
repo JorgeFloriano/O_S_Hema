@@ -187,18 +187,23 @@ function toggleClientFields() {
  
  // Manage list-----------------------------------------------------------------------------------------------------------------
  function manageList(object) {
-   const input = document.getElementById(object);
-   const descr = input.value;
+   const select = document.getElementById(object);
+   const selectedOption = select.options[select.selectedIndex];
+   let descr = selectedOption.innerHTML;
+
+   if (select.selectedIndex == 0) {
+      return
+   }
 
    // Verify if object is already added
    if (document.querySelector('.'+object +'-added-descr') !== null) {
       const options = document.getElementsByClassName(object +'-added-descr');
-      const regex = / - \[\d+\]$/;
-      const descr_whichout_id = descr.replace(regex, '');
       
       for (let option of options) {
-         if (option.innerHTML == descr_whichout_id ) {
-            document.getElementById(object).value = '';
+         console.log(option.innerHTML);
+         console.log(descr);
+         if (option.innerHTML == descr) {
+            select.selectedIndex = 0;
             document.getElementById(object).blur();
             alert('Ítem já adicionado, utilize o campo numérico para determinar a quantidade, digitando zero ou deixando o campo vazio o ítem será removido !')
             return
@@ -213,10 +218,8 @@ function toggleClientFields() {
    }
 
    // Instace variables
-   const inp_shown_val = document.getElementById(object).value;
-   const matches = inp_shown_val.match(/\[(\d+)\](?!.*\[\d+\])/);
-   const obj_selected_id = matches[1]; // object_selected_id 
-   const obj_selected_unit = document.getElementById(obj_selected_id+'_unit').value; // object_selected_unit
+   const obj_selected_id = document.getElementById(object).value;
+   const obj_selected_unit = selectedOption.getAttribute('data-unit'); // object_selected_unit
    const form = document.getElementById('form');
 
    // Call the function to create elements to constitute the datalist items
@@ -229,7 +232,7 @@ function toggleClientFields() {
  // Function to get values fro the several inputs and set them in a input separated by commas-----------------------
  function getValuesAndSetInput(object) {
    // Select all elements that was added in list
-   const elements = document.querySelectorAll('.'+object+'-added-id');
+   const elements = document.querySelectorAll('.'+object+'-added');
 
    // Extract their values into an array
    const values = Array.from(elements).map(element => element.value);
@@ -238,7 +241,7 @@ function toggleClientFields() {
    const commaSeparatedValues = values.join(',');
 
    // Set the result in the target input field
-   document.getElementById(object+'_ids_array').value = commaSeparatedValues;
+   document.getElementById(object+'s_array').value = commaSeparatedValues;
 }
 
 // Function to create elements to constitute the datalist items------------------------------------------------------------
@@ -255,12 +258,11 @@ function createListItemElements(descr, object, obj_selected_id, obj_selected_qud
    object_list.appendChild(div);
 
    // Add span with object description-
-   const regex = / - \[\d+\]$/;
-   const descr_whichout_id = descr.replace(regex, '');
+   
    const objDscr = document.createElement('span');
    objDscr.classList.add('input-group-text');
    objDscr.classList.add(object +'-added-descr');
-   objDscr.innerHTML = descr_whichout_id ;
+   objDscr.innerHTML = descr;
    objDscr.style.width = '70%';
    objDscr.style.background = 'transparent';
    objDscr.style.border = 'none';
@@ -285,11 +287,11 @@ function createListItemElements(descr, object, obj_selected_id, obj_selected_qud
    // Add input hidden with object id in value
    const objSelectedId = document.createElement('input');
    objSelectedId.type = 'hidden';
-   objSelectedId.name = object +'_'+obj_selected_id+'_id';
-   objSelectedId.classList.add(object +'-added-id');
+   objSelectedId.name = object +'_'+obj_selected_id;
+   objSelectedId.classList.add(object +'-added');
    objSelectedId.value = obj_selected_id;
    objSelectedId.min = 0;
-   objSelectedId.id = object +'_'+obj_selected_id+'_id';
+   objSelectedId.id = object +'_'+obj_selected_id;
    div.appendChild(objSelectedId);
 
    // Add span with unit of measurement of the object
@@ -312,7 +314,7 @@ function createListItemElements(descr, object, obj_selected_id, obj_selected_qud
          objSelectedId.remove(); // Remove the input hidden with object id
 
          // Select all elements that was added in list
-         const elements = document.querySelectorAll('.'+object+'-added-id');
+         const elements = document.querySelectorAll('.'+object+'-added');
          if (elements.length < 1) {
             const object_list = document.getElementById(object+'_list');
             object_list.style.background = 'none';

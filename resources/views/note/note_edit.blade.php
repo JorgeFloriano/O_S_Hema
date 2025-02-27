@@ -131,12 +131,19 @@
                         <label for="solution_id">Solução</label>
                     </div>
 
-                    <x-datalist :objs="$materials" obj="material" tit="Selecionar Materiais utilizados" :val="old('client')" des="description" type="list" req=""/>
+                    {{-- <x-datalist :objs="$materials" obj="material" tit="Selecionar Materiais utilizados" :val="old('client')" des="description" type="list" req=""/> --}}
 
-                    <input type="hidden" name="material_ids_array" id="material_ids_array">
-                    <div id="material_list"></div>
+                    <select class="form-select" onchange="manageList('material_id')" name="material_id" id="material_id" aria-label="Default select example">
+                        <option selected>Selecionar Materiais utilizados</option>
+                        @foreach ($materials as $material)
+                            <option value="{{$material->id}}" data-unit="{{$material->unit}}">{{$material->description}}</option>
+                        @endforeach
+                    </select>
 
-                    <input type="hidden" name="json_list" data-object="material" id="json_list" value="{{$materials_json}}">
+                    <input name="material_ids_array" id="material_ids_array">
+                    <div id="material_id_list"></div>
+
+                    <input type="hidden" name="json_list" data-object="material_id" id="json_list" value="{{$materials_json}}">
 
                     <div class="form-floating my-2">
                         <textarea id="services" name="services" maxlength="1290" class='autoExpand form-control' rows='1' data-min-rows='1' required>{{$note->services}}</textarea>
