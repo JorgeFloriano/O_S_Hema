@@ -53,11 +53,10 @@
                 @if($note->materials->count() > 0)
                     <strong>Descrição dos Materiais Utilizados: </strong><br>
                     @foreach ($note->materials as $material)
-                        {{$material->description.' ('.$material->pivot->quantity.' '.$material->unit.')'}}
                         @if ($loop->last)
-                            . 
+                            {{$material->description.' ('.$material->pivot->quantity.' '.$material->unit.'). '}}
                         @else
-                            , 
+                            {{$material->description.' ('.$material->pivot->quantity.' '.$material->unit.'), '}}
                         @endif
                     @endforeach
                     <br>

@@ -44,8 +44,8 @@ class FormNoteRequest extends FormRequest
 
             // Add dynamic rules for each material
             foreach ($materialIds as $index => $materialId) {
-                $rules["material_{$materialId}_id"] = ['required', 'numeric', Rule::in(session('materials_ids'))];
-                $rules["material_{$materialId}_qtd"] = 'required|numeric|min:1';
+                $rules["material_id_{$materialId}"] = ['required', 'numeric', Rule::in(session('materials_ids'))];
+                $rules["material_id_{$materialId}_qtd"] = 'required|numeric|min:1';
             }
         }
         return $rules;
@@ -96,12 +96,12 @@ class FormNoteRequest extends FormRequest
 
             // Add dynamic messages for each material
             foreach ($materialIds as $index => $materialId) {
-                $messages["material_{$materialId}_id.required"] = "O sistema não identificou o material ID {$materialId}.";
-                $messages["material_{$materialId}_id.numeric"] = "O ID do material {$materialId} encontrado não é numérico.";
-                $messages["material_{$materialId}_id.in"] = "O ID do material {$materialId} não encontrado no sistema.";
-                $messages["material_{$materialId}_qtd.required"] = "Quantidade para o material ID {$materialId} não encontrada.";
-                $messages["material_{$materialId}_qtd.numeric"] = "Quantidade encontrada para o material ID {$materialId} não é numérica.";
-                $messages["material_{$materialId}_qtd.min"] = "Quantidade para o material ID {$materialId} não pode ser menor que 1.";
+                $messages["material_id_{$materialId}.required"] = "O sistema não identificou o material ID {$materialId}.";
+                $messages["material_id_{$materialId}.numeric"] = "O ID do material {$materialId} encontrado não é numérico.";
+                $messages["material_id_{$materialId}.in"] = "O ID do material {$materialId} não encontrado no sistema.";
+                $messages["material_id_{$materialId}_qtd.required"] = "Quantidade para o material ID {$materialId} não encontrada.";
+                $messages["material_id_{$materialId}_qtd.numeric"] = "Quantidade encontrada para o material ID {$materialId} não é numérica.";
+                $messages["material_id_{$materialId}_qtd.min"] = "Quantidade para o material ID {$materialId} não pode ser menor que 1.";
             }
         }
 

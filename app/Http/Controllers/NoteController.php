@@ -164,8 +164,8 @@ class NoteController extends Controller
                 foreach ($material_ids as $material_id) {
                     $note_material = MaterialNote::create([
                         'note_id' => $created_note->id,
-                        'material_id' => $request->input('material_'.$material_id.'_id'),
-                        'quantity' => $request->input('material_'.$material_id.'_qtd'),
+                        'material_id' => $request->input('material_id_'.$material_id),
+                        'quantity' => $request->input('material_id_'.$material_id.'_qtd'),
                     ]);
                     if (!$note_material) {
                         return redirect()->back()->with('message', 'Erro ao salvar materiais.');
@@ -378,8 +378,8 @@ class NoteController extends Controller
                 foreach ($material_ids as $material_id) {
                     $note_material = MaterialNote::create([
                         'note_id' => $id,
-                        'material_id' => $request->input('material_'.$material_id.'_id'),
-                        'quantity' => $request->input('material_'.$material_id.'_qtd'),
+                        'material_id' => $request->input('material_id_'.$material_id),
+                        'quantity' => $request->input('material_id_'.$material_id.'_qtd'),
                     ]);
                     if (!$note_material) {
                         return redirect()->back()->with('message', 'Erro ao salvar materiais.');

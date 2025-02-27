@@ -138,10 +138,17 @@
                         
                         <x-selected-old nam="solution_id" :tab="$solutions" des="description" nom="Solução"/>
 
-                        <x-datalist :objs="$materials" obj="material" tit="Selecionar Materiais utilizados" :val="old('material')" des="description" type="list" req=""/>
+                        {{-- <x-datalist :objs="$materials" obj="material" tit="Selecionar Materiais utilizados" :val="old('material')" des="description" type="list" req=""/> --}}
 
-                        <input type="hidden" name="material_ids_array" id="material_ids_array">
-                        <div id="material_list"></div>
+                        <select class="form-select" onchange="manageList('material_id')" name="material_id" id="material_id" aria-label="Default select example">
+                            <option selected>Selecionar Materiais utilizados</option>
+                            @foreach ($materials as $material)
+                                <option value="{{$material->id}}" data-unit="{{$material->unit}}">{{$material->description}}</option>
+                            @endforeach
+                        </select>
+
+                        <input  name="material_ids_array" id="material_ids_array">
+                        <div id="material_id_list"></div>
 
                         <div id="serv" class="form-floating my-2">
                             <textarea id="services" name="services" placeholder="Serviços executados" maxlength="1290" class='autoExpand form-control' rows='1' data-min-rows='1' required>{{old('services')}}</textarea>
