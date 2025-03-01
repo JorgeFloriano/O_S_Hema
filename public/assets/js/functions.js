@@ -200,10 +200,8 @@ function toggleClientFields() {
       const options = document.getElementsByClassName(object +'-added-descr');
       
       for (let option of options) {
-         console.log(option.innerHTML);
-         console.log(descr);
          if (option.innerHTML == descr) {
-            select.selectedIndex = 0;
+            select.selectedIndex = 0; // reset select
             document.getElementById(object).blur();
             alert('Ítem já adicionado, utilize o campo numérico para determinar a quantidade, digitando zero ou deixando o campo vazio o ítem será removido !')
             return
@@ -213,6 +211,7 @@ function toggleClientFields() {
 
    // Verify if object description is empty, return
    if ( descr == '' ) {
+      select.selectedIndex = 0; // reset select
       document.getElementById(object).blur(); // remove focus
       return
    }
@@ -227,6 +226,7 @@ function toggleClientFields() {
    
    document.getElementById(object).blur();// remove focus
    getValuesAndSetInput(object);// Call the function to get values and set them in the result input
+   select.selectedIndex = 0; // reset select
  }
 
  // Function to get values fro the several inputs and set them in a input separated by commas-----------------------

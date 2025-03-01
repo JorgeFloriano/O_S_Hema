@@ -3,12 +3,9 @@
 namespace App\Http\Controllers;
 
 use App\Http\Requests\FormLoginRequest;
-use App\Models\Adm;
 use App\Models\User;
 use App\Class\Logger;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Log;
 
 class LoginController extends Controller
 {
