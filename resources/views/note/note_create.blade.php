@@ -141,13 +141,13 @@
                         {{-- <x-datalist :objs="$materials" obj="material" tit="Selecionar Materiais utilizados" :val="old('material')" des="description" type="list" req=""/> --}}
 
                         <select class="form-select" onchange="manageList('material_id')" name="material_id" id="material_id" aria-label="Default select example">
-                            <option selected>Selecionar Materiais utilizados</option>
+                            <option selected>Registrar Materiais utilizados</option>
                             @foreach ($materials as $material)
                                 <option value="{{$material->id}}" data-unit="{{$material->unit}}">{{$material->description}}</option>
                             @endforeach
                         </select>
 
-                        <input  name="material_ids_array" id="material_ids_array">
+                        <input hidden name="material_ids_array" id="material_ids_array">
                         <div id="material_id_list"></div>
 
                         <div id="serv" class="form-floating my-2">
