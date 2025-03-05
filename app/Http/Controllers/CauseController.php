@@ -4,17 +4,18 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\FormCodeRequest;
 use App\Models\Cause;
-use Illuminate\Support\Facades\Crypt;
-use Illuminate\Contracts\Encryption\DecryptException;
+use App\Class\CryptMsg;
 
 class CauseController extends Controller
 {
    
     public readonly Cause $cause;
+    public $crypt;
 
     public function __construct()
     {
         $this->cause = new Cause();
+        $this->crypt = new CryptMsg();
     }
     public function index()
     {
@@ -103,14 +104,11 @@ class CauseController extends Controller
             return view('login');
         }
 
-        try {
-            $cause = $this->cause->find(Crypt::decryptString($cause));
-        } catch (DecryptException $e) {
-            echo 'Erro de desencriptação.';
-            die;
+        $decrypt_id = $this->crypt->tryDecrypt($cause);
+        if ($decrypt_id) {
+            return view('codes.cause.cause_edit', ['cause' => $this->cause->where('id', $decrypt_id)->first()]);
         }
-
-        return view('codes.cause.cause_edit', ['cause' => $cause]);
+        return redirect()->back()->withErrors('Erro de desencriptação.');
     }
 
     public function update(FormCodeRequest $request, string $id)
@@ -149,14 +147,12 @@ class CauseController extends Controller
             return view('login');
         }
 
-        try {
-            $id = Crypt::decryptString($id);
-        } catch (DecryptException $e) {
-            echo 'Erro de desencriptação.';
-            die;
+        $decrypt_id = $this->crypt->tryDecrypt($id);
+        if (!$decrypt_id) {
+            return redirect()->back()->withErrors('Erro de desencriptação.');
         }
 
-        $restored = $this->cause->where('id', $id)->restore();
+        $restored = $this->cause->where('id', $decrypt_id)->restore();
 
         if ($restored) {
             return redirect()->route('causes.list', 0)->with('message', 'Cadastro restaurado com sucesso.');
@@ -170,14 +166,12 @@ class CauseController extends Controller
             return view('login');
         }
 
-        try {
-            $id = Crypt::decryptString($id);
-        } catch (DecryptException $e) {
-            echo 'Erro de desencriptação.';
-            die;
+        $decrypt_id = $this->crypt->tryDecrypt($id);
+        if (!$decrypt_id) {
+            return redirect()->back()->withErrors('Erro de desencriptação.');
         }
         
-        $deleted = $this->cause->where('id', $id)->delete();
+        $deleted = $this->cause->where('id', $decrypt_id)->delete();
 
         if ($deleted) {
             return redirect()->route('causes.list', 1)->with('message', 'Cadastro desativado com sucesso.');

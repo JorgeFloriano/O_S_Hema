@@ -13,7 +13,7 @@
 
                 @if ($errors->any())
                     <div class="alert alert-warning">
-                        <ul>
+                        <ul class="mb-0">
                             @foreach ($errors->all() as $msg)
                                 <li>{{$msg}}</li>
                             @endforeach

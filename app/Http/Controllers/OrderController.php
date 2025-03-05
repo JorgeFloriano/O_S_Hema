@@ -26,6 +26,7 @@ class OrderController extends Controller
     public $a; // administrator
     public $t; // technician
     public $o; // technician on call
+    public $logger;
     public function __construct()
     {
         // Set a nem service order
@@ -254,6 +255,7 @@ class OrderController extends Controller
             return view('login');
         }
 
+        // Get id and name of all clients order by name
         $clients = Client::select('id', 'name')->orderBy('name')->get();
 
         // Create session variable wich contains all order types ids to validated in FormOrderRequest
@@ -327,6 +329,7 @@ class OrderController extends Controller
         } catch (DecryptException $e) {
             $this->logger->log('error', 'Decryption error (order/show).');
             return redirect()->back()->with('error', 'Erro de desencriptação (order/show).');
+            die;
         }
 
         return view('order.order_delete', ['order' => $order]);
