@@ -8,10 +8,11 @@
      <div class="container box">
         <div class="row">
             <div class="col">
+                
                 @if (session()->has('message'))
-                <div class="alert alert-info" role="alert">
-                    {{session()->get('message')}}
-                </div>
+                    <div class="alert alert-info" role="alert">
+                        {{session()->get('message')}}
+                    </div>
                 @endif
 
                 <div id="header" class="my-2">
