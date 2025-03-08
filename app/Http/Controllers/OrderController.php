@@ -12,6 +12,7 @@ use App\Models\Tec;
 use App\Models\User;
 use App\Class\Logger;
 use App\Class\ReportHelpers;
+use App\Models\Material;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Contracts\Encryption\DecryptException;
@@ -819,21 +820,36 @@ class OrderController extends Controller
         $orders = $orders->sortBy('client.name');
 
         // Create the CSV file
-        $fileName = 'dados_sat_hema_' . date('d_m_Y') . '.xlsx';
+        $fileName = 'dados_sat_hema_' . date('d_m_Y') . '.csv';
         
         $headers = [
-            'Content-Type' => 'text/xlsx',
+            'Content-Type' => 'text/csv; charset=UTF-8',
             'Content-Disposition' => "attachment; filename=$fileName",
         ];
         
         $callback = function () use ($orders) {
             $file = fopen('php://output', 'w');
         
+            // Add BOM for UTF-8 with BOM
+            fwrite($file, "\xEF\xBB\xBF");
+        
             // Add CSV headers
-            fputcsv($file, [
+            $csv_headers = [
                 'SAT', 
                 'Data', 
-                'Cliente', 
+                'Cliente',
+            ];
+
+            // IDs of all registered materials
+            $material_ids = Material::all()->pluck('id')->toArray();
+
+            // Add materials headers
+            foreach ($material_ids as $key => $material_id) {
+                array_push($csv_headers, 'Mat_'.$material_id);
+            }
+            
+            // Finish headers array
+            array_push($csv_headers, 
                 'Descrição do serviço',
                 'Início',
                 'Término',
@@ -841,18 +857,26 @@ class OrderController extends Controller
                 'Defeito',
                 'Causa',
                 'Solução',
-                'Atendente'
-            ]);
+                'Técnico');
+
+
+            fputcsv($file, $csv_headers);
         
             // Add rows
             foreach ($orders as $order) {
                 $order->notes_time_format();
                 foreach ($order->notes as $key => $note) {
+                    // Clean $note->services"
+                    $services = trim($note->services); // Remove whitespaces
+                    $services = str_replace(["\r", "\n"], ' ', $services); // Remove line breaks
+                    $services = mb_convert_encoding($services, 'UTF-8', 'auto'); // UTF-8 encoding
+                    $services = str_replace('"', '""', $services); // Escape double quotes
+
                     fputcsv($file, [
-                        $order->id.'/'.$key + 1,
-                        date('d/m/y',strtotime($order->req_date)),
+                        $order->id.'_'.$key + 1,
+                        date('Y-m-d', strtotime($order->req_date)), // ISO 8601 format
                         $order->client->name,
-                        $note->services,
+                        $services,
                         $note->start,
                         $note->end,
                         $note->type->id.' - '.$note->type->description,
