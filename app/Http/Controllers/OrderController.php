@@ -841,11 +841,11 @@ class OrderController extends Controller
             ];
 
             // IDs of all registered materials
-            $material_ids = Material::all()->pluck('id')->toArray();
+            $materials = Material::withTrashed()->orderBy('description')->select('id', 'description')->get();
 
             // Add materials headers
-            foreach ($material_ids as $key => $material_id) {
-                array_push($csv_headers, 'Mat_'.$material_id);
+            foreach ($materials as $key => $material) {
+                array_push($csv_headers, $material->id.' - '.$material->description);
             }
             
             // Finish headers array
@@ -860,22 +860,49 @@ class OrderController extends Controller
                 'Técnico');
 
 
-            fputcsv($file, $csv_headers);
+            fputcsv($file, $csv_headers, ';'); // Use semicolon as delimiter
         
-            // Add rows
+            // Add rows wich the CSV data
             foreach ($orders as $order) {
                 $order->notes_time_format();
                 foreach ($order->notes as $key => $note) {
+
                     // Clean $note->services"
                     $services = trim($note->services); // Remove whitespaces
                     $services = str_replace(["\r", "\n"], ' ', $services); // Remove line breaks
                     $services = mb_convert_encoding($services, 'UTF-8', 'auto'); // UTF-8 encoding
                     $services = str_replace('"', '""', $services); // Escape double quotes
 
-                    fputcsv($file, [
+                    // Add CSV datas
+                    $csv_datas = [
                         $order->id.'_'.$key + 1,
                         date('Y-m-d', strtotime($order->req_date)), // ISO 8601 format
                         $order->client->name,
+                    ];
+
+                    // Add materials quantities
+                    foreach ($materials as $key => $material) {
+                        if (isset($note->materials)) {
+                            foreach ($note->materials as $note_material) {
+                                if ($material->id == $note_material->id) {
+                                    array_push($csv_datas, $note_material->pivot->quantity);
+                                    $mat_exists = true;
+                                }
+                            }
+                        }
+
+                        if (!isset($mat_exists)) {
+                            array_push($csv_datas, 0);
+                        } else {
+                            if (!$mat_exists) {
+                                array_push($csv_datas, 0);
+                            }
+                        }
+                        $mat_exists = false;
+                    }
+
+                    // Finsh datas array
+                    array_push($csv_datas,
                         $services,
                         $note->start,
                         $note->end,
@@ -884,10 +911,12 @@ class OrderController extends Controller
                         $note->cause->id.' - '.$note->cause->description,
                         $note->solution->id.' - '.$note->solution->description,
                         $note->tecs[0]->user->name
-                    ]);
+                    );
+
+                    fputcsv($file, $csv_datas, ';');   // Use semicolon as delimiter
                 }
             }
-        
+
             fclose($file);
         };
         
