@@ -1,9 +1,9 @@
 <!DOCTYPE html>
 <html lang="pt-br">
-    <head>
-        <meta http-equiv="Content-Type" content="text/html; charset=utf-8"/>
-        
-        <link rel="shortcut icon" href="{{asset('favicon.ico')}}">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="Content-Type" content="text/html; charset=UTF-8"/>
+    <link rel="shortcut icon" href="{{asset('favicon.ico')}}">
         <style>
             :root {
                 --blue1: #e2eaee;

@@ -4,12 +4,6 @@
             <th colspan="6" style="border-right: none">Apontamento de horas dos Técnicos</th>
         </tr>
 
-        {{-- <tr>
-            <th colspan="2" style="width: 33.3%">Ida</th>
-            <th colspan="2" style="width: 33.3%">Intervenção</th>
-            <th colspan="2" style="border-right: none">Volta</th>
-        </tr> --}}
-
         <tr>
             <th style="width: 16.6%">Sáida (ida)</th>
             <th style="width: 16.6%">Chegada (ida)</th>

@@ -240,4 +240,7 @@
         </div>
     </div>
 </div>
+
+{{-- This will output the correct base URL --}}
+<script>window.appBaseUrl = "{{ url('/') }}"</script>
 @endsection

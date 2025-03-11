@@ -11,7 +11,7 @@ use App\Models\OrderType;
 use App\Models\Tec;
 use App\Models\User;
 use App\Class\Logger;
-use App\Class\ReportHelpers;
+use App\Class\TextFormat;
 use App\Models\Material;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
@@ -27,7 +27,8 @@ class OrderController extends Controller
     public $a; // administrator
     public $t; // technician
     public $o; // technician on call
-    public $logger;
+    public $logger; // logger class
+    public $text; // text format functions
     public function __construct()
     {
         // Set a nem service order
@@ -35,6 +36,9 @@ class OrderController extends Controller
 
         // Set a logger
         $this->logger = new Logger();
+
+        // Class with text format functions
+        $this->text = new TextFormat;
 
         // user is admin main or not
         if (isset(auth()->user()->adm)) {
@@ -308,7 +312,7 @@ class OrderController extends Controller
             'equipment' => $request->equipment,
             'req_date' => $request->req_date,
             'req_time' => $request->req_time,
-            'req_descr' => $request->req_descr,
+            'req_descr' => $this->text->spaceAfterPunctuation($request->req_descr),
         ]);
 
         $msg = $created ? 'Ordem de serviço criada com sucesso.' : 'Erro ao criar ordem de serviço.';
@@ -397,10 +401,11 @@ class OrderController extends Controller
             return redirect()->back()->with('message', 'Selecione um cliente para prosseguir.');
         }
 
-        $updated = $this->os->where('id', $id)->update($request->except(['_token', '_method', 'adm_id', 'tec_id', 'client']));
+        $updated = $this->os->where('id', $id)->update($request->except(['_token', '_method', 'adm_id', 'tec_id', 'client', 'req_descr']));
 
         $os = Order::find($id);
         $os->user_id = auth()->user()->id;
+        $os->req_descr = $this->text->spaceAfterPunctuation($request->req_descr);
         $updated_adm = $os->save();
 
         $msg = $updated && $updated_adm ? 'Ordem de serviço atualizada com sucesso.' : 'Erro ao atualizar ordem de serviço.';
@@ -611,9 +616,6 @@ class OrderController extends Controller
 
         if ($msg == 'continue') {
             if (session()->has('order_client_ids') || session()->has('order_count_client_ids')) {
-                
-                // Zero on left for the file name
-                $rep = new ReportHelpers;
 
                 if (session('order_count_client_ids') < count(session('order_client_ids'))) {     
 
@@ -657,7 +659,7 @@ class OrderController extends Controller
                     $percentage = intdiv((session('page') * 100), session('expected_pages'));
 
                     // Saves current client orders with name organized numerically
-                    $save = $pdf->save('storage/' . $rep->leftZeros(session('page')) . session('page') . '_' . $order_id . '_' . date('d_m_Y') . '.pdf');
+                    $save = $pdf->save('storage/' . $this->text->leftZeros(session('page')) . session('page') . '_' . $order_id . '_' . date('d_m_Y') . '.pdf');
 
                     if (!$save) {
                         $this->logger->log('error', 'Error (order/generate_pdf), error saving order number ' . $order_id . '.');
@@ -683,7 +685,7 @@ class OrderController extends Controller
 
                 // Number for resume file name
 
-                $save = $pdf->save('storage/' . $rep->leftZeros(session('page')) . session('page') . '_resume_' . date('d_m_Y') . '.pdf');
+                $save = $pdf->save('storage/' . $this->text->leftZeros(session('page')) . session('page') . '_resume_' . date('d_m_Y') . '.pdf');
 
                 if (!$save) {
                     $this->logger->log('error', 'Error (order/generate_pdf), error saving resume.');
