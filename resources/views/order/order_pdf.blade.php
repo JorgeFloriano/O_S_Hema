@@ -24,8 +24,6 @@
 
         @include('order/o_s_parts/note_info')
 
-        {{-- @include('order/o_s_parts/despesas') --}}
-
         @include('order/o_s_parts/tec_note')
 
         @include('order/o_s_parts/client_sign')

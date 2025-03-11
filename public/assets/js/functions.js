@@ -348,7 +348,7 @@ function updateOrderTec(index, object_selected_id) {
    const orderId = index;
    const tecId = object_selected_id;
 
-   fetch(`/Hema/public/orders/${orderId}/ord_tec_update`, {
+   fetch(`${window.appBaseUrl}/orders/${orderId}/ord_tec_update`, {
       method: 'POST',
       headers: {
             'Content-Type': 'application/json', // Include JSON header

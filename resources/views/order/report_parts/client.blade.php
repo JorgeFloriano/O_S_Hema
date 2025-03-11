@@ -29,8 +29,6 @@
 
             @include('order/o_s_dompdf_parts/note_info_dompdf')
 
-            {{-- @include('order/o_s_dompdf_parts/despesas') --}}
-
             @include('order/o_s_dompdf_parts/tec_note_dompdf')
 
             @include('order/o_s_dompdf_parts/client_sign_dompdf')

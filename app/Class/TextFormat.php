@@ -2,7 +2,7 @@
 
 namespace App\Class;
 
-class ReportHelpers {
+class TextFormat {
 
     // Determine the quantity of zeros to create a number with four digits
     public function leftZeros ($number) {
@@ -16,5 +16,10 @@ class ReportHelpers {
         }
 
         return $zero;
+    }
+
+    // Format a string so that there is always a space after a punctuation mark (like ,.;:?!)
+    function spaceAfterPunctuation($input) {
+        return preg_replace('/([,.;:?!])(?!\s)/', '$1 ', $input);
     }
 }

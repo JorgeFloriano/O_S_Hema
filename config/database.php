@@ -29,26 +29,24 @@ return [
     |
     */
 
-    'connections' => [
-        'mysql' => [
-            'driver' => 'mysql',
-            'url' => '',
-            'host' => 'localhost',
-            'port' => '3306',
-            'database' => 'O_S_Hema',
-            'username' => 'OSH_user',
-            'password' => 'science_OSH_user',
-            'unix_socket' => '',
-            'charset' => 'utf8mb4',
-            'collation' => 'utf8mb4_unicode_ci',
-            'prefix' => '',
-            'prefix_indexes' => true,
-            'strict' => true,
-            'engine' => null,
-            'options' => extension_loaded('pdo_mysql') ? array_filter([
-                PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
-            ]) : [],
-        ],
+    'mysql' => [
+        'driver' => 'mysql', // The database driver (MySQL in this case)
+        'url' => env('DATABASE_URL'), // Optional: URL for the database connection
+        'host' => env('DB_HOST', '127.0.0.1'), // Database host (default: '127.0.0.1')
+        'port' => env('DB_PORT', '3306'), // Database port (default: '3306')
+        'database' => env('DB_DATABASE', 'forge'), // Database name (default: 'forge')
+        'username' => env('DB_USERNAME', 'forge'), // Database username (default: 'forge')
+        'password' => env('DB_PASSWORD', ''), // Database password (default: '')
+        'unix_socket' => env('DB_SOCKET', ''), // Unix socket (default: '')
+        'charset' => 'utf8mb4', // Default character set (default: 'utf8mb4')
+        'collation' => 'utf8mb4_unicode_ci', // Default collation (default: 'utf8mb4_unicode_ci')
+        'prefix' => '', // Table prefix (default: '')
+        'prefix_indexes' => true, // Whether to prefix indexes (default: true)
+        'strict' => true, // Enable strict mode (default: true)
+        'engine' => null, // Database engine (default: null)
+        'options' => extension_loaded('pdo_mysql') ? array_filter([
+            PDO::MYSQL_ATTR_SSL_CA => env('MYSQL_ATTR_SSL_CA'),
+        ]) : [], // Additional PDO options (default: empty array)
     ],
 
     /*
