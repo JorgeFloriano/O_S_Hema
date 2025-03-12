@@ -7,6 +7,7 @@ use App\Models\Adm;
 use App\Models\Sup;
 use App\Models\Tec;
 use App\Models\User;
+use App\Rules\StrongPass;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Support\Facades\Validator;
@@ -236,7 +237,14 @@ class UserController extends Controller
             return view('login');
         }
 
-        $min = $request->password && $request->password_confirmation ? 'min:5' : 'min:0';
+        // If the user is going to update the password, it must have at least 8 characters.
+        $min = $request->password && $request->password_confirmation ? 'min:8' : 'min:0';
+
+        // User that is updated is adm main
+        $main_id = 0;
+        if (isset(User::where('id', $id)->first()->adm)) {
+            $main_id = User::where('id', $id)->first()->adm()->first()->main;
+        }
 
         Validator::make($request->all(), [
             'name' => 'required|max:20',
@@ -246,17 +254,21 @@ class UserController extends Controller
             'password' => [$min, 'confirmed']
         ], [
             'username.unique' => 'O nome de usúario digitado está em uso, por favor escolha outro.',
-            'password.min' => 'Digite uma senha com pelo menos 5 caracteres',
+            'password.min' => 'Digite uma senha com pelo menos 8 caracteres',
             'password.confirmed' => 'As senhas digitadas deveriam ser identicas.',
         ])->validate();
 
-        //If the password field is filled, validate it
+        // If the password field is filled, validate it
         if ($request->input('password')) {
-            $request->validate([
-                'password' => 'min:5'
-            ], [
-                'password.min' => 'Digite uma senha com pelo menos 5 caracteres',
-            ]);
+            if (!$main_id) {
+                $request->validate([
+                    'password' => 'min:8'
+                ], [
+                    'password.min' => 'Digite uma senha com pelo menos 8 caracteres',
+                ]);
+            } else {
+                $request->validate(['password' => [new StrongPass]]);
+            }
         }
        
         $updated = $this->user->where('id', $id)->update($request->except([
@@ -269,12 +281,6 @@ class UserController extends Controller
             'cli',
             'sup',
         ]));
-
-        // User that is updated is adm main
-        $main_id = 0;
-        if (isset(User::where('id', $id)->first()->adm)) {
-            $main_id = User::where('id', $id)->first()->adm()->first()->main;
-        }
 
         if (!$updated) {
             return redirect()->back()->with('message', 'Erro ao atualizar cadastro de usuário.');
