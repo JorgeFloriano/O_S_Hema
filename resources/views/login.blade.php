@@ -6,7 +6,7 @@
             <div class="col-lg-4 offset-lg-4 col-md-8 offset-md-2 col-sm-10 offset-sm-1">
                 <div class="card">
                     <div class="card-img-top">
-                        <img src="{{ asset('assets/img/logo_hema.png')}}" width="100%" alt="logo hema">
+                        <img src="{{ asset('assets/img/'.env('LOGO'))}}" width="100%" alt="logo hema">
                     </div>
                     
                     {{-- form --}}

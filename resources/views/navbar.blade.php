@@ -2,7 +2,7 @@
 <nav class="navbar navbar-expand-lg navbar-dark bg-dark">
     <div class="container">
         <div>
-            <img src="{{asset('assets/img/logo_hema.png')}}" alt="logo hema" width="130px">
+            <img src="{{asset('assets/img/'.env('LOGO'))}}" alt="logo hema" width="130px">
         </div>
 
         <div class="dropdown">
