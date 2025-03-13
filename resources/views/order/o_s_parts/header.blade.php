@@ -1,6 +1,6 @@
 <div id="header">
     <div id="header1">
-        <img src="{{ asset('assets/img/logo2_hema.png')}}" width="100%" alt="logo hema">
+        <img src="{{ asset('assets/img/'.env('LOGO2'))}}" width="100%" alt="logo hema">
     </div>
 
     <div id="header2">

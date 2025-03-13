@@ -1,6 +1,6 @@
 <div class="header">
     <span class="header1">
-        <img src="assets/img/logo2_hema.png" width="100%" alt="logo hema">
+        <img src="assets/img/{{env('LOGO2')}}" width="100%" alt="logo hema">
     </span>
 
     <span class="header2">
