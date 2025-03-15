@@ -10,7 +10,7 @@
             }
 
             * {
-                font-family: system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
+                font-family: DejaVu Sans, system-ui, -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Oxygen, Ubuntu, Cantarell, 'Open Sans', 'Helvetica Neue', sans-serif;
                 padding: 0px;
                 margin: 0px;
                 box-sizing: border-box;
@@ -40,7 +40,7 @@
                 float: left;
                 text-align: center;
                 font-weight: bold;
-                font-size: 14px;
+                font-size: 15px;
                 width: 302px;
             }
 
@@ -59,7 +59,7 @@
 
             div.Info {
                 margin: 5px 0px;
-                font-size: 15px;
+                font-size: 13px;
             }
 
             .center {
@@ -155,7 +155,7 @@
             }
 
             table {
-                font-size: 15px;
+                font-size: 13px;
                 width: 100%;
                 overflow:hidden;
                 border-collapse:collapse;
