@@ -11,7 +11,7 @@
         </tr> --}}
 
         <tr>
-            <th style="width: 16.6%">Sáida (ida)</th>
+            <th style="width: 16.6%">Saída (ida)</th>
             <th style="width: 16.6%">Chegada (ida)</th>
             <th style="width: 16.6%">Início</th>
             <th style="width: 16.6%">Término</th>

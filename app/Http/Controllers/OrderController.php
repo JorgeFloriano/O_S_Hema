@@ -838,8 +838,25 @@ class OrderController extends Controller
             // Add CSV headers
             $csv_headers = [
                 'SAT', 
-                'Data', 
                 'Cliente',
+                'Unidade',
+                'Endereço',
+                'Contato',
+                'Setor',
+                'Anotado por',
+                'Data da SAT',
+                'Hora',
+                'Tipo de Serviço',
+                'Equipamento',
+                'Problema relatado',
+                'Data da interv.',
+                'Mod. equip.',
+                'Nº série',
+                'Tipo equip.',
+                'Cód. Tipo',
+                'Cód. Defeito',
+                'Cód. Causa',
+                'Cód. Solução',
             ];
 
             // IDs of all registered materials
@@ -853,20 +870,27 @@ class OrderController extends Controller
             // Finish headers array
             array_push($csv_headers, 
                 'Descrição do serviço',
+                'Saída (ida)',
+                'Chegada (ida)',
                 'Início',
                 'Término',
-                'Tipo',
-                'Defeito',
-                'Causa',
-                'Solução',
-                'Técnico');
-
+                'Saída (volta)',
+                'Chegada (volta)',
+                'Téc. 01',
+                'Funç. téc. 01',
+                'Téc. 02',
+                'Funç. téc. 02',
+                'Acomp. (cliente)',
+                'Funç. acomp. (cliente)',
+                'Contato acomp. (cliente)',
+                'Data acomp. (cliente)',
+            );
 
             fputcsv($file, $csv_headers, ';'); // Use semicolon as delimiter
         
             // Add rows wich the CSV data
             foreach ($orders as $order) {
-                $order->notes_time_format();
+                
                 foreach ($order->notes as $key => $note) {
 
                     // Clean $note->services"
@@ -878,8 +902,25 @@ class OrderController extends Controller
                     // Add CSV datas
                     $csv_datas = [
                         $order->id.'_'.$key + 1,
+                        $order->client->name ?? '',
+                        $order->client->unit,
+                        $order->client->address,
+                        $order->req_name,
+                        $order->sector,
+                        $order->user->name,
                         date('Y-m-d', strtotime($order->req_date)), // ISO 8601 format
-                        $order->client->name,
+                        date('H:i',strtotime($order->req_time)),
+                        $order->type->description ?? '',
+                        $order->equipment ?? '',
+                        $order->req_descr ?? '',
+                        date('Y-m-d', strtotime($note->date)),
+                        $note->equip_mod ?? '',
+                        $note->equip_id ?? '',
+                        $note->equip_type ?? '',
+                        $note->type->id.' - '.$note->type->description,
+                        $note->defect->id.' - '.$note->defect->description,
+                        $note->cause->id.' - '.$note->cause->description,
+                        $note->solution->id.' - '.$note->solution->description,
                     ];
 
                     // Add materials quantities
@@ -906,13 +947,20 @@ class OrderController extends Controller
                     // Finsh datas array
                     array_push($csv_datas,
                         $services,
-                        $note->start,
-                        $note->end,
-                        $note->type->id.' - '.$note->type->description,
-                        $note->defect->id.' - '.$note->defect->description,
-                        $note->cause->id.' - '.$note->cause->description,
-                        $note->solution->id.' - '.$note->solution->description,
-                        $note->tecs[0]->user->name
+                        $note->go_start ? date('H:i',strtotime($note->go_start)) : '',
+                        $note->go_end ? date('H:i',strtotime($note->go_end)) : '',
+                        $note->start ? date('H:i',strtotime($note->start)) : '',
+                        $note->end ? date('H:i',strtotime($note->end)) : '',
+                        $note->back_start ? date('H:i',strtotime($note->back_start)) : '',
+                        $note->back_end ? date('H:i',strtotime($note->back_end)) : '',
+                        $note->tecs[0]->user->name,
+                        $note->tecs[0]->user->function,
+                        $note->tecs[1]->user->name ?? '',
+                        $note->tecs[1]->user->function ?? '',
+                        $order->cl_name ?? '',
+                        $order->cl_function ?? '',
+                        $order->cl_contact ?? '',
+                        $order->cl_date ? date('Y-m-d', strtotime($order->cl_date)) : '',
                     );
 
                     fputcsv($file, $csv_datas, ';');   // Use semicolon as delimiter
