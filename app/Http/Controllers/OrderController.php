@@ -898,29 +898,44 @@ class OrderController extends Controller
                     $services = str_replace(["\r", "\n"], ' ', $services); // Remove line breaks
                     $services = mb_convert_encoding($services, 'UTF-8', 'auto'); // UTF-8 encoding
                     $services = str_replace('"', '""', $services); // Escape double quotes
+                    $services = str_replace(',', '-', $services); // Escape comma
 
+                    // Clean $order->req_descr"
+                    $req_descr = trim($order->req_descr); // Remove whitespaces
+                    $req_descr = str_replace(["\r", "\n"], ' ', $req_descr); // Remove line breaks
+                    $req_descr = mb_convert_encoding($req_descr, 'UTF-8', 'auto'); // UTF-8 encoding
+                    $req_descr = str_replace('"', '""', $req_descr); // Escape double quotes
+                    $req_descr = str_replace(',', '-', $req_descr); // Escape comma
+
+                    // Clean $order->client->adress
+                    $address = trim($order->client->address); // Remove whitespaces
+                    $address = str_replace(["\r", "\n"], ' ', $address); // Remove line breaks
+                    $address = mb_convert_encoding($address, 'UTF-8', 'auto'); // UTF-8 encoding
+                    $address = str_replace('"', '""', $address); // Escape double quotes
+                    $address = str_replace(',', '-', $address); // Escape comma
+                    
                     // Add CSV datas
                     $csv_datas = [
                         $order->id.'_'.$key + 1,
-                        $order->client->name ?? '',
-                        $order->client->unit,
-                        $order->client->address,
-                        $order->req_name,
-                        $order->sector,
-                        $order->user->name,
-                        date('Y-m-d', strtotime($order->req_date)), // ISO 8601 format
-                        date('H:i',strtotime($order->req_time)),
-                        $order->type->description ?? '',
-                        $order->equipment ?? '',
-                        $order->req_descr ?? '',
-                        date('Y-m-d', strtotime($note->date)),
-                        $note->equip_mod ?? '',
-                        $note->equip_id ?? '',
-                        $note->equip_type ?? '',
-                        $note->type->id.' - '.$note->type->description,
-                        $note->defect->id.' - '.$note->defect->description,
-                        $note->cause->id.' - '.$note->cause->description,
-                        $note->solution->id.' - '.$note->solution->description,
+                        str_replace(',', '-', $order->client->name ?? ' '),
+                        str_replace(',', '-', $order->client->unit ?? ' '),
+                        $address ?? ' ',
+                        str_replace(',', '-', $order->req_name ?? ' '),
+                        str_replace(',', '-', $order->sector ?? ' '),
+                        str_replace(',', '-', $order->user->name ?? ' '),
+                        date('Y-m-d', strtotime($order->req_date) ?? ' '), // ISO 8601 format
+                        date('H:i',strtotime($order->req_time) ?? ' '),
+                        str_replace(',', '-', $order->type->description ?? ' '),
+                        str_replace(',', '-', $order->equipment ?? ' '),
+                        $req_descr ?? ' ',
+                        date('Y-m-d', strtotime($note->date) ?? ' '), // ISO 8601 format
+                        str_replace(',', '-', $note->equip_mod ?? ' '),
+                        str_replace(',', '-', $note->equip_id ?? ' '),
+                        str_replace(',', '-', $note->equip_type ?? ' '),
+                        $note->type->id.' - '.str_replace(',', '-', $note->type->description ?? ' '),
+                        $note->defect->id.' - '.str_replace(',', '-', $note->defect->description ?? ' '),
+                        $note->cause->id.' - '.str_replace(',', '-', $note->cause->description ?? ' '),
+                        $note->solution->id.' - '.str_replace(',', '-', $note->solution->description ?? ' '),
                     ];
 
                     // Add materials quantities
@@ -947,20 +962,20 @@ class OrderController extends Controller
                     // Finsh datas array
                     array_push($csv_datas,
                         $services,
-                        $note->go_start ? date('H:i',strtotime($note->go_start)) : '',
-                        $note->go_end ? date('H:i',strtotime($note->go_end)) : '',
-                        $note->start ? date('H:i',strtotime($note->start)) : '',
-                        $note->end ? date('H:i',strtotime($note->end)) : '',
-                        $note->back_start ? date('H:i',strtotime($note->back_start)) : '',
-                        $note->back_end ? date('H:i',strtotime($note->back_end)) : '',
-                        $note->tecs[0]->user->name,
-                        $note->tecs[0]->user->function,
-                        $note->tecs[1]->user->name ?? '',
-                        $note->tecs[1]->user->function ?? '',
-                        $order->cl_name ?? '',
-                        $order->cl_function ?? '',
-                        $order->cl_contact ?? '',
-                        $order->cl_date ? date('Y-m-d', strtotime($order->cl_date)) : '',
+                        $note->go_start ? date('H:i',strtotime($note->go_start)) : ' ',
+                        $note->go_end ? date('H:i',strtotime($note->go_end)) : ' ',
+                        $note->start ? date('H:i',strtotime($note->start)) : ' ',
+                        $note->end ? date('H:i',strtotime($note->end)) : ' ',
+                        $note->back_start ? date('H:i',strtotime($note->back_start)) : ' ',
+                        $note->back_end ? date('H:i',strtotime($note->back_end)) : ' ',
+                        str_replace(',', '-', $note->tecs[0]->user->name ?? ' '),
+                        str_replace(',', '-', $note->tecs[0]->user->function ?? ' '),
+                        str_replace(',', '-', $note->tecs[1]->user->name ?? ' '),
+                        str_replace(',', '-', $note->tecs[1]->user->function ?? ' '),
+                        str_replace(',', '-', $order->cl_name ?? ' '),
+                        str_replace(',', '-', $order->cl_function ?? ' '),
+                        str_replace(',', '-', $order->cl_contact ?? ' '),
+                        $order->cl_date ? date('Y-m-d', strtotime($order->cl_date)) : ' ',
                     );
 
                     fputcsv($file, $csv_datas, ';');   // Use semicolon as delimiter
