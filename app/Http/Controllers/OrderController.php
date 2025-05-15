@@ -80,7 +80,7 @@ class OrderController extends Controller
 
         // get orders
         $orders = $this->os
-            ->select('id', 'order_type_id', 'req_descr', 'req_name', 'sector', 'client_id', 'tec_id', 'req_date', 'finished',)
+            ->select('id', 'order_type_id', 'req_descr', 'req_name', 'sector', 'client_id', 'tec_id', 'req_date', 'req_time', 'finished')
             ->whereBetween('req_date', [$start_date, $end_date])
             ->orderBy('id', 'desc')
             ->get();
@@ -190,7 +190,7 @@ class OrderController extends Controller
             ->when($request->finished != 2, function ($query) use ($request) {
                 $query->where('finished', $request->finished);
             })
-            ->select('id', 'order_type_id', 'req_descr', 'client_id', 'tec_id', 'req_date', 'finished')
+            ->select('id', 'order_type_id', 'req_descr', 'req_name', 'sector', 'client_id', 'tec_id', 'req_date', 'req_time', 'finished')
             ->orderBy('id', 'desc')
             ->get();
 
@@ -210,7 +210,7 @@ class OrderController extends Controller
         //Last client selected
         $old_client = Client::select('id', 'name')->where('id', $request->client_id)->first();
         if ($old_client) {
-            $old_client = $old_client->name.' - ['.$old_client->id.']';
+            $old_client = $old_client->name . ' - [' . $old_client->id . ']';
         }
 
         // Last tecnician selected
@@ -220,10 +220,10 @@ class OrderController extends Controller
             $old_tec = 'Não selecionado - [0]';
         } else {
             $old_tec = Tec::with('user:id,name') // Eager load the user relationship
-                  ->where('id', $request->tec_id)
-                  ->first();
+                ->where('id', $request->tec_id)
+                ->first();
             if ($old_tec) {
-                $old_tec = $old_tec->user->name.' - ['.$old_tec->id.']';
+                $old_tec = $old_tec->user->name . ' - [' . $old_tec->id . ']';
             }
         }
 
@@ -617,7 +617,7 @@ class OrderController extends Controller
         if ($msg == 'continue') {
             if (session()->has('order_client_ids') || session()->has('order_count_client_ids')) {
 
-                if (session('order_count_client_ids') < count(session('order_client_ids'))) {     
+                if (session('order_count_client_ids') < count(session('order_client_ids'))) {
 
                     // Get the orders for the current client
                     $order_ids = session('order_client_ids')[session('order_count_client_ids')]['orders'];
@@ -637,7 +637,7 @@ class OrderController extends Controller
                         session()->put('order_front', false);
 
                         if (!$pdf) {
-                            $this->logger->log('error', 'Error (order/generate_pdf), error to generate front page of client '.$$client_name.'.');
+                            $this->logger->log('error', 'Error (order/generate_pdf), error to generate front page of client ' . $$client_name . '.');
                             return redirect()->route('orders.index')->withErrors('Erro ao gerar capa do relatório do cliente ' . $$client_name . '!');
                         }
                     } else {
@@ -649,7 +649,7 @@ class OrderController extends Controller
                         ])->setPaper('A4', 'portrait');
 
                         if (!$pdf) {
-                            $this->logger->log('error', 'Error (order/generate_pdf), error generating order number '.$order_id.'.');
+                            $this->logger->log('error', 'Error (order/generate_pdf), error generating order number ' . $order_id . '.');
                             return redirect()->route('orders.index')->withErrors('Erro ao gerar ordem número ' . $order_id . '!');
                         }
 
@@ -714,14 +714,14 @@ class OrderController extends Controller
                 $totalPages = $this->a->fileCountPages($file);
 
                 // If dont exists $totalPages, if $totalPages < 4, if $totalPages != $expected_pages or any session variable doesnt exists return error
-                if (!isset($totalPages) 
-                || $totalPages < 4 
-                || $totalPages != session('expected_pages')
-                || !session('order_count_client_ids')
-                || !session('order_client_ids')
-                || !session('page'))
-                
-                {
+                if (
+                    !isset($totalPages)
+                    || $totalPages < 4
+                    || $totalPages != session('expected_pages')
+                    || !session('order_count_client_ids')
+                    || !session('order_client_ids')
+                    || !session('page')
+                ) {
                     $this->logger->log('error', 'Error (order/generate_pdf), error finalizing report.');
                     return redirect()->route('orders.index')->withErrors('Erro ao finalizar o relatório !');
                 }
@@ -736,7 +736,7 @@ class OrderController extends Controller
     }
 
     // Only main administrators or supervisors can change the on call technician
-    public function ord_tec_update(Request $request , $id)
+    public function ord_tec_update(Request $request, $id)
     {
         if (!$this->s && !$this->m) {
             return view('login');
@@ -759,19 +759,19 @@ class OrderController extends Controller
             return view('login');
         }
 
-        for ($i=0; $i < $qtd; $i++) { 
+        for ($i = 0; $i < $qtd; $i++) {
             //Create new orders
             $created = $this->os->create([
                 'client_id' => 1,
                 'order_type_id' => 1,
-                'sector' => 'Sector'.$i,
-                'req_name' => 'Solicitante'.$i,
+                'sector' => 'Sector' . $i,
+                'req_name' => 'Solicitante' . $i,
                 'user_id' => auth()->user()->id,
                 'tec_id' => auth()->user()->tec()->first()->id,
-                'equipment' => 'Equipamento'.$i,
+                'equipment' => 'Equipamento' . $i,
                 'req_date' => date('Y-m-d'),
                 'req_time' => date('H:i'),
-                'req_descr' => 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Pariatur aut sequi quaerat blanditiis est similique perspiciatis nihil cupiditate assumenda dignissimos sed iste fugit dicta consequuntur quae, explicabo voluptatem, laborum incidunt.'.$i
+                'req_descr' => 'Lorem ipsum dolor sit amet consectetur adipisicing elit. Pariatur aut sequi quaerat blanditiis est similique perspiciatis nihil cupiditate assumenda dignissimos sed iste fugit dicta consequuntur quae, explicabo voluptatem, laborum incidunt.' . $i
             ]);
         }
 
@@ -823,21 +823,21 @@ class OrderController extends Controller
 
         // Create the CSV file
         $fileName = 'dados_sat_hema_' . date('d_m_Y') . '.csv';
-        
+
         $headers = [
             'Content-Type' => 'text/csv; charset=UTF-8',
             'Content-Disposition' => "attachment; filename=$fileName",
         ];
-        
+
         $callback = function () use ($orders) {
             $file = fopen('php://output', 'w');
-        
+
             // Add BOM for UTF-8 with BOM
             fwrite($file, "\xEF\xBB\xBF");
-        
+
             // Add CSV headers
             $csv_headers = [
-                'SAT', 
+                'SAT',
                 'Cliente',
                 'Unidade',
                 'Endereço',
@@ -864,11 +864,12 @@ class OrderController extends Controller
 
             // Add materials headers
             foreach ($materials as $key => $material) {
-                array_push($csv_headers, $material->id.' - '.$material->description);
+                array_push($csv_headers, $material->id . ' - ' . $material->description);
             }
-            
+
             // Finish headers array
-            array_push($csv_headers, 
+            array_push(
+                $csv_headers,
                 'Descrição do serviço',
                 'Saída (ida)',
                 'Chegada (ida)',
@@ -887,10 +888,10 @@ class OrderController extends Controller
             );
 
             fputcsv($file, $csv_headers, ';'); // Use semicolon as delimiter
-        
+
             // Add rows wich the CSV data
             foreach ($orders as $order) {
-                
+
                 foreach ($order->notes as $key => $note) {
 
                     // Clean $note->services"
@@ -913,10 +914,10 @@ class OrderController extends Controller
                     $address = mb_convert_encoding($address, 'UTF-8', 'auto'); // UTF-8 encoding
                     $address = str_replace('"', '""', $address); // Escape double quotes
                     $address = str_replace(',', '-', $address); // Escape comma
-                    
+
                     // Add CSV datas
                     $csv_datas = [
-                        $order->id.'_'.$key + 1,
+                        $order->id . '_' . $key + 1,
                         str_replace(',', '-', $order->client->name ?? ' '),
                         str_replace(',', '-', $order->client->unit ?? ' '),
                         $address ?? ' ',
@@ -924,7 +925,7 @@ class OrderController extends Controller
                         str_replace(',', '-', $order->sector ?? ' '),
                         str_replace(',', '-', $order->user->name ?? ' '),
                         date('Y-m-d', strtotime($order->req_date) ?? ' '), // ISO 8601 format
-                        date('H:i',strtotime($order->req_time) ?? ' '),
+                        date('H:i', strtotime($order->req_time) ?? ' '),
                         str_replace(',', '-', $order->type->description ?? ' '),
                         str_replace(',', '-', $order->equipment ?? ' '),
                         $req_descr ?? ' ',
@@ -932,10 +933,10 @@ class OrderController extends Controller
                         str_replace(',', '-', $note->equip_mod ?? ' '),
                         str_replace(',', '-', $note->equip_id ?? ' '),
                         str_replace(',', '-', $note->equip_type ?? ' '),
-                        $note->type->id.' - '.str_replace(',', '-', $note->type->description ?? ' '),
-                        $note->defect->id.' - '.str_replace(',', '-', $note->defect->description ?? ' '),
-                        $note->cause->id.' - '.str_replace(',', '-', $note->cause->description ?? ' '),
-                        $note->solution->id.' - '.str_replace(',', '-', $note->solution->description ?? ' '),
+                        $note->type->id . ' - ' . str_replace(',', '-', $note->type->description ?? ' '),
+                        $note->defect->id . ' - ' . str_replace(',', '-', $note->defect->description ?? ' '),
+                        $note->cause->id . ' - ' . str_replace(',', '-', $note->cause->description ?? ' '),
+                        $note->solution->id . ' - ' . str_replace(',', '-', $note->solution->description ?? ' '),
                     ];
 
                     // Add materials quantities
@@ -960,14 +961,15 @@ class OrderController extends Controller
                     }
 
                     // Finsh datas array
-                    array_push($csv_datas,
+                    array_push(
+                        $csv_datas,
                         $services,
-                        $note->go_start ? date('H:i',strtotime($note->go_start)) : ' ',
-                        $note->go_end ? date('H:i',strtotime($note->go_end)) : ' ',
-                        $note->start ? date('H:i',strtotime($note->start)) : ' ',
-                        $note->end ? date('H:i',strtotime($note->end)) : ' ',
-                        $note->back_start ? date('H:i',strtotime($note->back_start)) : ' ',
-                        $note->back_end ? date('H:i',strtotime($note->back_end)) : ' ',
+                        $note->go_start ? date('H:i', strtotime($note->go_start)) : ' ',
+                        $note->go_end ? date('H:i', strtotime($note->go_end)) : ' ',
+                        $note->start ? date('H:i', strtotime($note->start)) : ' ',
+                        $note->end ? date('H:i', strtotime($note->end)) : ' ',
+                        $note->back_start ? date('H:i', strtotime($note->back_start)) : ' ',
+                        $note->back_end ? date('H:i', strtotime($note->back_end)) : ' ',
                         str_replace(',', '-', $note->tecs[0]->user->name ?? ' '),
                         str_replace(',', '-', $note->tecs[0]->user->function ?? ' '),
                         str_replace(',', '-', $note->tecs[1]->user->name ?? ' '),
@@ -984,14 +986,7 @@ class OrderController extends Controller
 
             fclose($file);
         };
-        
+
         return response()->stream($callback, 200, $headers);
     }
 }
-
-
-
-
-
-
-
