@@ -149,6 +149,7 @@
                                 <th style="min-width: 170px">Técnico</th>
                                 <th>Data</th>
                                 @if ($adm)
+                                    <th>Cop.</th>
                                     <th>Edit</th>
                                     <th>Del.</th>
                                 @else
@@ -170,6 +171,13 @@
                                         @endif
                                     </td>
                                     <td>{{date('d/m/y',strtotime($order->req_date))}}</td>
+                                    <td>
+                                        <button class="btn btn-info btn-sm" id="copyButton">
+                                            <i class="fa fa-copy"></i>
+                                        </button>
+                                        <!-- Hidden input to hold our predefined text -->
+                                        <input type="hidden" id="hiddenText" value="SAT Nº {{$order->id ?? ''}}<br>CLIENTE: {{$order->client->name ?? ''}}<br>SERVIÇO: {{$order->type->description ?? ''}}<br>SETOR: {{$order->sector ?? ''}}<br>NOME DO SOLICITANTE: {{$order->req_name ?? ''}}<br>DATA DO ACIONAMENTO: {{date('d/m/y',strtotime($order->req_date)) ?? ''}}<br>HORA DO ACIONAMENTO: {{date('H:i',strtotime($order->req_time)) ?? ''}}<br>PROBLEMA RELATADO: {{$order->req_descr ?? ''}}">
+                                    </td>
                                     @if ($order->finished)
                                         <td>
                                             <a href="{{route('orders.show_pdf', ['order' => Crypt::encryptString($order->id)])}}" class="btn btn-outline-danger btn-sm">
@@ -240,7 +248,43 @@
         </div>
     </div>
 </div>
+<!-- Clipboard.js -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/clipboard.js/2.0.10/clipboard.min.js"></script>
 
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            // Initialize Clipboard.js
+            var clipboard = new ClipboardJS('#copyButton', {
+                text: function() {
+                    text = document.getElementById('hiddenText').value;
+                    text = text.replace(/<br>/g, '\n');
+                    // Return the predefined text you want to copy
+                    return text;
+                    
+                    // Alternatively, you could hardcode it:
+                    // return "SPECIAL20";
+                    
+                    // Or use a JavaScript variable:
+                    // const discountCode = "SPECIAL20";
+                    // return discountCode;
+                }
+            });
+            
+            // Initialize Bootstrap toast
+            var copyToast = new bootstrap.Toast(document.getElementById('copyToast'));
+            
+            // Show toast when copy is successful
+            clipboard.on('success', function(e) {
+                copyToast.show();
+                e.clearSelection();
+            });
+            
+            // Handle errors
+            clipboard.on('error', function(e) {
+                console.error('Failed to copy text: ', e.action);
+            });
+        });
+    </script>
 {{-- This will output the correct base URL --}}
 <script>window.appBaseUrl = "{{ url('/') }}"</script>
 @endsection
