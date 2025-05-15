@@ -80,7 +80,7 @@ class OrderController extends Controller
 
         // get orders
         $orders = $this->os
-            ->select('id', 'order_type_id', 'req_descr', 'client_id', 'tec_id', 'req_date', 'finished',)
+            ->select('id', 'order_type_id', 'req_descr', 'req_name', 'sector', 'client_id', 'tec_id', 'req_date', 'finished',)
             ->whereBetween('req_date', [$start_date, $end_date])
             ->orderBy('id', 'desc')
             ->get();
