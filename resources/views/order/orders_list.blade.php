@@ -148,8 +148,8 @@
                                 <th>Problema relatado</th>
                                 <th style="min-width: 170px">Técnico</th>
                                 <th>Data</th>
+                                <th>Cop.</th>
                                 @if ($adm)
-                                    <th>Cop.</th>
                                     <th>Edit</th>
                                     <th>Del.</th>
                                 @else
