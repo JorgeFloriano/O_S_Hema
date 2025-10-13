@@ -15,7 +15,7 @@ class OrderApiController extends Controller
      */
     public function index()
     {
-        return response()->json(['message' => 'CORS is working!']);
+        return response()->json(['message' => 'CORS is working new test!']);
     }
 
     /**
