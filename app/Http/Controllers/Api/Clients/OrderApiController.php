@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Clients;
 
 use App\Http\Controllers\Controller;
 use App\Models\Client;
+use App\Models\Order;
 use App\Models\OrderType;
 use App\Models\Tec;
 use Illuminate\Http\Request;
@@ -15,7 +16,13 @@ class OrderApiController extends Controller
      */
     public function index()
     {
-        return response()->json(['message' => 'CORS is working new test!']);
+        // get orders
+        $orders = Order::
+            select('id', 'order_type_id', 'req_descr', 'req_name', 'sector', 'client_id', 'tec_id', 'req_date', 'req_time', 'finished')
+            ->where('client_id', 1)
+            ->orderBy('id', 'desc')
+            ->get();
+        return response()->json(['orders' => $orders]);
     }
 
     /**

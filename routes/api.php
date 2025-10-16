@@ -10,5 +10,5 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/auth/user', [LoginController::class, 'user']);
     
     // Your other protected API routes
-    Route::resource('/orders', OrderApiController::class);
 });
+Route::resource('/orders', OrderApiController::class);
