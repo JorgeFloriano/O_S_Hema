@@ -16,12 +16,14 @@ class OrderApiController extends Controller
      */
     public function index()
     {
-        // get orders
-        $orders = Order::
-            select('id', 'order_type_id', 'req_descr', 'req_name', 'sector', 'client_id', 'tec_id', 'req_date', 'req_time', 'finished')
+        // Get orders with relationships
+        // The user data (id, name, surname) is now automatically loaded
+        // $order->tec->user will contain only id, name, surname
+        $orders = Order::with(['type:id,description', 'tec:id,user_id', 'tec.user:id,name,surname'])
             ->where('client_id', 1)
             ->orderBy('id', 'desc')
-            ->get();
+            ->get(['id', 'order_type_id', 'tec_id', 'req_descr', 'req_name', 'sector', 'req_date', 'req_time', 'finished']);
+
         return response()->json(['orders' => $orders]);
     }
 
@@ -33,7 +35,7 @@ class OrderApiController extends Controller
         // Create session variable wich contains all order types ids to validated in FormOrderRequest
         $types = OrderType::select('id', 'description')->get();
         session()->put('types_ids', $types->pluck('id')->toArray());
-        
+
         return response()->json([
             'types' => $types
         ]);
