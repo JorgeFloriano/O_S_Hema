@@ -18,11 +18,15 @@ class OrderApiController extends Controller
     {
         // Get orders with relationships
         // The user data (id, name, surname) is now automatically loaded
-        // $order->tec->user will contain only id, name, surname
-        $orders = Order::with(['type:id,description', 'tec:id,user_id', 'tec.user:id,name,surname'])
-            ->where('client_id', 1)
-            ->orderBy('id', 'desc')
-            ->get(['id', 'order_type_id', 'tec_id', 'req_descr', 'req_name', 'sector', 'req_date', 'req_time', 'finished']);
+        //$order->tec->user will contain only id, name, surname
+        $orders = Order::with([
+            'type:id,description',
+            'tec:id,user_id', 
+            'tec.user:id,name,surname',
+        ])
+        ->where('client_id', 2)
+        ->orderBy('id', 'desc')
+        ->get(['id', 'order_type_id', 'tec_id', 'req_descr', 'req_name', 'sector', 'req_date', 'req_time', 'finished']);
 
         return response()->json(['orders' => $orders]);
     }
@@ -52,9 +56,13 @@ class OrderApiController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
+    public function show(Order $order)
+
     {
-        //
+        $order = $order->load(['type:id,description', 'tec:id,user_id', 'tec.user:id,name,surname', 'notes.materials']);
+        return response()->json([
+            'order' => $order
+        ]);
     }
 
     /**
