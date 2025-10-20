@@ -59,7 +59,7 @@ class OrderApiController extends Controller
     public function show(Order $order)
 
     {
-        $order = $order->load(['type:id,description', 'tec:id,user_id', 'tec.user:id,name,surname', 'notes.materials']);
+        $order = $order->load(['type:id,description', 'tec:id,user_id', 'notes.materials', 'notes.tecs.user:id,name,surname,function']);
         return response()->json([
             'order' => $order
         ]);
