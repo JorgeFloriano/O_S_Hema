@@ -14,7 +14,7 @@ class FormCrUserRequest extends FormRequest
             'function' => 'required|max:20',
             'username' => 'min:10|max:100|unique:users',
             'password' => 'min:5|max:100|unique:users|confirmed',
-            'tec' => 'required_without_all:adm,sup'
+            'tec' => 'required_without_all:adm,sup,user_client',
         ];
     }
 

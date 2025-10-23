@@ -92,16 +92,19 @@ function showAddress(dados) {
    document.querySelector('#address').value = dados.logradouro+', '+dados.bairro+', '+dados.localidade+' - '+dados.uf;
 }
 
-function enableDisable(id) {
-   div = document.getElementById(id);
-   if (div.disabled == false) {
-      this.checked = false;
-      div.checked = false;
-      div.disabled = true;
-   } else {
-      this.checked = true;
-      div.disabled = false;
-   }
+function enableDisable(ids) {
+   console.log(ids)
+   ids.map(function (id) {
+      div = document.getElementById(id);
+      if (div.disabled == false) {
+         this.checked = false;
+         div.checked = false;
+         div.disabled = true;
+      } else {
+         this.checked = true;
+         div.disabled = false;
+      }
+   })
 }
 
 // Toggle client fields----------------------------------------------------------------------------------------------------------------------
@@ -361,4 +364,15 @@ function updateOrderTec(index, object_selected_id) {
       console.error('Erro:', error);
       alert('Erro ao atualizar técnico.');
    });
+}
+
+// Show element and hide others-------------------------------------------------------------------------------------
+function showAndHideElement(show, hide) {
+   if (this.checked) {
+      document.getElementById(show).style.display = 'none';
+      document.getElementById(hide).style.display = 'block';
+   } else {
+      document.getElementById(show).style.display = 'block';
+      document.getElementById(hide).style.display = 'none';
+   }
 }

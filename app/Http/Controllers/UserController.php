@@ -4,6 +4,8 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\FormCrUserRequest;
 use App\Models\Adm;
+use App\Models\Cli;
+use App\Models\Client;
 use App\Models\Sup;
 use App\Models\Tec;
 use App\Models\User;
@@ -103,7 +105,12 @@ class UserController extends Controller
             return view('login');
         }
 
-        return view('user.user_create');
+        // Get id and name of all clients order by name
+        $clients = Client::select('id', 'name')->orderBy('name')->get();
+
+        return view('user.user_create' , [
+            'clients' => $clients
+        ]);
     }
 
     // If logged in user is adm main, validate and create a new user
@@ -113,8 +120,18 @@ class UserController extends Controller
             return view('login');
         }
 
+        if ($request->user_client) {
+            $request->validate([
+                'client_id' => ['required', Rule::exists('clients', 'id'), 'unique:clis, client_id'],
+            ], [
+                'client_id.required' => 'Selecione um cliente.',
+                'client_id.exists' => 'O cliente selecionado não existe.',
+                'client_id.unique' => 'O cliente selecionado já possui um usuário cadastrado.',
+            ]);
+        }
+
         $request->validated();
-        $email = $request->username.'@hema.com.br';
+        $email = $request->username.'@hemasystem.com.br';
 
         // Create new user
         $user_cr = $this->user->create([
@@ -128,6 +145,17 @@ class UserController extends Controller
 
         // If new user was created
         if ($user_cr) {
+
+            // If user_client option is selected, makes available client access
+            if ($request->user_client) {
+                Cli::create([
+                    'user_id' => $user_cr->id,
+                    'role' => 'admin',
+                    'client_id' => $request->client_id
+                ]);
+            }
+
+
             // If adm option is selected, makes available admin access
             if ($request->adm) {
 
