@@ -55,38 +55,49 @@
                             <label for="password">Senha</label>
                         </div>
 
-                        <div class="form-floating my-2">
+                        <div class="form-floating my-2" id="div_password_confirmation">
                             <input type="password" class="form-control" id="password_confirmation" minlength="5" maxlength="25" name="password_confirmation" placeholder="Confirmar Senha" required>
                             <label for="password_confirmation">Confirmar Senha</label>
                         </div>
 
                         <fieldset><legend>Selecione um ou mais perfis:</legend>
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" value="1" name="tec" id="tec">
-                                <label class="form-check-label" for="tec">
-                                    <strong>Técnico</strong>
-                                </label>
-                            </div>
-
-                            <div class="form-check">
-                                <input onchange="enableDisable('cli')" class="form-check-input" type="checkbox" value="1" name="adm" id="adm">
-                                <label class="form-check-label" for="adm">
-                                    <strong>Administrador</strong>
-                                </label>
-                                
+                            <div id="hema_profiles">
                                 <div class="form-check">
-                                    <input disabled class="form-check-input" type="checkbox" value="1" name="cli" id="cli">
-                                    <label class="form-check-label" for="cli">
-                                        Acesso a Clientes e Materiais
+                                    <input class="form-check-input" type="checkbox" value="1" name="tec" id="tec">
+                                    <label class="form-check-label" for="tec">
+                                        <strong>Técnico</strong>
+                                    </label>
+                                </div>
+                                <div class="form-check">
+                                    <input onchange="enableDisable(['cli'])" class="form-check-input" type="checkbox" value="1" name="adm" id="adm">
+                                    <label class="form-check-label" for="adm">
+                                        <strong>Administrador</strong>
+                                    </label>
+                                
+                                    <div class="form-check">
+                                        <input disabled class="form-check-input" type="checkbox" value="1" name="cli" id="cli">
+                                        <label class="form-check-label" for="cli">
+                                            Acesso a Clientes e Materiais
+                                        </label>
+                                    </div>
+                                </div>
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="1" name="sup" id="sup">
+                                    <label class="form-check-label" for="sup">
+                                        <strong>Supervisor</strong>
                                     </label>
                                 </div>
                             </div>
 
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" value="1" name="sup" id="sup">
-                                <label class="form-check-label" for="sup">
-                                    <strong>Supervisor</strong>
+                                <input onchange="enableDisable(['tec', 'adm', 'sup']), showAndHideElement('client_optios', 'hema_profiles')" class="form-check-input" type="checkbox" value="1" name="user_client" id="user_client">
+                                <label class="form-check-label" for="user_client">
+                                    <strong>Usuário para Clientes</strong>
                                 </label>
+                            </div>
+
+                            <div id="client_optios" style="display: none">
+                                <x-datalist :objs="$clients" obj="client" tit="Cliente" :val="old('client')" des="name" req='required'/>
                             </div>
                         </fieldset>
 
