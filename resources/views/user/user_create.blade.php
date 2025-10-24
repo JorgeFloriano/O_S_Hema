@@ -90,14 +90,14 @@
                             </div>
 
                             <div class="form-check">
-                                <input onchange="enableDisable(['tec', 'adm', 'sup']), showAndHideElement('client_optios', 'hema_profiles')" class="form-check-input" type="checkbox" value="1" name="user_client" id="user_client">
+                                <input onchange="enableDisable(['tec', 'adm', 'sup']), showAndHideElement('client_select', 'hema_profiles')" class="form-check-input" type="checkbox" value="1" name="user_client" id="user_client">
                                 <label class="form-check-label" for="user_client">
                                     <strong>Usuário para Clientes</strong>
                                 </label>
                             </div>
 
-                            <div id="client_optios" style="display: none">
-                                <x-datalist :objs="$clients" obj="client" tit="Cliente" :val="old('client')" des="name" req='required'/>
+                            <div id="client_select" style="display: none;">
+                                <x-datalist :objs="$clients" obj="client" tit="Cliente" :val="old('client')" des="name"/>
                             </div>
                         </fieldset>
 

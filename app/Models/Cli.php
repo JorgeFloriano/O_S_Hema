@@ -15,6 +15,8 @@ class Cli extends Model
 
     protected $fillable = [
         'client_id',
+        'user_id',
+        'role'
     ];
 
     use HasFactory;

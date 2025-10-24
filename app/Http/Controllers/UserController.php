@@ -122,9 +122,9 @@ class UserController extends Controller
 
         if ($request->user_client) {
             $request->validate([
-                'client_id' => ['required', Rule::exists('clients', 'id'), 'unique:clis, client_id'],
+                'client_id' => ['required', Rule::exists('clients', 'id'), 'unique:clis,client_id'],
             ], [
-                'client_id.required' => 'Selecione um cliente.',
+                'client_id.required' => 'Selecione um cliente para o usuário.',
                 'client_id.exists' => 'O cliente selecionado não existe.',
                 'client_id.unique' => 'O cliente selecionado já possui um usuário cadastrado.',
             ]);
@@ -148,22 +148,31 @@ class UserController extends Controller
 
             // If user_client option is selected, makes available client access
             if ($request->user_client) {
-                Cli::create([
+                $cli_cr = Cli::create([
                     'user_id' => $user_cr->id,
                     'role' => 'admin',
                     'client_id' => $request->client_id
                 ]);
+
+                if (!$cli_cr) {
+                    $user_cr->delete();
+                    return redirect()->route('users.index')->with('message', 'Erro ao cadastrar Usuário Cliente.');
+                }
             }
 
 
             // If adm option is selected, makes available admin access
             if ($request->adm) {
-
                 $adm_cr = Adm::create([
                     'user_id' => $user_cr->id,
                     'main' => 0,
                     'cli' => $request->cli ? 1 : 0,
                 ]);
+
+                if (!$adm_cr) {
+                    $user_cr->delete();
+                    return redirect()->route('users.index')->with('message', 'Erro ao cadastrar Usuário Administrador.');
+                }
             }
     
             // If sup option is selected, makes available supervisor access
@@ -171,6 +180,11 @@ class UserController extends Controller
                 $sup_cr = Sup::create([
                     'user_id' => $user_cr->id,
                 ]);
+
+                if (!$sup_cr) {
+                    $user_cr->delete();
+                    return redirect()->route('users.index')->with('message', 'Erro ao cadastrar Usuário Supervisor.');
+                }
             }
     
             // If tec option is selected, makes available technician access
@@ -179,6 +193,11 @@ class UserController extends Controller
                     'user_id' => $user_cr->id,
                     'on_call' => 0,
                 ]);
+
+                if (!$tec_cr) {
+                    $user_cr->delete();
+                    return redirect()->route('users.index')->with('message', 'Erro ao cadastrar Usuário Técnico.');
+                }
             }
 
             return redirect()->route('users.index')->with('message', 'Usuário adm cadastrado com sucesso.');
