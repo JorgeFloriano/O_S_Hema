@@ -84,7 +84,6 @@ function getAddress() {
 
 // CEP-------------------------------------------------------------------------------------------------------------------------------------
 function showAddress(dados) {
-   console.log(dados)
    if (dados.erro) {
        window.alert("Cep não encontrado")
        return
@@ -93,7 +92,6 @@ function showAddress(dados) {
 }
 
 function enableDisable(ids) {
-   console.log(ids)
    ids.map(function (id) {
       div = document.getElementById(id);
       if (div.disabled == false) {
