@@ -91,18 +91,38 @@ function showAddress(dados) {
    document.querySelector('#address').value = dados.logradouro+', '+dados.bairro+', '+dados.localidade+' - '+dados.uf;
 }
 
-function enableDisable(ids) {
-   ids.map(function (id) {
-      div = document.getElementById(id);
-      if (div.disabled == false) {
-         this.checked = false;
-         div.checked = false;
-         div.disabled = true;
-      } else {
-         this.checked = true;
-         div.disabled = false;
-      }
-   })
+function enableDisable(ids, ini_state = '') {
+   if (ini_state === 'checked') {
+      ids.map(id => {
+         div = document.getElementById(id);
+         if (this.checked == false) {
+            div.disabled = true;
+         } else {
+            div.checked = false;
+            div.disabled = false;
+            if (id === "adm") {
+               document.getElementById('cli').checked = false;
+               document.getElementById('cli').disabled = true;
+            }
+         }
+      })
+   } else {
+      ids.map(id => {
+         div = document.getElementById(id);
+         if (div.disabled == false) {
+            this.checked = false;
+            div.checked = false;
+            div.disabled = true;
+            if (id === "adm") {
+               document.getElementById('cli').checked = false;
+               document.getElementById('cli').disabled = true;
+            }
+         } else {
+            this.checked = true;
+            div.disabled = false;
+         }
+      })
+   }
 }
 
 // Toggle client fields----------------------------------------------------------------------------------------------------------------------
@@ -365,12 +385,23 @@ function updateOrderTec(index, object_selected_id) {
 }
 
 // Show element and hide others-------------------------------------------------------------------------------------
-function showAndHideElement(show, hide) {
-   if (this.checked) {
-      document.getElementById(show).style.display = 'none';
-      document.getElementById(hide).style.display = 'block';
+function showAndHideElement(hide, show, ini_state = '') {
+   console.log(ini_state);
+   if (ini_state === 'checked') {
+      if (document.getElementById(show).style.display == 'block') {
+         document.getElementById(show).style.display = 'none';
+         document.getElementById(hide).style.display = 'block';
+      } else {
+         document.getElementById(show).style.display = 'block';
+         document.getElementById(hide).style.display = 'none';
+      }
    } else {
-      document.getElementById(show).style.display = 'block';
-      document.getElementById(hide).style.display = 'none';
+      if (this.checked === true) {
+         document.getElementById(show).style.display = 'block';
+         document.getElementById(hide).style.display = 'none';
+      } else {
+         document.getElementById(show).style.display = 'none';
+         document.getElementById(hide).style.display = 'block';
+      }
    }
 }

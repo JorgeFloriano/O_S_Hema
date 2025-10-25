@@ -68,36 +68,56 @@
                             <label for="password_confirmation">Confirmar Senha</label>
                         </div>
 
-                        <fieldset><legend>Selecione um ou mais perfis:</legend>
+                        <fieldset><legend>Selecione um ou mais perfis:</legend><br/>
+                            <div id="hema_profiles" style="display: {{$hema_profiles_display}}">
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="1" name="tec" id="tec" {{$tec_checked}}>
+                                    <label class="form-check-label" for="tec">
+                                        <strong>Técnico</strong>
+                                    </label>
+                                </div>
+                                {{-- This option will not be displayed if the main administrator is editing his own registration. --}}
+                                @if (auth()->user()->id !== $user->id)
+                                    <div class="form-check">
+                                        <input onchange="enableDisable(['cli'], '{{$user_client_checked}}')" class="form-check-input" type="checkbox" value="1" name="adm" id="adm" {{$adm_checked}} >
+                                        <label class="form-check-label" for="adm">
+                                            <strong>Administrador</strong>
+                                        </label>
+                                
+                                        <div class="form-check">
+                                            <input {{$cli_disabled}} {{$cli_checked}} class="form-check-input" type="checkbox" value="1" name="cli" id="cli">
+                                            <label class="form-check-label" for="cli">
+                                                Acesso a Clientes e Materiais
+                                            </label>
+                                        </div>
+                                    </div>
+                                @endif
+                                <div class="form-check">
+                                    <input class="form-check-input" type="checkbox" value="1" name="sup" id="sup" {{$sup_checked}}>
+                                    <label class="form-check-label" for="sup">
+                                        <strong>Supervisor</strong>
+                                    </label>
+                                </div>
+                            </div>
+
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" value="1" name="tec" id="tec" {{$tec_checked}}>
-                                <label class="form-check-label" for="tec">
-                                    <strong>Técnico</strong>
+                                <input 
+                                    {{$user_client_checked}} 
+                                    onchange="
+                                    enableDisable(['tec', 'adm', 'sup'], '{{$user_client_checked}}'),
+                                    showAndHideElement('client_select', 'hema_profiles', '{{$user_client_checked}}')" 
+                                    class="form-check-input"
+                                    type="checkbox"
+                                    value="1"
+                                    name="user_client"
+                                    id="user_client">
+                                <label class="form-check-label" for="user_client">
+                                    <strong>Usuário para Clientes</strong>
                                 </label>
                             </div>
 
-                            {{-- This option will not be displayed if the main administrator is editing his own registration. --}}
-                            @if (auth()->user()->id !== $user->id)
-                                <div class="form-check">
-                                    <input onchange="enableDisable('cli')" class="form-check-input" type="checkbox" value="1" name="adm" id="adm" {{$adm_checked}} >
-                                    <label class="form-check-label" for="adm">
-                                        <strong>Administrador</strong>
-                                    </label>
-                                    
-                                    <div class="form-check">
-                                        <input {{$cli_disabled}} {{$cli_checked}} class="form-check-input" type="checkbox" value="1" name="cli" id="cli">
-                                        <label class="form-check-label" for="cli">
-                                            Acesso a Clientes e Materiais
-                                        </label>
-                                    </div>
-                                </div>
-                            @endif
-
-                            <div class="form-check">
-                                <input class="form-check-input" type="checkbox" value="1" name="sup" id="sup" {{$sup_checked}}>
-                                <label class="form-check-label" for="sup">
-                                    <strong>Supervisor</strong>
-                                </label>
+                            <div id="client_select" style="display: {{$client_select_display}};">
+                                <x-datalist :objs="$clients" obj="client" tit="Cliente" :val="$client_selected" des="name"/>
                             </div>
                         </fieldset>
 
