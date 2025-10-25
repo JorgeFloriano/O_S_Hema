@@ -265,13 +265,35 @@ class UserController extends Controller
             $sup_checked = 'checked';
         }
 
+        // Get id and name of all clients order by name
+        $clients = Client::select('id', 'name')->orderBy('name')->get();
+
+        $hema_profiles_display = 'block';
+        $client_select_display = 'none';
+        $user_client_checked = '';
+        $client_selected = '';
+        if (isset($user->cli)) {
+            $user_client_checked = 'checked';
+            $hema_profiles_display = 'none';
+            $client_select_display = 'block';
+
+            $client_id = $user->cli->client_id;
+            $client_name = ($clients->where('id', $client_id)->first()->name);
+            $client_selected = $client_name.' - ['.$client_id.']';
+        }
+
         return view('user.user_edit', [
             'user' => $user,
+            'clients' => $clients,
             'adm_checked' => $adm_checked,
             'cli_checked' => $cli_checked,
             'tec_checked' => $tec_checked,
             'sup_checked' => $sup_checked,
-            'cli_disabled' => $cli_disabled
+            'cli_disabled' => $cli_disabled,
+            'user_client_checked' => $user_client_checked,
+            'hema_profiles_display' => $hema_profiles_display,
+            'client_select_display' => $client_select_display,
+            'client_selected' => $client_selected,
         ]);
     }
 

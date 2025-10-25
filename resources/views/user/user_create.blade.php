@@ -60,7 +60,7 @@
                             <label for="password_confirmation">Confirmar Senha</label>
                         </div>
 
-                        <fieldset><legend>Selecione um ou mais perfis:</legend>
+                        <fieldset><legend>Selecione um ou mais perfis:</legend><br/>
                             <div id="hema_profiles">
                                 <div class="form-check">
                                     <input class="form-check-input" type="checkbox" value="1" name="tec" id="tec">
@@ -90,7 +90,14 @@
                             </div>
 
                             <div class="form-check">
-                                <input onchange="enableDisable(['tec', 'adm', 'sup']), showAndHideElement('client_select', 'hema_profiles')" class="form-check-input" type="checkbox" value="1" name="user_client" id="user_client">
+                                <input onchange="
+                                    enableDisable(['tec', 'adm', 'sup']),
+                                    showAndHideElement('client_select', 'hema_profiles')"
+                                    class="form-check-input"
+                                    type="checkbox"
+                                    value="1"
+                                    name="user_client"
+                                    id="user_client">
                                 <label class="form-check-label" for="user_client">
                                     <strong>Usuário para Clientes</strong>
                                 </label>

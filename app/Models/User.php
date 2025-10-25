@@ -71,6 +71,11 @@ class User extends Authenticatable
         return $this->hasOne(Sup::class);
     }
 
+    public function cli(): HasOne
+    {
+        return $this->hasOne(Cli::class);
+    }
+
     // Checks if the user is allowed to edit another user
     public function editUserPermission($user_id) {
 
