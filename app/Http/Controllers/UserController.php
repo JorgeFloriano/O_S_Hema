@@ -122,11 +122,31 @@ class UserController extends Controller
 
         if ($request->user_client) {
             $request->validate([
-                'client_id' => ['required', Rule::exists('clients', 'id'), 'unique:clis,client_id'],
+                'client_id' => [
+                    'required_if:user_client,true', 
+                    Rule::exists('clients', 'id'), 
+                    'unique:clis,client_id'
+                ],
+                'adm' => 'boolean',
+                'tec' => 'boolean', 
+                'sup' => 'boolean',
+                'user_client' => [
+                    'boolean',
+                    function ($attribute, $value, $fail) use ($request) {
+                        if ($value && ($request->adm || $request->tec || $request->sup)) {
+                            $fail('Um usuário cliente não pode ter os acessos de colaboradores Hema');
+                        }
+
+                        if (!$value && !$request->adm && !$request->tec && !$request->sup) {
+                            $fail('Selecione pelo menos um acesso para o usuário.');
+                        }
+                    }
+                ],
             ], [
                 'client_id.required' => 'Selecione um cliente para o usuário.',
                 'client_id.exists' => 'O cliente selecionado não existe.',
                 'client_id.unique' => 'O cliente selecionado já possui um usuário cadastrado.',
+                '*.boolean' => 'Os campos de perfis de acesso devem ser apenas marcados ou desmarcados.',
             ]);
         }
 
@@ -315,17 +335,48 @@ class UserController extends Controller
             $main_id = User::where('id', $id)->first()->adm()->first()->main;
         }
 
-        Validator::make($request->all(), [
+        $validator = Validator::make($request->all(), [
             'name' => 'required|max:20',
             'surname' => 'max:20',
-            'function' => 'required|max:20',
-            'username' => [Rule::unique('users')->ignore($id), 'min:10', 'max:100'],
-            'password' => [$min, 'confirmed']
+            'function' => 'max:20',
+            'username' => ['required' ,Rule::unique('users')->ignore($id), 'min:10', 'max:100'],
+            'password' => [$min, 'confirmed'],
+            'adm' => 'boolean',
+            'tec' => 'boolean', 
+            'sup' => 'boolean',
+            'user_client' => [
+                'boolean',
+                function ($attribute, $value, $fail) use ($request) {
+                    if ($value && ($request->adm || $request->tec || $request->sup)) {
+                        $fail('Um usuário cliente não pode ter os acessos de colaboradores Hema');
+                    }
+
+                    if (!isset($value) && !isset($request->adm) && !isset($request->tec) && !isset($request->sup)) {
+                        $fail('Selecione pelo menos um acesso para o usuário.');
+                    }
+                }
+            ],
         ], [
+            'name.required' => 'O campo nome deve ser preenchido.',
+            'name.max' => 'O campo nome deve ter no máximo 20 caracteres.',
+            'surname.max' => 'O campo sobrenome deve ter no máximo 20 caracteres.',
+            'function.max' => 'O campo função deve ter no.maxcdn 20 caracteres.',
+            'username.required' => 'O campo nome de usuário deve ser preenchido.',
             'username.unique' => 'O nome de usúario digitado está em uso, por favor escolha outro.',
             'password.min' => 'Digite uma senha com pelo menos 8 caracteres',
-            'password.confirmed' => 'As senhas digitadas deveriam ser identicas.',
-        ])->validate();
+            'password.confirmed' => 'As senhas digitadas devem ser identicas.',
+            'client_id.required' => 'Selecione um cliente para o usuário.',
+            'client_id.exists' => 'O cliente selecionado não existe.',
+            'client_id.unique' => 'O cliente selecionado já possui um usuário cadastrado.',
+            '*.boolean' => 'Os campos de perfis de acesso devem ser apenas marcados ou desmarcados.',
+        ]);
+
+        // Add custom messages for the conditional validation
+        $validator->sometimes('client_id', 'required|exists:clients,id|unique:clis,client_id', function ($input) {
+            return $input->user_client == true;
+        });
+
+        $validator->validate();
 
         // If the password field is filled, validate it
         if ($request->input('password')) {
@@ -349,13 +400,21 @@ class UserController extends Controller
             'adm',
             'cli',
             'sup',
+            'user_client',
+            'client_id',
+            'client'
         ]));
 
         if (!$updated) {
             return redirect()->back()->with('message', 'Erro ao atualizar cadastro de usuário.');
         }
 
-        if ((!$request->input('tec') && !$request->input('adm') && !$request->input('sup')) && !$main_id) {
+        if ((
+            !$request->input('tec') && 
+            !$request->input('adm') && 
+            !$request->input('sup')) && 
+            !$request->input('user_client') &&
+            !$main_id) {
             return redirect()->back()->with('message', 'O usuário deve ter pelo menos um acesso.');
         }
 
@@ -451,6 +510,35 @@ class UserController extends Controller
         }
 
         // If the user not has a supervisor access and the sup field is filled, create one
+        if ($request->input('sup') && !isset(User::where('id', $id)->first()->sup)) {
+
+            $sup_deleted = Sup::where('user_id', $id)->withTrashed()->first();
+
+            if ($sup_deleted) {
+                $new_sup = $sup_deleted->restore();
+            } else {
+                $new_sup = Sup::create([
+                    'user_id' => $id,
+                ]);
+            }
+
+            // Return an error message.
+            if (!$new_sup) {
+                return redirect()->back()->with('message', 'Erro ao liberar acesso de supervisor.'); 
+            }
+        }
+
+        // If the user has a supervisor access and the sup field is not filled, remove it
+        if (!$request->input('sup') && isset(User::where('id', $id)->first()->sup)) {
+            $sup_dl = Sup::where('user_id', $id)->delete();
+
+            // Return an error message.
+            if (!$sup_dl) {
+                return redirect()->back()->with('message', 'Erro ao remover acesso de supervisor.'); 
+            }
+        }
+
+        // If the user not has a client access and the sup field is filled, create one
         if ($request->input('sup') && !isset(User::where('id', $id)->first()->sup)) {
 
             $sup_deleted = Sup::where('user_id', $id)->withTrashed()->first();

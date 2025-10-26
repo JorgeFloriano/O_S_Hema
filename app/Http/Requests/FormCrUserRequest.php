@@ -11,7 +11,7 @@ class FormCrUserRequest extends FormRequest
         return [
             'name' => 'required|max:20',
             'surname' => 'max:20',
-            'function' => 'required|max:20',
+            'function' => 'max:20',
             'username' => 'min:10|max:100|unique:users',
             'password' => 'min:5|max:100|unique:users|confirmed',
             'tec' => 'required_without_all:adm,sup,user_client',
