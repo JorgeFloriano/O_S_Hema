@@ -49,7 +49,7 @@
                         </div>
 
                         <div class="form-floating my-2">
-                            <input type="text" class="form-control" maxlength="20" id="function" name="function" value="{{$user->function}}" placeholder="Função" required>
+                            <input type="text" class="form-control" maxlength="20" id="function" name="function" value="{{$user->function}}" placeholder="Função">
                             <label for="function">Função</label>
                         </div>
 
@@ -73,7 +73,7 @@
                                 <div class="form-check">
                                     <input class="form-check-input" type="checkbox" value="1" name="tec" id="tec" {{$tec_checked}}>
                                     <label class="form-check-label" for="tec">
-                                        <strong>Técnico</strong>
+                                        <strong>Técnico (Hema)</strong></strong>
                                     </label>
                                 </div>
                                 {{-- This option will not be displayed if the main administrator is editing his own registration. --}}
@@ -81,7 +81,7 @@
                                     <div class="form-check">
                                         <input onchange="enableDisable(['cli'], '{{$user_client_checked}}')" class="form-check-input" type="checkbox" value="1" name="adm" id="adm" {{$adm_checked}} >
                                         <label class="form-check-label" for="adm">
-                                            <strong>Administrador</strong>
+                                            <strong>Administrador (Hema)</strong>
                                         </label>
                                 
                                         <div class="form-check">
@@ -95,7 +95,7 @@
                                 <div class="form-check">
                                     <input class="form-check-input" type="checkbox" value="1" name="sup" id="sup" {{$sup_checked}}>
                                     <label class="form-check-label" for="sup">
-                                        <strong>Supervisor</strong>
+                                        <strong>Supervisor (Hema)</strong>
                                     </label>
                                 </div>
                             </div>
@@ -112,7 +112,7 @@
                                     name="user_client"
                                     id="user_client">
                                 <label class="form-check-label" for="user_client">
-                                    <strong>Usuário para Clientes</strong>
+                                    <strong>Cliente (Clientes)</strong>
                                 </label>
                             </div>
 
