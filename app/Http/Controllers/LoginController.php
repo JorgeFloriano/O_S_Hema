@@ -153,6 +153,7 @@ class LoginController extends Controller
         }
 
         // User dont have any access log
+        $this->destroy();
         $this->logger->log('error', 'User '.$request->username.' dont have any access.');
         return redirect()->route('login.index')->withErrors(['error' => 'Usuário sem acesso definido.']);
     }

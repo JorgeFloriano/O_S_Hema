@@ -8,6 +8,7 @@ use App\Models\Order;
 use App\Models\OrderType;
 use App\Models\Tec;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Auth;
 
 class OrderApiController extends Controller
 {
@@ -19,12 +20,16 @@ class OrderApiController extends Controller
         // Get orders with relationships
         // The user data (id, name, surname) is now automatically loaded
         //$order->tec->user will contain only id, name, surname
+
+        $auth = Auth::user();
+        $client_id = $auth->cli->client_id;
+
         $orders = Order::with([
             'type:id,description',
             'tec:id,user_id', 
             'tec.user:id,name,surname',
         ])
-        ->where('client_id', 2)
+        ->where('client_id', $client_id)
         ->orderBy('id', 'desc')
         ->get(['id', 'order_type_id', 'tec_id', 'req_descr', 'req_name', 'sector', 'req_date', 'req_time', 'finished']);
 
