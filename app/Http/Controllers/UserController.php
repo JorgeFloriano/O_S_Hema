@@ -16,6 +16,7 @@ use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Contracts\Encryption\DecryptException;
+use Illuminate\Support\Facades\Auth;
 
 class UserController extends Controller
 {
@@ -137,13 +138,13 @@ class UserController extends Controller
                             $fail('Um usuário cliente não pode ter os acessos de colaboradores Hema');
                         }
 
-                        if (!$value && !$request->adm && !$request->tec && !$request->sup) {
+                        if (!isset($value) && !isset($request->adm) && !isset($request->tec) && !isset($request->sup)) {
                             $fail('Selecione pelo menos um acesso para o usuário.');
                         }
                     }
                 ],
             ], [
-                'client_id.required' => 'Selecione um cliente para o usuário.',
+                'client_id.required_if' => 'Selecione um cliente para o usuário.',
                 'client_id.exists' => 'O cliente selecionado não existe.',
                 'client_id.unique' => 'O cliente selecionado já possui um usuário cadastrado.',
                 '*.boolean' => 'Os campos de perfis de acesso devem ser apenas marcados ou desmarcados.',
@@ -418,7 +419,7 @@ class UserController extends Controller
             return redirect()->back()->with('message', 'O usuário deve ter pelo menos um acesso.');
         }
 
-        // Verify if the password and passwordconfirmation fields are equal and not empty
+        // Verify if the password and passwordconfirmation fields are equal and not empty--------
         if ($request->password == $request->password_confirmation && $request->password != '') {
 
             // Update the password
@@ -428,7 +429,7 @@ class UserController extends Controller
             $user->save();
         }
 
-        // If the user not has a technician access and the tec field is filled, create one
+        // If the user not has a technician access and the tec field is filled, create one---------
         if ($request->input('tec') && !isset(User::where('id', $id)->first()->tec)) {
 
             // Check if the user has a technician access deleted
@@ -459,15 +460,15 @@ class UserController extends Controller
             }
         }
 
-        // If the user not has an administrator access and the adm field is filled, create one
+        // If the user not has an administrator access and the adm field is filled, create one---------
         $adm = User::where('id', $id)->first()->adm;
 
         if ($request->adm) {
             if (!isset($adm)) {
 
-                $cli = 0;
+                $cli_mat = 0;
                 if ($request->cli && !isset($adm->cli)) {
-                    $cli = 1;
+                    $cli_mat = 1;
                 }
 
                 // Check if the user has a administrator access deleted
@@ -479,7 +480,7 @@ class UserController extends Controller
                     $new_adm = Adm::create([
                         'user_id' => $id,
                         'main' => 0,
-                        'cli' => $cli
+                        'cli' => $cli_mat
                     ]);
                 }
                
@@ -488,6 +489,7 @@ class UserController extends Controller
                    return redirect()->back()->with('message', 'Erro ao liberar acesso de administrador.');
                 } 
             } else {
+                
                 $cli_up = Adm::find($adm->id);
                 $cli_up->cli = $request->cli ? 1 : 0;
                 $cli_up->save();
@@ -509,7 +511,7 @@ class UserController extends Controller
             }
         }
 
-        // If the user not has a supervisor access and the sup field is filled, create one
+        // If the user not has a supervisor access and the sup field is filled, create one----------
         if ($request->input('sup') && !isset(User::where('id', $id)->first()->sup)) {
 
             $sup_deleted = Sup::where('user_id', $id)->withTrashed()->first();
@@ -538,32 +540,28 @@ class UserController extends Controller
             }
         }
 
-        // If the user not has a client access and the sup field is filled, create one
-        if ($request->input('sup') && !isset(User::where('id', $id)->first()->sup)) {
+        // If the user not has a client access and the user_client field is filled, create one------
+        if ($request->input('user_client') && !isset(User::where('id', $id)->first()->cli)) {
 
-            $sup_deleted = Sup::where('user_id', $id)->withTrashed()->first();
-
-            if ($sup_deleted) {
-                $new_sup = $sup_deleted->restore();
-            } else {
-                $new_sup = Sup::create([
-                    'user_id' => $id,
-                ]);
-            }
-
+            $new_cli = Cli::create([
+                'user_id' => $id,
+                'role' => 'admin',
+                'client_id' => $request->client_id
+            ]);
+           
             // Return an error message.
-            if (!$new_sup) {
-                return redirect()->back()->with('message', 'Erro ao liberar acesso de supervisor.'); 
+            if (!$new_cli) {
+                return redirect()->back()->with('message', 'Erro ao liberar acesso de cliente.'); 
             }
         }
 
-        // If the user has a supervisor access and the sup field is not filled, remove it
-        if (!$request->input('sup') && isset(User::where('id', $id)->first()->sup)) {
-            $sup_dl = Sup::where('user_id', $id)->delete();
+        // If the user has a client access and the user_client field is not filled, remove it
+        if (!$request->input('user_client') && isset(User::where('id', $id)->first()->cli)) {
+            $cli_dl = Cli::where('user_id', $id)->delete();
 
             // Return an error message.
-            if (!$sup_dl) {
-                return redirect()->back()->with('message', 'Erro ao remover acesso de supervisor.'); 
+            if (!$cli_dl) {
+                return redirect()->back()->with('message', 'Erro ao remover acesso de cliente.'); 
             }
         }
 
@@ -583,6 +581,7 @@ class UserController extends Controller
         if (Adm::where('user_id', $id)->get()) {Adm::where('user_id', $id)->delete();}
         if (Tec::where('user_id', $id)->get()) {Tec::where('user_id', $id)->delete();}
         if (Sup::where('user_id', $id)->get()) {Sup::where('user_id', $id)->delete();}
+        if (Cli::where('user_id', $id)->get()) {Cli::where('user_id', $id)->delete();}
 
         // Delete the selected user
         $deleted = $this->user->where('id', $id)->delete();

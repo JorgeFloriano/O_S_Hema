@@ -29,6 +29,12 @@ class LoginController extends Controller
             ]);
         }
 
+        if (!$user->cli) {
+            throw ValidationException::withMessages([
+                'username' => ['Esta versão do app requer uma conta de cliente.'],
+            ]);
+        }
+
         // Create token
         $token = $user->createToken('mobile-app')->plainTextToken;
 
