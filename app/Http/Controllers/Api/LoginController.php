@@ -29,11 +29,11 @@ class LoginController extends Controller
             ]);
         }
 
-        if (!$user->cli) {
-            throw ValidationException::withMessages([
-                'username' => ['Esta versão do app requer uma conta de cliente.'],
-            ]);
-        }
+        // if (!$user->cli) {
+        //     throw ValidationException::withMessages([
+        //         'username' => ['Esta versão do app requer uma conta de cliente.'],
+        //     ]);
+        // }
 
         // Create token
         $token = $user->createToken('mobile-app')->plainTextToken;
@@ -45,6 +45,8 @@ class LoginController extends Controller
                 'username' => $user->username,
                 'name' => $user->name,
                 'email' => $user->email,
+                'isClient' => $user->cli ? true : false,
+                'clientId' => $user->cli ? $user->cli->client_id : null,
             ]
         ]);
     }
@@ -58,6 +60,6 @@ class LoginController extends Controller
     {
         $request->user()->currentAccessToken()->delete();
         
-        return response()->json(['message' => 'Logged out successfully']);
+        return response()->json(['message' => 'Logout realizado com sucesso.']);
     }
 }

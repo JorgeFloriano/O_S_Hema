@@ -335,6 +335,10 @@ class UserController extends Controller
         if (isset(User::where('id', $id)->first()->adm)) {
             $main_id = User::where('id', $id)->first()->adm()->first()->main;
         }
+        // User that is updated is client
+        if (isset(User::where('id', $id)->first()->cli)) {
+            $client_id = User::where('id', $id)->first()->cli()->first()->client_id;
+        }
 
         $validator = Validator::make($request->all(), [
             'name' => 'required|max:20',
@@ -373,7 +377,11 @@ class UserController extends Controller
         ]);
 
         // Add custom messages for the conditional validation
-        $validator->sometimes('client_id', 'required|exists:clients,id|unique:clis,client_id', function ($input) {
+        $validator->sometimes('client_id', [
+            'required',
+            'exists:clients,id',
+            Rule::unique('clis', 'client_id')->ignore($client_id, 'client_id'),
+        ], function ($input) {
             return $input->user_client == true;
         });
 
@@ -540,7 +548,7 @@ class UserController extends Controller
             }
         }
 
-        // If the user not has a client access and the user_client field is filled, create one------
+        // If the user not has a client access and the user_client field is filled, create one--------------
         if ($request->input('user_client') && !isset(User::where('id', $id)->first()->cli)) {
 
             $new_cli = Cli::create([
@@ -553,6 +561,13 @@ class UserController extends Controller
             if (!$new_cli) {
                 return redirect()->back()->with('message', 'Erro ao liberar acesso de cliente.'); 
             }
+        }
+
+        // If the user has a client access and the user_client field is filled, update it
+        if ($request->input('user_client') && isset(User::where('id', $id)->first()->cli)) {
+            $cli_up = Cli::find(User::where('id', $id)->first()->cli->id);
+            $cli_up->client_id = $request->client_id;
+            $cli_up->save();
         }
 
         // If the user has a client access and the user_client field is not filled, remove it
@@ -581,10 +596,20 @@ class UserController extends Controller
         if (Adm::where('user_id', $id)->get()) {Adm::where('user_id', $id)->delete();}
         if (Tec::where('user_id', $id)->get()) {Tec::where('user_id', $id)->delete();}
         if (Sup::where('user_id', $id)->get()) {Sup::where('user_id', $id)->delete();}
-        if (Cli::where('user_id', $id)->get()) {Cli::where('user_id', $id)->delete();}
 
         // Delete the selected user
         $deleted = $this->user->where('id', $id)->delete();
+
+        // Delete permanently the client of the selected user
+        $user_client = Cli::where('user_id', $id)->first();
+        if (isset($user_client)) {
+            $cli_deleted = $user_client->forceDelete();
+            $user_client_ = $this->user->where('id', $id)->forceDelete();
+
+            if (!$cli_deleted || !$user_client_) {
+                return redirect()->route('users.index')->with('message', 'Erro ao deletar cadastro de cliente.');
+            }
+        }
 
         if ($deleted) {
             return redirect()->route('users.index')->with('message', 'Cadastro deletado com sucesso.');

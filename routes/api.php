@@ -6,7 +6,7 @@ use Illuminate\Support\Facades\Route;
 
 Route::post('/auth/login', [LoginController::class, 'login']);
 Route::middleware('auth:sanctum')->group(function () {
-    Route::post('/auth/logout', [LoginController::class, 'logout']);
+    Route::post('/auth/logout', [LoginController::class, 'logout'])->name('api.logout');
     Route::get('/auth/user', [LoginController::class, 'user']);
     Route::resource('/orders', OrderApiController::class);
     
