@@ -2,7 +2,9 @@
 
 namespace App\Http\Controllers\Api\Clients;
 
+use App\Class\TextFormat;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\FormOrderApiRequest;
 use App\Models\Client;
 use App\Models\Order;
 use App\Models\OrderType;
@@ -53,9 +55,41 @@ class OrderApiController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(FormOrderApiRequest $request)
     {
-        //
+        $auth = Auth::user();
+        $client_id = $auth->cli->client_id;
+
+        try {
+            $text = new TextFormat;
+            
+            // Create new order
+            $order = Order::create([
+                'client_id' => $client_id,
+                'order_type_id' => $request->order_type_id,
+                'sector' => $request->sector,
+                'req_name' => $request->req_name, // Fixed variable name
+                'user_id' => auth()->id(), // Use auth()->id() instead of auth()->user()->id
+                'tec_id' => null,
+                'equipment' => $request->equipment,
+                'req_date' => now()->format('Y-m-d'), // Current date in proper format
+                'req_time' => now()->format('H:i:s'), // Current time in proper format
+                'req_descr' => $text->spaceAfterPunctuation($request->req_descr),
+            ]);
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Ordem de serviço criada com sucesso.',
+                'order' => $order
+            ], 201);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro ao criar ordem de serviço.',
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
