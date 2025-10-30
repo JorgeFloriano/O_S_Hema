@@ -99,22 +99,23 @@
                                     </label>
                                 </div>
                             </div>
-
-                            <div class="form-check">
-                                <input 
-                                    {{$user_client_checked}} 
-                                    onchange="
-                                    enableDisable(['tec', 'adm', 'sup'], '{{$user_client_checked}}'),
-                                    showAndHideElement('client_select', 'hema_profiles', '{{$user_client_checked}}')" 
-                                    class="form-check-input"
-                                    type="checkbox"
-                                    value="1"
-                                    name="user_client"
-                                    id="user_client">
-                                <label class="form-check-label" for="user_client">
-                                    <strong>Cliente (Clientes)</strong>
-                                </label>
-                            </div>
+                            @if (auth()->user()->id !== $user->id)
+                                <div class="form-check">
+                                    <input 
+                                        {{$user_client_checked}} 
+                                        onchange="
+                                        enableDisable(['tec', 'adm', 'sup'], '{{$user_client_checked}}'),
+                                        showAndHideElement('client_select', 'hema_profiles', '{{$user_client_checked}}')" 
+                                        class="form-check-input"
+                                        type="checkbox"
+                                        value="1"
+                                        name="user_client"
+                                        id="user_client">
+                                    <label class="form-check-label" for="user_client">
+                                        <strong>Cliente (Clientes)</strong>
+                                    </label>
+                                </div>
+                            @endif
 
                             <div id="client_select" style="display: {{$client_select_display}};">
                                 <x-datalist :objs="$clients" obj="client" tit="Cliente" :val="$client_selected" des="name"/>
