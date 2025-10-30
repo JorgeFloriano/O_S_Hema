@@ -59,6 +59,8 @@ class OrderApiController extends Controller
     {
         $auth = Auth::user();
         $client_id = $auth->cli->client_id;
+        $complete_name = $auth->name.' '.$auth->surname;
+        $user_id = $auth->id;
 
         try {
             $text = new TextFormat;
@@ -68,8 +70,8 @@ class OrderApiController extends Controller
                 'client_id' => $client_id,
                 'order_type_id' => $request->order_type_id,
                 'sector' => $request->sector,
-                'req_name' => $request->req_name, // Fixed variable name
-                'user_id' => auth()->id(), // Use auth()->id() instead of auth()->user()->id
+                'req_name' => $complete_name, // Fixed variable name
+                'user_id' => $user_id, // Use auth()->id() instead of auth()->user()->id
                 'tec_id' => null,
                 'equipment' => $request->equipment,
                 'req_date' => now()->format('Y-m-d'), // Current date in proper format
@@ -86,7 +88,7 @@ class OrderApiController extends Controller
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Erro ao criar ordem de serviço.',
+                'message' => 'Erro ao criar ordem de serviço.'.$e->getMessage(),
                 'error' => $e->getMessage()
             ], 500);
         }

@@ -368,6 +368,8 @@ class UserController extends Controller
             'function.max' => 'O campo função deve ter no.maxcdn 20 caracteres.',
             'username.required' => 'O campo nome de usuário deve ser preenchido.',
             'username.unique' => 'O nome de usúario digitado está em uso, por favor escolha outro.',
+            'username.min' => 'O campo nome de usuário deve ter pelo menos 10 caracteres.',
+            'username.max' => 'O campo nome de usuário deve ter no.maxcdn 100 caracteres.',
             'password.min' => 'Digite uma senha com pelo menos 8 caracteres',
             'password.confirmed' => 'As senhas digitadas devem ser identicas.',
             'client_id.required' => 'Selecione um cliente para o usuário.',
@@ -380,7 +382,7 @@ class UserController extends Controller
         $validator->sometimes('client_id', [
             'required',
             'exists:clients,id',
-            Rule::unique('clis', 'client_id')->ignore($client_id, 'client_id'),
+            Rule::unique('clis', 'client_id')->ignore($client_id ?? 0, 'client_id'),
         ], function ($input) {
             return $input->user_client == true;
         });
