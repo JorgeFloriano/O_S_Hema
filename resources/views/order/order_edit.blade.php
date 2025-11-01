@@ -37,7 +37,7 @@
                             <label for="adm_id">Editada por</label>
                         </div>
 
-                        <x-datalist :objs="$clients" obj="client" tit="Cliente" :val="$order->client->name.' - ['.$order->client->id.']'" des="name" req='required'/>
+                        <x-datalist :objs="$clients" obj="client" tit="Cliente" :val="$order->client->name.' - ['.$order->client->id.']'" des="name" req='required' :disabl="$disabled"/>
 
                         <div class="form-floating my-2">
                             <select class="form-select" {{$disabled}} id="type_id" name="order_type_id" aria-label="Floating label select example">

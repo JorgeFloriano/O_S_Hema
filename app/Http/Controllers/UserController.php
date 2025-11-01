@@ -39,11 +39,17 @@ class UserController extends Controller
             return view('login');
         }
 
+        // Get the main admins
         $admins = Adm::select('user_id')->where('main', 1)->get();
 
+        //Get the Default client users that are created for the Admin Client user trought the clients app hema
+        $users_cli_default = Cli::select('user_id')->where('role', 'default')->get();
+        
+        // Get all users except the main admins and the default client users
         $users = $this->user
             ->select('id', 'name', 'function')
             ->whereNotIn('id', $admins)
+            ->whereNotIn('id', $users_cli_default)
             ->orderBy('name') // Order by the 'name' column
             ->simplePaginate(20);
 
@@ -306,15 +312,15 @@ class UserController extends Controller
         return view('user.user_edit', [
             'user' => $user,
             'clients' => $clients,
-            'adm_checked' => $adm_checked,
-            'cli_checked' => $cli_checked,
-            'tec_checked' => $tec_checked,
-            'sup_checked' => $sup_checked,
-            'cli_disabled' => $cli_disabled,
-            'user_client_checked' => $user_client_checked,
-            'hema_profiles_display' => $hema_profiles_display,
-            'client_select_display' => $client_select_display,
-            'client_selected' => $client_selected,
+            'adm_checked' => $adm_checked ?? '',
+            'cli_checked' => $cli_checked ?? '',
+            'tec_checked' => $tec_checked ?? '',
+            'sup_checked' => $sup_checked ?? '',
+            'cli_disabled' => $cli_disabled ?? '',
+            'user_client_checked' => $user_client_checked ?? '',
+            'hema_profiles_display' => $hema_profiles_display ?? '',
+            'client_select_display' => $client_select_display ?? '',
+            'client_selected' => $client_selected ?? '',
         ]);
     }
 
@@ -335,8 +341,10 @@ class UserController extends Controller
         if (isset(User::where('id', $id)->first()->adm)) {
             $main_id = User::where('id', $id)->first()->adm()->first()->main;
         }
+
         // User that is updated is client
-        if (isset(User::where('id', $id)->first()->cli)) {
+        $is_user_client = User::where('id', $id)->first()->cli;
+        if (isset($is_user_client)) {
             $client_id = User::where('id', $id)->first()->cli()->first()->client_id;
         }
 
@@ -421,10 +429,10 @@ class UserController extends Controller
         }
 
         if ((
+            !isset($is_user_client) &&
             !$request->input('tec') && 
             !$request->input('adm') && 
             !$request->input('sup')) && 
-            !$request->input('user_client') &&
             !$main_id) {
             return redirect()->back()->with('message', 'O usuário deve ter pelo menos um acesso.');
         }
@@ -550,37 +558,46 @@ class UserController extends Controller
             }
         }
 
-        // If the user not has a client access and the user_client field is filled, create one--------------
-        if ($request->input('user_client') && !isset(User::where('id', $id)->first()->cli)) {
+        // // If the user not has a client access and the user_client field is filled, create one--------------
+        // if ($request->input('user_client') && !isset(User::where('id', $id)->first()->cli)) {
 
-            $new_cli = Cli::create([
-                'user_id' => $id,
-                'role' => 'admin',
-                'client_id' => $request->client_id
-            ]);
+        //     $cli_deleted = Cli::where('user_id', $id)->withTrashed()->first();
+
+        //     // Check if the user has a client access deleted
+        //     if ($cli_deleted) {
+        //         // Restore the deleted client access
+        //         $new_cli = $cli_deleted->restore();
+        //     } else {
+        //         // Create a new client access
+        //         $new_cli = Cli::create([
+        //             'user_id' => $id,
+        //             'role' => 'admin',
+        //             'client_id' => $request->client_id
+        //         ]);
+        //     }
            
-            // Return an error message.
-            if (!$new_cli) {
-                return redirect()->back()->with('message', 'Erro ao liberar acesso de cliente.'); 
-            }
-        }
+        //     // Return an error message.
+        //     if (!$new_cli) {
+        //         return redirect()->back()->with('message', 'Erro ao liberar acesso de cliente.'); 
+        //     }
+        // }
 
-        // If the user has a client access and the user_client field is filled, update it
-        if ($request->input('user_client') && isset(User::where('id', $id)->first()->cli)) {
-            $cli_up = Cli::find(User::where('id', $id)->first()->cli->id);
-            $cli_up->client_id = $request->client_id;
-            $cli_up->save();
-        }
+        // // If the user has a client access and the user_client field is filled, update it
+        // if ($request->input('user_client') && isset(User::where('id', $id)->first()->cli)) {
+        //     $cli_up = Cli::find(User::where('id', $id)->first()->cli->id);
+        //     $cli_up->client_id = $request->client_id;
+        //     $cli_up->save();
+        // }
 
-        // If the user has a client access and the user_client field is not filled, remove it
-        if (!$request->input('user_client') && isset(User::where('id', $id)->first()->cli)) {
-            $cli_dl = Cli::where('user_id', $id)->delete();
+        // // If the user has a client access and the user_client field is not filled, remove it
+        // if (!$request->input('user_client') && isset(User::where('id', $id)->first()->cli)) {
+        //     $cli_dl = Cli::where('user_id', $id)->delete();
 
-            // Return an error message.
-            if (!$cli_dl) {
-                return redirect()->back()->with('message', 'Erro ao remover acesso de cliente.'); 
-            }
-        }
+        //     // Return an error message.
+        //     if (!$cli_dl) {
+        //         return redirect()->back()->with('message', 'Erro ao remover acesso de cliente.'); 
+        //     }
+        // }
 
         // Return a success message
         return redirect()->back()->with('message', 'Cadastro atualizado com sucesso.');
@@ -598,20 +615,10 @@ class UserController extends Controller
         if (Adm::where('user_id', $id)->get()) {Adm::where('user_id', $id)->delete();}
         if (Tec::where('user_id', $id)->get()) {Tec::where('user_id', $id)->delete();}
         if (Sup::where('user_id', $id)->get()) {Sup::where('user_id', $id)->delete();}
+        if (Cli::where('user_id', $id)->get()) {Cli::where('user_id', $id)->delete();}
 
         // Delete the selected user
         $deleted = $this->user->where('id', $id)->delete();
-
-        // Delete permanently the client of the selected user
-        $user_client = Cli::where('user_id', $id)->first();
-        if (isset($user_client)) {
-            $cli_deleted = $user_client->forceDelete();
-            $user_client_ = $this->user->where('id', $id)->forceDelete();
-
-            if (!$cli_deleted || !$user_client_) {
-                return redirect()->route('users.index')->with('message', 'Erro ao deletar cadastro de cliente.');
-            }
-        }
 
         if ($deleted) {
             return redirect()->route('users.index')->with('message', 'Cadastro deletado com sucesso.');

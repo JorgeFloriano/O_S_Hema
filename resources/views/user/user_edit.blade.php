@@ -28,6 +28,7 @@
                 @else
                     <div id="header" class="my-2">
                         <h2>Editar Cadastro do Usuário nº{{$user->id}} </h2>
+                        <p class="text-muted">A atualização de dados como nome e sobrenome será refletida em todos os campos onde aparecem, incluindo SATs antigas e novas.</p>
                     </div>
                 @endif
                 <hr>
@@ -102,6 +103,7 @@
                             @if (auth()->user()->id !== $user->id)
                                 <div class="form-check">
                                     <input 
+                                        disabled
                                         {{$user_client_checked}} 
                                         onchange="
                                         enableDisable(['tec', 'adm', 'sup'], '{{$user_client_checked}}'),
@@ -118,7 +120,7 @@
                             @endif
 
                             <div id="client_select" style="display: {{$client_select_display}};">
-                                <x-datalist :objs="$clients" obj="client" tit="Cliente" :val="$client_selected" des="name"/>
+                                <x-datalist :objs="$clients" obj="client" tit="Cliente" :val="$client_selected" des="name" disabl="disabled"/>
                             </div>
                         </fieldset>
 

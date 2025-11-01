@@ -17,6 +17,7 @@ return new class extends Migration
             $table->foreignId('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->enum('role', ['admin', 'default'])->default('default');
             $table->timestamps();
+            $table->softDeletes();
         });
     }
 

@@ -17,8 +17,9 @@ class Datalist extends Component
     public $required;
     public $onfocus;
     public $type;
+    public $disabled;
     public $input_hidden_value;
-    public function __construct($objs, $obj, $tit, $val='',$des, $type='', $req='')
+    public function __construct($objs, $obj, $tit, $val='',$des, $type='', $req='', $disabl='')
     {
         $this->objects = $objs;
         $this->object = $obj;
@@ -26,6 +27,7 @@ class Datalist extends Component
         $this->value = $val;
         $this->description = $des;
         $this->type = $type;
+        $this->disabled = $disabl;
 
         if (preg_match('/\[(\d+)\]([^\[\]]*)$/', $val, $matches)) {
             $last_number = $matches[1]; // The number inside the last []
