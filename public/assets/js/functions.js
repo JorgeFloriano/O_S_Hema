@@ -405,3 +405,7 @@ function showAndHideElement(hide, show, ini_state = '') {
       }
    }
 }
+
+function showMessage(msg) {
+   alert(msg);
+}

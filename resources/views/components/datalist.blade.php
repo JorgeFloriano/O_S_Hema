@@ -1,5 +1,5 @@
 <div class="form-floating my-2">
-    <input list="{{$objects}}" onchange="getOptId('{{$object}}','{{$object}}_id', '{{$object}}_option'){{$onchange}}" type="text" class="form-control" id="{{$object}}" name="{{$object}}" placeholder="{{$title}}" {{$required}} value="{{$value}}" onfocus="{{$onfocus}}">
+    <input list="{{$objects}}" {{$disabled}} onchange="getOptId('{{$object}}','{{$object}}_id', '{{$object}}_option'){{$onchange}}" type="text" class="form-control" id="{{$object}}" name="{{$object}}" placeholder="{{$title}}" {{$required}} value="{{$value}}" onfocus="{{$onfocus}}">
     <label for="{{$object}}">{{$title}}</label>
 
     <datalist id="{{$objects}}">

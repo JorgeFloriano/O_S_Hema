@@ -4,6 +4,7 @@
 
 @php
     use Illuminate\Support\Facades\Crypt;
+    use App\Models\Cli;
 @endphp
 
 <div class="container box">
@@ -201,9 +202,18 @@
                                         @endif
                                     @else
                                         @if ($adm)
+                                            @php
+
+                                                // Set icon,if order is created by client dont show edit
+                                                $icon = 'edit';
+                                                $ord_creator_is_cli = Cli::where('user_id', $order->user_id)->first();
+                                                if (isset($ord_creator_is_cli)) {
+                                                    $icon = 'file-text';
+                                                }
+                                            @endphp
                                             <td>
                                                 <a href="{{route('orders.edit', ['order' => Crypt::encryptString($order->id)])}}" class="btn btn-primary btn-sm">
-                                                    <i class="fa fa-edit"></i>
+                                                    <i class="fa fa-{{$icon}}"></i>
                                                 </a>
                                             </td>
                                         @else

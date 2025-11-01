@@ -9,6 +9,7 @@ use App\Models\NoteTec;
 use App\Models\Order;
 use App\Models\OrderType;
 use App\Models\Tec;
+use App\Models\Cli;
 use App\Models\User;
 use App\Class\Logger;
 use App\Class\TextFormat;
@@ -80,7 +81,7 @@ class OrderController extends Controller
 
         // get orders
         $orders = $this->os
-            ->select('id', 'order_type_id', 'req_descr', 'req_name', 'sector', 'client_id', 'tec_id', 'req_date', 'req_time', 'finished')
+            ->select('id', 'order_type_id', 'req_descr', 'req_name', 'sector', 'client_id', 'user_id', 'tec_id', 'req_date', 'req_time', 'finished')
             ->whereBetween('req_date', [$start_date, $end_date])
             ->orderBy('id', 'desc')
             ->get();
@@ -190,7 +191,7 @@ class OrderController extends Controller
             ->when($request->finished != 2, function ($query) use ($request) {
                 $query->where('finished', $request->finished);
             })
-            ->select('id', 'order_type_id', 'req_descr', 'req_name', 'sector', 'client_id', 'tec_id', 'req_date', 'req_time', 'finished')
+            ->select('id', 'order_type_id', 'req_descr', 'req_name', 'sector', 'client_id', 'user_id', 'tec_id', 'req_date', 'req_time', 'finished')
             ->orderBy('id', 'desc')
             ->get();
 
@@ -369,13 +370,21 @@ class OrderController extends Controller
         $cli_ids_array = $clients->pluck('id')->toArray();
         session()->put('client_ids', $cli_ids_array);
 
-        $user = User::select('name')->find($order->user_id);
+        $user = User::select('name')->withTrashed()->find($order->user_id);
 
         // Remove seconds from requests time format
         $order->req_time = date_format(date_create($order->req_time), 'H:i');
 
-        $disabled = $this->a ? '' : 'disabled';
-        $title = $this->a ? 'Editar ' : 'Informações da ';
+        // If order is created by client or the user is not administrator can't edit it
+        $ord_creator_is_cli = Cli::where('user_id', $order->user_id)->first();
+
+        $disabled = '';
+        $title = 'Editar ';
+        if (isset($ord_creator_is_cli) || !$this->a) {
+            $disabled = 'disabled';
+            $title = 'Informações da ';
+        }
+
 
         return view('order.order_edit', [
             'order' => $order,
