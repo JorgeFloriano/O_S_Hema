@@ -3,9 +3,11 @@
 namespace App\Http\Controllers\Api\Clients;
 
 use App\Http\Controllers\Controller;
+use App\Http\Requests\FormApiUserRequest;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Hash;
 
 class UserApiController extends Controller
 {
@@ -20,7 +22,7 @@ class UserApiController extends Controller
             // Check if user has cli relationship and get client_id
             if (!$auth->cli) {
                 return response()->json([
-                    'error' => 'User client relationship not found',
+                    'error' => 'Useuário client não encontrado',
                     'users' => []
                 ], 200);
             }
@@ -30,7 +32,8 @@ class UserApiController extends Controller
             // Fixed query - using whereHas for relationship filtering
             $users = User::with(['cli:id,client_id'])
                 ->whereHas('cli', function ($query) use ($client_id) {
-                    $query->where('client_id', $client_id);
+                    $query->where('client_id', $client_id)
+                    ->where('role', 'default');
                 })
                 ->get(['id', 'name', 'surname', 'function', 'username']);
 
@@ -58,9 +61,57 @@ class UserApiController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(FormApiUserRequest $request)
     {
-        //
+        
+        try {
+            
+            // Create new user
+            $user = User::create([
+                'name' => $request->name,
+                'surname' => $request->surname,
+                'email' => $request->email,
+                'username' => $request->username,
+                'function' => $request->function,
+                'password' => Hash::make($request->password),
+            ]);
+
+            if ($user) {
+                $auth = Auth::user();
+                $client_id = $auth->cli->client_id;
+
+                $user_cli = $user->cli()->create([
+                    'user_id' => $user->id,
+                    'client_id' => $client_id,
+                    'role' => 'default'
+                ]);
+
+                if (!$user_cli) {
+                    return response()->json([
+                        'success' => false,
+                        'message' => 'Erro ao liberar acesso de cliente para o usuário.'
+                    ], 500);
+                }
+            } else {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Erro ao criar cadastro de usuário.'
+                ], 500);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Cadastro de usuário criado com sucesso.',
+                'user' => $user
+            ], 201);
+
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro ao criar cadastro de usuário.'.$e->getMessage(),
+                'error' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
