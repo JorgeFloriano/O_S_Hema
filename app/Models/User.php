@@ -100,4 +100,13 @@ class User extends Authenticatable
         }
         return true;
     }
+
+    // Delete user and all of his acess
+    public function CompletelyDelete() {
+        $this->adm()->delete();
+        $this->cli()->delete();
+        $this->tec()->delete();
+        $this->sup()->delete();
+        return parent::delete();
+    }
 }

@@ -9,6 +9,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
 use Illuminate\Validation\Rule;
+use Illuminate\Support\Facades\Log;
 
 class UserApiController extends Controller
 {
@@ -145,9 +146,9 @@ class UserApiController extends Controller
     public function update(FormApiUserRequest $request, $id)
     {
         try {
-            
+
             $user = User::findOrFail($id);
-            
+
             $validated = $request->validated();
             // Update user data
             $user->update([
@@ -182,8 +183,46 @@ class UserApiController extends Controller
     /**
      * Remove the specified resource from storage.
      */
-    public function destroy(string $id)
+    public function destroy($id)
     {
-        
+        try {
+            $user = User::find($id);
+
+            // Check if user exists
+            if (!$user) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Usuário não encontrado.'
+                ], 404);
+            }
+
+            // Prevent users from deleting their own account
+            if ($user->id === Auth::id()) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Você não pode excluir sua própria conta.'
+                ], 422);
+            }
+
+            // Delete the user and all of his accesses
+            $user->CompletelyDelete();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Usuário excluído com sucesso!'
+            ]);
+        } catch (\Exception $e) {
+            Log::error('Error deleting user: ' . $e->getMessage(), [
+                'user_id' => $id,
+                'auth_user_id' => Auth::id(),
+                'trace' => $e->getTraceAsString()
+            ]);
+
+            return response()->json([
+                'success' => false,
+                'error' => 'Falha ao excluir usuário',
+                'message' => $e->getMessage()
+            ], 500);
+        }
     }
 }
