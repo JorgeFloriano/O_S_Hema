@@ -612,13 +612,13 @@ class UserController extends Controller
         }
 
         // Delete all accesses of the selected user
-        if (Adm::where('user_id', $id)->get()) {Adm::where('user_id', $id)->delete();}
-        if (Tec::where('user_id', $id)->get()) {Tec::where('user_id', $id)->delete();}
-        if (Sup::where('user_id', $id)->get()) {Sup::where('user_id', $id)->delete();}
-        if (Cli::where('user_id', $id)->get()) {Cli::where('user_id', $id)->delete();}
+        // if (Adm::where('user_id', $id)->get()) {Adm::where('user_id', $id)->delete();}
+        // if (Tec::where('user_id', $id)->get()) {Tec::where('user_id', $id)->delete();}
+        // if (Sup::where('user_id', $id)->get()) {Sup::where('user_id', $id)->delete();}
+        // if (Cli::where('user_id', $id)->get()) {Cli::where('user_id', $id)->delete();}
 
-        // Delete the selected user
-        $deleted = $this->user->where('id', $id)->delete();
+        // Delete the selected user and all of his accesses
+        $deleted = $this->user->find($id)->CompletelyDelete();
 
         if ($deleted) {
             return redirect()->route('users.index')->with('message', 'Cadastro deletado com sucesso.');

@@ -9,18 +9,38 @@ use Illuminate\Validation\Rule;
 class FormApiUserRequest extends FormRequest
 {
 
+    /**
+     * Determine if the user is authorized to make this request.
+     */
+    public function authorize(): bool
+    {
+        return true;
+    }
+
     // Doesn't work yet, is validated in UserController
     public function rules(): array
     {
-        $userId = $this->route('user') ?? 0;
-        return [
+        $userId = $this->route('user');
+
+        $rules = [
             'name' => 'required|max:20',
             'surname' => 'max:20',
-            'email' => 'required|email|unique:users,email,'.$userId,
-            'function' => 'required|max:20',
+            'email' => 'required|email|unique:users,email,' . $userId,
+            'function' => 'nullable|required|max:20',
             'username' => ['required', Rule::unique('users')->ignore($userId), 'min:10', 'max:100'],
-            'password' => 'min:5|max:20|confirmed',
         ];
+
+        if ($this->filled('password')) {
+            $rules['password'] = 'required|min:5|confirmed';
+            $rules['password_confirmation'] = 'required';
+        } else {
+            if (!$userId) {
+                $rules['password'] = 'required|min:5|confirmed';
+                $rules['password_confirmation'] = 'required';
+            }
+        }
+
+        return $rules;
     }
 
     protected function prepareForValidation()
@@ -56,5 +76,16 @@ class FormApiUserRequest extends FormRequest
             'password.max' => 'Digite uma senha com no màximo 20 caracteres',
             'password.confirmed' => 'As senhas digitadas devem ser identicas.',
         ];
+    }
+
+    protected function failedValidation(\Illuminate\Contracts\Validation\Validator $validator)
+    {
+        $response = response()->json([
+            'success' => false,
+            'message' => 'Erro de validação',
+            'errors' => $validator->errors()
+        ], 422);
+
+        throw new \Illuminate\Validation\ValidationException($validator, $response);
     }
 }
