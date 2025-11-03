@@ -8,6 +8,7 @@ use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Hash;
+use Illuminate\Validation\Rule;
 
 class UserApiController extends Controller
 {
@@ -33,7 +34,7 @@ class UserApiController extends Controller
             $users = User::with(['cli:id,client_id'])
                 ->whereHas('cli', function ($query) use ($client_id) {
                     $query->where('client_id', $client_id)
-                    ->where('role', 'default');
+                        ->where('role', 'default');
                 })
                 ->get(['id', 'name', 'surname', 'function', 'username']);
 
@@ -63,9 +64,9 @@ class UserApiController extends Controller
      */
     public function store(FormApiUserRequest $request)
     {
-        
+
         try {
-            
+
             // Create new user
             $user = User::create([
                 'name' => $request->name,
@@ -104,11 +105,10 @@ class UserApiController extends Controller
                 'message' => 'Cadastro de usuário criado com sucesso.',
                 'user' => $user
             ], 201);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Erro ao criar cadastro de usuário.'.$e->getMessage(),
+                'message' => 'Erro ao criar cadastro de usuário.' . $e->getMessage(),
                 'error' => $e->getMessage()
             ], 500);
         }
@@ -117,25 +117,66 @@ class UserApiController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(string $id)
-    {
-        //
-    }
-
     /**
-     * Show the form for editing the specified resource.
+     * Display the specified resource.
      */
-    public function edit(string $id)
+    public function edit($id)
     {
-        //
+        try {
+            $user = User::with(['cli:id,client_id'])
+                ->findOrFail($id);
+
+            return response()->json([
+                'success' => true,
+                'user' => $user
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Usuário não encontrado',
+                'message' => $e->getMessage()
+            ], 404);
+        }
     }
 
     /**
      * Update the specified resource in storage.
      */
-    public function update(Request $request, string $id)
+    public function update(FormApiUserRequest $request, $id)
     {
-        //
+        try {
+            
+            $user = User::findOrFail($id);
+            
+            $validated = $request->validated();
+            // Update user data
+            $user->update([
+                'name' => $validated['name'],
+                'surname' => $validated['surname'] ?? $user->surname,
+                'email' => $validated['email'],
+                'username' => $validated['username'],
+                'function' => $validated['function'] ?? $user->function,
+            ]);
+
+            // Update password only if provided
+            if ($request->password) {
+                $user->update([
+                    'password' => Hash::make($validated['password']),
+                ]);
+            }
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Usuário atualizado com sucesso!',
+                'user' => $user
+            ]);
+        } catch (\Exception $e) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Falha ao atualizar usuário',
+                'message' => $e->getMessage()
+            ], 500);
+        }
     }
 
     /**
@@ -143,6 +184,6 @@ class UserApiController extends Controller
      */
     public function destroy(string $id)
     {
-        //
+        
     }
 }
