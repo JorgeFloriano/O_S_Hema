@@ -47,6 +47,7 @@ class LoginController extends Controller
                 'email' => $user->email,
                 'isClient' => $user->cli ? true : false,
                 'clientId' => $user->cli ? $user->cli->client_id : null,
+                'role' => $user->cli ? $user->cli->role : null
             ]
         ]);
     }
