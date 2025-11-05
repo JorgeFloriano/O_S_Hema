@@ -150,7 +150,7 @@ table {
 }
 
 /*Hidden collum for smaller screens*/
-@media only screen and (max-width: 1399.98px) {
+@media only screen and (max-width: 768px) {
   #orders_list th:nth-child(3),
   #orders_list tr td:nth-child(3) {
     display: none;
