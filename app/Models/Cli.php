@@ -18,7 +18,9 @@ class Cli extends Model
     protected $fillable = [
         'client_id',
         'user_id',
-        'role'
+        'is_admin',
+        'can_create_sat',
+        'can_see_sat',
     ];
 
     use HasFactory;

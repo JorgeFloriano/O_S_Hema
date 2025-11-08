@@ -15,7 +15,9 @@ return new class extends Migration
             $table->id();
             $table->integer('client_id');
             $table->foreignId('user_id')->references('id')->on('users')->onDelete('cascade');
-            $table->enum('role', ['admin', 'default'])->default('default');
+            $table->boolean('is_main')->nullable()->default(false);
+            $table->boolean('can_create_sat')->nullable()->default(false);
+            $table->boolean('can_see_sat')->nullable()->default(false);
             $table->timestamps();
             $table->softDeletes();
         });
