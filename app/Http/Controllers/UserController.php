@@ -43,7 +43,7 @@ class UserController extends Controller
         $admins = Adm::select('user_id')->where('main', 1)->get();
 
         //Get the Default client users that are created for the Admin Client user trought the clients app hema
-        $users_cli_default = Cli::select('user_id')->where('role', 'default')->get();
+        $users_cli_default = Cli::select('user_id')->where('is_admin', null)->get();
         
         // Get all users except the main admins and the default client users
         $users = $this->user
@@ -177,7 +177,9 @@ class UserController extends Controller
             if ($request->user_client) {
                 $cli_cr = Cli::create([
                     'user_id' => $user_cr->id,
-                    'role' => 'admin',
+                    'is_admin' => true,
+                    'can_create_sat' => true,
+                    'can_see_sat' => true,
                     'client_id' => $request->client_id
                 ]);
 
@@ -571,7 +573,7 @@ class UserController extends Controller
         //         // Create a new client access
         //         $new_cli = Cli::create([
         //             'user_id' => $id,
-        //             'role' => 'admin',
+        //             'is_admin' => true,
         //             'client_id' => $request->client_id
         //         ]);
         //     }

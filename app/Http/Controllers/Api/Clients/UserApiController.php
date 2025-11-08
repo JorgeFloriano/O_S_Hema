@@ -24,7 +24,7 @@ class UserApiController extends Controller
             // Check if user has cli relationship and get client_id
             if (!$auth->cli) {
                 return response()->json([
-                    'error' => 'Useuário client não encontrado',
+                    'error' => 'Usuário client não encontrado',
                     'users' => []
                 ], 200);
             }
@@ -35,7 +35,7 @@ class UserApiController extends Controller
             $users = User::with(['cli:id,client_id'])
                 ->whereHas('cli', function ($query) use ($client_id) {
                     $query->where('client_id', $client_id)
-                        ->where('role', 'default');
+                        ->where('is_admin', null);
                 })
                 ->get(['id', 'name', 'surname', 'function', 'username']);
 
@@ -57,7 +57,25 @@ class UserApiController extends Controller
      */
     public function create()
     {
-        //
+        $auth = Auth::user();
+
+        // Check if user has cli relationship and get client_id
+        if (!$auth->cli) {
+            return response()->json([
+                'error' => 'Usuário client não encontrado',
+            ], 200);
+        }
+
+        // Verify if user has access to create users
+        if (!$auth->cli->is_admin) {
+            return response()->json([
+                'error' => 'Usuário sem permissão para criar usuários.',
+            ], 200);
+        }
+
+        return response()->json([
+            'success' => true,
+        ]);
     }
 
     /**
@@ -65,6 +83,23 @@ class UserApiController extends Controller
      */
     public function store(FormApiUserRequest $request)
     {
+        $auth = Auth::user();
+
+        // Check if user has cli relationship and get client_id
+        if (!$auth->cli) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Usuário client não encontrado',
+            ], 200);
+        }
+
+        // Verify if user has access to create users
+        if (!$auth->cli->is_admin) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Usuário sem permissão para criar usuários.',
+            ], 200);
+        }
 
         try {
 
@@ -79,13 +114,12 @@ class UserApiController extends Controller
             ]);
 
             if ($user) {
-                $auth = Auth::user();
                 $client_id = $auth->cli->client_id;
 
                 $user_cli = $user->cli()->create([
                     'user_id' => $user->id,
                     'client_id' => $client_id,
-                    'role' => 'default'
+                    'is_admin' => null
                 ]);
 
                 if (!$user_cli) {
@@ -118,11 +152,26 @@ class UserApiController extends Controller
     /**
      * Display the specified resource.
      */
-    /**
-     * Display the specified resource.
-     */
     public function edit($id)
     {
+        $auth = Auth::user();
+
+        // Check if user has cli relationship and get client_id
+        if (!$auth->cli) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Usuário client não encontrado',
+            ], 404);
+        }
+
+        // Verify if user has access to edit users
+        if (!$auth->cli->is_admin && $auth->id != $id) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Usuário sem permissão para editar outros usuários .'
+            ], 404);
+        }
+
         try {
             $user = User::with(['cli:id,client_id'])
                 ->findOrFail($id);
@@ -145,6 +194,23 @@ class UserApiController extends Controller
      */
     public function update(FormApiUserRequest $request, $id)
     {
+        $auth = Auth::user();
+
+        // Check if user has cli relationship and get client_id
+        if (!$auth->cli) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Usuário client não encontrado',
+            ], 200);
+        }
+
+        // Verify if user has access to edit users
+        if (!$auth->cli->is_admin && $auth->id != $id) {
+            return response()->json([
+                'success' => false,
+                'message' => 'Usuário sem permissão para editar outros usuários.',
+            ], 200);
+        }
         try {
 
             $user = User::findOrFail($id);
@@ -201,6 +267,14 @@ class UserApiController extends Controller
                 return response()->json([
                     'success' => false,
                     'message' => 'Você não pode excluir sua própria conta.'
+                ], 422);
+            }
+
+            // Verify if user has access to delete users
+            if (!Auth::user()->cli->is_admin) {
+                return response()->json([
+                    'success' => false,
+                    'message' => 'Voce não tem permissão para excluir usuários.'
                 ], 422);
             }
 

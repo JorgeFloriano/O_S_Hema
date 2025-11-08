@@ -29,11 +29,11 @@ class LoginController extends Controller
             ]);
         }
 
-        // if (!$user->cli) {
-        //     throw ValidationException::withMessages([
-        //         'username' => ['Esta versão do app requer uma conta de cliente.'],
-        //     ]);
-        // }
+        if (!$user->cli) {
+            throw ValidationException::withMessages([
+                'username' => ['Esta versão do app requer uma conta de cliente.'],
+            ]);
+        }
 
         // Create token
         $token = $user->createToken('mobile-app')->plainTextToken;
@@ -47,7 +47,9 @@ class LoginController extends Controller
                 'email' => $user->email,
                 'isClient' => $user->cli ? true : false,
                 'clientId' => $user->cli ? $user->cli->client_id : null,
-                'role' => $user->cli ? $user->cli->role : null
+                'isAdmin' => $user->cli ? $user->cli->is_admin : null,
+                'canCreateSat' => $user->cli ? $user->cli->can_create_sat : null,
+                'canSeeSat' => $user->cli ? $user->cli->can_see_sat : null
             ]
         ]);
     }

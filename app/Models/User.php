@@ -109,4 +109,8 @@ class User extends Authenticatable
         $this->sup()->delete();
         return parent::delete();
     }
+
+    public function getFullName() {
+        return $this->name . ' ' . $this->surname;
+    }
 }
