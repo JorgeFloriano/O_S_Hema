@@ -248,11 +248,14 @@ class UserApiController extends Controller
                 'function' => $validated['function'] ?? $user->function,
             ]);
 
-            // Update cli data
-            $user->cli()->update([
-                'can_create_sat' => $validated['can_create_sat'] ?? false,
-                'can_see_sat' => $validated['can_see_sat'] ?? false,
-            ]);
+            // Update cli data (user cant updated yourself permissions)
+            if ($auth->id != $id && $auth->cli->is_admin) {
+                $user->cli()->update([
+                    'can_create_sat' => $validated['can_create_sat'] ?? false,
+                    'can_see_sat' => $validated['can_see_sat'] ?? false,
+                ]);
+            }
+
 
             // Update password only if provided
             if ($request->password) {
