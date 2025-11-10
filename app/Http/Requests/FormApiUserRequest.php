@@ -3,7 +3,6 @@
 namespace App\Http\Requests;
 
 use Illuminate\Foundation\Http\FormRequest;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\Rule;
 
 class FormApiUserRequest extends FormRequest
@@ -28,6 +27,8 @@ class FormApiUserRequest extends FormRequest
             'email' => 'required|email|unique:users,email,' . $userId,
             'function' => 'nullable|required|max:20',
             'username' => ['required', Rule::unique('users')->ignore($userId), 'min:10', 'max:100'],
+            'can_create_sat' => 'nullable|boolean',
+            'can_see_sat' => 'nullable|boolean',
         ];
 
         if ($this->filled('password')) {

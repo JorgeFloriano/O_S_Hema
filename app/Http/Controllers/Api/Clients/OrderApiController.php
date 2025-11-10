@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Api\Clients;
 
 use App\Class\TextFormat;
+use App\Class\ResponseJson;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\FormOrderApiRequest;
 use App\Models\Client;
@@ -14,6 +15,12 @@ use Illuminate\Support\Facades\Auth;
 
 class OrderApiController extends Controller
 {
+    public $can;
+
+    public function __construct()
+    {
+        $this->can = new ResponseJson();
+    }
     /**
      * Display a listing of the resource.
      */
@@ -43,6 +50,12 @@ class OrderApiController extends Controller
      */
     public function create()
     {
+        $return_error = $this->can->error([Auth::user()->cli->can_create_sat], 'Usuário sem permissão para criar ordens.');
+
+        if ($return_error) {
+            return $return_error;
+        }
+
         // Create session variable wich contains all order types ids to validated in FormOrderRequest
         $types = OrderType::select('id', 'description')->get();
         session()->put('types_ids', $types->pluck('id')->toArray());
@@ -58,9 +71,17 @@ class OrderApiController extends Controller
     public function store(FormOrderApiRequest $request)
     {
         $auth = Auth::user();
+
+        $return_error = $this->can->error([$auth->cli->can_create_sat], 'Usuário sem permissão para salvar ordens.');
+
+        if ($return_error) {
+            return $return_error;
+        }
+
         $client_id = $auth->cli->client_id;
         $complete_name = $auth->name.' '.$auth->surname;
         $user_id = $auth->id;
+
 
         try {
             $text = new TextFormat;
@@ -98,8 +119,13 @@ class OrderApiController extends Controller
      * Display the specified resource.
      */
     public function show(Order $order)
-
     {
+        $return_error = $this->can->error([Auth::user()->cli->can_see_sat], 'Usuário sem permissão visualizar ordens.');
+
+        if ($return_error) {
+            return $return_error;
+        }
+
         $order = $order->load(['type:id,description', 'tec:id,user_id', 'notes.materials', 'notes.tecs.user:id,name,surname,function']);
         return response()->json([
             'order' => $order

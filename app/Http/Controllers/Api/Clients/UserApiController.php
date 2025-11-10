@@ -67,6 +67,12 @@ class UserApiController extends Controller
         }
 
         // Verify if user has access to create users
+        if (!isset($auth->cli->is_admin)) {
+            return response()->json([
+                'error' => 'Usuário sem permissão para criar usuários.',
+            ], 200);
+        }
+
         if (!$auth->cli->is_admin) {
             return response()->json([
                 'error' => 'Usuário sem permissão para criar usuários.',
@@ -119,7 +125,9 @@ class UserApiController extends Controller
                 $user_cli = $user->cli()->create([
                     'user_id' => $user->id,
                     'client_id' => $client_id,
-                    'is_admin' => null
+                    'is_admin' => null,
+                    'can_create_sat' => $request->can_create_sat,
+                    'can_see_sat' => $request->can_see_sat,
                 ]);
 
                 if (!$user_cli) {
@@ -173,12 +181,26 @@ class UserApiController extends Controller
         }
 
         try {
-            $user = User::with(['cli:id,client_id'])
-                ->findOrFail($id);
+            $user = User::findOrFail($id);
+            // $user = User::with(['cli:id,client_id,can_create_sat,can_see_sat'])
+            //     ->findOrFail($id);
+
+            // Flatten the response for easier frontend consumption
+            $userData = [
+                'id' => $user->id,
+                'name' => $user->name,
+                'surname' => $user->surname,
+                'email' => $user->email,
+                'username' => $user->username,
+                'function' => $user->function,
+                'can_create_sat' => $user->cli->can_create_sat ?? false,
+                'can_see_sat' => $user->cli->can_see_sat ?? false,
+                'client_id' => $user->cli->client_id ?? null,
+            ];
 
             return response()->json([
                 'success' => true,
-                'user' => $user
+                'user' => $userData
             ]);
         } catch (\Exception $e) {
             return response()->json([
@@ -216,6 +238,7 @@ class UserApiController extends Controller
             $user = User::findOrFail($id);
 
             $validated = $request->validated();
+
             // Update user data
             $user->update([
                 'name' => $validated['name'],
@@ -223,6 +246,12 @@ class UserApiController extends Controller
                 'email' => $validated['email'],
                 'username' => $validated['username'],
                 'function' => $validated['function'] ?? $user->function,
+            ]);
+
+            // Update cli data
+            $user->cli()->update([
+                'can_create_sat' => $validated['can_create_sat'] ?? false,
+                'can_see_sat' => $validated['can_see_sat'] ?? false,
             ]);
 
             // Update password only if provided
