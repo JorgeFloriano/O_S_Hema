@@ -67,11 +67,8 @@ class UserApiController extends Controller
         $auth = Auth::user();
 
         // Return error if there is more than 3 users with the same cli->client_id
-        $return_error = $this->resp_json->numberOfUsersForClientLimit($auth);
-
-        // resume this for me please
-        if ($return_error) {
-            return $return_error;
+        if ($this->resp_json->numberOfUsersForClientLimit($auth)) {
+            return $this->resp_json->numberOfUsersForClientLimit($auth);
         }
 
         // Check if user has cli relationship and get client_id
@@ -105,6 +102,11 @@ class UserApiController extends Controller
     public function store(FormApiUserRequest $request)
     {
         $auth = Auth::user();
+
+        // Return error if there is more than 3 users with the same cli->client_id
+        if ($this->resp_json->numberOfUsersForClientLimit($auth)) {
+            return $this->resp_json->numberOfUsersForClientLimit($auth);
+        }
 
         // Check if user has cli relationship and get client_id
         if (!$auth->cli) {
