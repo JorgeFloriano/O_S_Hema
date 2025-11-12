@@ -35,10 +35,13 @@ class ResponseJson
             $query->where('client_id', $auth->cli->client_id);
         })->count();
 
+        $message = 'Você já cadastrou ' . $client_users_count - 1 . ' usuários, limite atingido!';
+
         if ($client_users_count > 3) {
             return response()->json([
                 'success' => false,
-                'error' => 'Você já cadastrou ' . $client_users_count - 1 . ' usuários, limite atingido!'
+                'error' => $message,
+                'message' => $message
             ], 404);
         }
 
