@@ -81,7 +81,7 @@ class OrderController extends Controller
 
         // get orders
         $orders = $this->os
-            ->select('id', 'order_type_id', 'req_descr', 'req_name', 'sector', 'client_id', 'user_id', 'tec_id', 'req_date', 'req_time', 'finished')
+            ->select('id', 'order_type_id', 'req_descr', 'req_name', 'equipment', 'sector', 'client_id', 'user_id', 'tec_id', 'req_date', 'req_time', 'finished')
             ->whereBetween('req_date', [$start_date, $end_date])
             ->orderBy('id', 'desc')
             ->get();
@@ -191,7 +191,7 @@ class OrderController extends Controller
             ->when($request->finished != 2, function ($query) use ($request) {
                 $query->where('finished', $request->finished);
             })
-            ->select('id', 'order_type_id', 'req_descr', 'req_name', 'sector', 'client_id', 'user_id', 'tec_id', 'req_date', 'req_time', 'finished')
+            ->select('id', 'order_type_id', 'req_descr', 'req_name', 'equipment', 'sector', 'client_id', 'user_id', 'tec_id', 'req_date', 'req_time', 'finished')
             ->orderBy('id', 'desc')
             ->get();
 

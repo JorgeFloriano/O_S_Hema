@@ -5,7 +5,8 @@
         use Illuminate\Support\Facades\Crypt;
     @endphp
 
-     <div class="container box">
+    {{-- container-sm was altered in my bootstrap.min.css --}}
+    <div class="container-sm box">
         <div class="row">
             <div class="col">
                 @if (session()->has('message'))
@@ -35,6 +36,7 @@
                                 <tr>
                                     <th>O.S.</th>
                                     <th>Cliente</th>
+                                    <th>Equipamento</th>
                                     <th>Problema relatado</th>
                                     <th>Data</th>
                                     <th>Exec.</th>
@@ -46,6 +48,7 @@
                                     <tr>
                                         <td>{{number_format($order->id, 0, ',', '.')}}</td>
                                         <td>{{$order->client->name}}</td>
+                                        <td>{{$order->equipment ?? 'Não informado'}}</td>
                                         <td>{{$order->req_descr}}</td>
                                         <td>{{date('d/m/y',strtotime($order->req_date))}}</td>
                                         @if ($order->finished)
