@@ -7,7 +7,8 @@
     use App\Models\Cli;
 @endphp
 
-<div class="container box">
+{{-- container-sm was altered in my bootstrap.min.css --}}
+<div class="container-sm box">
     <div class="row">
         <div class="col">
             @if (session()->has('message'))
@@ -145,9 +146,10 @@
                         <thead class="table-dark">
                             <tr>
                                 <th>Nº</th>
-                                <th style="min-width: 150px">Cliente</th>
+                                <th>Cliente</th>
+                                <th>Equipamento</th>
                                 <th>Problema relatado</th>
-                                <th style="min-width: 170px">Técnico</th>
+                                <th style="min-width: 160px">Técnico</th>
                                 <th>Data</th>
                                 <th>Cop.</th>
                                 @if ($adm)
@@ -163,6 +165,7 @@
                                 <tr>
                                     <td>{{number_format($order->id, 0, ',', '.')}}</td>
                                     <td>{{$order->client->name ?? ''}}</td>
+                                    <td>{{$order->equipment ?? 'Não informado'}}</td>
                                     <td>{{$order->req_descr}}</td>
                                     <td>
                                         @if ($order->finished || (!$main && !$sup))
