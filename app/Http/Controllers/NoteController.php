@@ -186,7 +186,7 @@ class NoteController extends Controller
 
             if ($cr_note_tec1 && $updated_os) {
                 if ($request->input('finished')) {
-                    return redirect()->route('notes.index')->with('message', 'Solicitação de Serviço finalizada com sucesso.');
+                    return redirect()->route('notes.index')->with('message', 'Solicitação de Assistência Técnica finalizada com sucesso.');
                 }
                 return redirect()->back()->with('message', 'Informações salvas com sucesso.');
             }
@@ -499,7 +499,7 @@ class NoteController extends Controller
         }
     
         if ($cr_note_tec1 && $updated_os) {
-            return redirect()->route('notes.index')->with('message', 'Solicitações de Serviço para testes finalizadas com sucesso.');
+            return redirect()->route('notes.index')->with('message', 'Solicitações de Assistência Técnica para testes finalizadas com sucesso.');
         }
         return redirect()->back()->with('message', 'Erro ao salvar informações para testes.');
     }

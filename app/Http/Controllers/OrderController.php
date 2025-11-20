@@ -94,7 +94,7 @@ class OrderController extends Controller
         // Verify if the list of orders is not empty and if all orders are finished to ability "Gerar pdf" button
         $finisheds = $orders->pluck('finished')->toArray();
         if (in_array(0, $finisheds) || count($finisheds) == 0) {
-            $able_btn = 'Não é possívle gerar arquivo de ordens de serviço não finalizadas, tente filtar novamente';
+            $able_btn = 'Não é possívle gerar arquivo de Solicitação de Assistência Técnica não finalizadas, tente filtar novamente';
         }
 
         $tecs = Tec::all();
@@ -205,7 +205,7 @@ class OrderController extends Controller
         // Verify if the list of orders is not empty and if all orders are finished to ability "Gerar pdf" button
         $finisheds = $orders->pluck('finished')->toArray();
         if (in_array(0, $finisheds) || count($finisheds) == 0) {
-            $able_btn = 'Não é possívle gerar arquivo de ordens de serviço não finalizadas, tente filtrar novamente';
+            $able_btn = 'Não é possívle gerar arquivo de Solicitação de Assistência Técnica não finalizadas, tente filtrar novamente';
         }
 
         //Last client selected
@@ -316,7 +316,7 @@ class OrderController extends Controller
             'req_descr' => $this->text->spaceAfterPunctuation($request->req_descr),
         ]);
 
-        $msg = $created ? 'Ordem de serviço criada com sucesso.' : 'Erro ao criar ordem de serviço.';
+        $msg = $created ? 'Solicitação de Assistência Técnica criada com sucesso.' : 'Erro ao criar Solicitação de Assistência Técnica.';
         $route = $this->o && !$this->a ? 'notes.index' : 'orders.index';
         return redirect()->route($route)->with('message', $msg);
     }
@@ -417,7 +417,7 @@ class OrderController extends Controller
         $os->req_descr = $this->text->spaceAfterPunctuation($request->req_descr);
         $updated_adm = $os->save();
 
-        $msg = $updated && $updated_adm ? 'Ordem de serviço atualizada com sucesso.' : 'Erro ao atualizar ordem de serviço.';
+        $msg = $updated && $updated_adm ? 'Solicitação de Assistência Técnica atualizada com sucesso.' : 'Erro ao atualizar Solicitação de Assistência Técnica.';
         return redirect()->back()->with('message', $msg);
     }
 
@@ -440,7 +440,7 @@ class OrderController extends Controller
 
         $deleted = $order->delete();
 
-        $msg = $deleted ? 'Ordem de serviço deletada com sucesso.' : 'Erro ao deletar ordem de serviço.';
+        $msg = $deleted ? 'Solicitação de Assistência Técnica deletada com sucesso.' : 'Erro ao deletar Solicitação de Assistência Técnica.';
         return redirect()->route('orders.index')->with('message', $msg);
     }
 
@@ -462,7 +462,7 @@ class OrderController extends Controller
         $order->finished = true;
         $updated = $order->save();
 
-        $msg = $updated ? 'Ordem de serviço finalizada com sucesso.' : 'Erro ao finalizar Ordem de serviço.';
+        $msg = $updated ? 'Solicitação de Assistência Técnica finalizada com sucesso.' : 'Erro ao finalizar Solicitação de Assistência Técnica.';
         return redirect()->back()->with('message', $msg);
     }
 
@@ -473,9 +473,9 @@ class OrderController extends Controller
         }
 
         if ($this->s->reopenOrder($id)) {
-            return redirect()->route('orders.index')->with('message', 'Ordem de serviço reaberta com sucesso.');
+            return redirect()->route('orders.index')->with('message', 'Solicitação de Assistência Técnica reaberta com sucesso.');
         }
-        return redirect()->route('orders.index')->with('message', 'Erro ao reabrir Ordem de Serviço.');
+        return redirect()->route('orders.index')->with('message', 'Erro ao reabrir Solicitação de Assistência Técnica.');
     }
 
     // Shows the PDF for the order
@@ -509,10 +509,10 @@ class OrderController extends Controller
             return redirect()->route('orders.index')->withErrors('Nenhum registro selecionado para gerar o relatório!');
         }
 
-        // Verify if title have more than 120 characters
+        // Verify if title have more than 120 charactersSolicitação de Assistência Técnica
         if (strlen($request->title) > 120) {
             $this->logger->log('error', 'Error, access denied (order/orders_pdf), title have more than 120 characters.');
-            return redirect()->route('orders.index')->withErrors('Título da ordem de serviço possui mais de 120 caracteres!');
+            return redirect()->route('orders.index')->withErrors('Título da Solicitação de Assistência Técnica possui mais de 120 caracteres!');
         }
 
         // Generate an array of $request->ids (order filtered ids)
@@ -526,11 +526,11 @@ class OrderController extends Controller
         foreach ($ids_array as $id) {
             if (!is_numeric($id)) {
                 $this->logger->log('error', 'Error, access denied (order/orders_pdf), invalid id (id is not numeric).');
-                return redirect()->route('orders.index')->withErrors('ID da ordem de serviço inválido (registro encontrado não numérico)!');
+                return redirect()->route('orders.index')->withErrors('ID da Solicitação de Assistência Técnica inválido (registro encontrado não numérico)!');
             }
             if (!in_array($id, $all_order_ids)) {
                 $this->logger->log('error', 'Error, access denied (order/orders_pdf), invalid id (id not found in database).');
-                return redirect()->route('orders.index')->withErrors('ID da ordem de serviço inválido (registro não encontrado na base de dados)!');
+                return redirect()->route('orders.index')->withErrors('ID da Solicitação de Assistência Técnica inválido (registro não encontrado na base de dados)!');
             }
         }
 
@@ -539,7 +539,7 @@ class OrderController extends Controller
 
         if ($orders->isEmpty() || !$orders) {
             $this->logger->log('error', 'Error (order/orders_pdf), error requesting order data.');
-            return redirect()->route('orders.index')->withErrors('Erro ao requisar os dados das ordens de serviço!');
+            return redirect()->route('orders.index')->withErrors('Erro ao requisar os dados das Solicitações de Assistência Técnica!');
         }
         $orders = $orders->sortBy('client.name');
 
@@ -553,7 +553,7 @@ class OrderController extends Controller
         foreach ($orders as $order) {
             if (!$order->finished) {
                 $this->logger->log('error', 'Error (order/orders_pdf), order is not finished.');
-                return redirect()->route('orders.index')->withErrors('Não é possível gerar um relatório com ordens de serviço não finalizadas!');
+                return redirect()->route('orders.index')->withErrors('Não é possível gerar um relatório com Solicitações de Assistência Técnica não finalizadas!');
             }
         }
 
@@ -659,7 +659,7 @@ class OrderController extends Controller
 
                         if (!$pdf) {
                             $this->logger->log('error', 'Error (order/generate_pdf), error generating order number ' . $order_id . '.');
-                            return redirect()->route('orders.index')->withErrors('Erro ao gerar ordem número ' . $order_id . '!');
+                            return redirect()->route('orders.index')->withErrors('Erro ao gerar Solicitação de Assistência Técnica número ' . $order_id . '!');
                         }
 
                         session()->put('order_index', session('order_index') + 1);
@@ -672,7 +672,7 @@ class OrderController extends Controller
 
                     if (!$save) {
                         $this->logger->log('error', 'Error (order/generate_pdf), error saving order number ' . $order_id . '.');
-                        return redirect()->route('orders.index')->withErrors('Erro ao salvar a ordem número ' . $order_id . '!');
+                        return redirect()->route('orders.index')->withErrors('Erro ao salvar a Solicitação de Assistência Técnica número ' . $order_id . '!');
                     }
 
                     if (session('order_index') >= count($order_ids)) {
@@ -784,7 +784,7 @@ class OrderController extends Controller
             ]);
         }
 
-        $msg = $created ? 'Ordes de serviço para testes criadas com sucesso.' : 'Erro ao criar ordes de serviço para testes.';
+        $msg = $created ? 'Solicitações de Assistência Técnica para testes criadas com sucesso.' : 'Erro ao criar Solicitações de Assistência Técnica para testes.';
         $route = $this->o && !$this->a ? 'notes.index' : 'orders.index';
         return redirect()->route($route)->with('message', $msg);
     }
@@ -813,11 +813,11 @@ class OrderController extends Controller
         foreach ($ids_array as $id) {
             if (!is_numeric($id)) {
                 $this->logger->log('error', 'Error, access denied (order/orders_csv), invalid id (id is not numeric).');
-                return redirect()->route('orders.index')->withErrors('ID da ordem de serviço inválido (registro encontrado não numérico)!');
+                return redirect()->route('orders.index')->withErrors('ID da Solicitação de Assistência Técnica inválido (registro encontrado não numérico)!');
             }
             if (!in_array($id, $all_order_ids)) {
                 $this->logger->log('error', 'Error, access denied (order/orders_csv), invalid id (id not found in database).');
-                return redirect()->route('orders.index')->withErrors('ID da ordem de serviço inválido (registro não encontrado na base de dados)!');
+                return redirect()->route('orders.index')->withErrors('ID da Solicitação de Assistência Técnica inválido (registro não encontrado na base de dados)!');
             }
         }
 
@@ -826,7 +826,7 @@ class OrderController extends Controller
 
         if ($orders->isEmpty() || !$orders) {
             $this->logger->log('error', 'Error (order/orders_csv), error requesting order data.');
-            return redirect()->route('orders.index')->withErrors('Erro ao requisar os dados das ordens de serviço!');
+            return redirect()->route('orders.index')->withErrors('Erro ao requisar os dados das Solicitações de Assistência Técnica!');
         }
         $orders = $orders->sortBy('client.name');
 

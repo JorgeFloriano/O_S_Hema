@@ -29,7 +29,7 @@
 
             <div id="header" class="my-2">
                 <h2>
-                    Ordens de Serviço
+                    Solicitações de Assistência Técnica
                 </h2>
             </div>
             <hr>
@@ -74,21 +74,21 @@
                 </div>
             </form>
             @if ($adm)
-                <a href="{{route('orders.create')}}" class="btn btn-primary" data-bs-toggle="tooltip" title="Criar nova ordem de serviço">
+                <a href="{{route('orders.create')}}" class="btn btn-primary" data-bs-toggle="tooltip" title="Criar nova Solicitação de Assistência Técnica">
                     Criar nova
                 </a>
                 
                 <div class="float-end">
-                    <button onclick="formSubmit('filter_form')" data-bs-toggle="tooltip" title="Filtrar ordens de serviço conforme opções   selecionadas" id="submitButton" type="submit" class="btn btn-secondary">
+                    <button onclick="formSubmit('filter_form')" data-bs-toggle="tooltip" title="Filtrar Solicitações de Assistência Técnica conforme opções   selecionadas" id="submitButton" type="submit" class="btn btn-secondary">
                         <i class="fa fa-filter"></i>
                     </button>
 
                     <!-- Button trigger modal -->
                     <button type="button" data-bs-toggle="modal" data-bs-target="#reportTitle" class="btn btn-danger mx-1">
-                        <i class="fa fa-file-pdf-o" data-bs-toggle="tooltip" title="Gerar relatório PDF das ordens de serviço filtradas"></i>
+                        <i class="fa fa-file-pdf-o" data-bs-toggle="tooltip" title="Gerar relatório PDF das Solicitações de Assistência Técnica filtradas"></i>
                     </button>
 
-                    <button type="button" data-bs-toggle="tooltip" title="Gerar arquivo xlsx (Excel) das ordens de serviço filtradas" 
+                    <button type="button" data-bs-toggle="tooltip" title="Gerar arquivo xlsx (Excel) das Solicitações de Assistência Técnica filtradas" 
                         onclick="submitRoute('{{route('orders.orders_csv')}}', 'csv_form', '{{$able_btn ?? ''}}')" 
                         class="btn btn-success">
                         <i class="fa fa-file-excel-o"></i>
@@ -98,7 +98,7 @@
 
             @if (!$adm && $sup)
                 <div class="text-end">
-                    <button onclick="formSubmit('filter_form')" data-bs-toggle="tooltip" title="Filtrar ordens de serviço conforme opções   selecionadas" id="submitButton" type="submit" class="btn btn-secondary">
+                    <button onclick="formSubmit('filter_form')" data-bs-toggle="tooltip" title="Filtrar Solicitações de Assistência Técnica conforme opções   selecionadas" id="submitButton" type="submit" class="btn btn-secondary">
                         <i class="fa fa-filter"></i>Filtrar
                     </button>
                 </div>

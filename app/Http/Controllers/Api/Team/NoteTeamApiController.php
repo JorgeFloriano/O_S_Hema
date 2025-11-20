@@ -1,19 +1,17 @@
 <?php
 
-namespace App\Http\Controllers\Api\Clients;
+namespace App\Http\Controllers\Api\Team;
 
 use App\Class\TextFormat;
 use App\Class\ResponseJson;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\FormOrderApiRequest;
-use App\Models\Client;
 use App\Models\Order;
 use App\Models\OrderType;
-use App\Models\Tec;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
-class OrderApiController extends Controller
+class NoteTeamApiController extends Controller
 {
     public $can;
 
@@ -31,14 +29,14 @@ class OrderApiController extends Controller
         //$order->tec->user will contain only id, name, surname
 
         $auth = Auth::user();
-        $client_id = $auth->cli->client_id;
+        $tec_id = $auth->tec->id;
 
         $orders = Order::with([
             'type:id,description',
             'tec:id,user_id', 
             'tec.user:id,name,surname',
         ])
-        ->where('client_id', $client_id)
+        ->where('tec_id', $tec_id)
         ->orderBy('id', 'desc')
         ->get(['id', 'order_type_id', 'tec_id', 'req_descr', 'req_name', 'sector', 'req_date', 'req_time', 'finished']);
 

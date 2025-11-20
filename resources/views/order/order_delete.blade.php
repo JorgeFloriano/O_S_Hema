@@ -7,7 +7,7 @@
             <div class="col-lg-8 offset-lg-2">
 
                 <div id="header" class="my-2">
-                    <h2>Deletar Ordem de Serviço nº {{number_format($order->id, 0, ',', '.')}}</h2>
+                    <h2>Deletar Solicitação de Assistência Técnica nº {{number_format($order->id, 0, ',', '.')}}</h2>
                 </div>
                 <hr>
                 <main>
@@ -43,7 +43,7 @@
                         </div>
 
                         <div class="alert alert-warning">
-                            Atenção, as informações desta ordem de serviço serão perdidas após a mesma ser deletada!
+                            Atenção, as informações desta Solicitação de Assistência Técnica serão perdidas após a mesma ser deletada!
                         </div>
 
                         <div class="my-2">
