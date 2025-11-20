@@ -23,7 +23,7 @@
                 @endif
 
                 <div id="header" class="my-2">
-                    <h2>{{$title}}Ordem de Serviço Nº {{number_format($order->id, 0, ',', '.')}}</h2> 
+                    <h2>{{$title}} Solicitação de Assistência Técnica Nº {{number_format($order->id, 0, ',', '.')}}</h2> 
                 </div>
                 <hr>
                 <main>

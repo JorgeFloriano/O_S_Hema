@@ -23,7 +23,7 @@
                 @endif
 
                 <div id="header" class="my-2">
-                    <h2>Gerar Ordem de Serviço</h2> 
+                    <h2>Gerar Solicitação de Assistência Técnica</h2> 
                 </div>
                 <hr>
                 <main>

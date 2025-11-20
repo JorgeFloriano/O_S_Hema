@@ -54,6 +54,43 @@ class LoginController extends Controller
         ]);
     }
 
+    public function loginTeam(Request $request)
+    {
+        $request->validate([
+            'username' => 'required|string',
+            'password' => 'required|string|min:5',
+        ]);
+
+        // Find user by username
+        $user = User::where('username', $request->username)
+                    //->orWhere('email', $request->username)
+                    ->first();
+
+        if (!$user || !Hash::check($request->password, $user->password)) {
+            throw ValidationException::withMessages([
+                'username' => ['As credenciais fornecidas estão incorretas.'],
+            ]);
+        }
+
+        // Create token
+        $token = $user->createToken('mobile-app')->plainTextToken;
+
+        return response()->json([
+            'token' => $token,
+            'user' => [
+                'id' => $user->id,
+                'username' => $user->username,
+                'name' => $user->name,
+                'email' => $user->email ?? null,
+                //'isClient' => $user->cli ? true : false,
+                //'clientId' => $user->cli ? $user->cli->client_id : null,
+                //'isAdmin' => $user->cli ? $user->cli->is_admin : null,
+                //'canCreateSat' => $user->cli ? $user->cli->can_create_sat : null,
+                //'canSeeSat' => $user->cli ? $user->cli->can_see_sat : null
+            ]
+        ]);
+    }
+
     public function user(Request $request)
     {
         return response()->json($request->user());

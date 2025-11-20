@@ -21,7 +21,7 @@
                 <hr>
 
                 @if (auth()->user()->tec->on_call)
-                    <a href="{{route('orders.create')}}" class="btn btn-primary">Gerar O.S.</a>
+                    <a href="{{route('orders.create')}}" class="btn btn-primary">Gerar SAT</a>
                     <hr>
                 @endif
 
@@ -34,7 +34,7 @@
                         <table class="table table-striped table-hover" id="notes_list">
                             <thead class="table-dark">
                                 <tr>
-                                    <th>O.S.</th>
+                                    <th>SAT</th>
                                     <th>Cliente</th>
                                     <th>Equipamento</th>
                                     <th>Problema relatado</th>
