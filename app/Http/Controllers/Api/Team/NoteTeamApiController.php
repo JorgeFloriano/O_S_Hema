@@ -118,13 +118,8 @@ class NoteTeamApiController extends Controller
      */
     public function show(Order $order)
     {
-        $return_error = $this->can->error([Auth::user()->cli->can_see_sat], 'Usuário sem permissão visualizar ordens.');
+        $order = $order->load(['type:id,description', 'client:id,name', 'tec:id,user_id', 'notes.materials', 'notes.tecs.user:id,name,surname,function']);
 
-        if ($return_error) {
-            return $return_error;
-        }
-
-        $order = $order->load(['type:id,description', 'tec:id,user_id', 'notes.materials', 'notes.tecs.user:id,name,surname,function']);
         return response()->json([
             'order' => $order
         ]);
