@@ -6,8 +6,13 @@ use App\Class\TextFormat;
 use App\Class\ResponseJson;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\FormOrderApiRequest;
+use App\Models\Cause;
+use App\Models\Defect;
+use App\Models\Material;
+use App\Models\NoteType;
 use App\Models\Order;
-use App\Models\OrderType;
+use App\Models\Solution;
+use App\Models\Tec;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -28,17 +33,20 @@ class NoteTeamApiController extends Controller
         // The user data (id, name, surname) is now automatically loaded
         //$order->tec->user will contain only id, name, surname
 
-        $auth = Auth::user();
-        $tec_id = $auth->tec->id;
+        // Check if user is a technician
+        if ($this->can->AuthIsTec()) {
+            return $this->can->AuthIsTec();
+        }
 
         $orders = Order::with([
             'type:id,description',
-            'tec:id,user_id', 
+            'client:id,name',
+            'tec:id,user_id',
             'tec.user:id,name,surname',
         ])
-        ->where('tec_id', $tec_id)
-        ->orderBy('id', 'desc')
-        ->get(['id', 'order_type_id', 'tec_id', 'req_descr', 'req_name', 'sector', 'req_date', 'req_time', 'finished']);
+            //->where('tec_id', Auth::user()->tec->id)
+            ->orderBy('id', 'desc')
+            ->get(['id', 'order_type_id', 'client_id', 'tec_id', 'req_descr', 'req_name', 'sector', 'req_date', 'req_time', 'finished']);
 
         return response()->json(['orders' => $orders]);
     }
@@ -46,20 +54,32 @@ class NoteTeamApiController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create()
+    public function create(Order $order)
     {
-        $return_error = $this->can->error([Auth::user()->cli->can_create_sat], 'Usuário sem permissão para criar ordens.');
 
-        if ($return_error) {
-            return $return_error;
+        // Check if user is a technician
+        if ($this->can->AuthIsTec()) {
+            return $this->can->AuthIsTec();
         }
 
-        // Create session variable wich contains all order types ids to validated in FormOrderRequest
-        $types = OrderType::select('id', 'description')->get();
-        session()->put('types_ids', $types->pluck('id')->toArray());
+        $order = $order->load(['type:id,description', 'client:id,name,unit,address, contact', 'tec:id,user_id']);
+
+        // Get the technicians of the order
+        $tecs = Tec::with('user:id,name,surname')->get();
 
         return response()->json([
-            'types' => $types
+            'order' => $order,
+            'tecs' => $tecs,
+            'types' => NoteType::select('id', 'description')
+                ->orderBy('description')->get(),
+            'defects' => Defect::select('id', 'description')
+                ->orderBy('description')->get(),
+            'causes' => Cause::select('id', 'description')
+                ->orderBy('description')->get(),
+            'solutions' => Solution::select('id', 'description')
+                ->orderBy('description')->get(),
+            'materials' => Material::select('id', 'description')
+                ->orderBy('description')->get()
         ]);
     }
 
@@ -77,13 +97,13 @@ class NoteTeamApiController extends Controller
         }
 
         $client_id = $auth->cli->client_id;
-        $complete_name = $auth->name.' '.$auth->surname;
+        $complete_name = $auth->name . ' ' . $auth->surname;
         $user_id = $auth->id;
 
 
         try {
             $text = new TextFormat;
-            
+
             // Create new order
             $order = Order::create([
                 'client_id' => $client_id,
@@ -103,11 +123,10 @@ class NoteTeamApiController extends Controller
                 'message' => 'Solicitação de Assistência Técnica criada com sucesso.',
                 'order' => $order
             ], 201);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Erro ao criar Solicitação de Assistência Técnica.'.$e->getMessage(),
+                'message' => 'Erro ao criar Solicitação de Assistência Técnica.' . $e->getMessage(),
                 'error' => $e->getMessage()
             ], 500);
         }
@@ -116,9 +135,17 @@ class NoteTeamApiController extends Controller
     /**
      * Display the specified resource.
      */
-    public function show(Order $order)
+    public function show($id)
     {
-        $order = $order->load(['type:id,description', 'client:id,name', 'tec:id,user_id', 'notes.materials', 'notes.tecs.user:id,name,surname,function']);
+
+        // Check if user is a technician
+        if ($this->can->AuthIsTec()) {
+            return $this->can->AuthIsTec();
+        }
+
+        $order = Order::with(['type:id,description', 'client:id,name', 'tec:id,user_id', 'notes.materials', 'notes.tecs.user:id,name,surname,function'])
+            ->select('id', 'client_id', 'equipment', 'finished', 'order_type_id', 'req_date', 'req_descr', 'req_name', 'req_time', 'sector', 'tec_id', 'user_id')
+            ->find($id);
 
         return response()->json([
             'order' => $order

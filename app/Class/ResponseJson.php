@@ -3,6 +3,7 @@
 namespace App\Class;
 
 use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 
 class ResponseJson
 {
@@ -46,5 +47,16 @@ class ResponseJson
         }
 
         return false;
+    }
+    public function AuthIsTec()
+    {
+        $auth = Auth::user();
+        if (!$auth->tec) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Usuário sem cadastro de técnico.',
+                'message' => 'Usuário sem cadastro de técnico.'
+            ], 404);
+        }
     }
 }
