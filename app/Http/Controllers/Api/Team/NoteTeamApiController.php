@@ -13,6 +13,7 @@ use App\Models\NoteType;
 use App\Models\Order;
 use App\Models\Solution;
 use App\Models\Tec;
+use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -44,7 +45,7 @@ class NoteTeamApiController extends Controller
             'tec:id,user_id',
             'tec.user:id,name,surname',
         ])
-            //->where('tec_id', Auth::user()->tec->id)
+            ->where('tec_id', Auth::user()->tec->id)
             ->orderBy('id', 'desc')
             ->get(['id', 'order_type_id', 'client_id', 'tec_id', 'req_descr', 'req_name', 'sector', 'req_date', 'req_time', 'finished']);
 
@@ -54,32 +55,37 @@ class NoteTeamApiController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create(Order $order)
+    public function create(Order $order): JsonResponse
     {
-
         // Check if user is a technician
         if ($this->can->AuthIsTec()) {
             return $this->can->AuthIsTec();
         }
 
-        $order = $order->load(['type:id,description', 'client:id,name,unit,address, contact', 'tec:id,user_id']);
+        // Load order with relationships
+        $order = $order->load([
+            'type:id,description',
+            'client:id,name,unit,address,contact',
+            'tec:id,user_id'
+        ]);
 
-        // Get the technicians of the order
+        // Get all necessary data
         $tecs = Tec::with('user:id,name,surname')->get();
+        $types = NoteType::select('id', 'description')->orderBy('description')->get();
+        $defects = Defect::select('id', 'description')->orderBy('description')->get();
+        $causes = Cause::select('id', 'description')->orderBy('description')->get();
+        $solutions = Solution::select('id', 'description')->orderBy('description')->get();
+        $materials = Material::select('id', 'description')->orderBy('description')->get();
 
         return response()->json([
+            'success' => true,
             'order' => $order,
             'tecs' => $tecs,
-            'types' => NoteType::select('id', 'description')
-                ->orderBy('description')->get(),
-            'defects' => Defect::select('id', 'description')
-                ->orderBy('description')->get(),
-            'causes' => Cause::select('id', 'description')
-                ->orderBy('description')->get(),
-            'solutions' => Solution::select('id', 'description')
-                ->orderBy('description')->get(),
-            'materials' => Material::select('id', 'description')
-                ->orderBy('description')->get()
+            'types' => $types,
+            'defects' => $defects,
+            'causes' => $causes,
+            'solutions' => $solutions,
+            'materials' => $materials
         ]);
     }
 
