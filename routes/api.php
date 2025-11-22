@@ -26,6 +26,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/auth/logout', [LoginController::class, 'logout'])->name('api.logout');
     Route::get('/auth/user', [LoginController::class, 'user']);
     Route::resource('/technician/orders', NoteTeamApiController::class);
+    Route::get('/notes/create/{order}', [NoteTeamApiController::class, 'create'])->name('notes.create');;
     Route::resource('/users', UserTeamApiController::class);
     // Your other protected API routes
 });
