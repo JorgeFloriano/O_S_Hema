@@ -67,7 +67,7 @@ class NoteController extends Controller
 
         $tecs = Tec::all();
 
-        // Generate tables with all codes list
+        // Generate arrays with all codes
         $c_l = [
             'n_types' => NoteType::all(),
             'defects' => Defect::all(),
