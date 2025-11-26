@@ -9,6 +9,7 @@ use App\Http\Requests\FormOrderApiRequest;
 use App\Models\Cause;
 use App\Models\Defect;
 use App\Models\Material;
+use App\Models\Note;
 use App\Models\NoteType;
 use App\Models\Order;
 use App\Models\Solution;
@@ -66,8 +67,12 @@ class NoteTeamApiController extends Controller
         $order = $order->load([
             'type:id,description',
             'client:id,name,unit,address,contact',
-            'tec:id,user_id'
+            'tec:id,user_id',
+            'notes'
         ]);
+
+        // Check if order has notes
+        $order->hasNotes = $order->notes->isNotEmpty();
 
         // Get all necessary data
         $tecs = Tec::with('user:id,name,surname')->get();
@@ -75,7 +80,7 @@ class NoteTeamApiController extends Controller
         $defects = Defect::select('id', 'description')->orderBy('description')->get();
         $causes = Cause::select('id', 'description')->orderBy('description')->get();
         $solutions = Solution::select('id', 'description')->orderBy('description')->get();
-        $materials = Material::select('id', 'description')->orderBy('description')->get();
+        $materials = Material::select('id', 'description', 'unit')->orderBy('description')->get();
 
         return response()->json([
             'success' => true,
@@ -85,7 +90,7 @@ class NoteTeamApiController extends Controller
             'defects' => $defects,
             'causes' => $causes,
             'solutions' => $solutions,
-            'materials' => $materials
+            'materials' => $materials,
         ]);
     }
 
@@ -94,6 +99,36 @@ class NoteTeamApiController extends Controller
      */
     public function store(FormOrderApiRequest $request)
     {
+
+
+        // fix the material store ------------------------------------------------------
+        $validated = $request->validate([
+            // ... your existing validation
+            'materials' => 'sometimes|array',
+            'materials.*.material_id' => 'required|exists:materials,id',
+            'materials.*.quantity' => 'required|numeric|min:0',
+        ]);
+
+        // Create the note
+        $note = Note::create($request->except('materials'));
+
+        // Attach materials with quantities
+        if ($request->has('materials')) {
+            foreach ($request->materials as $material) {
+                $note->materials()->attach($material['material_id'], [
+                    'quantity' => $material['quantity']
+                ]);
+            }
+        }
+
+        return response()->json([
+            'success' => true,
+            'message' => 'Atendimento registrado com sucesso!',
+            'note' => $note
+        ]);
+
+        //--------------------------------------------------------------------------
+
         $auth = Auth::user();
 
         $return_error = $this->can->error([$auth->cli->can_create_sat], 'Usuário sem permissão para salvar ordens.');
