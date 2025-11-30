@@ -15,5 +15,6 @@ class NoteTec extends Model
         'note_id',
         'tec_id',
         'signature',
+        'signature_path',
     ];
 }
