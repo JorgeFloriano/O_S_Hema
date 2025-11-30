@@ -21,11 +21,11 @@
     <body>
         <div id="buttonGroup">
             <button id="btnPdf" class="btn btn-primary">Baixar PDF</button>
-            @if (auth()->user()->sup()->first())
+            {{-- @if (auth()->user()->sup()->first())
                 <a href="{{route('orders.reopen', ['order' => $order->id])}}" class="btn btn-primary mx-2">
                     Reabrir
                 </a>
-            @endif
+            @endif --}}
             @if (auth()->user()->adm()->first() || auth()->user()->sup()->first())
                 <a href="{{route('orders.index')}}" class="btn btn-secondary">
                     Voltar

@@ -3,7 +3,18 @@
         <tr style="border-bottom: none">
             <th colspan="2">Dados do Cliente</th>
             <td style="width: 18%; border-right: hidden" rowspan="4">
-                <img src={{$order->cl_sign ?? ''}} alt=" "width="100%">
+
+                @if(isset($order->cl_sign_path) && Storage::disk('public')->exists($order->cl_sign_path))
+                    <img src="{{ asset('storage/' . $order->cl_sign_path) }}" 
+                        alt="Assinatura do Cliente" 
+                        style="width: 100%; max-height: 80px; object-fit: contain;">
+                @else
+                    @if (isset($order->cl_sign))
+                        <img src={{$order->cl_sign ?? ''}} 
+                            alt="Assinatura do Cliente" 
+                            style="width: 100%; max-height: 80px; object-fit: contain;">
+                    @endif
+                @endif
             </td>
         </tr>
 

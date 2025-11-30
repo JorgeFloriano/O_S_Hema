@@ -31,6 +31,7 @@ class Order extends Model
         'cl_contact',
         'cl_date',
         'cl_sign',
+        'cl_sign_path'
     ];
 
     protected $table = "orders";

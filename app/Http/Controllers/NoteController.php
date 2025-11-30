@@ -110,7 +110,7 @@ class NoteController extends Controller
             return redirect()->back()->with('message', 'Informações não podem ser salvas sem assinatura de um Técnico.');
         }
 
-        // If there is no second_tec, set it to 0
+        // If the first and second technician are the same, the second technician is set to 0
         $second_tec = $request->first_tec == $request->second_tec ? '0' : $request->second_tec;
 
         $created_note = $this->note->create([

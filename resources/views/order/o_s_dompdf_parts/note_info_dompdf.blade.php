@@ -14,17 +14,17 @@
     </div>
 
     <div class="InfoLine">
-        <div class="QuarterCollum"><strong>Tipo: </strong>{{$note->type->id}}</div>
-        <div class="QuarterCollum b-l"><strong>Defeito: </strong>{{$note->defect->id}}</div>
-        <div class="QuarterCollum b-l"><strong>Causa: </strong>{{$note->cause->id}}</div>
-        <div class="QuarterCollum b-l"><strong>Solução: </strong>{{$note->solution->id}}</div>
+        <div class="QuarterCollum"><strong>Tipo: </strong>{{$note->type->id ?? '------'}}</div>
+        <div class="QuarterCollum b-l"><strong>Defeito: </strong>{{$note->defect->id ?? '------'}}</div>
+        <div class="QuarterCollum b-l"><strong>Causa: </strong>{{$note->cause->id ?? '------'}}</div>
+        <div class="QuarterCollum b-l"><strong>Solução: </strong>{{$note->solution->id ?? '------'}}</div>
     </div>
 
     <div class="InfoLine">
-        <div class="QuarterCollum">{{$note->type->description}}</div>
-        <div class="QuarterCollum b-l">{{$note->defect->description}}</div>
-        <div class="QuarterCollum b-l">{{$note->cause->description}}</div>
-        <div class="QuarterCollum b-l">{{$note->solution->description}}</div>
+        <div class="QuarterCollum">{{$note->type->description ?? '------'}}</div>
+        <div class="QuarterCollum b-l">{{$note->defect->description ?? '------'}}</div>
+        <div class="QuarterCollum b-l">{{$note->cause->description ?? '------'}}</div>
+        <div class="QuarterCollum b-l">{{$note->solution->description ?? '------'}}</div>
     </div>
 
     <div class="LastInfoLine" style="height: 250px">
