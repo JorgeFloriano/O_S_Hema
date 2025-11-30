@@ -14,26 +14,44 @@
         </tr>
 
         <tr>
-            <td style="text-align: center; width: 16.6%">{{$note->go_start}}</td>
-            <td style="text-align: center">{{$note->go_end}}</td>
-            <td style="text-align: center">{{$note->start}}</td>
-            <td style="text-align: center">{{$note->end}}</td>
-            <td style="text-align: center">{{$note->back_start}}</td>
-            <td style="text-align: center; border-right: none">{{$note->back_end}}</td>
+            <td style="text-align: center; width: 16.6%">{{$note->go_start ?? '-- : --'}}</td>
+            <td style="text-align: center">{{$note->go_end ?? '-- : --'}}</td>
+            <td style="text-align: center">{{$note->start ?? '-- : --'}}</td>
+            <td style="text-align: center">{{$note->end ?? '-- : --'}}</td>
+            <td style="text-align: center">{{$note->back_start ?? '-- : --'}}</td>
+            <td style="text-align: center; border-right: none">{{$note->back_end ?? '-- : --'}}</td>
         </tr>
 
         <tr style="border-bottom: none">
             <th colspan="2">Técnico 01</th>
 
+            {{-- Technician 1 Signature --}}
             <td style="width: 16.6%" rowspan="3">
-                <img src={{$note->tecs[0]->pivot->signature}} alt="" width="100%">
+                @if(isset($note->tecs[0]) && $note->tecs[0]->pivot->signature_path)
+                    <img src="data:image/png;base64,{{ base64_encode(Storage::disk('public')->get($note->tecs[0]->pivot->signature_path)) }}" 
+                         alt="-------" 
+                         style="width: 100%; max-height: 80px; object-fit: contain;">
+                @else
+                    <img src={{$note->tecs[0]->pivot->signature}} 
+                        alt="-------" 
+                        style="width: 100%; max-height: 80px; object-fit: contain;">
+                @endif
             </td>
 
             <th colspan="2" style="width: 33.33%">Técnico 02</th>
 
+            {{-- Technician 2 Signature --}}
             <td style="width: 16.6%; border-right: hidden" rowspan="3">
-                @if (isset($note->tecs[1]))
-                    <img src={{$note->tecs[1]->pivot->signature ?? ''}} alt="" width="100%">
+                @if(isset($note->tecs[1]) && $note->tecs[1]->pivot->signature_path)
+                    <img src="data:image/png;base64,{{ base64_encode(Storage::disk('public')->get($note->tecs[1]->pivot->signature_path)) }}" 
+                         alt="-------" 
+                         style="width: 100%; max-height: 80px; object-fit: contain;">
+                @else
+                    @if (isset($note->tecs[1]))
+                        <img src={{$note->tecs[1]->pivot->signature}} 
+                            alt="-------" 
+                            style="width: 100%; max-height: 80px; object-fit: contain;">
+                    @endif
                 @endif
             </td>
         </tr>

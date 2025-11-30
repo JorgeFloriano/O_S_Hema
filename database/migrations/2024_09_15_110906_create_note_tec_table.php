@@ -15,6 +15,7 @@ return new class extends Migration
             $table->id();
             $table->foreignId('note_id')->constrained();
             $table->foreignId('tec_id')->constrained();
+            $table->boolean('is_primary')->nullable();
             $table->text('signature')->nullable();
             $table->string('signature_path')->nullable();
             $table->timestamps();

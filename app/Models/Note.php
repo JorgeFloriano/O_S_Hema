@@ -8,6 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Storage;
 
 class Note extends Model
 {
@@ -48,10 +49,28 @@ class Note extends Model
 
     public function tecs(): BelongsToMany
     {
-        return $this->belongsToMany(Tec::class)->withPivot('signature')->withPivot('id')->withTimestamps()->withTrashed()->orderBy('pivot_id');
+        return $this->belongsToMany(Tec::class)->withPivot('signature', 'signature_path', 'id', 'is_primary')->withTimestamps()->withTrashed()->orderBy('pivot_id');
     }
 
-    public function type(): BelongsTo {
+    public function tecSignaturePath($tec)
+    {
+        // If you need to send signatures back to React Native as base64
+        if ($this->tecs[$tec]->pivot->signature_path) {
+            return $this->getSignatureAsBase64($this->tecs[$tec]->pivot->signature_path);
+        }
+    }
+
+    private function getSignatureAsBase64($filePath)
+    {
+        if (Storage::disk('public')->exists($filePath)) {
+            $fileContents = Storage::disk('public')->get($filePath);
+            return 'data:image/png;base64,' . base64_encode($fileContents);
+        }
+        return null;
+    }
+
+    public function type(): BelongsTo
+    {
         return $this->belongsTo(NoteType::class, 'note_type_id')->withTrashed();
     }
 

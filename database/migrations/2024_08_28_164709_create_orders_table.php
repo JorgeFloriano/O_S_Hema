@@ -30,6 +30,7 @@ return new class extends Migration
             $table->string('cl_contact', 50)->nullable();
             $table->date('cl_date')->nullable();
             $table->text('cl_sign')->nullable();
+            $table->string('cl_sign_path')->nullable();
             $table->timestamps();
             $table->softDeletes();
         });

@@ -14,17 +14,17 @@
     </div>
 
     <div class="InfoLine">
-        <div class="InfoFirstCollum center" style="width: 25%"><strong>Tipo: </strong>{{$note->type->id}}</div>
-        <div class="InfoCollum center" style="width: 25%"><strong>Defeito: </strong>{{$note->defect->id}}</div>
-        <div class="InfoCollum center" style="width: 25%"><strong>Causa: </strong>{{$note->cause->id}}</div>
-        <div class="InfoCollum center" style="width: 25%"><strong>Solução: </strong>{{$note->solution->id}}</div>
+        <div class="InfoFirstCollum center" style="width: 25%"><strong>Tipo: </strong>{{$note->type->id ?? ''}}</div>
+        <div class="InfoCollum center" style="width: 25%"><strong>Defeito: </strong>{{$note->defect->id ?? ''}}</div>
+        <div class="InfoCollum center" style="width: 25%"><strong>Causa: </strong>{{$note->cause->id ?? ''}}</div>
+        <div class="InfoCollum center" style="width: 25%"><strong>Solução: </strong>{{$note->solution->id ?? ''}}</div>
     </div>
 
     <div class="InfoLine">
-        <div class="InfoFirstCollum center" style="width: 25%">{{$note->type->description}}</div>
-        <div class="InfoCollum center" style="width: 25%">{{$note->defect->description}}</div>
-        <div class="InfoCollum center" style="width: 25%">{{$note->cause->description}}</div>
-        <div class="InfoCollum center" style="width: 25%">{{$note->solution->description}}</div>
+        <div class="InfoFirstCollum center" style="width: 25%">{{$note->type->description ?? ''}}</div>
+        <div class="InfoCollum center" style="width: 25%">{{$note->defect->description ?? ''}}</div>
+        <div class="InfoCollum center" style="width: 25%">{{$note->cause->description ?? ''}}</div>
+        <div class="InfoCollum center" style="width: 25%">{{$note->solution->description ?? ''}}</div>
     </div>
 
     {{-- <div class="InfoLine">

@@ -19,6 +19,7 @@ use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Storage;
 
@@ -115,51 +116,102 @@ class NoteTeamApiController extends Controller
             'sign_cl' => 'nullable|string',
         ]);
 
-        // Process signatures - store as files instead of base64 in database
-        $signTec1Path = $this->storeSignatureAsFile($request->sign_t_1, 'tec1');
-        $signTec2Path = $request->has('sign_t_2') ? $this->storeSignatureAsFile($request->sign_t_2, 'tec2') : null;
-        $signClientPath = $request->has('sign_client') ? $this->storeSignatureAsFile($request->sign_client, 'client') : null;
+        DB::beginTransaction();
 
-        $note = Note::create([
-            'order_id' => $request->order_id,
-            'equip_mod' => $request->equip_mod,
-            'equip_id' => $request->equip_id,
-            'equip_type' => $request->equip_type,
-            'note_type_id' => $request->note_type_id,
-            'defect_id' => $request->defect_id,
-            'cause_id' => $request->cause_id,
-            'solution_id' => $request->solution_id,
-            'services' => $this->text->spaceAfterPunctuation($request->services),
-            'date' => Carbon::createFromFormat('d/m/Y', $request->date)->format('Y-m-d'),
-            'go_start' => $request->go_start,
-            'go_end' => $request->go_end,
-            'start' => $request->start,
-            'end' => $request->end,
-            'back_start' => $request->back_start,
-            'back_end' => $request->back_end,
-            'km_start' => $request->km_start,
-            'km_end' => $request->km_end,
-        ]);
+        try {
+            // Process signatures
+            $signTec1Path = $this->storeSignatureAsFile($request->sign_t_1, 'tec1');
+            $signTec2Path = $request->filled('sign_t_2') ? $this->storeSignatureAsFile($request->sign_t_2, 'tec2') : null;
+            $signClientPath = $request->filled('sign_cl') ? $this->storeSignatureAsFile($request->sign_cl, 'client') : null;
 
-        // Create note_tec for first_tec
-        if ($note) {
-            $signature = NoteTec::create([
-                'note_id' => $note->id,
-                'tec_id' => $request->input('first_tec'),
-                'signature_path' => $signTec1Path,
+            // Prevent same technician
+            $second_tec = $request->first_tec == $request->second_tec ? null : $request->second_tec;
+
+            $note = Note::create([
+                'order_id' => $request->order_id,
+                'equip_mod' => $request->equip_mod,
+                'equip_id' => $request->equip_id,
+                'equip_type' => $request->equip_type,
+                'note_type_id' => $request->note_type_id,
+                'defect_id' => $request->defect_id,
+                'cause_id' => $request->cause_id,
+                'solution_id' => $request->solution_id,
+                'services' => $this->text->spaceAfterPunctuation($request->services),
+                'date' => Carbon::createFromFormat('d/m/Y', $request->date)->format('Y-m-d'),
+                'go_start' => $request->go_start,
+                'go_end' => $request->go_end,
+                'start' => $request->start,
+                'end' => $request->end,
+                'back_start' => $request->back_start,
+                'back_end' => $request->back_end,
+                'km_start' => $request->km_start,
+                'km_end' => $request->km_end,
             ]);
-        }
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Atendimento registrado com sucesso!',
-            'note' => $note
-        ]);
+            // Attach technicians using many-to-many relationship
+            $technicians = [
+                [
+                    'tec_id' => $request->first_tec,
+                    'signature_path' => $signTec1Path,
+                    'is_primary' => true,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ]
+            ];
+
+            if ($second_tec) {
+                $technicians[] = [
+                    'tec_id' => $second_tec,
+                    'signature_path' => $signTec2Path,
+                    'is_primary' => false,
+                    'created_at' => now(),
+                    'updated_at' => now(),
+                ];
+            }
+
+            // Use sync for many-to-many (more efficient than multiple creates)
+            $note->tecs()->sync($technicians);
+
+            // Update order status and client info
+            $order = Order::findOrFail($request->order_id);
+
+            $order->update([
+                'cl_name' => $request->cl_name,
+                'cl_function' => $request->cl_function,
+                'cl_contact' => $request->cl_contact,
+                'cl_date' => now()->format('Y-m-d'),
+                'cl_sign_path' => $signClientPath, // Store the file path instead of base64
+                'finished' => $request->finished,
+            ]);
+
+            DB::commit();
+
+            return response()->json([
+                'success' => true,
+                'message' => 'Atendimento registrado com sucesso!',
+                'note' => $note
+            ]);
+        } catch (\Exception $e) {
+            DB::rollBack();
+
+            Log::error('Error creating note: ' . $e->getMessage());
+
+            return response()->json([
+                'success' => false,
+                'message' => 'Erro ao registrar atendimento. Tente novamente.',
+                'error' => config('app.debug') ? $e->getMessage() : null,
+            ], 500);
+        }
     }
 
     private function storeSignatureAsFile($base64Image, $prefix)
     {
         try {
+
+            if (empty($base64Image)) {
+                return null;
+            }
+
             // Remove the data:image/png;base64, part
             $image = preg_replace('/^data:image\/\w+;base64,/', '', $base64Image);
             $image = str_replace(' ', '+', $image);
@@ -169,6 +221,11 @@ class NoteTeamApiController extends Controller
 
             if ($imageData === false) {
                 throw new \Exception('Invalid base64 image data');
+            }
+
+            // Validate it's actually an image
+            if (getimagesizefromstring($imageData) === false) {
+                throw new \Exception('Invalid image data');
             }
 
             // Generate unique filename
@@ -183,6 +240,7 @@ class NoteTeamApiController extends Controller
             Storage::disk('public')->put($fullPath, $imageData);
 
             return $fullPath;
+            
         } catch (\Exception $e) {
             Log::error('Error storing signature: ' . $e->getMessage());
             // Fallback: you could store the original base64 if file storage fails
