@@ -466,17 +466,17 @@ class OrderController extends Controller
         return redirect()->back()->with('message', $msg);
     }
 
-    // public function reopen($id)
-    // {
-    //     if (!$this->s) {
-    //         return view('login');
-    //     }
+    public function reopen($id)
+    {
+        if (!$this->m) {
+            return view('login');
+        }
 
-    //     if ($this->s->reopenOrder($id)) {
-    //         return redirect()->route('orders.index')->with('message', 'Solicitação de Assistência Técnica reaberta com sucesso.');
-    //     }
-    //     return redirect()->route('orders.index')->with('message', 'Erro ao reabrir Solicitação de Assistência Técnica.');
-    // }
+        if ($this->s->reopenOrder($id)) {
+            return redirect()->route('orders.index')->with('message', 'Solicitação de Assistência Técnica reaberta com sucesso.');
+        }
+        return redirect()->route('orders.index')->with('message', 'Erro ao reabrir Solicitação de Assistência Técnica.');
+    }
 
     // Shows the PDF for the order
     public function show_pdf($order)
