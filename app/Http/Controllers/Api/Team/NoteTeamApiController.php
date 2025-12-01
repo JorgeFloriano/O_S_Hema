@@ -4,6 +4,7 @@ namespace App\Http\Controllers\Api\Team;
 
 use App\Class\TextFormat;
 use App\Class\ResponseJson;
+use App\Class\Signature;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\FormOrderApiRequest;
 use App\Models\Cause;
@@ -21,7 +22,6 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Support\Facades\Storage;
 
 class NoteTeamApiController extends Controller
 {
@@ -118,11 +118,13 @@ class NoteTeamApiController extends Controller
 
         DB::beginTransaction();
 
+        $signature = new Signature;
+
         try {
             // Process signatures
-            $signTec1Path = $this->storeSignatureAsFile($request->sign_t_1, 'tec1');
-            $signTec2Path = $request->filled('sign_t_2') ? $this->storeSignatureAsFile($request->sign_t_2, 'tec2') : null;
-            $signClientPath = $request->filled('sign_cl') ? $this->storeSignatureAsFile($request->sign_cl, 'client') : null;
+            $signTec1Path = $signature->compress($request->sign_t_1, 'tec1');
+            $signTec2Path = $request->filled('sign_t_2') ? $signature->compress($request->sign_t_2, 'tec2') : null;
+            $signClientPath = $request->filled('sign_cl') ? $signature->compress($request->sign_cl, 'client') : null;
 
             // Prevent same technician
             $second_tec = $request->first_tec == $request->second_tec ? null : $request->second_tec;
@@ -147,6 +149,24 @@ class NoteTeamApiController extends Controller
                 'km_start' => $request->km_start,
                 'km_end' => $request->km_end,
             ]);
+
+            $validated = $request->validate([
+                // ... your existing validation
+                'materials' => 'sometimes|array',
+                'materials.*.material_id' => 'required|exists:materials,id',
+                'materials.*.quantity' => 'required|numeric|min:0',
+            ]);
+
+            // Attach materials with quantities
+            if ($request->has('materials')) {
+                foreach ($request->materials as $material) {
+                    if (isset($material['material_id']) && isset($material['quantity']) && $material['quantity'] > 0) {
+                        $note->materials()->attach($material['material_id'], [
+                            'quantity' => $material['quantity']
+                        ]);
+                    }
+                }
+            }
 
             // Attach technicians using many-to-many relationship
             $technicians = [
@@ -203,51 +223,6 @@ class NoteTeamApiController extends Controller
             ], 500);
         }
     }
-
-    private function storeSignatureAsFile($base64Image, $prefix)
-    {
-        try {
-
-            if (empty($base64Image)) {
-                return null;
-            }
-
-            // Remove the data:image/png;base64, part
-            $image = preg_replace('/^data:image\/\w+;base64,/', '', $base64Image);
-            $image = str_replace(' ', '+', $image);
-
-            // Decode base64
-            $imageData = base64_decode($image);
-
-            if ($imageData === false) {
-                throw new \Exception('Invalid base64 image data');
-            }
-
-            // Validate it's actually an image
-            if (getimagesizefromstring($imageData) === false) {
-                throw new \Exception('Invalid image data');
-            }
-
-            // Generate unique filename
-            $filename = $prefix . '_' . uniqid() . '_' . time() . '.png';
-            $directory = 'signatures/' . date('Y/m');
-            $fullPath = $directory . '/' . $filename;
-
-            // Ensure directory exists using Storage facade
-            Storage::disk('public')->makeDirectory($directory);
-
-            // Store file
-            Storage::disk('public')->put($fullPath, $imageData);
-
-            return $fullPath;
-            
-        } catch (\Exception $e) {
-            Log::error('Error storing signature: ' . $e->getMessage());
-            // Fallback: you could store the original base64 if file storage fails
-            return null;
-        }
-    }
-    
 
      // fix the material store ------------------------------------------------------
         // $validated = $request->validate([
