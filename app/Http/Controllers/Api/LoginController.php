@@ -82,6 +82,7 @@ class LoginController extends Controller
                 'username' => $user->username,
                 'name' => $user->name,
                 'email' => $user->email ?? null,
+                'tecId' => $user->tec ? $user->tec->id : null,
                 //'isClient' => $user->cli ? true : false,
                 //'clientId' => $user->cli ? $user->cli->client_id : null,
                 //'isAdmin' => $user->cli ? $user->cli->is_admin : null,
