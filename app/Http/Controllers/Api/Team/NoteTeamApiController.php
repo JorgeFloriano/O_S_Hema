@@ -6,17 +6,15 @@ use App\Class\TextFormat;
 use App\Class\ResponseJson;
 use App\Class\Signature;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\FormOrderApiRequest;
+use App\Http\Requests\FormApiNoteRequest;
 use App\Models\Cause;
 use App\Models\Defect;
 use App\Models\Material;
 use App\Models\Note;
-use App\Models\NoteTec;
 use App\Models\NoteType;
 use App\Models\Order;
 use App\Models\Solution;
 use App\Models\Tec;
-use Carbon\Carbon;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -106,72 +104,68 @@ class NoteTeamApiController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(Request $request)
+    public function store(FormApiNoteRequest $request): JsonResponse
     {
-
-        $validated = $request->validate([
-            // ... your existing validation rules
-            'sign_t_1' => 'required|string',
-            'sign_t_2' => 'nullable|string',
-            'sign_cl' => 'nullable|string',
-        ]);
-
         DB::beginTransaction();
 
-        $signature = new Signature;
-
         try {
+
+            $validated = $request->validated();
+
+            $signature = new Signature();
+
             // Process signatures
             $signTec1Path = $signature->compress($request->sign_t_1, 'tec1');
             $signTec2Path = $request->filled('sign_t_2') ? $signature->compress($request->sign_t_2, 'tec2') : null;
             $signClientPath = $request->filled('sign_cl') ? $signature->compress($request->sign_cl, 'client') : null;
 
+            // Process services text
+            $services = $this->text->spaceAfterPunctuation($validated['services']);
+
             // Prevent same technician
             $second_tec = $request->first_tec == $request->second_tec ? null : $request->second_tec;
 
+            // Create note
             $note = Note::create([
-                'order_id' => $request->order_id,
-                'equip_mod' => $request->equip_mod,
-                'equip_id' => $request->equip_id,
-                'equip_type' => $request->equip_type,
-                'note_type_id' => $request->note_type_id,
-                'defect_id' => $request->defect_id,
-                'cause_id' => $request->cause_id,
-                'solution_id' => $request->solution_id,
-                'services' => $this->text->spaceAfterPunctuation($request->services),
-                'date' => Carbon::createFromFormat('d/m/Y', $request->date)->format('Y-m-d'),
-                'go_start' => $request->go_start,
-                'go_end' => $request->go_end,
-                'start' => $request->start,
-                'end' => $request->end,
-                'back_start' => $request->back_start,
-                'back_end' => $request->back_end,
-                'km_start' => $request->km_start,
-                'km_end' => $request->km_end,
+                'order_id' => $validated['order_id'],
+                'equip_mod' => $validated['equip_mod'],
+                'equip_id' => $validated['equip_id'],
+                'equip_type' => $validated['equip_type'],
+                'note_type_id' => $validated['note_type_id'],
+                'defect_id' => $validated['defect_id'],
+                'cause_id' => $validated['cause_id'],
+                'solution_id' => $validated['solution_id'],
+                'services' => $services,
+                'date' => $validated['date'], // Already converted in FormRequest
+                'go_start' => $validated['go_start'] ?? null,
+                'go_end' => $validated['go_end'] ?? null,
+                'start' => $validated['start'],
+                'end' => $validated['end'],
+                'back_start' => $validated['back_start'] ?? null,
+                'back_end' => $validated['back_end'] ?? null,
+                'km_start' => $validated['km_start'] ?? null,
+                'km_end' => $validated['km_end'] ?? null,
             ]);
 
-            $validated = $request->validate([
-                // ... your existing validation
-                'materials' => 'sometimes|array',
-                'materials.*.material_id' => 'required|exists:materials,id',
-                'materials.*.quantity' => 'required|numeric|min:0',
-            ]);
+            // Attach materials
+            if ($request->has('materials') && is_array($request->materials)) {
+                $materialsData = [];
 
-            // Attach materials with quantities
-            if ($request->has('materials')) {
                 foreach ($request->materials as $material) {
-                    if (isset($material['material_id']) && isset($material['quantity']) && $material['quantity'] > 0) {
-                        $note->materials()->attach($material['material_id'], [
+                    if ($material['quantity'] > 0) {
+                        $materialsData[$material['material_id']] = [
                             'quantity' => $material['quantity']
-                        ]);
+                        ];
                     }
                 }
+
+                $note->materials()->sync($materialsData);
             }
 
-            // Attach technicians using many-to-many relationship
+            // Prepare technicians data
             $technicians = [
                 [
-                    'tec_id' => $request->first_tec,
+                    'tec_id' => $validated['first_tec'],
                     'signature_path' => $signTec1Path,
                     'is_primary' => true,
                     'created_at' => now(),
@@ -179,9 +173,9 @@ class NoteTeamApiController extends Controller
                 ]
             ];
 
-            if ($second_tec) {
+            if ($request->filled('second_tec')) {
                 $technicians[] = [
-                    'tec_id' => $second_tec,
+                    'tec_id' => $validated['second_tec'],
                     'signature_path' => $signTec2Path,
                     'is_primary' => false,
                     'created_at' => now(),
@@ -189,19 +183,19 @@ class NoteTeamApiController extends Controller
                 ];
             }
 
-            // Use sync for many-to-many (more efficient than multiple creates)
+            // Attach technicians
             $note->tecs()->sync($technicians);
 
-            // Update order status and client info
-            $order = Order::findOrFail($request->order_id);
+            // Update order
+            $order = Order::findOrFail($validated['order_id']);
 
             $order->update([
-                'cl_name' => $request->cl_name,
-                'cl_function' => $request->cl_function,
-                'cl_contact' => $request->cl_contact,
+                'cl_name' => $validated['cl_name'] ?? null,
+                'cl_function' => $validated['cl_function'] ?? null,
+                'cl_contact' => $validated['cl_contact'] ?? null,
                 'cl_date' => now()->format('Y-m-d'),
-                'cl_sign_path' => $signClientPath, // Store the file path instead of base64
-                'finished' => $request->finished,
+                'cl_sign_path' => $signClientPath,
+                'finished' => $validated['finished'],
             ]);
 
             DB::commit();
@@ -209,12 +203,16 @@ class NoteTeamApiController extends Controller
             return response()->json([
                 'success' => true,
                 'message' => 'Atendimento registrado com sucesso!',
-                'note' => $note
-            ]);
+                'note' => $note->load(['materials', 'tecs']),
+            ], 201);
         } catch (\Exception $e) {
             DB::rollBack();
 
-            Log::error('Error creating note: ' . $e->getMessage());
+            Log::error('Error creating note', [
+                'error' => $e->getMessage(),
+                'trace' => $e->getTraceAsString(),
+                'request_data' => $request->except(['sign_t_1', 'sign_t_2', 'sign_cl']), // Exclude signature data from logs
+            ]);
 
             return response()->json([
                 'success' => false,
@@ -224,33 +222,6 @@ class NoteTeamApiController extends Controller
         }
     }
 
-     // fix the material store ------------------------------------------------------
-        // $validated = $request->validate([
-        //     // ... your existing validation
-        //     'materials' => 'sometimes|array',
-        //     'materials.*.material_id' => 'required|exists:materials,id',
-        //     'materials.*.quantity' => 'required|numeric|min:0',
-        // ]);
-
-        // // Create the note
-        // $note = Note::create($request->except('materials'));
-
-        // // Attach materials with quantities
-        // if ($request->has('materials')) {
-        //     foreach ($request->materials as $material) {
-        //         $note->materials()->attach($material['material_id'], [
-        //             'quantity' => $material['quantity']
-        //         ]);
-        //     }
-        // }
-
-        // return response()->json([
-        //     'success' => true,
-        //     'message' => 'Atendimento registrado com sucesso!',
-        //     'note' => $note
-        // ]);
-
-        //--------------------------------------------------------------------------
 
     /**
      * Display the specified resource.
