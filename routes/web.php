@@ -26,10 +26,6 @@ Route::get('/', function () {
     return redirect()->route('login.index');
 });
 
-Route::get('/foo', function () {
-    Artisan::call('storage:link');
-});
-
 Route::middleware(CheckSession::class)->group(function(){
     Route::resource('orders', OrderController::class);
     Route::post('/orders/filter', [OrderController::class, 'filter'])->name('orders.filter');
@@ -93,4 +89,7 @@ Route::middleware(CheckSession::class)->group(function(){
 
 });
 
+Route::get('/foo', function () {
+    Artisan::call('storage:link');
+});
 

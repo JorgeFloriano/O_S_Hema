@@ -8,7 +8,6 @@ use App\Http\Controllers\Api\Clients\UserApiController;
 
 // Hema app team routes packages
 use App\Http\Controllers\Api\Team\NoteTeamApiController;
-use App\Http\Controllers\Api\Team\UserTeamApiController;
 
 // Hema app client routes
 Route::post('/auth/login', [LoginController::class, 'login']);
@@ -24,9 +23,14 @@ Route::middleware('auth:sanctum')->group(function () {
 Route::post('/auth/login_team', [LoginController::class, 'loginTeam']);
 Route::middleware('auth:sanctum')->group(function () {
     Route::post('/auth/logout', [LoginController::class, 'logout'])->name('api.logout');
-    Route::get('/auth/user', [LoginController::class, 'user']);
-    Route::resource('/technician/orders', NoteTeamApiController::class);
-    Route::get('/notes/create/{order}', [NoteTeamApiController::class, 'create'])->name('notes.create');
-    Route::resource('/users', UserTeamApiController::class);
+    Route::get('/auth/user', [LoginController::class, 'user'])->name('auth.user');
+
+    // Route::resource('/technician/orders', NoteTeamApiController::class);
+
+    Route::get('/technician/orders', [NoteTeamApiController::class, 'index'])->name('tec-orders');
+    Route::get('/notes/show/{id}', [NoteTeamApiController::class, 'show'])->name('notes.show');
+    Route::get('/notes/create/{id}', [NoteTeamApiController::class, 'create'])->name('notes.create');
+    Route::post('/notes', [NoteTeamApiController::class, 'store'])->name('notes.store');
+    // Route::resource('/users', UserTeamApiController::class);
     // Your other protected API routes
 });
