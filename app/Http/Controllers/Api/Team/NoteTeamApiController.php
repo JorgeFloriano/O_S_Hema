@@ -63,7 +63,7 @@ class NoteTeamApiController extends Controller
     /**
      * Show the form for creating a new resource.
      */
-    public function create(Order $order): JsonResponse
+    public function create($id): JsonResponse
     {
         // Check if user is a technician
         if ($this->can->AuthIsTec()) {
@@ -71,12 +71,21 @@ class NoteTeamApiController extends Controller
         }
 
         // Load order with relationships
-        $order = $order->load([
+        // $order = $order->load([
+        //     'type:id,description',
+        //     'client:id,name,unit,address,contact',
+        //     'tec:id,user_id',
+        //     'notes'
+        // ]);
+
+        $order = Order::with([
             'type:id,description',
             'client:id,name,unit,address,contact',
             'tec:id,user_id',
-            'notes'
-        ]);
+            'user:id,name,surname',
+            'notes',
+            ])->select('id', 'client_id', 'equipment', 'req_date', 'req_descr', 'req_name', 'req_time', 'sector', 'user_id')
+            ->find($id);
 
         // Notes relation is loaded, only check if order has notes
         $order->hasNotes = $order->notes->isNotEmpty();
@@ -91,7 +100,7 @@ class NoteTeamApiController extends Controller
 
         return response()->json([
             'success' => true,
-            'order' => $order->withoutRelations('notes'),
+            'order' => $order,
             'tecs' => $tecs,
             'types' => $types,
             'defects' => $defects,
