@@ -19,6 +19,7 @@ use Illuminate\Support\Facades\Crypt;
 use Illuminate\Contracts\Encryption\DecryptException;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Webklex\PDFMerger\Facades\PDFMergerFacade as PDFMerger;
+use App\Notifications\NewSampleNotification;
 
 class OrderController extends Controller
 {
@@ -751,12 +752,23 @@ class OrderController extends Controller
             return view('login');
         }
 
-        $ords = session('ords');
-        $order = $ords->where('id', $id)->first();
-        $order->tec_id = $request->input('tec_id');
-        $order = $order->save();
+        $order = session('ords')->where('id', $id)->first();
 
-        return response()->json(['success' => 'Técnico atualizado com sucesso!']);
+        if ($order) {
+            $order->tec_id = $request->tec_id;
+            $order->save();
+
+            if ($tec = Tec::find($request->tec_id)) {
+                if ($notifiable = User::find($tec->user_id)) {
+                    $notifiable->title = 'Solicitação de Assistência Técnica Aberta!';
+                    $notifiable->order_id = $order->id;
+                    $notifiable->message = $order->req_descr ?? 'Executar atividade de manutenção!';
+                    $notifiable->notify(new NewSampleNotification());
+                }
+            }
+        }
+
+        return response()->json(['success' => 'Técnico atualizado com sucesso e notificação enviada!']);
     }
 
     // Add orders for testing

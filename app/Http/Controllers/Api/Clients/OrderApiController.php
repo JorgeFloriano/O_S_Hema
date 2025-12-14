@@ -35,12 +35,12 @@ class OrderApiController extends Controller
 
         $orders = Order::with([
             'type:id,description',
-            'tec:id,user_id', 
+            'tec:id,user_id',
             'tec.user:id,name,surname',
         ])
-        ->where('client_id', $client_id)
-        ->orderBy('id', 'desc')
-        ->get(['id', 'order_type_id', 'tec_id', 'req_descr', 'req_name', 'sector', 'req_date', 'req_time', 'finished']);
+            ->where('client_id', $client_id)
+            ->orderBy('id', 'desc')
+            ->get(['id', 'order_type_id', 'tec_id', 'req_descr', 'req_name', 'sector', 'req_date', 'req_time', 'finished']);
 
         return response()->json(['orders' => $orders]);
     }
@@ -79,13 +79,13 @@ class OrderApiController extends Controller
         }
 
         $client_id = $auth->cli->client_id;
-        $complete_name = $auth->name.' '.$auth->surname;
+        $complete_name = $auth->name . ' ' . $auth->surname;
         $user_id = $auth->id;
 
 
         try {
             $text = new TextFormat;
-            
+
             // Create new order
             $order = Order::create([
                 'client_id' => $client_id,
@@ -105,11 +105,10 @@ class OrderApiController extends Controller
                 'message' => 'Solicitação de Assistência Técnica criada com sucesso.',
                 'order' => $order
             ], 201);
-
         } catch (\Exception $e) {
             return response()->json([
                 'success' => false,
-                'message' => 'Erro ao criar Solicitação de Assistência Técnica.'.$e->getMessage(),
+                'message' => 'Erro ao criar Solicitação de Assistência Técnica.' . $e->getMessage(),
                 'error' => $e->getMessage()
             ], 500);
         }
