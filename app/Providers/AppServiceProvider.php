@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Channels\FirebaseChannel;
+use Illuminate\Support\Facades\Notification;
 use Illuminate\Support\ServiceProvider;
 
 class AppServiceProvider extends ServiceProvider

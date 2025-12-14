@@ -10,7 +10,10 @@
         "laravel/framework": "^11.9",
         "laravel/sanctum": "^4.2",
         "laravel/tinker": "^2.9",
-        "webklex/laravel-pdfmerger": "^1.3"
+        "league/commonmark": "^2.7.0",
+        "nesbot/carbon": "^3.8.4",
+        "webklex/laravel-pdfmerger": "^1.3",
+        "yieldstudio/laravel-expo-notifier": "^0.0.17"
     },
     "require-dev": {
         "fakerphp/faker": "^1.23",

@@ -76,6 +76,11 @@ class User extends Authenticatable
         return $this->hasOne(Cli::class);
     }
 
+    public function expoToken(): HasOne
+    {
+        return $this->hasOne(ExpoToken::class);
+    }
+
     // Checks if the user is allowed to edit another user
     public function editUserPermission($user_id) {
 

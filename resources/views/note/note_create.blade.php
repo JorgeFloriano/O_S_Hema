@@ -74,9 +74,9 @@
                                         <div>
                                             @foreach ($order->notes as $note)
                                             <div>
-                                                <div>Registro nº {{$note->id}}, Téc. {{$note->tecs->first()->id}}-{{$note->tecs->first()->user->name}},    {{date('d/m/Y',strtotime($note->date))}}</div>
+                                                <div>Registro nº {{$note->id ?? ''}}, Téc. {{$note->tecs->first()->id ?? ''}}-{{$note->tecs->first()->user->name ?? ''}},    {{date('d/m/Y',strtotime($note->date ?? ''))}}</div>
                                                     <div class="mt-2"> 
-                                                        @if ($note->tecs->first()->user_id == auth()->user()->id)
+                                                        @if ($note->tecs->first()->user_id ?? 0 == auth()->user()->id)
                                                             <a href="{{route('notes.edit', [
                                                                 'note' => Crypt::encryptString($note->id),
                                                             ])}}" class="btn btn-primary btn-sm">

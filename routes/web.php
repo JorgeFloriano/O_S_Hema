@@ -14,6 +14,7 @@ use App\Http\Controllers\SolutionController;
 use App\Http\Controllers\MaterialController;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
+use App\Notifications\NewSampleNotification;
 
 Route::controller(LoginController::class)->group(function () {
     Route::get('/login', 'index')->name('login.index');
@@ -26,7 +27,7 @@ Route::get('/', function () {
     return redirect()->route('login.index');
 });
 
-Route::middleware(CheckSession::class)->group(function(){
+Route::middleware(CheckSession::class)->group(function () {
     Route::resource('orders', OrderController::class);
     Route::post('/orders/filter', [OrderController::class, 'filter'])->name('orders.filter');
     Route::post('/orders/orders_pdf', [OrderController::class, 'orders_pdf'])->name('orders.orders_pdf');
@@ -86,10 +87,18 @@ Route::middleware(CheckSession::class)->group(function(){
     Route::put('/notes/{note}', [NoteController::class, 'update'])->name('notes.update');
     Route::delete('/notes/{note}', [NoteController::class, 'destroy'])->name('notes.destroy');
     Route::get('/notes/{qtd}/add', [NoteController::class, 'add'])->name('notes.add');
-
 });
 
 Route::get('/foo', function () {
     Artisan::call('storage:link');
 });
 
+Route::get('/test-notification', function () {
+
+    $tec = App\Models\Tec::find(3);
+    $notifiable = App\Models\User::find($tec->user_id);
+    $notifiable->title = 'Solicitação de Assistência Técnica Aberta!';
+    $notifiable->message = 'Executar atividade de manutenção!';
+    $notifiable->notify(new NewSampleNotification());
+    return 'Notificação enviada!';
+});
