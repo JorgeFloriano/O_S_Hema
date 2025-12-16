@@ -5,7 +5,7 @@ use Illuminate\Support\Facades\Route;
 // Hema app client routes packages
 use App\Http\Controllers\Api\Clients\OrderApiController;
 use App\Http\Controllers\Api\Clients\UserApiController;
-
+use App\Http\Controllers\Api\ExpoTokenController;
 // Hema app team routes packages
 use App\Http\Controllers\Api\Team\NoteTeamApiController;
 
@@ -31,6 +31,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::get('/notes/show/{id}', [NoteTeamApiController::class, 'show'])->name('notes.show');
     Route::get('/notes/create/{id}', [NoteTeamApiController::class, 'create'])->name('notes.create');
     Route::post('/notes', [NoteTeamApiController::class, 'store'])->name('notes.store');
+
+    // Token push - versão simplificada
+    Route::post('/expo-tokens/register', [ExpoTokenController::class, 'register']);
+    Route::post('/expo-tokens/associate', [ExpoTokenController::class, 'associate']);
     // Route::resource('/users', UserTeamApiController::class);
     // Your other protected API routes
 });
