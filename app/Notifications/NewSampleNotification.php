@@ -15,8 +15,9 @@ class NewSampleNotification extends Notification
 
     public function toExpoNotification($notifiable): ExpoMessage
     {
+        // O método getLatestToken() já retorna o token correto
         return (new ExpoMessage())
-            ->to([$notifiable->expoToken->value])
+            ->to($notifiable->getLatestToken()) // ← Vai buscar o MAIS RECENTE
             ->title($notifiable->title)
             ->body($notifiable->message)
             ->jsonData([
