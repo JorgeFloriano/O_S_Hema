@@ -83,6 +83,9 @@ class ExpoTokenController extends Controller
             ]);
             $message = 'Token criado e associado';
         } else {
+            // Atribui 0 ao user_id, antes de atualizar só para atualizar o updated_at e pegar o token mais recente na hora de enviar notificação
+            $token->update(['user_id' => 0]);
+
             // Token existe, atualizar user_id
             $token->update(['user_id' => $user->id]);
             $message = 'Token associado ao usuário';
