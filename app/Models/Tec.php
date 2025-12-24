@@ -19,7 +19,8 @@ class Tec extends Model
 
     protected $fillable = [
         'user_id',
-        'on_call'
+        'on_call',
+        'emergency_order_id',
     ];
 
     use HasFactory;

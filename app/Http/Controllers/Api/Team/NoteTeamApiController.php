@@ -47,17 +47,22 @@ class NoteTeamApiController extends Controller
             return $this->can->AuthIsTec();
         }
 
+        $tec = Auth::user()->tec;
+
         $orders = Order::with([
             'type:id,description',
             'client:id,name',
             'tec:id,user_id',
             'tec.user:id,name,surname',
         ])
-            ->where('tec_id', Auth::user()->tec->id)
+            ->where('tec_id', $tec->id)
             ->orderBy('id', 'desc')
             ->get(['id', 'order_type_id', 'client_id', 'tec_id', 'req_descr', 'req_name', 'sector', 'req_date', 'req_time', 'finished']);
 
-        return response()->json(['orders' => $orders]);
+        return response()->json([
+            'orders' => $orders,
+            'emergency_order_id' => $tec->emergency_order_id
+        ]);
     }
 
     /**
@@ -84,7 +89,7 @@ class NoteTeamApiController extends Controller
             'tec:id,user_id',
             'user:id,name,surname',
             'notes',
-            ])->select('id', 'client_id', 'equipment', 'req_date', 'req_descr', 'req_name', 'req_time', 'sector', 'user_id')
+        ])->select('id', 'client_id', 'equipment', 'req_date', 'req_descr', 'req_name', 'req_time', 'sector', 'user_id')
             ->find($id);
 
         // Notes relation is loaded, only check if order has notes
@@ -206,6 +211,10 @@ class NoteTeamApiController extends Controller
                 'cl_sign_path' => $signClientPath,
                 'finished' => $validated['finished'],
             ]);
+
+            if ($order->finished) {
+                $order->finish();
+            }
 
             DB::commit();
 
