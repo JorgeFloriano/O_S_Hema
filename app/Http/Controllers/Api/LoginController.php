@@ -83,11 +83,6 @@ class LoginController extends Controller
                 'name' => $user->name,
                 'email' => $user->email ?? null,
                 'tecId' => $user->tec ? $user->tec->id : null,
-                //'isClient' => $user->cli ? true : false,
-                //'clientId' => $user->cli ? $user->cli->client_id : null,
-                //'isAdmin' => $user->cli ? $user->cli->is_admin : null,
-                //'canCreateSat' => $user->cli ? $user->cli->can_create_sat : null,
-                //'canSeeSat' => $user->cli ? $user->cli->can_see_sat : null
             ]
         ]);
     }

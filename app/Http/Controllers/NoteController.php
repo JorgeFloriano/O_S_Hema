@@ -167,6 +167,10 @@ class NoteController extends Controller
             $os->cl_sign = $request->input('cl_sign');
             $os->finished = $request->input('finished');
             $updated_os = $os->save();
+
+            if ($os->finished) {
+                $os->finish();
+            }
     
             // Save materials in note and validate materials list
             if ($request->input('material_ids_array')) {

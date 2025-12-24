@@ -430,6 +430,7 @@ class OrderController extends Controller
         }
 
         $order = $this->os->find($id);
+        $order->finish();
 
         foreach ($order->notes as $key => $note) {
             foreach ($note->tecs as $key => $tec) {
@@ -460,10 +461,7 @@ class OrderController extends Controller
             die;
         }
 
-        $order->finished = true;
-        $updated = $order->save();
-
-        $msg = $updated ? 'Solicitação de Assistência Técnica finalizada com sucesso.' : 'Erro ao finalizar Solicitação de Assistência Técnica.';
+        $msg = $order->finish() ? 'Solicitação de Assistência Técnica finalizada com sucesso.' : 'Erro ao finalizar Solicitação de Assistência Técnica.';
         return redirect()->back()->with('message', $msg);
     }
 
@@ -759,9 +757,15 @@ class OrderController extends Controller
             $order->save();
 
             if ($tec = Tec::find($request->tec_id)) {
+
+                $tec->update([
+                    'emergency_order_id' => $order->id // When is an emergency order
+                ]);
+
                 if ($notifiable = User::find($tec->user_id)) {
                     $notifiable->title = 'Solicitação de Assistência Técnica Aberta!';
                     $notifiable->order_id = $order->id;
+                    $notifiable->emergency = true; // When is an emergency order
                     $notifiable->message = $order->req_descr ?? 'Executar atividade de manutenção!';
                     $notifiable->notify(new NewSampleNotification());
                 }
