@@ -21,6 +21,7 @@ class Tec extends Model
         'user_id',
         'on_call',
         'emergency_order_id',
+        'emergency_notification_pending',
     ];
 
     use HasFactory;

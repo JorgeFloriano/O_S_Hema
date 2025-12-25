@@ -33,8 +33,10 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/notes', [NoteTeamApiController::class, 'store'])->name('notes.store');
 
     // Token push - versão simplificada
-    Route::post('/expo-tokens/register', [ExpoTokenController::class, 'register']);
     Route::post('/expo-tokens/associate', [ExpoTokenController::class, 'associate']);
+
+    Route::post('/technician/clear-emergency', [NoteTeamApiController::class, 'clearEmergency'])->name('tec-clear-emergency');
     // Route::resource('/users', UserTeamApiController::class);
     // Your other protected API routes
 });
+Route::post('/expo-tokens/register', [ExpoTokenController::class, 'register']);

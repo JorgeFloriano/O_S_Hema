@@ -17,6 +17,11 @@ class ExpoTokenController extends Controller
      */
     public function register(Request $request)
     {
+        return response()->json([
+            'message' => 'Teste message',
+            'errors' => 'Teste error',
+        ]);
+
         $validator = Validator::make($request->all(), [
             'expo_push_token' => 'required|string|min:20',
         ]);
@@ -28,7 +33,11 @@ class ExpoTokenController extends Controller
             ], 422);
         }
     
-        $user = Auth::user();
+        if (Auth::check()) {
+            $user = Auth::user();
+        } 
+    
+        // Novo token
         $tokenValue = $request->expo_push_token;
     
         // Buscar token existente (em todo o sistema)
