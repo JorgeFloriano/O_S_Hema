@@ -65,6 +65,18 @@ class NoteTeamApiController extends Controller
         ]);
     }
 
+    public function clearEmergency(Request $request)
+    {
+        $tec = Auth::user()->tec;
+
+        // Se a ordem que ele abriu for a de emergência, limpamos o ID
+        if ($tec->emergency_order_id == $request->order_id) {
+            $tec->update(['emergency_notification_pending' => false]);
+        }
+
+        return response()->json(['success' => true]);
+    }
+
     /**
      * Show the form for creating a new resource.
      */

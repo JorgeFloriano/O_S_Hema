@@ -15,6 +15,8 @@ return new class extends Migration
             $table->id();
             $table->foreignId('user_id')->references('id')->on('users')->onDelete('cascade');
             $table->boolean('on_call')->default(false);
+            $table->bigInteger('emergency_order_id')->nullable()->default(false);
+            $table->boolean('emergency_notification_pending')->nullable()->default(false);
             $table->timestamps();
             $table->softDeletes();
         });

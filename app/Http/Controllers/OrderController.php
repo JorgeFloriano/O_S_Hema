@@ -759,16 +759,18 @@ class OrderController extends Controller
             if ($tec = Tec::find($request->tec_id)) {
 
                 $tec->update([
-                    'emergency_order_id' => $order->id // When is an emergency order
+                    'emergency_order_id' => $order->id, // When is an emergency order
+                    'emergency_notification_pending' => true, // When is an emergency order, loop notification activated
                 ]);
 
                 if ($notifiable = User::find($tec->user_id)) {
                     $notifiable->title = 'Solicitação de Assistência Técnica Aberta!';
                     $notifiable->order_id = $order->id;
                     $notifiable->emergency = true; // When is an emergency order
-                    $notifiable->message = $order->req_descr ?? 'Executar atividade de manutenção!';
+                    $notifiable->message = $order->req_descr ?? 'Atividade de manutenção!';
                     $notifiable->notify(new NewSampleNotification());
                 }
+                \App\Jobs\SendEmergencyAlert::dispatch($tec->id, $order->id)->delay(now()->addSeconds(30)); // Send notification to technician());
             }
         }
 
