@@ -70,7 +70,17 @@ class SendEmergencyAlert implements ShouldQueue
         $tec = Tec::find($this->tecId);
         $order = Order::find($this->orderId);
 
-        // Verifica se o técnico ainda tem notificações pendentes para ESTA ordem
+        // LIMITE DE 60 MINUTOS: Verifica se a ordem foi atualizada há mais de uma hora
+        if ($order->updated_at->diffInMinutes(now()) > 60) {
+            Log::info("Ciclo de notificações encerrado por tempo limite (60min) para a SAT #{$this->orderId}, ordem foi atualizada a {$order->updated_at->diffInMinutes(now())}min.");
+
+            // Opcional: Aqui você pode desativar a flag no banco para o card parar de ser emergência
+            // ou apenas parar as notificações. Vamos apenas parar as notificações:
+            $tec->update(['emergency_notification_pending' => false]);
+            return;
+        }
+
+        // Verifica se o técnico ainda tem notificações pendentes para ESTA ordem, se está de plantão, se ainda não verificou a ordem de emrgência
         if (
             $tec &&
             $tec->emergency_notification_pending &&
