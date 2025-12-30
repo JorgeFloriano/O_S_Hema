@@ -21,7 +21,7 @@
                 <hr>
                 <div>
                     <a href="{{route('note_types.create')}}" class="btn btn-primary me-2">Cadastrar Novo</a>
-                    <a href="{{route('note_types.list', ['opt' => $opt])}}" class="btn btn-secondary">{{$title}}</a>
+                    <a href="{{route('note_types.list', ['opt' => $opt])}}" class="btn btn-outline-primary">{{$title}}</a>
                 </div>
 
                 <hr>

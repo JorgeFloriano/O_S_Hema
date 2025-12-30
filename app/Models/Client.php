@@ -24,4 +24,9 @@ class Client extends Model
 
     protected $table = "clients";
     protected $primaryKey = "id";
+
+    public function emergencyTecs()
+    {
+        return $this->belongsToMany(Tec::class, 'client_tec');
+    }
 }

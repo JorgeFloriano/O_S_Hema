@@ -103,7 +103,7 @@
                                         </div>
                                     </div>
                                     <div class="modal-footer">
-                                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                                        <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">Fechar</button>
                                     </div>
                                 </div>
                             </div>
@@ -336,7 +336,7 @@
                             <button id="submitButton" type="button" class="btn btn-primary me-2" data-bs-dismiss="modal">
                                 Confirma
                             </button>
-                            <a href="{{route('notes.index')}}" class="btn btn-secondary">
+                            <a href="{{route('notes.index')}}" class="btn btn-outline-primary">
                                 Voltar
                             </a>
                         </div>

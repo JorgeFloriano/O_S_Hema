@@ -76,12 +76,12 @@
                             </div>
                         @endif
                         <div style="display: none">
-                            <a id='continue' href="{{route('orders.generate_pdf', ['msg' => 'continue'])}}" class="btn btn-secondary">
+                            <a id='continue' href="{{route('orders.generate_pdf', ['msg' => 'continue'])}}" class="btn btn-outline-primary">
                                 Continuar carregando...
                             </a>
                         </div>
                         <div>
-                            <a id='cancel' href="{{route('orders.index')}}" class="btn btn-secondary">
+                            <a id='cancel' href="{{route('orders.index')}}" class="btn btn-outline-primary">
                                 Voltar
                             </a>
                         </div>

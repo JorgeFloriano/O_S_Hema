@@ -117,7 +117,7 @@
                                             </div>
                                         </div>
                                         <div class="modal-footer">
-                                            <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                                            <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">Fechar</button>
                                         </div>
                                     </div>
                                 </div>
@@ -130,7 +130,7 @@
                                     Confirma
                                 </button>
                             @endif
-                            <a href="{{route('orders.index')}}" class="btn btn-secondary">
+                            <a href="{{route('orders.index')}}" class="btn btn-outline-primary">
                                 Voltar
                             </a>
                         </div>

@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Tec extends Model
 {
+    use HasFactory;
     use SoftDeletes;
     public function user(): BelongsTo
     {
@@ -24,5 +25,8 @@ class Tec extends Model
         'emergency_notification_pending',
     ];
 
-    use HasFactory;
+    public function emergencyClients()
+    {
+        return $this->belongsToMany(Client::class, 'client_tec');
+    }
 }

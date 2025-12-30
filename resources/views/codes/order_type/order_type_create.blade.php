@@ -38,7 +38,7 @@
                             <button id="submitButton" type="submit" class="btn btn-primary me-2">
                                 Confirma
                             </button>
-                            <a href="{{route('order_types.index')}}" class="btn btn-secondary">
+                            <a href="{{route('order_types.index')}}" class="btn btn-outline-primary">
                                 Voltar
                             </a>
                         </div>

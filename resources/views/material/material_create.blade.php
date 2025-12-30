@@ -47,7 +47,7 @@
                             <button id="submitButton" type="submit" class="btn btn-primary me-2">
                                 Confirma
                             </button>
-                            <a href="{{route('materials.index')}}" class="btn btn-secondary">
+                            <a href="{{route('materials.index')}}" class="btn btn-outline-primary">
                                 Voltar
                             </a>
                         </div>
