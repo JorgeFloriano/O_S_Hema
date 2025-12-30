@@ -50,7 +50,7 @@
                             <button id="submitButton" type="submit" class="btn btn-danger me-2" data-bs-dismiss="modal">
                                 Delete
                             </button>
-                            <a href="{{url()->previous()}}" class="btn btn-secondary ms-2" >Voltar</a>
+                            <a href="{{url()->previous()}}" class="btn btn-outline-primary ms-2" >Voltar</a>
                         </div>
                     </form>
                 </main>

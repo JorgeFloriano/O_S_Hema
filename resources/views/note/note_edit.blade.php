@@ -289,7 +289,7 @@
                         <button id="submitButton" type="button" class="btn btn-primary me-2" data-bs-dismiss="modal">
                             Salvar
                         </button>
-                        <a href="{{route('notes.create', ['order' => Crypt::encryptString($note->order_id)])}}" class="btn btn-secondary">
+                        <a href="{{route('notes.create', ['order' => Crypt::encryptString($note->order_id)])}}" class="btn btn-outline-primary">
                             Voltar
                         </a>
                     </div>

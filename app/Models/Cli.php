@@ -9,6 +9,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Cli extends Model
 {
+    // For Clients users
+
     use SoftDeletes;
     public function user(): BelongsTo
     {

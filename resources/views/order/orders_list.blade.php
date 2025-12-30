@@ -79,7 +79,7 @@
                 </a>
                 
                 <div class="float-end">
-                    <button onclick="formSubmit('filter_form')" data-bs-toggle="tooltip" title="Filtrar Solicitações de Assistência Técnica conforme opções   selecionadas" id="submitButton" type="submit" class="btn btn-secondary">
+                    <button onclick="formSubmit('filter_form')" data-bs-toggle="tooltip" title="Filtrar Solicitações de Assistência Técnica conforme opções   selecionadas" id="submitButton" type="submit" class="btn btn-outline-primary">
                         <i class="fa fa-filter"></i>
                     </button>
 
@@ -98,7 +98,7 @@
 
             @if (!$adm && $sup)
                 <div class="text-end">
-                    <button onclick="formSubmit('filter_form')" data-bs-toggle="tooltip" title="Filtrar Solicitações de Assistência Técnica conforme opções   selecionadas" id="submitButton" type="submit" class="btn btn-secondary">
+                    <button onclick="formSubmit('filter_form')" data-bs-toggle="tooltip" title="Filtrar Solicitações de Assistência Técnica conforme opções   selecionadas" id="submitButton" type="submit" class="btn btn-outline-primary">
                         <i class="fa fa-filter"></i>Filtrar
                     </button>
                 </div>
@@ -128,7 +128,7 @@
                             placeholder="Padrão: Relatório de Solicitações de Assistência Técnica">
                         </div>
                         <div class="modal-footer">
-                        <button type="button" class="btn btn-secondary" data-bs-dismiss="modal">Fechar</button>
+                        <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">Fechar</button>
                         <button onclick="submitRoute('{{route('orders.orders_pdf')}}', 'pdf_form', '{{$able_btn ?? ''}}')" class="btn btn-primary">Gerar Relatório</button>
                         </div>
                     </div>

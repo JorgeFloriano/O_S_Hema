@@ -70,9 +70,9 @@
                                 Confirma
                             </button>
                             @if (isset(auth()->user()->adm) || isset(auth()->user()->sup))
-                                <a href="{{route('orders.index')}}" class="btn btn-secondary">
+                                <a href="{{route('orders.index')}}" class="btn btn-outline-primary">
                             @else
-                                <a href="{{route('notes.index')}}" class="btn btn-secondary">
+                                <a href="{{route('notes.index')}}" class="btn btn-outline-primary">
                             @endif
                                 Voltar
                             </a>

@@ -21,7 +21,7 @@
                 <hr>
                 <div>
                     <a href="{{route('defects.create')}}" class="btn btn-primary me-2">Cadastrar Novo</a>
-                    <a href="{{route('defects.list', ['opt' => $opt])}}" class="btn btn-secondary">{{$title}}</a>
+                    <a href="{{route('defects.list', ['opt' => $opt])}}" class="btn btn-outline-primary">{{$title}}</a>
                 </div>
 
                 <hr>

@@ -68,7 +68,7 @@
                             <button id="submitButton" type="submit" class="btn btn-primary me-2" data-bs-dismiss="modal">
                                 Confirma
                             </button>
-                            <a href="{{route('clients.index')}}" class="btn btn-secondary">
+                            <a href="{{route('clients.index')}}" class="btn btn-outline-primary">
                                 Voltar
                             </a>
                         </div>

@@ -59,7 +59,7 @@
                                             </td>
                         
                                             <td>
-                                                <a class="btn btn-secondary btn-sm disabled">
+                                                <a class="btn btn-outline-primary btn-sm disabled">
                                                     <i class="fa fa-check-square-o"></i>
                                                 </a>
                                             </td>
@@ -77,7 +77,7 @@
                                                 </td>
                                             @else
                                                 <td>
-                                                    <a class="btn btn-secondary btn-sm disabled">
+                                                    <a class="btn btn-outline-primary btn-sm disabled">
                                                         <i class="fa fa-check-square-o"></i>
                                                     </a>
                                                 </td>

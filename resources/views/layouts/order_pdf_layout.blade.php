@@ -27,11 +27,11 @@
                 </a>
             @endif
             @if (auth()->user()->adm()->first() || auth()->user()->sup()->first())
-                <a href="{{route('orders.index')}}" class="btn btn-secondary">
+                <a href="{{route('orders.index')}}" class="btn btn-outline-primary">
                     Voltar
                 </a>
             @else
-                <a href="{{url()->previous()}}" class="btn btn-secondary ms-2" >Voltar</a>
+                <a href="{{url()->previous()}}" class="btn btn-outline-primary ms-2" >Voltar</a>
             @endif
         </div>
         <section id="print">
