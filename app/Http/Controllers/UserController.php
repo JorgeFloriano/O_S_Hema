@@ -23,16 +23,16 @@ class UserController extends Controller
     public readonly User $user;
     public $m; // user is adm main or not
     public $s; // user is supervisor or not
-    
+
     public function __construct()
     {
         $this->user = new User();
-        if (isset(auth()->user()->adm)) {   
+        if (isset(auth()->user()->adm)) {
             $this->m = auth()->user()->adm()->first()->main;
         }
         $this->s = auth()->user()->sup()->first();
     }
-    
+
     public function index()
     {
         if (!$this->m) {
@@ -44,7 +44,7 @@ class UserController extends Controller
 
         //Get the Default client users that are created for the Admin Client user trought the clients app hema
         $users_cli_default = Cli::select('user_id')->where('is_admin', null)->get();
-        
+
         // Get all users except the main admins and the default client users
         $users = $this->user
             ->select('id', 'name', 'function')
@@ -53,27 +53,26 @@ class UserController extends Controller
             ->orderBy('name') // Order by the 'name' column
             ->simplePaginate(20);
 
-        return view('user.users_list' , ['users' => $users]);
+        return view('user.users_list', ['users' => $users]);
     }
-    
-    //If logged in user is adm main or supervisor, show technician on call list
+
+    // If logged in user is adm main or supervisor, show technician on call list
     public function tec_on()
     {
         if (!$this->m && !$this->s) {
             return view('login');
         }
 
-        $tecs = Tec::join('users', 'tecs.user_id', '=', 'users.id')
-        ->whereNotIn('tecs.user_id', [1, 2, 9999, 0])
-        ->orderBy('users.name') // Order by the user's name
-        ->select('tecs.*') // Select only the Tec columns
-        ->simplePaginate(20);
-        
+        $tecs = Tec::with('emergencyClients') // Adicione isso para carregar os vínculos de uma vez
+            ->join('users', 'tecs.user_id', '=', 'users.id')
+            ->whereNotIn('tecs.user_id', [1, 2, 9999, 0])
+            ->orderBy('users.name')
+            ->select('tecs.*')
+            ->simplePaginate(20);
+
         session()->put('tecs', $tecs);
 
-        return view('user.tec_on', [
-            'tecs' => $tecs
-        ]);
+        return view('user.tec_on', ['tecs' => $tecs]);
     }
 
     // If logged in user is adm main or supervisor, Technician on call update
@@ -83,26 +82,22 @@ class UserController extends Controller
             return view('login');
         }
 
-        $tecs = session('tecs');
+        // Buscamos os técnicos novamente para garantir que temos os objetos do Eloquent
+        $tecIds = session('tecs')->pluck('id');
+        $tecs = Tec::whereIn('id', $tecIds)->get();
 
-        foreach ($tecs as  $tec) {
+        foreach ($tecs as $tec) {
+            // 1. Atualiza Status Sobreaviso
+            $tec->on_call = $request->has('tec' . $tec->id) ? 1 : 0;
+            $tec->save();
 
-            if ($request->input('tec'.$tec->id)) {
-                $tec->on_call = 1;
-                $up_on = $tec->save();
-                if (!$up_on) {
-                    return redirect()->back()->with('message', 'Erro ao atualizar registros.'); 
-                }
-            } else {
-                $tec->on_call = 0;
-                $up_off = $tec->save();
-                if (!$up_off) {
-                    return redirect()->back()->with('message', 'Erro ao atualizar registros.'); 
-                }  
-            }
+            // 2. Atualiza Vínculos com Clientes (Tabela Pivot)
+            // O input 'clients' vem como um array multidimensional: clients[tec_id][client_id]
+            $clientIds = $request->input("clients.{$tec->id}", []);
+            $tec->emergencyClients()->sync($clientIds);
         }
 
-        return redirect()->back()->with('message', 'Registros atualizados com sucesso.');
+        return redirect()->back()->with('message', 'Sobreaviso e vínculos de clientes atualizados!');
     }
 
     // If logged in user is adm main, show create user form
@@ -115,7 +110,7 @@ class UserController extends Controller
         // Get id and name of all clients order by name
         $clients = Client::select('id', 'name')->orderBy('name')->get();
 
-        return view('user.user_create' , [
+        return view('user.user_create', [
             'clients' => $clients
         ]);
     }
@@ -130,12 +125,12 @@ class UserController extends Controller
         if ($request->user_client) {
             $request->validate([
                 'client_id' => [
-                    'required_if:user_client,true', 
-                    Rule::exists('clients', 'id'), 
+                    'required_if:user_client,true',
+                    Rule::exists('clients', 'id'),
                     'unique:clis,client_id'
                 ],
                 'adm' => 'boolean',
-                'tec' => 'boolean', 
+                'tec' => 'boolean',
                 'sup' => 'boolean',
                 'user_client' => [
                     'boolean',
@@ -158,7 +153,7 @@ class UserController extends Controller
         }
 
         $request->validated();
-        $email = $request->username.'@hemasystem.com.br';
+        $email = $request->username . '@hemasystem.com.br';
 
         // Create new user
         $user_cr = $this->user->create([
@@ -203,7 +198,7 @@ class UserController extends Controller
                     return redirect()->route('users.index')->with('message', 'Erro ao cadastrar Usuário Administrador.');
                 }
             }
-    
+
             // If sup option is selected, makes available supervisor access
             if ($request->sup) {
                 $sup_cr = Sup::create([
@@ -215,7 +210,7 @@ class UserController extends Controller
                     return redirect()->route('users.index')->with('message', 'Erro ao cadastrar Usuário Supervisor.');
                 }
             }
-    
+
             // If tec option is selected, makes available technician access
             if ($request->tec) {
                 $tec_cr = Tec::create([
@@ -250,14 +245,14 @@ class UserController extends Controller
         if (!auth()->user()->editUserPermission($user->id)) {
             return view('login');
         }
-       
+
         return view('user.user_delete', ['user' => $user]);
     }
 
     // Shows the form to edit the user registration
     public function edit($user)
     {
-    
+
         // Decrypt the user id
         try {
             $user = $this->user->find(Crypt::decryptString($user));
@@ -269,9 +264,8 @@ class UserController extends Controller
         // If user main try to edit another user main return false
         if (!auth()->user()->editUserPermission($user->id)) {
             return redirect()->back()->with('message', 'Sem permissão para editar este usuário.');
-
         }
-        
+
         // Checks if the user has any access and this will be selected
         $tec_checked = '';
         if (isset($user->tec)) {
@@ -308,7 +302,7 @@ class UserController extends Controller
 
             $client_id = $user->cli->client_id;
             $client_name = ($clients->where('id', $client_id)->first()->name);
-            $client_selected = $client_name.' - ['.$client_id.']';
+            $client_selected = $client_name . ' - [' . $client_id . ']';
         }
 
         return view('user.user_edit', [
@@ -326,7 +320,7 @@ class UserController extends Controller
         ]);
     }
 
-    
+
     // If logged in user is adm main, validate and update the user registration
     public function update(Request $request, string $id)
     {
@@ -354,10 +348,10 @@ class UserController extends Controller
             'name' => 'required|max:20',
             'surname' => 'max:20',
             'function' => 'max:20',
-            'username' => ['required' ,Rule::unique('users')->ignore($id), 'min:10', 'max:100'],
+            'username' => ['required', Rule::unique('users')->ignore($id), 'min:10', 'max:100'],
             'password' => [$min, 'confirmed'],
             'adm' => 'boolean',
-            'tec' => 'boolean', 
+            'tec' => 'boolean',
             'sup' => 'boolean',
             'user_client' => [
                 'boolean',
@@ -411,7 +405,7 @@ class UserController extends Controller
                 $request->validate(['password' => [new StrongPass]]);
             }
         }
-       
+
         $updated = $this->user->where('id', $id)->update($request->except([
             '_token',
             '_method',
@@ -431,11 +425,12 @@ class UserController extends Controller
         }
 
         if ((
-            !isset($is_user_client) &&
-            !$request->input('tec') && 
-            !$request->input('adm') && 
-            !$request->input('sup')) && 
-            !$main_id) {
+                !isset($is_user_client) &&
+                !$request->input('tec') &&
+                !$request->input('adm') &&
+                !$request->input('sup')) &&
+            !$main_id
+        ) {
             return redirect()->back()->with('message', 'O usuário deve ter pelo menos um acesso.');
         }
 
@@ -463,20 +458,20 @@ class UserController extends Controller
                     'on_call' => 0,
                 ]);
             }
-            
+
             // Return an error message.
             if (!$tec) {
-                return redirect()->back()->with('message', 'Erro ao liberar acesso de técnico.'); 
+                return redirect()->back()->with('message', 'Erro ao liberar acesso de técnico.');
             }
         }
-        
+
         // If the user has a technician access and the tec field is not filled, remove it
         if (!$request->input('tec') && isset(User::where('id', $id)->first()->tec)) {
             $tec_dl = Tec::where('user_id', $id)->delete();
 
             // Return an error message.
             if (!$tec_dl) {
-                return redirect()->back()->with('message', 'Erro ao remover acesso de técnico.'); 
+                return redirect()->back()->with('message', 'Erro ao remover acesso de técnico.');
             }
         }
 
@@ -503,13 +498,13 @@ class UserController extends Controller
                         'cli' => $cli_mat
                     ]);
                 }
-               
+
                 // Return an error message.
                 if (!$new_adm) {
-                   return redirect()->back()->with('message', 'Erro ao liberar acesso de administrador.');
-                } 
+                    return redirect()->back()->with('message', 'Erro ao liberar acesso de administrador.');
+                }
             } else {
-                
+
                 $cli_up = Adm::find($adm->id);
                 $cli_up->cli = $request->cli ? 1 : 0;
                 $cli_up->save();
@@ -527,7 +522,7 @@ class UserController extends Controller
 
             // Return an error message.
             if (!$adm_dl) {
-                return redirect()->back()->with('message', 'Erro ao remover acesso de administrador.'); 
+                return redirect()->back()->with('message', 'Erro ao remover acesso de administrador.');
             }
         }
 
@@ -546,7 +541,7 @@ class UserController extends Controller
 
             // Return an error message.
             if (!$new_sup) {
-                return redirect()->back()->with('message', 'Erro ao liberar acesso de supervisor.'); 
+                return redirect()->back()->with('message', 'Erro ao liberar acesso de supervisor.');
             }
         }
 
@@ -556,7 +551,7 @@ class UserController extends Controller
 
             // Return an error message.
             if (!$sup_dl) {
-                return redirect()->back()->with('message', 'Erro ao remover acesso de supervisor.'); 
+                return redirect()->back()->with('message', 'Erro ao remover acesso de supervisor.');
             }
         }
 
@@ -577,7 +572,7 @@ class UserController extends Controller
         //             'client_id' => $request->client_id
         //         ]);
         //     }
-           
+
         //     // Return an error message.
         //     if (!$new_cli) {
         //         return redirect()->back()->with('message', 'Erro ao liberar acesso de cliente.'); 
