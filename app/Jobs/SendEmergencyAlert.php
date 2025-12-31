@@ -59,17 +59,20 @@ class SendEmergencyAlert implements ShouldQueue
      */
     public function handle(): void
     {
+        $tec = Tec::find($this->tecId);
+        $order = Order::find($this->orderId);
 
         // Verificação de Horário (Só prossegue se FOR horário de emergência)
         if (!$this->isEmergencyHour()) {
             // Opcional: Log para depuração
             Log::info("Job abortado: Horário comercial detectado.");
+            $tec->update([
+                'emergency_order_id' => null,
+                'emergency_notification_pending' => null,
+            ]);
             return;
         }
-
-        $tec = Tec::find($this->tecId);
-        $order = Order::find($this->orderId);
-
+        
         // LIMITE DE 60 MINUTOS: Verifica se a ordem foi atualizada há mais de uma hora
         if ($order->updated_at->diffInMinutes(now()) > 60) {
             Log::info("Ciclo de notificações encerrado por tempo limite (60min) para a SAT #{$this->orderId}, ordem foi atualizada a {$order->updated_at->diffInMinutes(now())}min.");
@@ -90,7 +93,7 @@ class SendEmergencyAlert implements ShouldQueue
 
             if ($notifiable = User::find($tec->user_id)) {
                 // Preparamos os dados para a notificação
-                $notifiable->title = 'SOLICITAÇÃO DE EMERGÊNCIA!';
+                $notifiable->title = 'SAT EMERGENCIAL - '.$order->id.' - '.$order->client->name.' - ABERTA!';
                 $notifiable->order_id = $this->orderId;
                 $notifiable->emergency = true;
                 $notifiable->message = $order->req_descr ?? 'Manutenção Urgente Pendente!';

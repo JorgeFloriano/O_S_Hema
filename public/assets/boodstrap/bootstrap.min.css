@@ -171,7 +171,7 @@ a:not([href]):not([class]),a:not([href]):not([class]):hover{color:inherit;text-d
     }
     
     .btn-outline-primary.disabled,.btn-outline-primary:disabled {
-        color:#0d6efd;
+        color:#6c757d;
         background-color:transparent
     }
     

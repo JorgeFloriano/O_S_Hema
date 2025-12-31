@@ -1,4 +1,5 @@
 <?php
+
 use App\Http\Controllers\Api\LoginController;
 use Illuminate\Support\Facades\Route;
 
@@ -8,6 +9,7 @@ use App\Http\Controllers\Api\Clients\UserApiController;
 use App\Http\Controllers\Api\ExpoTokenController;
 // Hema app team routes packages
 use App\Http\Controllers\Api\Team\NoteTeamApiController;
+use Illuminate\Support\Facades\Auth;
 
 // Hema app client routes
 Route::post('/auth/login', [LoginController::class, 'login']);
@@ -36,6 +38,16 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/expo-tokens/associate', [ExpoTokenController::class, 'associate']);
 
     Route::post('/technician/clear-emergency', [NoteTeamApiController::class, 'clearEmergency'])->name('tec-clear-emergency');
+
+    // Verificação se o técnico tem ordem de emergência sendo enviada no momento de abrir o aplicativo para ir direto para a tela da ordem
+    Route::get('/technician/check-emergency', function () {
+        $tec = Auth::user()->tec;
+        return response()->json([
+            'emergency_order_id' => $tec->emergency_order_id,
+            'emergency_notification_pending' => (bool)$tec->emergency_notification_pending,
+        ]);
+    });
+
     // Route::resource('/users', UserTeamApiController::class);
     // Your other protected API routes
 });

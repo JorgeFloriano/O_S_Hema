@@ -25,7 +25,8 @@
                                 <th>Nº</th>
                                 <th>Nome</th>
                                 <th>Função</th>
-                                <th>S/N</th>
+                                <th>Ativo</th>
+                                <th>Clientes</th>
                             </tr>
                         </thead>
 
@@ -41,6 +42,44 @@
                                         @else
                                             <input onchange="form.submit()" class="form-check-input" name="tec{{$tec->id}}" type="checkbox" value="1" id="tec{{$tec->id}}">
                                         @endif
+                                    </td>
+                                    <td>
+                                        <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalClients{{$tec->id}}">
+                                            Vincular Clientes ({{$tec->emergencyClients->count()}})
+                                        </button>
+
+                                        <div class="modal fade" id="modalClients{{$tec->id}}" tabindex="-1" aria-hidden="true">
+                                            <div class="modal-dialog">
+                                                <div class="modal-content text-dark">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title">Clientes de {{$tec->user->name}}</h5>
+                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <div class="row">
+                                                            @foreach(App\Models\Client::orderBy('name')->get() as $client)
+                                                                <div class="col-md-6 mb-2 text-start">
+                                                                    <div class="form-check">
+                                                                        <input class="form-check-input" type="checkbox" 
+                                                                            name="clients[{{$tec->id}}][]" 
+                                                                            value="{{$client->id}}" 
+                                                                            id="client{{$tec->id}}_{{$client->id}}"
+                                                                            {{ $tec->emergencyClients->contains($client->id) ? 'checked' : '' }}>
+                                                                        <label class="form-check-label" for="client{{$tec->id}}_{{$client->id}}">
+                                                                            {{$client->name}}
+                                                                        </label>
+                                                                    </div>
+                                                                </div>
+                                                            @endforeach
+                                                        </div>
+                                                    </div>
+                                                    <div class="modal-footer">
+                                                        <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">Fechar</button>
+                                                        <button type="submit" class="btn btn-primary">Salvar Todos</button>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
                                     </td>
                                 </tr>
                             @endforeach
