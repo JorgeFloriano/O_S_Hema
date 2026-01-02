@@ -10,8 +10,13 @@
                 </div>
                 @endif
                 <div id="header" class="my-2">
-                    <h2>Gerenciar Colaboradores de Sobreaviso</h2>
+                    <h2>Colaboradores de Sobreaviso Emergencial</h2>
                 </div>
+                <hr>
+
+                <a href="{{route('tec_on_stop_all_notifications')}}" class="btn btn-primary" data-bs-toggle="tooltip" title="Para todos os ciclos de notificações de emergência ativos">
+                    Parar Alertas!
+                </a>
                 <hr>
 
                 <form action="{{route('tec_on_update')}}" id="form" method="post">
@@ -27,6 +32,7 @@
                                 <th>Função</th>
                                 <th>Ativo</th>
                                 <th>Clientes</th>
+                                <th>Condição</th>
                             </tr>
                         </thead>
 
@@ -80,6 +86,18 @@
                                                 </div>
                                             </div>
                                         </div>
+                                    </td>
+                                    <td>
+                                        @if (!$tec->emergency_order_id)
+                                            Disponível
+                                        @else
+                                            Ocupado
+                                            <a href="{{route('orders.edit', ['order' => Crypt::encryptString($tec->emergency_order_id)])}}">
+                                                <button type="button" class="btn btn-sm btn-outline-primary">
+                                                    SAT {{$tec->emergency_order_id}}
+                                                </button>
+                                            </a>
+                                        @endif
                                     </td>
                                 </tr>
                             @endforeach

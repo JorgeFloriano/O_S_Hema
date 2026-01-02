@@ -72,7 +72,9 @@ class UserController extends Controller
 
         session()->put('tecs', $tecs);
 
-        return view('user.tec_on', ['tecs' => $tecs]);
+        return view('user.tec_on', [
+            'tecs' => $tecs,
+        ]);
     }
 
     // If logged in user is adm main or supervisor, Technician on call update
@@ -98,6 +100,17 @@ class UserController extends Controller
         }
 
         return redirect()->back()->with('message', 'Sobreaviso e vínculos de clientes atualizados!');
+    }
+
+    // If logged in user is supervisor, reset all emergencies for all technicians
+    public function tec_on_stop_all_notifications()
+    {
+        if ($this->s) {
+            $this->s->resetAllEmergencies();
+            return redirect()->back()->with('message', 'Todos os alertas de emergência foram interrompidos!');
+        }
+
+        return view('login');
     }
 
     // If logged in user is adm main, show create user form
