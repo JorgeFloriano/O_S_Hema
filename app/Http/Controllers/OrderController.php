@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Class\Hours;
 use App\Http\Requests\FormFilterRequest;
 use App\Http\Requests\FormOrderRequest;
 use App\Models\Client;
@@ -291,6 +292,8 @@ class OrderController extends Controller
 
         $request->validated();
 
+        $auth = auth()->user();
+
         // If there is no contact name, then use the name of the client that was selected
         $cont_name_client = $request->req_name;
         if (!$request->req_name) {
@@ -299,17 +302,17 @@ class OrderController extends Controller
 
         // If user that is creating the order is a technician, set the order tec_id to the tec_id itself
         $tec_id = null;
-        if (isset(auth()->user()->tec)) {
-            $tec_id = auth()->user()->tec->id;
+        if (isset($auth->tec)) {
+            $tec_id = $auth->tec->id;
         }
 
-        //Create new order
+        // Create new order
         $created = $this->os->create([
             'client_id' => $request->client_id,
             'order_type_id' => $request->order_type_id,
             'sector' => $request->sector,
             'req_name' => $cont_name_client,
-            'user_id' => auth()->user()->id,
+            'user_id' => $auth->id,
             'tec_id' => $tec_id,
             'equipment' => $request->equipment,
             'req_date' => $request->req_date,
@@ -317,36 +320,8 @@ class OrderController extends Controller
             'req_descr' => $this->text->spaceAfterPunctuation($request->req_descr),
         ]);
 
-        // Send notification to all technicians
-        $order = Order::with('client:id,name')->find($created->id);
-
-        // 1. Buscamos todos os técnicos vinculados a este cliente
-        $client = Client::with('emergencyTecs.user')->find($order->client_id);
-
-        foreach ($client->emergencyTecs as $tec) {
-
-            // 2. Se o técnico estiver disponível (ainda não tem ordem de emergência atribuída), enviamos uma notificação para ele
-            if (!empty($tec->emergency_order_id)) {
-                continue;
-            }
-
-            // 3. Atualizamos cada técnico para o estado de emergência
-            $tec->update([
-                'emergency_order_id' => $order->id, // When is an emergency order
-                'emergency_notification_pending' => true, // When is an emergency order, loop notification activated
-            ]);
-
-            // 4. Enviamos uma notificação para o técnico
-            if ($notifiable = User::find($tec->user_id)) {
-                $notifiable->title = 'SAT - '.$order->id.' - '.$order->client->name.' - Aberta!';
-                $notifiable->order_id = $order->id;
-                $notifiable->message = $order->req_descr ?? 'Atividade de manutenção!';
-                $notifiable->notify(new NewSampleNotification());
-            }
-
-            // 5. Enviamos uma notificação para cada técnico em 30 segundos
-            \App\Jobs\SendEmergencyAlert::dispatch($tec->id, $order->id)->delay(now()->addSeconds(30)); // Send notification to technician());
-        }
+        // Start send emergency notifications to the technicians if necessary
+        $auth->startEmergencyNotifications($created->id);
 
         $msg = $created ? 'Solicitação de Assistência Técnica criada com sucesso.' : 'Erro ao criar Solicitação de Assistência Técnica.';
         $route = $this->o && !$this->a ? 'notes.index' : 'orders.index';
@@ -790,7 +765,7 @@ class OrderController extends Controller
 
             // Enviamos uma notificação para o técnico
             if ($notifiable = User::find($tec->user_id)) {
-                $notifiable->title = 'Solicitação de Assistência Técnica Aberta!';
+                $notifiable->title = 'SAT - ' . $order->id . ' - ' . $order->client->name . ' - atribuída pelo Supervisor!';
                 $notifiable->order_id = $order->id;
                 $notifiable->message = $order->req_descr ?? 'Atividade de manutenção!';
                 $notifiable->notify(new NewSampleNotification());

@@ -100,6 +100,9 @@ class OrderApiController extends Controller
                 'req_descr' => $text->spaceAfterPunctuation($request->req_descr),
             ]);
 
+            // Start send emergency notifications to the technicians if necessary
+            auth()->user()->startEmergencyNotifications($order->id);
+
             return response()->json([
                 'success' => true,
                 'message' => 'Solicitação de Assistência Técnica criada com sucesso.',

@@ -3,6 +3,8 @@
 namespace App\Models;
 
 // use Illuminate\Contracts\Auth\MustVerifyEmail;
+
+use App\Class\Hours;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
@@ -164,5 +166,37 @@ class User extends Authenticatable
     public function getFullName()
     {
         return $this->name . ' ' . $this->surname;
+    }
+
+    public function startEmergencyNotifications($order_id)
+    {
+        // Get the order created
+        $order = Order::with('client:id,name')->find($order_id);
+
+        // Verificação de Horário de Emergência
+        $hours = new Hours();
+        if ($hours->isEmergency()) {
+            // Buscamos todos os técnicos que estão de plantão, vinculados a este cliente e que ainda não tem uma ordem de emergência atribuida
+            $client = Client::with(['emergencyTecs' => function ($query) {
+                $query->with('user')
+                    ->where('on_call', 1)
+                    ->where(function ($q) {
+                        $q->whereNull('emergency_order_id')
+                            ->orWhere('emergency_order_id', 0)
+                            ->orWhere('emergency_order_id', '');
+                    });
+            }])->find($order->client_id);
+
+            foreach ($client->emergencyTecs as $tec) {
+                // Atualizamos cada técnico para o estado de emergência
+                $tec->update([
+                    'emergency_order_id' => $order->id,
+                    'emergency_notification_pending' => true, // Loop notification activated
+                ]);
+
+                // Enviamos uma notificação para cada técnico em 30 segundos
+                \App\Jobs\EmergencySatNotifications::dispatch($tec->id, $order->id); // Send notification to technician());
+            }
+        }
     }
 }

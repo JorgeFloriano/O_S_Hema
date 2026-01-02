@@ -29,4 +29,12 @@ class Tec extends Model
     {
         return $this->belongsToMany(Client::class, 'client_tec');
     }
+
+    public function resetSatEmergencyCondition()
+    {
+        return $this->update([
+            'emergency_order_id' => null,
+            'emergency_notification_pending' => false,
+        ]);
+    }
 }

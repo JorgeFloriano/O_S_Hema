@@ -12,6 +12,7 @@ use App\Http\Controllers\DefectController;
 use App\Http\Controllers\CauseController;
 use App\Http\Controllers\SolutionController;
 use App\Http\Controllers\MaterialController;
+use App\Models\Sup;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
 use App\Notifications\NewSampleNotification;
@@ -78,6 +79,10 @@ Route::middleware(CheckSession::class)->group(function () {
 
     Route::get('/tec_on', [UserController::class, 'tec_on'])->name('tec_on');
     Route::put('/tec_on_update', [UserController::class, 'tec_on_update'])->name('tec_on_update');
+    
+    Route::get('/tec_on_stop_all_notifications', [
+        UserController::class, 'tec_on_stop_all_notifications'
+    ])->name('tec_on_stop_all_notifications');
 
     Route::get('/notes', [NoteController::class, 'index'])->name('notes.index');
     Route::get('/notes/{order}/create', [NoteController::class, 'create'])->name('notes.create');
@@ -91,6 +96,7 @@ Route::middleware(CheckSession::class)->group(function () {
 
 Route::get('/foo', function () {
     Artisan::call('storage:link');
+    Artisan::call('queue:work --queue=emergency,default');
 });
 
 Route::get('/test-notification', function () {
