@@ -168,6 +168,7 @@ class User extends Authenticatable
         return $this->name . ' ' . $this->surname;
     }
 
+    // User function that Starts the emergency notifications
     public function startEmergencyNotifications($order_id)
     {
         // Get the order created
