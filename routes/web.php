@@ -12,7 +12,6 @@ use App\Http\Controllers\DefectController;
 use App\Http\Controllers\CauseController;
 use App\Http\Controllers\SolutionController;
 use App\Http\Controllers\MaterialController;
-use App\Models\Sup;
 use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
 use App\Notifications\NewSampleNotification;
@@ -92,6 +91,8 @@ Route::middleware(CheckSession::class)->group(function () {
     Route::put('/notes/{note}', [NoteController::class, 'update'])->name('notes.update');
     Route::delete('/notes/{note}', [NoteController::class, 'destroy'])->name('notes.destroy');
     Route::get('/notes/{qtd}/add', [NoteController::class, 'add'])->name('notes.add');
+
+    Route::post('/update_business_hours', [OrderController::class, 'updateBusinessHours'])->name('update_business_hours');
 });
 
 Route::get('/foo', function () {

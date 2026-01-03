@@ -4,6 +4,8 @@ namespace App\Class;
 
 use Illuminate\Support\Facades\DB;
 class Hours {
+
+    // Verifica se estamos em horário comercial
     public function isEmergency(): bool
     {
         // Pega o dia atual (0 a 6) e o horário atual

@@ -21,6 +21,7 @@ use Illuminate\Contracts\Encryption\DecryptException;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Webklex\PDFMerger\Facades\PDFMergerFacade as PDFMerger;
 use App\Notifications\NewSampleNotification;
+use Illuminate\Support\Facades\DB;
 
 class OrderController extends Controller
 {
@@ -1013,5 +1014,26 @@ class OrderController extends Controller
         };
 
         return response()->stream($callback, 200, $headers);
+    }
+
+    // Update business hours
+    public function updateBusinessHours(Request $request)
+    {
+        if (!$this->m) {
+            return view('login');
+        }
+
+        foreach ($request->input('hours') as $dayIndex => $times) {
+            DB::table('business_hours')->updateOrInsert(
+                ['day_of_week' => $dayIndex], // Condição
+                [
+                    'start_time' => $times['start'],
+                    'end_time' => $times['end'],
+                    'updated_at' => now()
+                ]
+            );
+        }
+
+        return redirect()->back()->with('message', 'Horários de emergência atualizados com sucesso!');
     }
 }

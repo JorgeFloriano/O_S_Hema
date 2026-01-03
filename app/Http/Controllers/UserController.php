@@ -72,9 +72,9 @@ class UserController extends Controller
 
         session()->put('tecs', $tecs);
 
-        return view('user.tec_on', [
-            'tecs' => $tecs,
-        ]);
+        $clients = Client::orderBy('name')->get();
+
+        return view('user.tec_on', compact('tecs', 'clients'));
     }
 
     // If logged in user is adm main or supervisor, Technician on call update
