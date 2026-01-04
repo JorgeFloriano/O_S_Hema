@@ -2,7 +2,6 @@
 
 namespace App\Http\Controllers;
 
-use App\Class\Hours;
 use App\Http\Requests\FormFilterRequest;
 use App\Http\Requests\FormOrderRequest;
 use App\Models\Client;

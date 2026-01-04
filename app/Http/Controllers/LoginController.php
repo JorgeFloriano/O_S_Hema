@@ -11,11 +11,13 @@ class LoginController extends Controller
 {
     private $logger;
 
-    public function __construct() {
+    public function __construct()
+    {
         $this->logger = new Logger();
     }
 
-    public function add() {
+    public function add()
+    {
 
         //---------------------------------------------------------------
         // --------------CREATE USER to mantenance and tests-------------
@@ -51,11 +53,11 @@ class LoginController extends Controller
 
     public function index()
     {
-         // Check if the user is logged out
-         if(auth()->user()) {
+        // Check if the user is logged out
+        if (auth()->user()) {
 
             $adm = auth()->user()->adm()->first();
-            
+
             if ($adm) {
                 if ($adm->main) {
                     return redirect()->route('clients.index');
@@ -75,7 +77,7 @@ class LoginController extends Controller
                 return redirect()->route('tec_on');
             }
         }
-        return view('login');
+        return view("login");
     }
 
     public function store(FormLoginRequest $request)
@@ -98,10 +100,10 @@ class LoginController extends Controller
         if (!$authenticated) {
 
             // User credentials not found log
-            $this->logger->log('error', 'Credentials for user'.$request->username.' not found');
+            $this->logger->log('error', 'Credentials for user' . $request->username . ' not found');
             return redirect()->route('login.index')->withErrors(['error' => 'Credenciais inválidas']);
         }
-        
+
         $adm = auth()->user()->adm()->first();
 
         if ($adm) {
@@ -112,7 +114,7 @@ class LoginController extends Controller
                 $this->logger->log('info', 'Main Administrator logged in');
 
                 return redirect()->route('clients.index')->with([
-                    'success'=>'Olá',
+                    'success' => 'Olá',
                 ]);
             }
 
@@ -124,7 +126,7 @@ class LoginController extends Controller
             $this->logger->log('info', 'Administrator logged in');
 
             return redirect()->route('orders.index')->with([
-                'success'=>'Olá',
+                'success' => 'Olá',
             ]);
         }
 
@@ -136,7 +138,7 @@ class LoginController extends Controller
             $this->logger->log('info', 'Technician logged in');
 
             return redirect()->route('notes.index')->with([
-                'success'=>'Olá',
+                'success' => 'Olá',
             ]);
         }
 
@@ -148,13 +150,13 @@ class LoginController extends Controller
             $this->logger->log('info', 'Supervisor logged in');
 
             return redirect()->route('tec_on')->with([
-                'success'=>'Olá',
+                'success' => 'Olá',
             ]);
         }
 
         // User dont have any access log
         $this->destroy();
-        $this->logger->log('error', 'User '.$request->username.' dont have any access.');
+        $this->logger->log('error', 'User ' . $request->username . ' dont have any access.');
         return redirect()->route('login.index')->withErrors(['error' => 'Usuário sem acesso definido.']);
     }
 

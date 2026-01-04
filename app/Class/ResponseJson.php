@@ -59,4 +59,28 @@ class ResponseJson
             ], 404);
         }
     }
+
+    public function AuthIsSup()
+    {
+        $auth = Auth::user();
+        if (!$auth->sup) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Usuário sem cadastro de supervisor.',
+                'message' => 'Usuário sem cadastro de supervisor.'
+            ], 404);
+        }
+    }
+
+    public function isAuth()
+    {
+        $auth = Auth::user();
+        if (!$auth) {
+            return response()->json([
+                'success' => false,
+                'error' => 'Usuário sem cadastro.',
+                'message' => 'Usuário sem cadastro.'
+            ], 404);
+        }
+    }
 }

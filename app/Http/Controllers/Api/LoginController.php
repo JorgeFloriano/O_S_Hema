@@ -83,6 +83,7 @@ class LoginController extends Controller
                 'name' => $user->name,
                 'email' => $user->email ?? null,
                 'tecId' => $user->tec ? $user->tec->id : null,
+                'supId' => $user->sup ? $user->sup->id : null
             ]
         ]);
     }
