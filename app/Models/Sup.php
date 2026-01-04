@@ -6,7 +6,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\SoftDeletes;
-use Illuminate\Support\Facades\Artisan;
 
 class Sup extends Model
 {
@@ -28,10 +27,4 @@ class Sup extends Model
     protected $fillable = [
         'user_id',
     ];
-
-    public function resetAllEmergencies()
-    {
-        // Chama o comando que criamos internamente
-        Artisan::call('emergency:reset-all');
-    }
 }

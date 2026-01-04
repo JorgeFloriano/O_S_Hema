@@ -11,6 +11,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
+use Illuminate\Support\Facades\Artisan;
 use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
@@ -199,5 +200,11 @@ class User extends Authenticatable
                 \App\Jobs\EmergencySatNotifications::dispatch($tec->id, $order->id); // Send notification to technician());
             }
         }
+    }
+
+     public function resetAllEmergencies()
+    {
+        // Chama o comando que criamos internamente
+        Artisan::call('emergency:reset-all');
     }
 }

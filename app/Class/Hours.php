@@ -3,7 +3,9 @@
 namespace App\Class;
 
 use Illuminate\Support\Facades\DB;
-class Hours {
+
+class Hours
+{
 
     // Verifica se estamos em horário comercial
     public function isEmergency(): bool
@@ -18,9 +20,10 @@ class Hours {
             ->where('day_of_week', $dayOfWeek)
             ->first();
 
-        // Se não houver configuração para o dia (ex: domingo sem registro), 
-        // podemos considerar emergência total
-        if (!$schedule) return true;
+        // Se não houver registro ou se o checkbox "Emergência 24h" estiver marcado
+        if (!$schedule || $schedule->is_closed) {
+            return true;
+        }
 
         // Se o horário atual for ANTES do início ou DEPOIS do fim, é emergência
         if ($currentTime < $schedule->start_time || $currentTime > $schedule->end_time) {
