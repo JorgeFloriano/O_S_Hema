@@ -308,8 +308,8 @@ class NoteTeamApiController extends Controller
     {
 
         // Check if user is a technician
-        if ($this->can->AuthIsTec()) {
-            return $this->can->AuthIsTec();
+        if ($this->can->isAuth()) {
+            return $this->can->isAuth();
         }
 
         $order = Order::with(['type:id,description', 'client:id,name', 'tec:id,user_id', 'notes.materials', 'notes.tecs.user:id,name,surname,function'])
