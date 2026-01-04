@@ -16,6 +16,7 @@ return new class extends Migration
             $table->integer('day_of_week'); // 0 (domingo) a 6 (sábado)
             $table->time('start_time')->nullable();     // 07:30
             $table->time('end_time')->nullable();       // 17:30
+            $table->boolean('is_closed')->default(false);
             $table->timestamps();
         });
     }

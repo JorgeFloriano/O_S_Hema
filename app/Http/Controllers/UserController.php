@@ -105,8 +105,8 @@ class UserController extends Controller
     // If logged in user is supervisor, reset all emergencies for all technicians
     public function tec_on_stop_all_notifications()
     {
-        if ($this->s) {
-            $this->s->resetAllEmergencies();
+        if ($this->m) {
+            auth()->user()->resetAllEmergencies();
             return redirect()->back()->with('message', 'Todos os alertas de emergência foram interrompidos!');
         }
 

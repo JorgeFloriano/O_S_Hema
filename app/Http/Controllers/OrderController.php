@@ -1019,21 +1019,23 @@ class OrderController extends Controller
     // Update business hours
     public function updateBusinessHours(Request $request)
     {
+
         if (!$this->m) {
             return view('login');
         }
 
-        foreach ($request->input('hours') as $dayIndex => $times) {
+        foreach ($request->hours as $dayIndex => $data) {
             DB::table('business_hours')->updateOrInsert(
-                ['day_of_week' => $dayIndex], // Condição
+                ['day_of_week' => $dayIndex],
                 [
-                    'start_time' => $times['start'],
-                    'end_time' => $times['end'],
+                    'start_time' => $data['start'] ?? '00:00',
+                    'end_time'   => $data['end'] ?? '00:00',
+                    'is_closed'  => isset($data['is_closed']), // true se o checkbox foi enviado
                     'updated_at' => now()
                 ]
             );
         }
 
-        return redirect()->back()->with('message', 'Horários de emergência atualizados com sucesso!');
+        return redirect()->back()->with('success', 'Calendário atualizado!');
     }
 }
