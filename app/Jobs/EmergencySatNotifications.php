@@ -80,7 +80,7 @@ class EmergencySatNotifications implements ShouldQueue
             // Preparamos os dados para a notificação
             $notifiable->title = 'SAT EMERGENCIAL - ' . $order->id . ' - ' . $order->client->name . ' - ABERTA!';
             $notifiable->order_id = $this->orderId;
-            $notifiable->emergency = true;
+            $notifiable->type = 'emergency';
             $notifiable->message = $order->req_descr ?? 'Manutenção Urgente Pendente!';
             $notifiable->notify(new NewSampleNotification());
         }

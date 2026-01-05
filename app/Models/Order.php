@@ -2,12 +2,15 @@
 
 namespace App\Models;
 
+use App\Class\Hours;
+use App\Notifications\NewSampleNotification;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
+use Illuminate\Support\Facades\Log;
 
 class Order extends Model
 {
@@ -75,24 +78,71 @@ class Order extends Model
         }
     }
 
-    public function finish(): bool
+    // Order function that Starts the emergency notifications
+    public function startEmergencyNotifications()
     {
-        $tecs = Tec::where('emergency_order_id', $this->id)->get();
+        // Get the order created
+        $order = Order::with('client:id,name')->find($this->id);
 
-        $tecs_updated = false;
-        if (count($tecs) > 0) {
-            foreach ($tecs as $tec) {
-                $tec->emergency_order_id = null;
-                $tecs_updated = $tec->save();
+        // Verificação de Horário de Emergência
+        $hours = new Hours();
+        if ($hours->isEmergency()) {
+            // Buscamos todos os técnicos que estão de plantão, vinculados a este cliente e que ainda não tem uma ordem de emergência atribuida
+            $client = Client::with(['emergencyTecs' => function ($query) {
+                $query->with('user')
+                    ->where('on_call', 1)
+                    ->where(function ($q) {
+                        $q->whereNull('emergency_order_id')
+                            ->orWhere('emergency_order_id', 0)
+                            ->orWhere('emergency_order_id', '');
+                    });
+            }])->find($order->client_id);
+
+            foreach ($client->emergencyTecs as $tec) {
+                // Atualizamos cada técnico para o estado de emergência
+                $tec->update([
+                    'emergency_order_id' => $order->id,
+                    'emergency_notification_pending' => true, // Loop notification activated
+                ]);
+
+                // Enviamos uma notificação para cada técnico em 30 segundos
+                \App\Jobs\EmergencySatNotifications::dispatch($tec->id, $order->id); // Send notification to technician());
             }
         }
+    }
 
-        $this->finished = true;
-        $order_finished = $this->save();
+    public function finish(): bool
+    {
+        try {
+            // 1. Limpa o estado de emergência dos técnicos
+            Tec::where('emergency_order_id', $this->id)->update([
+                'emergency_order_id' => null,
+                'emergency_notification_pending' => false
+            ]);
 
-        if ($tecs_updated && $order_finished) {
-            return true;
-        } else {
+            // 2. Finaliza a ordem
+            $this->finished = true;
+            $order_finished = $this->save();
+
+            // 3. CORREÇÃO AQUI: Busca o usuário através do Model Tec
+            $tec = Tec::with('user')->find($this->tec_id);
+            $order_tec_name = ($tec && $tec->user) ? $tec->user->name : 'Técnico Desconhecido';
+
+            // 4. Notifica os supervisores
+            $supervisors = User::whereHas('sup')->get();
+
+            foreach ($supervisors as $sup) {
+                $sup->title = "SAT {$this->id} - " . $this->client->name . " - finalizada por {$order_tec_name}!";
+                $sup->order_id = $this->id;
+                $sup->type = 'sat_finished';
+                $sup->message = $this->req_descr ?? 'Atendimento concluído.';
+
+                $sup->notify(new NewSampleNotification());
+            }
+
+            return $order_finished;
+        } catch (\Exception $e) {
+            Log::error("Erro ao finalizar SAT #{$this->id}: " . $e->getMessage());
             return false;
         }
     }

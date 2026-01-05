@@ -21,8 +21,8 @@ class NewSampleNotification extends Notification
             ->title($notifiable->title)
             ->body($notifiable->message)
             ->jsonData([
-                'SAT' => $notifiable->order_id,
-                'emergency' => $notifiable->emergency
+                'SAT' => $notifiable->order_id ?? null,
+                'type' => $notifiable->type ?? null,
             ])
             ->priority('high')
             ->channelId('default');

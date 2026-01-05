@@ -321,7 +321,7 @@ class OrderController extends Controller
         ]);
 
         // Start send emergency notifications to the technicians if necessary
-        $auth->startEmergencyNotifications($created->id);
+        $created->startEmergencyNotifications();
 
         $msg = $created ? 'Solicitação de Assistência Técnica criada com sucesso.' : 'Erro ao criar Solicitação de Assistência Técnica.';
         $route = $this->o && !$this->a ? 'notes.index' : 'orders.index';
