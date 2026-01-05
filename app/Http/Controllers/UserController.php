@@ -480,7 +480,17 @@ class UserController extends Controller
 
         // If the user has a technician access and the tec field is not filled, remove it
         if (!$request->input('tec') && isset(User::where('id', $id)->first()->tec)) {
-            $tec_dl = Tec::where('user_id', $id)->delete();
+
+            $tec = Tec::where('user_id', $id)->first();
+
+            // Reset all technicians emergencies fields
+            $tec->update([
+                'on_call' => 0,
+                'emergency_order_id' => null,
+                'emergency_notification_pending' => null,
+            ]);
+
+            $tec_dl = $tec->delete();
 
             // Return an error message.
             if (!$tec_dl) {

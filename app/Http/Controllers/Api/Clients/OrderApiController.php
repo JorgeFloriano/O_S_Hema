@@ -101,7 +101,7 @@ class OrderApiController extends Controller
             ]);
 
             // Start send emergency notifications to the technicians if necessary
-            auth()->user()->startEmergencyNotifications($order->id);
+            $order->startEmergencyNotifications();
 
             return response()->json([
                 'success' => true,

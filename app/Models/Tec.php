@@ -15,7 +15,7 @@ class Tec extends Model
     use SoftDeletes;
     public function user(): BelongsTo
     {
-        return $this->belongsTo(User::class);
+        return $this->belongsTo(User::class, 'user_id');
     }
 
     protected $fillable = [
