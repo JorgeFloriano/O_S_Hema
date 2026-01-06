@@ -111,6 +111,15 @@ class Order extends Model
         }
     }
 
+    public function emergencySatNotification($notifiable)
+    {
+        $notifiable->title = "SAT EMERGÊNCIAL {$this->id} ABERTA POR " . $this->client->name . "!";
+        $notifiable->order_id = $this->id;
+        $notifiable->type = 'emergency_info';
+        $notifiable->message = $this->req_descr ?? 'Serviço de Emergência.';
+        $notifiable->notify(new NewSampleNotification());
+    }
+
     public function finish(): bool
     {
         try {

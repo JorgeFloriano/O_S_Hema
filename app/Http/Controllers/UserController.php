@@ -63,12 +63,26 @@ class UserController extends Controller
             return view('login');
         }
 
-        $tecs = Tec::with('emergencyClients') // Adicione isso para carregar os vínculos de uma vez
+        $tecs = Tec::with(['emergencyClients', 'emergencyOrder:id,finished,tec_id'])
+            // Carregamos apenas as colunas id, finished e tec_id da ordem para economizar memória
             ->join('users', 'tecs.user_id', '=', 'users.id')
             ->whereNotIn('tecs.user_id', [1, 2, 9999, 0])
             ->orderBy('users.name')
             ->select('tecs.*')
             ->simplePaginate(20);
+
+        // Adiciona a lógica de "busy" (ocupado) para cada técnico
+        $tecs->getCollection()->transform(function ($tec) {
+            $order = $tec->emergencyOrder;
+
+            // Condições: 
+            // 1. Existe uma ordem vinculada
+            // 2. A ordem não está finalizada
+            // 3. O técnico da ordem é o próprio técnico (conferência de integridade)
+            $tec->busy = ($order && !$order->finished && $order->tec_id == $tec->id);
+
+            return $tec;
+        });
 
         session()->put('tecs', $tecs);
 

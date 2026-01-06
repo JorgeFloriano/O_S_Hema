@@ -300,12 +300,6 @@ class OrderController extends Controller
             $cont_name_client = Client::find($request->client_id)->contact;
         }
 
-        // If user that is creating the order is a technician, set the order tec_id to the tec_id itself
-        $tec_id = null;
-        if (isset($auth->tec)) {
-            $tec_id = $auth->tec->id;
-        }
-
         // Create new order
         $created = $this->os->create([
             'client_id' => $request->client_id,
@@ -313,7 +307,6 @@ class OrderController extends Controller
             'sector' => $request->sector,
             'req_name' => $cont_name_client,
             'user_id' => $auth->id,
-            'tec_id' => $tec_id,
             'equipment' => $request->equipment,
             'req_date' => $request->req_date,
             'req_time' => $request->req_time,
@@ -322,6 +315,12 @@ class OrderController extends Controller
 
         // Start send emergency notifications to the technicians if necessary
         $created->startEmergencyNotifications();
+
+        // Notifica os supervisores
+        $supervisors = User::whereHas('sup')->get();
+        foreach ($supervisors as $sup) {
+            $created->emergencySatNotification($sup);
+        }
 
         $msg = $created ? 'Solicitação de Assistência Técnica criada com sucesso.' : 'Erro ao criar Solicitação de Assistência Técnica.';
         $route = $this->o && !$this->a ? 'notes.index' : 'orders.index';
@@ -436,7 +435,11 @@ class OrderController extends Controller
         }
 
         $order = $this->os->find($id);
-        $order->finish();
+        // Limpa o estado de emergência dos técnicos
+        Tec::where('emergency_order_id', $order->id)->update([
+            'emergency_order_id' => null,
+            'emergency_notification_pending' => false
+        ]);
 
         foreach ($order->notes as $key => $note) {
             foreach ($note->tecs as $key => $tec) {
@@ -762,6 +765,10 @@ class OrderController extends Controller
         if ($order) {
             $order->tec_id = $request->tec_id;
             $order->save();
+
+            Tec::where('emergency_order_id', $order->id)->update([
+                'emergency_order_id' => null,
+            ]);
 
             // Enviamos uma notificação para o técnico
             if ($notifiable = User::find($tec->user_id)) {

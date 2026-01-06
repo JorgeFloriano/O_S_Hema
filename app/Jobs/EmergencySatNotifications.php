@@ -11,7 +11,6 @@ use Illuminate\Contracts\Queue\ShouldQueue;
 use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
-use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Log;
 
 class EmergencySatNotifications implements ShouldQueue
@@ -81,6 +80,7 @@ class EmergencySatNotifications implements ShouldQueue
             $notifiable->title = 'SAT EMERGENCIAL - ' . $order->id . ' - ' . $order->client->name . ' - ABERTA!';
             $notifiable->order_id = $this->orderId;
             $notifiable->type = 'emergency';
+            $notifiable->channel_id = 'emergency';
             $notifiable->message = $order->req_descr ?? 'Manutenção Urgente Pendente!';
             $notifiable->notify(new NewSampleNotification());
         }
