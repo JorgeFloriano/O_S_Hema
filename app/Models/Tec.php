@@ -30,6 +30,11 @@ class Tec extends Model
         return $this->belongsToMany(Client::class, 'client_tec');
     }
 
+    public function emergencyOrder()
+    {
+        return $this->belongsTo(Order::class, 'emergency_order_id');
+    }
+
     public function resetSatEmergencyCondition()
     {
         return $this->update([

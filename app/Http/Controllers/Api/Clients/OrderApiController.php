@@ -6,10 +6,9 @@ use App\Class\TextFormat;
 use App\Class\ResponseJson;
 use App\Http\Controllers\Controller;
 use App\Http\Requests\FormOrderApiRequest;
-use App\Models\Client;
 use App\Models\Order;
 use App\Models\OrderType;
-use App\Models\Tec;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 
@@ -102,6 +101,12 @@ class OrderApiController extends Controller
 
             // Start send emergency notifications to the technicians if necessary
             $order->startEmergencyNotifications();
+
+            // Notifica os supervisores
+            $supervisors = User::whereHas('sup')->get();
+            foreach ($supervisors as $sup) {
+                $order->emergencySatNotification($sup);
+            }
 
             return response()->json([
                 'success' => true,

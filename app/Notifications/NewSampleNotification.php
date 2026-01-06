@@ -25,6 +25,6 @@ class NewSampleNotification extends Notification
                 'type' => $notifiable->type ?? null,
             ])
             ->priority('high')
-            ->channelId('default');
+            ->channelId($notifiable->channel_id ?? 'default');
     }
 }

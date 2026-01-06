@@ -209,7 +209,7 @@
                                         </div>
                                     </td>
                                     <td>
-                                        @if (!$tec->emergency_order_id)
+                                        @if (!$tec->busy)
                                             Disponível
                                         @else
                                             Ocupado
