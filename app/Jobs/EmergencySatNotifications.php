@@ -12,8 +12,9 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Contracts\Queue\ShouldBeUnique;
 
-class EmergencySatNotifications implements ShouldQueue
+class EmergencySatNotifications implements ShouldQueue, ShouldBeUnique
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
@@ -30,13 +31,32 @@ class EmergencySatNotifications implements ShouldQueue
         $this->queue = 'emergency';
     }
 
+    // O ID que define a unicidade (Técnico + Ordem)
+    public function uniqueId()
+    {
+        return $this->tecId . '_' . $this->orderId;
+    }
+
+    /**
+     * Determina por quanto tempo o Job pode ser tentado.
+     * Se o worker ficar offline e o Job expirar, o Laravel o descarta.
+     */
+    public function retryUntil()
+    {
+        return now()->addMinutes(5); // Se o Job ficar preso por mais de 5 min, morre.
+    }
+
     /**
      * Execute the job.
      */
     public function handle(): void
     {
         $tec = Tec::find($this->tecId);
-        $order = Order::find($this->orderId);
+
+        // Pega apenas o necessário da Ordem e o nome do Cliente
+        $order = Order::with(['client:id,name'])
+            ->select('id', 'client_id', 'req_descr', 'updated_at') // req_descr é necessário para a message
+            ->find($this->orderId);
 
         if (!$tec) {
             Log::info("Send Emergency Alert Stoped: Técnico #{$this->tecId} não encontrado.");
@@ -47,6 +67,14 @@ class EmergencySatNotifications implements ShouldQueue
             $tec->resetSatEmergencyCondition();
             Log::info("Send Emergency Alert Stopped: SAT #{$this->orderId} não encontrada.");
             return;
+        }
+
+        // Verifica se a ordem foi criada ou atualizada
+        if (!$order->updated_at || !$order->created_at) {
+            $order->update([
+                'updated_at' => now(),
+                'created_at' => now()
+            ]);
         }
 
         // LIMITE DE 60 MINUTOS: Verifica se a ordem foi criada/atualizada há mais de uma hora e para de enviar notificações
@@ -74,19 +102,25 @@ class EmergencySatNotifications implements ShouldQueue
             Log::info("Send Emergency Alert Stoped: Técnico #{$this->tecId} não está de plantão no momento.");
             return;
         }
-
-        if ($notifiable = User::find($tec->user_id)) {
-            // Preparamos os dados para a notificação
-            $notifiable->title = 'SAT EMERGENCIAL - ' . $order->id . ' - ' . $order->client->name . ' - ABERTA!';
-            $notifiable->order_id = $this->orderId;
-            $notifiable->type = 'emergency';
-            $notifiable->channel_id = 'emergency';
-            $notifiable->message = $order->req_descr ?? 'Manutenção Urgente Pendente!';
-            $notifiable->notify(new NewSampleNotification());
+        try {
+            if ($notifiable = User::find($tec->user_id)) {
+                // Preparamos os dados para a notificação
+                $notifiable->title = '🚨 SAT EMERGENCIAL ' . $order->id . ' - ' . $order->client->name . ' - ABERTA!';
+                $notifiable->order_id = $this->orderId;
+                $notifiable->type = 'emergency';
+                $notifiable->channel_id = 'emergency';
+                $notifiable->message = $order->req_descr ?? 'Manutenção Urgente Pendente!';
+                $notifiable->notify(new NewSampleNotification());
+            }
+        } catch (\Exception $e) {
+            Log::error("Falha ao enviar push na emergência #{$this->orderId}: " . $e->getMessage());
+            // Não damos 'return' aqui para que o finally agende a próxima tentativa
+        } finally {
+            // 5. GARANTIA DE REAGENDAMENTO
+            // Só reagenda se a condição de pendência ainda for verdadeira
+            if ($tec->fresh()->emergency_notification_pending) {
+                self::dispatch($this->tecId, $this->orderId)->delay(now()->addSeconds(30));
+            }
         }
-
-        // Agenda o próximo reenvio
-        // IMPORTANTE: passamos os IDs novamente para o construtor do novo Job
-        self::dispatch($this->tecId, $this->orderId)->delay(now()->addSeconds(30));
     }
 }

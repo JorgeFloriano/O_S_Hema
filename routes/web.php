@@ -95,10 +95,10 @@ Route::middleware(CheckSession::class)->group(function () {
     Route::post('/update_business_hours', [OrderController::class, 'updateBusinessHours'])->name('update_business_hours');
 });
 
-Route::get('/foo', function () {
-    Artisan::call('storage:link');
-    Artisan::call('queue:work --queue=emergency,default');
-});
+// Route::get('/foo', function () {
+//     Artisan::call('storage:link');
+//     Artisan::call('queue:work --queue=emergency,default');
+// });
 
 Route::get('/test-notification', function () {
 
