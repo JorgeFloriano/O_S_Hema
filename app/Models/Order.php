@@ -78,15 +78,26 @@ class Order extends Model
         }
     }
 
-    // Order function that Starts the emergency notifications
-    public function startEmergencyNotifications()
+    // Notification management when a Technical Assistance Request is opened by the client.
+    public function notificationWhenOpenedByClient()
     {
         // Get the order created
         $order = Order::with('client:id,name')->find($this->id);
 
+        // Get all supervisors
+        $supervisors = User::whereHas('sup')->get();
+
         // Verificação de Horário de Emergência
         $hours = new Hours();
+
+        // Horário de Emergência (fora do horário comercial)
         if ($hours->isEmergency()) {
+
+            // Notifica os supervisores sobre a SAT de emergência
+            foreach ($supervisors as $sup) {
+                $order->emergencySatNotification($sup);
+            }
+
             // Buscamos todos os técnicos que estão de plantão, vinculados a este cliente e que ainda não tem uma ordem de emergência atribuida
             $client = Client::with(['emergencyTecs' => function ($query) {
                 $query->with('user')
@@ -105,18 +116,34 @@ class Order extends Model
                     'emergency_notification_pending' => true, // Loop notification activated
                 ]);
 
-                // Enviamos uma notificação para cada técnico em 30 segundos
-                \App\Jobs\EmergencySatNotifications::dispatch($tec->id, $order->id); // Send notification to technician());
+                // Dispara o job que envia a notificação os técnicos a cada 30 segundos, até que um visualize a SAT
+                \App\Jobs\EmergencySatNotifications::dispatch($tec->id, $order->id);
+            }
+
+        // Horário comercial (não é emergência)    
+        } else {
+            // Apenas notifica os supervisores sobre a SAT
+            foreach ($supervisors as $sup) {
+                $order->satNotification($sup);
             }
         }
     }
 
     public function emergencySatNotification($notifiable)
     {
-        $notifiable->title = "SAT EMERGÊNCIAL {$this->id} ABERTA POR " . $this->client->name . "!";
+        $notifiable->title = "SAT EMERGENCIAL Nº{$this->id} -  " . $this->client->name . " - ABERTA!";
         $notifiable->order_id = $this->id;
         $notifiable->type = 'emergency_info';
         $notifiable->message = $this->req_descr ?? 'Serviço de Emergência.';
+        $notifiable->notify(new NewSampleNotification());
+    }
+
+    public function satNotification($notifiable)
+    {
+        $notifiable->title = "SAT {$this->id} - " . $this->client->name . " - " . $this->client->name . " - aberta!";
+        $notifiable->order_id = $this->id;
+        $notifiable->type = 'info';
+        $notifiable->message = $this->req_descr ?? 'Atividade de manutenção!';
         $notifiable->notify(new NewSampleNotification());
     }
 

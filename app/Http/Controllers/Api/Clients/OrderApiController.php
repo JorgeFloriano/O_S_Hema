@@ -99,14 +99,8 @@ class OrderApiController extends Controller
                 'req_descr' => $text->spaceAfterPunctuation($request->req_descr),
             ]);
 
-            // Start send emergency notifications to the technicians if necessary
-            $order->startEmergencyNotifications();
-
-            // Notifica os supervisores
-            $supervisors = User::whereHas('sup')->get();
-            foreach ($supervisors as $sup) {
-                $order->emergencySatNotification($sup);
-            }
+            // Notification management when a Technical Assistance Request is opened by the client.
+            $order->notificationWhenOpenedByClient();
 
             return response()->json([
                 'success' => true,

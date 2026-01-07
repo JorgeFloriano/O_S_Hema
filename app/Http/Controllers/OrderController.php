@@ -313,14 +313,9 @@ class OrderController extends Controller
             'req_descr' => $this->text->spaceAfterPunctuation($request->req_descr),
         ]);
 
-        // Start send emergency notifications to the technicians if necessary
-        $created->startEmergencyNotifications();
-
-        // Notifica os supervisores
-        $supervisors = User::whereHas('sup')->get();
-        foreach ($supervisors as $sup) {
-            $created->emergencySatNotification($sup);
-        }
+        // Provisório, teste
+        // Notification management when a Technical Assistance Request is opened by the client.
+        $created->notificationWhenOpenedByClient();
 
         $msg = $created ? 'Solicitação de Assistência Técnica criada com sucesso.' : 'Erro ao criar Solicitação de Assistência Técnica.';
         $route = $this->o && !$this->a ? 'notes.index' : 'orders.index';

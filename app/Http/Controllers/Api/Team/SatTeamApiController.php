@@ -40,7 +40,7 @@ class SatTeamApiController extends Controller
             'tec:id,user_id',
             'tec.user:id,name,surname',
         ])
-            ->where('created_at', '>', now()->subDays(7))
+            ->where('created_at', '>', now()->subDays(30))
             ->orderBy('id', 'desc')
             ->get(['id', 'order_type_id', 'client_id', 'tec_id', 'req_descr', 'req_name', 'sector', 'req_date', 'req_time', 'finished']);
 
