@@ -85,7 +85,7 @@ class UserController extends Controller
 
         session()->put('tecs', $tecs);
 
-        $clients = Client::orderBy('name')->get();
+        $clients = Client::select('id', 'name')->orderBy('name')->get();
 
         return view('user.tec_on', compact('tecs', 'clients'));
     }

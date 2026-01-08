@@ -315,7 +315,7 @@ class OrderController extends Controller
 
         // Provisório, teste
         // Notification management when a Technical Assistance Request is opened by the client.
-        $created->notificationWhenOpenedByClient();
+        // $created->notificationWhenOpenedByClient();
 
         $msg = $created ? 'Solicitação de Assistência Técnica criada com sucesso.' : 'Erro ao criar Solicitação de Assistência Técnica.';
         $route = $this->o && !$this->a ? 'notes.index' : 'orders.index';
