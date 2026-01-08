@@ -27,7 +27,7 @@ class Tec extends Model
 
     public function emergencyClients()
     {
-        return $this->belongsToMany(Client::class, 'client_tec');
+        return $this->belongsToMany(Client::class, 'client_tec', 'tec_id', 'client_id');
     }
 
     public function emergencyOrder()

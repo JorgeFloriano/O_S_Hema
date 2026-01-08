@@ -2,16 +2,19 @@
 
 use App\Http\Controllers\Api\LoginController;
 use Illuminate\Support\Facades\Route;
+use App\Models\Tec;
+use Illuminate\Support\Facades\Auth;
 
 // Hema app client routes packages
 use App\Http\Controllers\Api\Clients\OrderApiController;
 use App\Http\Controllers\Api\Clients\UserApiController;
 use App\Http\Controllers\Api\ExpoTokenController;
+
 // Hema app team routes packages
 use App\Http\Controllers\Api\Team\NoteTeamApiController;
 use App\Http\Controllers\Api\Team\SatTeamApiController;
-use App\Models\Tec;
-use Illuminate\Support\Facades\Auth;
+use App\Http\Controllers\Api\Team\EmergencyApiController;
+
 
 // Hema app client routes
 Route::post('/auth/login', [LoginController::class, 'login']);
@@ -56,11 +59,26 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Enviar a lista de técnicos para o aplicativo
     Route::get('/tecs/list', function () {
-        return Tec::with('user:id,name,surname')->get();
+        return Tec::join('users', 'tecs.user_id', '=', 'users.id')
+            ->orderBy('users.name', 'asc')
+            ->select('tecs.*')
+            ->with('user:id,name,surname')
+            ->get();
     });
 
     // Atualizar o tecnico da ordem
     Route::post('/sat/orders/{id}/update-tec', [SatTeamApiController::class, 'update_tec'])->name('sat-update-tec');
+
+    // Rotas para a tela de controle de técnicos de sobreaviso (emergência)
+    Route::prefix('emergency')->group(function () {
+        // Listagem de técnicos e clientes
+        Route::get('/tecs', [EmergencyApiController::class, 'index']);
+        Route::get('/clients', [EmergencyApiController::class, 'getClients']);
+
+        // Atualizações
+        Route::put('/tecs/{id}/toggle', [EmergencyApiController::class, 'toggleActive']);
+        Route::put('/tecs/{id}/clients', [EmergencyApiController::class, 'syncClients']);
+    });
 
     // Route::resource('/users', UserTeamApiController::class);
     // Your other protected API routes

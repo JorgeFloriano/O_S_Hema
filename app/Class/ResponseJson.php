@@ -65,6 +65,7 @@ class ResponseJson
         $auth = Auth::user();
         if (!$auth->sup) {
             return response()->json([
+                'isSup' => false,
                 'success' => false,
                 'error' => 'Usuário sem cadastro de supervisor.',
                 'message' => 'Usuário sem cadastro de supervisor.'
