@@ -55,9 +55,8 @@ class OrderApiController extends Controller
             return $return_error;
         }
 
-        // Create session variable wich contains all order types ids to validated in FormOrderRequest
+        // Get all order types
         $types = OrderType::select('id', 'description')->get();
-        session()->put('types_ids', $types->pluck('id')->toArray());
 
         return response()->json([
             'types' => $types
