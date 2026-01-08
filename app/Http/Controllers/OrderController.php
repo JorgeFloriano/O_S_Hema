@@ -767,14 +767,9 @@ class OrderController extends Controller
 
             // Enviamos uma notificação para o técnico
             if ($notifiable = User::find($tec->user_id)) {
-                $notifiable->title = 'SAT - ' . $order->id . ' - ' . $order->client->name . ' - atribuída pelo Supervisor!';
-                $notifiable->order_id = $order->id;
-                $notifiable->message = $order->req_descr ?? 'Atividade de manutenção!';
-                $notifiable->notify(new NewSampleNotification());
+                $order->tecSatNotification($notifiable);
             }
         }
-
-        return response()->json(['success' => 'Equipe de plantão notificada!']);
     }
 
     // Add orders for testing

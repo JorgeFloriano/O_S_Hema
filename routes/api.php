@@ -10,6 +10,7 @@ use App\Http\Controllers\Api\ExpoTokenController;
 // Hema app team routes packages
 use App\Http\Controllers\Api\Team\NoteTeamApiController;
 use App\Http\Controllers\Api\Team\SatTeamApiController;
+use App\Models\Tec;
 use Illuminate\Support\Facades\Auth;
 
 // Hema app client routes
@@ -52,6 +53,14 @@ Route::middleware('auth:sanctum')->group(function () {
             'emergency_notification_pending' => (bool)$tec->emergency_notification_pending,
         ]);
     });
+
+    // Enviar a lista de técnicos para o aplicativo
+    Route::get('/tecs/list', function () {
+        return Tec::with('user:id,name,surname')->get();
+    });
+
+    // Atualizar o tecnico da ordem
+    Route::post('/sat/orders/{id}/update-tec', [SatTeamApiController::class, 'update_tec'])->name('sat-update-tec');
 
     // Route::resource('/users', UserTeamApiController::class);
     // Your other protected API routes

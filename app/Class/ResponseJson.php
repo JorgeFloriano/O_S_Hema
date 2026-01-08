@@ -43,7 +43,7 @@ class ResponseJson
                 'success' => false,
                 'error' => $message,
                 'message' => $message
-            ], 404);
+            ], 403);
         }
 
         return false;
@@ -56,7 +56,7 @@ class ResponseJson
                 'success' => false,
                 'error' => 'Usuário sem cadastro de técnico.',
                 'message' => 'Usuário sem cadastro de técnico.'
-            ], 404);
+            ], 403);
         }
     }
 
@@ -68,8 +68,8 @@ class ResponseJson
                 'success' => false,
                 'error' => 'Usuário sem cadastro de supervisor.',
                 'message' => 'Usuário sem cadastro de supervisor.'
-            ], 404);
-        }
+            ], 403);
+        } 
     }
 
     public function isAuth()
@@ -80,7 +80,7 @@ class ResponseJson
                 'success' => false,
                 'error' => 'Usuário sem cadastro.',
                 'message' => 'Usuário sem cadastro.'
-            ], 404);
+            ], 403);
         }
     }
 }

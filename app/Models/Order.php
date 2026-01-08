@@ -120,7 +120,7 @@ class Order extends Model
                 \App\Jobs\EmergencySatNotifications::dispatch($tec->id, $order->id);
             }
 
-        // Horário comercial (não é emergência)    
+            // Horário comercial (não é emergência)    
         } else {
             // Apenas notifica os supervisores sobre a SAT
             foreach ($supervisors as $sup) {
@@ -143,6 +143,14 @@ class Order extends Model
         $notifiable->title = "SAT {$this->id} - " . $this->client->name . " - " . $this->client->name . " - aberta!";
         $notifiable->order_id = $this->id;
         $notifiable->type = 'info';
+        $notifiable->message = $this->req_descr ?? 'Atividade de manutenção!';
+        $notifiable->notify(new NewSampleNotification());
+    }
+
+    public function tecSatNotification($notifiable)
+    {
+        $notifiable->title = 'SAT - ' . $this->id . ' - ' . $this->client->name . ' - atribuída pelo Supervisor!';
+        $notifiable->order_id = $this->id;
         $notifiable->message = $this->req_descr ?? 'Atividade de manutenção!';
         $notifiable->notify(new NewSampleNotification());
     }

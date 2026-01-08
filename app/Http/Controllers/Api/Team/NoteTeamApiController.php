@@ -57,7 +57,7 @@ class NoteTeamApiController extends Controller
         ])
             ->where('tec_id', $tec->id)
             ->orderBy('id', 'desc')
-            ->get(['id', 'order_type_id', 'client_id', 'tec_id', 'req_descr', 'req_name', 'sector', 'req_date', 'req_time', 'finished']);
+            ->get(['id', 'order_type_id', 'client_id', 'tec_id', 'req_descr', 'req_name', 'sector', 'req_date', 'req_time', 'equipment', 'finished']);
 
         return response()->json([
             'orders' => $orders,
