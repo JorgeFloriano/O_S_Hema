@@ -34,7 +34,7 @@
                         Nenhum registro encontrado !
                     </p>
                 @else
-                    <table class="table table-striped">
+                    <table class="table table-striped table-hover">
                         <thead class="table-primary">
                             <tr>
                                 <th>Nº</th>

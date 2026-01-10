@@ -41,7 +41,7 @@
                 background-position: center;
                 background-repeat: no-repeat;
                 
-                opacity: 0.3; 
+                opacity: 0.05; 
                 z-index: -1; 
             }
             
