@@ -68,7 +68,7 @@
                                                 </div>
 
                                                 <div class="table-responsive">
-                                                    <table class="table align-middle">
+                                                    <table class="table align-middle table-hover">
                                                         <thead>
                                                             <tr>
                                                                 <th>Dia</th>
@@ -137,7 +137,7 @@
                     @csrf
                     <input type="hidden" name="_method" id="idNum" value="PUT">
                 
-                    <table class="table table-striped">
+                    <table class="table table-striped table-hover">
                         <thead class="table-primary">
                             <tr>
                                 <th>Nº</th>
