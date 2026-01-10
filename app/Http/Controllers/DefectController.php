@@ -9,7 +9,7 @@ use Illuminate\Contracts\Encryption\DecryptException;
 
 class DefectController extends Controller
 {
-   
+
     public readonly Defect $defect;
 
     public function __construct()
@@ -24,12 +24,12 @@ class DefectController extends Controller
 
         session()->put('table', 'defects');
 
-        return redirect()->route('defects.list' , 1);
+        return redirect()->route('defects.list', 1);
     }
 
     public function list(bool $opt)
     {
-        
+
         if (session('main') !== auth()->user()->id) {
             return view('login');
         }
@@ -40,7 +40,7 @@ class DefectController extends Controller
             $msg = 'Desativados';
             $cond = 'Ativar';
             $title = 'Ativos';
-            $btn_color = 'btn-success';
+            $btn_color = 'btn-outline-primary';
             $route = 'defects.restore';
         } else {
             $defects = $this->defect->select('id', 'description')->simplePaginate(20);
@@ -48,7 +48,7 @@ class DefectController extends Controller
             $msg = 'Ativos';
             $cond = 'Desativar';
             $title = 'Desativados';
-            $btn_color = 'btn-danger';
+            $btn_color = 'btn-outline-primary';
             $route = 'defects.desativate';
         }
 
@@ -64,7 +64,7 @@ class DefectController extends Controller
     }
 
     public function create()
-    {    
+    {
         if (session('main') !== auth()->user()->id) {
             return view('login');
         }
@@ -95,7 +95,7 @@ class DefectController extends Controller
         if (session('main') !== auth()->user()->id) {
             return view('login');
         }
-        
+
         return view('codes.defect.defect_delete', ['defect' => $defect]);
     }
 
@@ -122,7 +122,7 @@ class DefectController extends Controller
         }
 
         $request->validated();
-        
+
         $updated = $this->defect->where('id', $id)->update($request->except(['_token', '_method']));
 
         if ($updated) {
@@ -136,7 +136,7 @@ class DefectController extends Controller
         if (session('main') !== auth()->user()->id) {
             return view('login');
         }
-        
+
         $deleted = $this->defect->where('id', $id)->delete();
 
         if ($deleted) {
@@ -178,7 +178,7 @@ class DefectController extends Controller
             echo 'Erro de desencriptação.';
             die;
         }
-        
+
         $deleted = $this->defect->where('id', $id)->delete();
 
         if ($deleted) {

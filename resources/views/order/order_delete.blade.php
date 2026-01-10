@@ -47,10 +47,10 @@
                         </div>
 
                         <div class="my-2">
-                            <button id="submitButton" type="submit" class="btn btn-danger me-2" data-bs-dismiss="modal">
+                            <button id="submitButton" type="submit" class="btn btn-outline-danger me-2" data-bs-dismiss="modal">
                                 Delete
                             </button>
-                            <a href="{{url()->previous()}}" class="btn btn-outline-primary ms-2" >Voltar</a>
+                            <a href="{{url()->previous()}}" class="btn btn-outline-primary ms-2" ><i class="fa fa-arrow-left"></i> Voltar</a>
                         </div>
                     </form>
                 </main>

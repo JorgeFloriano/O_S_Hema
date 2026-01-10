@@ -84,7 +84,7 @@
 
                         @if(count($order->notes) > 0)
                             <!-- Button trigger modal -->
-                            <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                            <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
                                 Mostrar serviços executados
                             </button>
                             
@@ -104,7 +104,7 @@
                                                         <div class="mt-2"> 
                                                             <a href="{{route('notes.show', [
                                                                 'note' => Crypt::encryptString($note->id),
-                                                            ])}}" class="btn btn-info btn-sm">
+                                                            ])}}" class="btn btn-outline-primary btn-sm">
                                                                 Exibir
                                                             </a>
                                                             
@@ -127,11 +127,11 @@
                         <div class="my-2">
                             @if (auth()->user()->adm()->first())
                                 <button id="submitButton" type="submit" class="btn btn-primary me-2" data-bs-dismiss="modal">
-                                    Confirma
+                                    <i class="fa fa-check"></i> Confirma
                                 </button>
                             @endif
                             <a href="{{route('orders.index')}}" class="btn btn-outline-primary">
-                                Voltar
+                                <i class="fa fa-arrow-left"></i> Voltar
                             </a>
                         </div>
                     </form>

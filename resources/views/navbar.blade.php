@@ -1,5 +1,6 @@
-<nav class="navbar navbar-expand-lg navbar-dark bg-dark">
-    <div class="container">
+<nav class="navbar navbar-expand-lg navbar-dark" style="background: #1b0363ff">
+    {{-- Se a URL contiver 'orders', usa fluid (100%), caso contrário usa o container padrão --}}
+    <div class="{{ Request::is('*orders', '*notes', '*orders/filter') ? 'container-sm' : 'container' }}">
         <div>
             <img src="{{asset('assets/img/'.env('LOGO'))}}" alt="logo hema" width="130px">
         </div>
@@ -40,19 +41,19 @@
             <ul class="navbar-nav me-auto mb-lg-0">
                 @if (session('main') == auth()->user()->id)
                     <li class="nav-item">
-                        <a class="nav-link me-2" href="{{route('clients.index')}}">
+                        <a class="nav-link me-2 {{ Request::is('*clients*') ? 'fw-bold active border-bottom border-white pb-1' : '' }}" href="{{route('clients.index')}}">
                             Clientes
                         </a>
                     </li>
 
                     <li class="nav-item">
-                        <a class="nav-link me-2" href="{{route('users.index')}}">
+                        <a class="nav-link me-2 {{ Request::is('*users*') ? 'fw-bold active border-bottom border-white pb-1' : '' }}" href="{{route('users.index')}}">
                             Usuários
                         </a>
                     </li>
 
                     <li class="nav-item">
-                        <a class="nav-link me-2" href="{{route('materials.index')}}">
+                        <a class="nav-link me-2 {{ Request::is('*material*') ? 'fw-bold active border-bottom border-white pb-1' : '' }}" href="{{route('materials.index')}}">
                             Materiais
                         </a>
                     </li>
@@ -60,13 +61,13 @@
 
                 @if (session('cli') == auth()->user()->id)
                     <li class="nav-item">
-                        <a class="nav-link me-2" href="{{route('clients.index')}}">
+                        <a class="nav-link me-2 {{ Request::is('*clients*') ? 'fw-bold active border-bottom border-white pb-1' : '' }}" href="{{route('clients.index')}}">
                             Clientes
                         </a>
                     </li>
 
                     <li class="nav-item">
-                        <a class="nav-link me-2" href="{{route('materials.index')}}">
+                        <a class="nav-link me-2 {{ Request::is('*materials*') ? 'fw-bold active border-bottom border-white pb-1' : '' }}" href="{{route('materials.index')}}">
                             Materiais
                         </a>
                     </li>
@@ -74,7 +75,7 @@
 
                 @if (auth()->user()->tec()->first())
                     <li class="nav-item">
-                        <a class="nav-link me-2" href="{{route('notes.index')}}">
+                        <a class="nav-link me-2 {{ Request::is('*notes*') ? 'fw-bold active border-bottom border-white pb-1' : '' }}" href="{{route('notes.index')}}">
                             Programação
                         </a>
                     </li>
@@ -82,15 +83,15 @@
 
                 @if (auth()->user()->sup()->first() || auth()->user()->adm()->first())
                     <li>
-                        <a class="nav-link me-2" href="{{route('orders.index')}}">
-                            Ordens
+                        <a class="nav-link me-2 {{ Request::is('*orders*') ? 'fw-bold active border-bottom border-white pb-1' : '' }}" href="{{route('orders.index')}}">
+                            SATs
                         </a>
                     </li>
                 @endif
 
                 @if (auth()->user()->sup()->first())
                     <li>
-                        <a class="nav-link me-2" href="{{route('tec_on')}}">
+                        <a class="nav-link me-2 {{ Request::is('*tec_on*') ? 'fw-bold active border-bottom border-white pb-1' : '' }}" href="{{route('tec_on')}}">
                             Sobreaviso
                         </a>
                     </li>
@@ -98,36 +99,36 @@
 
                 @if (session('main') == auth()->user()->id)
                     <li class="nav-item dropdown">
-                        <a class="nav-link me-2 dropdown-toggle" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <a class="nav-link me-2 dropdown-toggle {{ Request::is('*order_types*', '*note_types*', '*defects*', '*causes*', '*solutions*') ? 'fw-bold active border-bottom border-white pb-1' : '' }}" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
                         Códigos
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
                             <li>
-                                <a class="dropdown-item" href="{{route('order_types.index')}}">
+                                <a class="dropdown-item {{ Request::is('*order_types*') ? 'active' : '' }}" href="{{route('order_types.index')}}">
                                     Segmentos de serviços
                                 </a>
                             </li>
 
                             <li>
-                                <a class="dropdown-item" href="{{route('note_types.index')}}">
+                                <a class="dropdown-item {{ Request::is('*note_types*') ? 'active' : '' }}" href="{{route('note_types.index')}}">
                                     Tipos de serviços
                                 </a>
                             </li>
 
                             <li>
-                                <a class="dropdown-item" href="{{route('defects.index')}}">
+                                <a class="dropdown-item {{ Request::is('*defects*') ? 'active' : '' }}" href="{{route('defects.index')}}">
                                     Defeitos 
                                 </a>
                             </li>
 
                             <li>
-                                <a class="dropdown-item" href="{{route('causes.index')}}">
+                                <a class="dropdown-item {{ Request::is('*causes*') ? 'active' : '' }}" href="{{route('causes.index')}}">
                                     Causas
                                 </a>
                             </li>
 
                             <li>
-                                <a class="dropdown-item" href="{{route('solutions.index')}}">
+                                <a class="dropdown-item {{ Request::is('*solutions*') ? 'active' : '' }}" href="{{route('solutions.index')}}">
                                     Soluções
                                 </a>
                             </li>

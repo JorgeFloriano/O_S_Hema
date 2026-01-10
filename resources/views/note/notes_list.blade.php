@@ -21,7 +21,7 @@
                 <hr>
 
                 @if (auth()->user()->tec->on_call)
-                    <a href="{{route('orders.create')}}" class="btn btn-primary">Gerar SAT</a>
+                    <a href="{{route('orders.create')}}" class="btn btn-primary"><i class="fa fa-plus"></i> Gerar SAT</a>
                     <hr>
                 @endif
 
@@ -32,7 +32,7 @@
                 @else
                     <div class="table-responsive">
                         <table class="table table-striped table-hover" id="notes_list">
-                            <thead class="table-dark">
+                            <thead class="table-primary">
                                 <tr>
                                     <th>SAT</th>
                                     <th>Cliente</th>
@@ -53,7 +53,7 @@
                                         <td>{{date('d/m/y',strtotime($order->req_date))}}</td>
                                         @if ($order->finished)
                                             <td>
-                                                <a href="{{route('orders.show_pdf', ['order' => Crypt::encryptString($order->id)])}}" class="btn btn-outline-danger btn-sm">
+                                                <a href="{{route('orders.show_pdf', ['order' => Crypt::encryptString($order->id)])}}" class="btn btn-outline-primary btn-sm">
                                                     <i class="fa fa-file-pdf-o"></i>
                                                 </a>
                                             </td>
@@ -65,7 +65,7 @@
                                             </td>
                                         @else
                                             <td>
-                                                <a href="{{route('notes.create', ['order' => Crypt::encryptString($order->id)])}}" class="btn btn-info btn-sm">
+                                                <a href="{{route('notes.create', ['order' => Crypt::encryptString($order->id)])}}" class="btn btn-outline-primary btn-sm">
                                                     <i class="fa fa-edit"></i>
                                                 </a>
                                             </td>

@@ -133,7 +133,7 @@
                     <input type="hidden" name="_method" id="idNum" value="PUT">
                 
                     <table class="table table-striped">
-                        <thead class="table-dark">
+                        <thead class="table-primary">
                             <tr>
                                 <th>Nº</th>
                                 <th>Nome</th>
@@ -152,9 +152,13 @@
                                     <td>{{$tec->user->function}}</td>
                                     <td>
                                         @if ($tec->on_call)
-                                            <input onchange="form.submit()" class="form-check-input" name="tec{{$tec->id}}" checked type="checkbox" value="1" id="tec{{$tec->id}}">
+                                            <div class="form-check form-switch">
+                                                <input onchange="form.submit()" class="form-check-input" name="tec{{$tec->id}}" checked type="checkbox" value="1" id="tec{{$tec->id}}">
+                                            </div>
                                         @else
-                                            <input onchange="form.submit()" class="form-check-input" name="tec{{$tec->id}}" type="checkbox" value="1" id="tec{{$tec->id}}">
+                                            <div class="form-check form-switch">
+                                                <input onchange="form.submit()" class="form-check-input" name="tec{{$tec->id}}" type="checkbox" value="1" id="tec{{$tec->id}}">
+                                            </div>
                                         @endif
                                     </td>
                                     <td>
@@ -212,7 +216,6 @@
                                         @if (!$tec->busy)
                                             Disponível
                                         @else
-                                            Ocupado
                                             <a href="{{route('orders.edit', ['order' => Crypt::encryptString($tec->emergency_order_id)])}}">
                                                 <button type="button" class="btn btn-sm btn-outline-primary">
                                                     SAT {{$tec->emergency_order_id}}

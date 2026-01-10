@@ -9,7 +9,7 @@ use Illuminate\Contracts\Encryption\DecryptException;
 
 class OrderTypeController extends Controller
 {
-   
+
     public readonly OrderType $order_type;
 
     public function __construct()
@@ -24,12 +24,12 @@ class OrderTypeController extends Controller
 
         session()->put('table', 'order_types');
 
-        return redirect()->route('order_types.list' , 1);
+        return redirect()->route('order_types.list', 1);
     }
 
     public function list(bool $opt)
     {
-        
+
         if (session('main') !== auth()->user()->id) {
             return view('login');
         }
@@ -40,7 +40,7 @@ class OrderTypeController extends Controller
             $msg = 'Desativados';
             $cond = 'Ativar';
             $title = 'Ativos';
-            $btn_color = 'btn-success';
+            $btn_color = 'btn-outline-primary';
             $route = 'order_types.restore';
         } else {
             $order_types = $this->order_type->select('id', 'description')->simplePaginate(20);
@@ -48,7 +48,7 @@ class OrderTypeController extends Controller
             $msg = 'Ativos';
             $cond = 'Desativar';
             $title = 'Desativados';
-            $btn_color = 'btn-danger';
+            $btn_color = 'btn-outline-primary';
             $route = 'order_types.desativate';
         }
 
@@ -64,7 +64,7 @@ class OrderTypeController extends Controller
     }
 
     public function create()
-    {    
+    {
         if (session('main') !== auth()->user()->id) {
             return view('login');
         }
@@ -120,9 +120,9 @@ class OrderTypeController extends Controller
         if (session('main') !== auth()->user()->id) {
             return view('login');
         }
-        
+
         $request->validated();
-        
+
         $updated = $this->order_type->where('id', $id)->update($request->except(['_token', '_method']));
 
         if ($updated) {
@@ -136,7 +136,7 @@ class OrderTypeController extends Controller
         if (session('main') !== auth()->user()->id) {
             return view('login');
         }
-        
+
         $deleted = $this->order_type->where('id', $id)->delete();
 
         if ($deleted) {
@@ -178,7 +178,7 @@ class OrderTypeController extends Controller
             echo 'Erro de desencriptação.';
             die;
         }
-        
+
         $deleted = $this->order_type->where('id', $id)->delete();
 
         if ($deleted) {

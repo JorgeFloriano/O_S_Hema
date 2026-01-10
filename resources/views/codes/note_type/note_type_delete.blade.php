@@ -27,8 +27,8 @@
                         </div>
 
                         <div class="my-2">
-                            <button type="submit" class="btn btn-danger me-2">Deletar</button>
-                            <a href="{{url()->previous()}}" class="btn btn-outline-primary ms-2" >Voltar</a>
+                            <button type="submit" class="btn btn-outline-danger me-2"><i class="fa fa-trash"></i> Deletar</button>
+                            <a href="{{url()->previous()}}" class="btn btn-outline-primary ms-2" ><i class="fa fa-arrow-left"></i> Voltar</a>
                         </div>
                     </form>
                 </main>

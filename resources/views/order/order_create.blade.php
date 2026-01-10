@@ -67,14 +67,14 @@
 
                         <div class="my-2">
                             <button id="submitButton" type="submit" class="btn btn-primary me-2" data-bs-dismiss="modal">
-                                Confirma
+                                <i class="fa fa-check"></i> Confirma
                             </button>
                             @if (isset(auth()->user()->adm) || isset(auth()->user()->sup))
                                 <a href="{{route('orders.index')}}" class="btn btn-outline-primary">
                             @else
                                 <a href="{{route('notes.index')}}" class="btn btn-outline-primary">
                             @endif
-                                Voltar
+                                <i class="fa fa-arrow-left"></i> Voltar
                             </a>
                         </div>
                     </form>

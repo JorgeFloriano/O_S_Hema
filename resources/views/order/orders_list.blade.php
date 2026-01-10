@@ -27,12 +27,25 @@
                 </div>
             @endif
 
-            <div id="header" class="my-2">
-                <h2>
-                    Solicitações de Assistência Técnica
-                </h2>
+            <div id="header" class="my-3 d-flex flex-wrap justify-content-between align-items-center">
+                {{-- Título à esquerda --}}
+                <div class="mb-2">
+                    <h2 class="mb-0">
+                        {{-- Texto longo: Escondido em telas menores que 576px, visível em telas 'sm' ou maiores --}}
+                        <span class="d-none d-sm-inline">Solicitações de Assistência Técnica</span>
+                        
+                        {{-- Texto curto: Visível em telas pequenas, escondido em telas 'sm' ou maiores --}}
+                        <span class="d-inline d-sm-none">SATs</span>
+                    </h2>
+                </div>
+
+                {{-- Botões à direita (quando couber) --}}
+                <div class="mb-2">
+                    <a href="{{route('orders.create')}}" class="btn btn-primary" data-bs-toggle="tooltip" title="Criar nova Solicitação de Assistência Técnica">
+                        <i class="fa fa-plus"></i> Nova
+                    </a>
+                </div>
             </div>
-            <hr>
 
             <form action="{{route('orders.filter')}}" id="filter_form" method="post">
 
@@ -43,8 +56,8 @@
                     </div>
 
                     <div class="col-xl-2 col-md-4 col-6">
-                        <select class="form-select" id="finished" name="finished" aria-label="Floating label select example">
-                            <option {{$fin_select[2] ?? ''}} value="2">Ordens (todas)</option>
+                        <select class="form-select" size="0" id="finished" name="finished" aria-label="Floating label select example">
+                            <option {{$fin_select[2] ?? ''}} value="2">SATs (todas)</option>
                             <option {{$fin_select[0] ?? ''}} value="0">Não Finalizadas</option>
                             <option {{$fin_select[1] ?? ''}} value="1">Finalizadas</option>
                         </select>
@@ -73,77 +86,77 @@
                     </div>
                 </div>
             </form>
-            @if ($adm)
-                <a href="{{route('orders.create')}}" class="btn btn-primary" data-bs-toggle="tooltip" title="Criar nova Solicitação de Assistência Técnica">
-                    Criar nova
-                </a>
+            {{-- Alterado: justify-content-end para alinhar tudo à direita --}}
+            <div class="my-3 d-flex flex-wrap justify-content-end align-items-center" id="buttons">
                 
-                <div class="float-end">
-                    <button onclick="formSubmit('filter_form')" data-bs-toggle="tooltip" title="Filtrar Solicitações de Assistência Técnica conforme opções   selecionadas" id="submitButton" type="submit" class="btn btn-outline-primary">
-                        <i class="fa fa-filter"></i>
-                    </button>
+                @if ($orders->count() > 0)
+                    @if ($adm)
+                        {{-- Removido float-end (desnecessário com flexbox) e adicionado d-flex --}}
+                        <div class="d-flex align-items-center">
+                            <button onclick="formSubmit('filter_form')" data-bs-toggle="tooltip" title="Filtrar..." id="submitButton" type="submit" class="btn btn-outline-primary">
+                                <i class="fa fa-filter"></i> Filtrar
+                            </button>
 
-                    <!-- Button trigger modal -->
-                    <button type="button" data-bs-toggle="modal" data-bs-target="#reportTitle" class="btn btn-danger mx-1">
-                        <i class="fa fa-file-pdf-o" data-bs-toggle="tooltip" title="Gerar relatório PDF das Solicitações de Assistência Técnica filtradas"></i>
-                    </button>
+                            <button type="button" data-bs-toggle="modal" data-bs-target="#reportTitle" class="btn btn-outline-primary mx-2">
+                                <div data-bs-toggle="tooltip" title="Gerar relatório PDF">
+                                    <i class="fa fa-file-pdf-o"></i> PDF
+                                </div>
+                            </button>
 
-                    <button type="button" data-bs-toggle="tooltip" title="Gerar arquivo xlsx (Excel) das Solicitações de Assistência Técnica filtradas" 
-                        onclick="submitRoute('{{route('orders.orders_csv')}}', 'csv_form', '{{$able_btn ?? ''}}')" 
-                        class="btn btn-success">
-                        <i class="fa fa-file-excel-o"></i>
-                    </button>
-                </div>
-            @endif
+                            <button type="button" data-bs-toggle="tooltip" title="Gerar arquivo xlsx"
+                                onclick="submitRoute('{{route('orders.orders_csv')}}', 'csv_form', '{{$able_btn ?? ''}}')"
+                                class="btn btn-outline-primary">
+                                <i class="fa fa-file-excel-o"></i> CSV
+                            </button>
+                        </div>
+                    @endif
 
-            @if (!$adm && $sup)
-                <div class="text-end">
-                    <button onclick="formSubmit('filter_form')" data-bs-toggle="tooltip" title="Filtrar Solicitações de Assistência Técnica conforme opções   selecionadas" id="submitButton" type="submit" class="btn btn-outline-primary">
-                        <i class="fa fa-filter"></i>Filtrar
-                    </button>
-                </div>
-            @endif
+                    @if (!$adm && $sup)
+                        <div>
+                            <button onclick="formSubmit('filter_form')" data-bs-toggle="tooltip" title="Filtrar..." id="submitButton" type="submit" class="btn btn-outline-primary">
+                                <i class="fa fa-filter"></i> Filtrar
+                            </button>
+                        </div>
+                    @endif
+                @endif
+
+                {{-- Forms invisíveis (não afetam o alinhamento visual) --}}
+                <form action="{{route('orders.orders_csv')}}" id="csv_form" method="post">
+                    @csrf
+                    <input type="hidden" name="csv_ids" id="csv_ids" value="{{$ids ?? '0'}}">
+                </form>
+                
+                <form action="{{route('orders.orders_pdf')}}" id="pdf_form" method="post">
+                    @csrf
+                    <input type="hidden" name="ids" id="ids" value="{{$ids ?? '0'}}">
+                    <div class="modal fade" id="reportTitle" tabindex="-1" aria-labelledby="reportTitleLabel" aria-hidden="true">
+                        <div class="modal-dialog">
+                        <div class="modal-content">
+                            <div class="modal-header">
+                            <h5 class="modal-title" id="reportTitleLabel">Novo título da capa (opcional)</h5>
+                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                            </div>
+                            <div class="modal-body">
+                                <input type="text" name="title" maxlength="120" class="form-control" id="title"
+                                placeholder="Padrão: Relatório de Solicitações de Assistência Técnica">
+                            </div>
+                            <div class="modal-footer">
+                            <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">Fechar</button>
+                            <button onclick="submitRoute('{{route('orders.orders_pdf')}}', 'pdf_form', '{{$able_btn ?? ''}}')" class="btn btn-primary">Gerar Relatório</button>
+                            </div>
+                        </div>
+                        </div>
+                    </div>
+                </form>
+                @if ($orders->count() === 0)
+                    <p>Nenhum registro encontrado !</p>
+                @endif
+            </div>
 
             <hr>
-
-            <form action="{{route('orders.orders_csv')}}" id="csv_form" method="post">
-                @csrf
-                <input type="hidden" name="csv_ids" id="csv_ids" value="{{$ids ?? '0'}}">
-            </form>
-            
-            <!-- Modal -->
-            <form action="{{route('orders.orders_pdf')}}" id="pdf_form" method="post">
-
-                @csrf
-                <input type="hidden" name="ids" id="ids" value="{{$ids ?? '0'}}">
-                <div class="modal fade" id="reportTitle" tabindex="-1" aria-labelledby="reportTitleLabel" aria-hidden="true">
-                    <div class="modal-dialog">
-                    <div class="modal-content">
-                        <div class="modal-header">
-                        <h5 class="modal-title" id="reportTitleLabel">Novo título da capa (opcional)</h5>
-                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                        </div>
-                        <div class="modal-body">
-                            <input type="text" name="title" maxlength="120" class="form-control" id="title" 
-                            placeholder="Padrão: Relatório de Solicitações de Assistência Técnica">
-                        </div>
-                        <div class="modal-footer">
-                        <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">Fechar</button>
-                        <button onclick="submitRoute('{{route('orders.orders_pdf')}}', 'pdf_form', '{{$able_btn ?? ''}}')" class="btn btn-primary">Gerar Relatório</button>
-                        </div>
-                    </div>
-                    </div>
-                </div>
-            </form>
-
-            @if ($orders->count() === 0)
-                <p>
-                    Nenhum registro encontrado !
-                </p>
-            @else
                 <div class="table-responsive">
                     <table class="table table-striped table-hover" id="orders_list">
-                        <thead class="table-dark">
+                        <thead class="table-primary">
                             <tr>
                                 <th>Nº</th>
                                 <th>Cliente</th>
@@ -151,13 +164,8 @@
                                 <th>Problema relatado</th>
                                 <th style="min-width: 160px">Técnico</th>
                                 <th>Data</th>
-                                <th>Cop.</th>
-                                @if ($adm)
-                                    <th>Edit</th>
-                                    <th>Del.</th>
-                                @else
-                                    <th>Ver</th>
-                                @endif
+                                <th><i class="fa fa-bars"></i></th>
+                                <th><i style="font-size: 20px;" class="fa fa-exclamation-circle"></i></th>
                             </tr>
                         </thead>
                         <tbody>
@@ -176,88 +184,80 @@
                                     </td>
                                     <td>{{date('d/m/y',strtotime($order->req_date))}}</td>
                                     <td>
-                                        <button class="btn btn-info btn-sm copy-button" data-order-id="{{$order->id}}">
-                                            <i class="fa fa-copy"></i>
-                                        </button>
-                                        <!-- Hidden input with order data -->
-                                        <input type="hidden" class="order-data" value="SAT Nº {{$order->id ?? ''}}<br>CLIENTE: {{$order->client->name ?? ''}}<br>SERVIÇO: {{$order->type->description ?? ''}}<br>SETOR: {{$order->sector ?? ''}}<br>NOME DO SOLICITANTE: {{$order->req_name ?? ''}}<br>DATA DO ACIONAMENTO: {{date('d/m/y',strtotime($order->req_date)) ?? ''}}<br>HORA DO ACIONAMENTO: {{date('H:i',strtotime($order->req_time)) ?? ''}}<br>PROBLEMA RELATADO: {{$order->req_descr ?? ''}}">
-                                    </td>
-                                    @if ($order->finished)
-                                        <td>
-                                            <a href="{{route('orders.show_pdf', ['order' => Crypt::encryptString($order->id)])}}" class="btn btn-outline-danger btn-sm">
-                                                <i class="fa fa-file-pdf-o"></i>
-                                            </a>
-                                        </td>
-                                        @if ($main)
-                                            <td>
-                                                <a href="{{route('orders.show', ['order' => Crypt::encryptString($order->id)])}}" class="btn btn-danger btn-sm">
-                                                    <i class="fa fa-trash"></i>
-                                                </a>
-                                            </td>
-                                        @else
-                                            @if ($adm)
-                                                <td>
-                                                    <a class="btn btn-danger btn-sm disabled">
-                                                        <i class="fa fa-trash"></i>
-                                                    </a>
-                                                </td>
-                                            @endif
-                                        @endif
-                                    @else
-                                        @if ($adm)
-                                            @php
+                                        <div class="dropdown">
+                                            <button style="background-color: transparent; border: none;" data-bs-toggle="dropdown">
+                                                <i class="fa fa-ellipsis-v" ></i>
+                                            </button>
+                                            <ul class="dropdown-menu">
+                                                <li>
+                                                    <button class="dropdown-item copy-button"
+                                                        style="border: none;"
+                                                        data-order-id="{{$order->id}}">
+                                                        <i class="fa fa-copy"></i>
+                                                        Copiar Dados
+                                                    </button>
+                                                    <!-- Hidden input with order data -->
+                                                    <input type="hidden" class="order-data" value="SAT Nº {{$order->id ?? ''}}<br>CLIENTE: {{$order->client->name ?? ''}}<br>SERVIÇO: {{$order->type->description ?? ''}}<br>SETOR: {{$order->sector ?? ''}}<br>NOME DO SOLICITANTE: {{$order->req_name ?? ''}}<br>DATA DO ACIONAMENTO: {{date('d/m/y',strtotime($order->req_date)) ?? ''}}<br>HORA DO ACIONAMENTO: {{date('H:i',strtotime($order->req_time)) ?? ''}}<br>PROBLEMA RELATADO: {{$order->req_descr ?? ''}}">
+                                                </li>
 
-                                                // Set icon,if order is created by client dont show edit
-                                                $icon = 'edit';
-                                                $ord_creator_is_cli = Cli::where('user_id', $order->user_id)->first();
-                                                if (isset($ord_creator_is_cli)) {
-                                                    $icon = 'file-text';
-                                                }
-                                            @endphp
-                                            <td>
-                                                <a href="{{route('orders.edit', ['order' => Crypt::encryptString($order->id)])}}" class="btn btn-primary btn-sm">
-                                                    <i class="fa fa-{{$icon}}"></i>
-                                                </a>
-                                            </td>
-                                        @else
-                                            <td>
-                                                <a href="{{route('orders.edit', ['order' => Crypt::encryptString($order->id)])}}" class="btn btn-primary btn-sm">
-                                                    <i class="fa fa-file-text"></i>
-                                                </a>
-                                            </td>
-                                        @endif
-                                        @if ($order->notes->count() > 0)
-                                            @if ($main)
-                                                <td>
-                                                    <a href="{{route('orders.show', ['order' => Crypt::encryptString($order->id)])}}" class="btn btn-danger btn-sm">
-                                                        <i class="fa fa-trash"></i>
-                                                    </a>
-                                                </td>
-                                            @else
-                                                @if ($adm)
-                                                    <td>
-                                                        <a class="btn btn-danger btn-sm disabled">
-                                                            <i class="fa fa-trash"></i>
+                                                <li>
+                                                    @if ($order->finished)
+                                                        <a href="{{route('orders.show_pdf', ['order' => Crypt::encryptString($order->id)])}}" class="dropdown-item">
+                                                            <i class="fa fa-file-pdf-o"></i>
+                                                            Visualizar
                                                         </a>
-                                                    </td>
+                                                    @else
+                                                        <a href="{{route('orders.edit', ['order' => Crypt::encryptString($order->id)])}}" class="dropdown-item">
+                                                            @php
+                                                                // Set icon,if order is created by client or user isn't main adm SAT cant be edited
+                                                                $icon = 'edit';
+                                                                $text = 'Editar';
+                                                                $ord_creator_is_cli = Cli::where('user_id', $order->user_id)->first();
+                                                                if (isset($ord_creator_is_cli) || !$main) {
+                                                                    $icon = 'file-text-o';
+                                                                    $text = 'Visualizar';
+                                                                }
+                                                            @endphp
+                                                            <i class="fa fa-{{$icon}}"></i>
+                                                            {{$text}}
+                                                        </a>
+                                                    @endif
+                                                </li>
+
+                                                @if ($main) 
+                                                    <li><hr class="dropdown-divider"></li>
+
+                                                    <li>
+                                                        <a href="{{route('orders.show', ['order' => Crypt::encryptString($order->id)])}}" class="dropdown-item text-danger">
+                                                            <i class="fa fa-trash"></i>
+                                                            Excluir
+                                                        </a>
+                                                    </li>
                                                 @endif
-                                            @endif
+                                            </ul>
+                                        </div>
+                                    </td>
+                                    <td class="text-center align-middle">
+                                        @if ($order->finished)
+                                            <div class="rounded-circle bg-success text-white d-flex align-items-center justify-content-center" 
+                                                style="width: 20px; height: 20px; font-size: 0.8rem; font-weight: bold;" 
+                                                title="Finalizada">
+                                                F
+                                            </div>
                                         @else
-                                            <td>
-                                                @if ($adm)
-                                                    <a href="{{route('orders.show', ['order' => Crypt::encryptString($order->id)])}}" class="btn btn-danger btn-sm">
-                                                        <i class="fa fa-trash"></i>
-                                                    </a>
-                                                @endif
-                                            </td>
+                                            <div class="rounded-circle text-white d-flex align-items-center justify-content-center" 
+                                                style="width: 20px; height: 20px; font-size: 0.8rem; font-weight: bold;background-color: #fd7e14;" 
+                                                title="Pendente">
+                                                P
+                                            </div>
                                         @endif
-                                    @endif
+                                    </td>
                                 </tr>
                             @endforeach
                         </tbody>
                     </table>
                 </div>
-            @endif
+            </div>
         </div>
     </div>
 </div>

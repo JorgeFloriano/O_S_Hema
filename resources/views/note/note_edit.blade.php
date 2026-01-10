@@ -207,7 +207,7 @@
                         <label for="firstTec">Técnico 01</label>
                     </div>
                     
-                    <button onclick="scrollToBottom()" class="btn btn-info" id="pen1" href="#" class="signature-button" data-bs-toggle="modal"     data-bs-target="#signature1Modal"><i class="fa fa-pencil" aria-hidden="true"></i>ASSINAR
+                    <button onclick="scrollToBottom()" class="btn btn-outline-primary" id="pen1" href="#" class="signature-button" data-bs-toggle="modal"     data-bs-target="#signature1Modal"><i class="fa fa-pencil" aria-hidden="true"></i>ASSINAR
                     </button>
 
                     <!-- Modal signature 01-->
@@ -258,7 +258,7 @@
                         <label for="secondTec">Técnico 02</label>
                     </div>
 
-                    <button class="btn btn-info mb-2" id="pen2" href="#" class="signature-button" data-bs-toggle="modal" data-bs-target="#signature2Modal"><i class="fa fa-pencil" aria-hidden="true"></i>ASSINAR
+                    <button class="btn btn-outline-primary mb-2" id="pen2" href="#" class="signature-button" data-bs-toggle="modal" data-bs-target="#signature2Modal"><i class="fa fa-pencil" aria-hidden="true"></i>ASSINAR
                     </button>
 
                     <!-- Modal signature 02-->
@@ -290,7 +290,7 @@
                             Salvar
                         </button>
                         <a href="{{route('notes.create', ['order' => Crypt::encryptString($note->order_id)])}}" class="btn btn-outline-primary">
-                            Voltar
+                            <i class="fa fa-arrow-left"></i> Voltar
                         </a>
                     </div>
                 </form>

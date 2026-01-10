@@ -82,7 +82,7 @@
                         </div>
                         <div>
                             <a id='cancel' href="{{route('orders.index')}}" class="btn btn-outline-primary">
-                                Voltar
+                                <i class="fa fa-arrow-left"></i> Voltar
                             </a>
                         </div>
                     </div>

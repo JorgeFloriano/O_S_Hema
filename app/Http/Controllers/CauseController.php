@@ -8,7 +8,7 @@ use App\Class\CryptMsg;
 
 class CauseController extends Controller
 {
-   
+
     public readonly Cause $cause;
     public $crypt;
 
@@ -25,12 +25,12 @@ class CauseController extends Controller
 
         session()->put('table', 'causes');
 
-        return redirect()->route('causes.list' , 1);
+        return redirect()->route('causes.list', 1);
     }
 
     public function list(bool $opt)
     {
-        
+
         if (session('main') !== auth()->user()->id) {
             return view('login');
         }
@@ -41,7 +41,7 @@ class CauseController extends Controller
             $msg = 'Desativados';
             $cond = 'Ativar';
             $title = 'Ativos';
-            $btn_color = 'btn-success';
+            $btn_color = 'btn-outline-primary';
             $route = 'causes.restore';
         } else {
             $causes = $this->cause->select('id', 'description')->simplePaginate(20);
@@ -49,7 +49,7 @@ class CauseController extends Controller
             $msg = 'Ativos';
             $cond = 'Desativar';
             $title = 'Desativados';
-            $btn_color = 'btn-danger';
+            $btn_color = 'btn-outline-primary';
             $route = 'causes.desativate';
         }
 
@@ -64,7 +64,7 @@ class CauseController extends Controller
         ]);
     }
     public function create()
-    {    
+    {
         if (session('main') !== auth()->user()->id) {
             return view('login');
         }
@@ -94,10 +94,10 @@ class CauseController extends Controller
         if (session('main') !== auth()->user()->id) {
             return view('login');
         }
-        
+
         return view('codes.cause.cause_delete', ['cause' => $cause]);
     }
-    
+
     public function edit($cause)
     {
         if (session('main') !== auth()->user()->id) {
@@ -118,7 +118,7 @@ class CauseController extends Controller
         }
 
         $request->validated();
-        
+
         $updated = $this->cause->where('id', $id)->update($request->except(['_token', '_method']));
 
         if ($updated) {
@@ -132,7 +132,7 @@ class CauseController extends Controller
         if (session('main') !== auth()->user()->id) {
             return view('login');
         }
-        
+
         $deleted = $this->cause->where('id', $id)->delete();
 
         if ($deleted) {
@@ -170,7 +170,7 @@ class CauseController extends Controller
         if (!$decrypt_id) {
             return redirect()->back()->withErrors('Erro de desencriptação.');
         }
-        
+
         $deleted = $this->cause->where('id', $decrypt_id)->delete();
 
         if ($deleted) {

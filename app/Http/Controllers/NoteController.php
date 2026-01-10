@@ -47,7 +47,7 @@ class NoteController extends Controller
 
         $orders = Order::select('id', 'client_id', 'equipment', 'req_descr', 'req_date', 'finished')->where('tec_id', auth()->user()->tec->id)->orderBy('id', 'desc')->simplePaginate(20);
 
-        return view('note.notes_list' , ['orders' => $orders]);
+        return view('note.notes_list', ['orders' => $orders]);
     }
 
     // Only technicians can access the service order filling form
@@ -78,7 +78,7 @@ class NoteController extends Controller
 
         // Generate tables codes ids lists
         foreach ($c_l as $key => $codes) {
-            session()->put($key.'_ids', $codes->pluck('id')->toArray());
+            session()->put($key . '_ids', $codes->pluck('id')->toArray());
         }
 
         // Get all materials order by name
@@ -135,66 +135,66 @@ class NoteController extends Controller
             'km_end' => $request->input('km_end'),
             'expense' => $request->input('expense'),
             'obs' => $request->input('obs') ?? 'Sem observaçãos',
+        ]);
+
+        // Create note_tec for first_tec
+        if ($created_note) {
+            $cr_note_tec1 = NoteTec::create([
+                'note_id' => $created_note->id,
+                'tec_id' => $request->input('first_tec'),
+                'signature' => $request->input('sign_t_1'),
             ]);
 
-            // Create note_tec for first_tec
-            if ($created_note) {
-                $cr_note_tec1 = NoteTec::create([
+            // Create note_tec for second_tec if he is not 0
+            if ($second_tec != '0') {
+                $cr_note_tec2 = NoteTec::create([
                     'note_id' => $created_note->id,
-                    'tec_id' => $request->input('first_tec'),
-                    'signature' => $request->input('sign_t_1'),
+                    'tec_id' => $second_tec,
+                    'signature' => $request->input('sign_t_2') ?? null,
                 ]);
-
-                // Create note_tec for second_tec if he is not 0
-                if ($second_tec != '0') {
-                    $cr_note_tec2 = NoteTec::create([
-                        'note_id' => $created_note->id,
-                        'tec_id' => $second_tec,
-                        'signature' => $request->input('sign_t_2') ?? null,
-                    ]);
-                    if (!$cr_note_tec2) {
-                        return redirect()->back()->with('message', 'Erro ao salvar assinatura do Técnico 02.');
-                    }
+                if (!$cr_note_tec2) {
+                    return redirect()->back()->with('message', 'Erro ao salvar assinatura do Técnico 02.');
                 }
             }
-    
-            // Update client info and finshed status on order
-            $os = Order::find($request->input('order_id'));
-            $os->cl_name = $request->input('cl_name');
-            $os->cl_function = $request->input('cl_function');
-            $os->cl_contact = $request->input('cl_contact');
-            $os->cl_date = \Carbon\Carbon::now()->format('Y-m-d');
-            $os->cl_sign = $request->input('cl_sign');
-            $os->finished = $request->input('finished');
-            $updated_os = $os->save();
+        }
 
-            if ($os->finished) {
-                $os->finish();
-            }
-    
-            // Save materials in note and validate materials list
-            if ($request->input('material_ids_array')) {
-                $material_ids = array_unique(explode(",", $request->input('material_ids_array')));
-                foreach ($material_ids as $material_id) {
-                    $note_material = MaterialNote::create([
-                        'note_id' => $created_note->id,
-                        'material_id' => $request->input('material_id_'.$material_id),
-                        'quantity' => $request->input('material_id_'.$material_id.'_qtd'),
-                    ]);
-                    if (!$note_material) {
-                        return redirect()->back()->with('message', 'Erro ao salvar materiais.');
-                    }
+        // Update client info and finshed status on order
+        $os = Order::find($request->input('order_id'));
+        $os->cl_name = $request->input('cl_name');
+        $os->cl_function = $request->input('cl_function');
+        $os->cl_contact = $request->input('cl_contact');
+        $os->cl_date = \Carbon\Carbon::now()->format('Y-m-d');
+        $os->cl_sign = $request->input('cl_sign');
+        $os->finished = $request->input('finished');
+        $updated_os = $os->save();
+
+        if ($os->finished) {
+            $os->finish();
+        }
+
+        // Save materials in note and validate materials list
+        if ($request->input('material_ids_array')) {
+            $material_ids = array_unique(explode(",", $request->input('material_ids_array')));
+            foreach ($material_ids as $material_id) {
+                $note_material = MaterialNote::create([
+                    'note_id' => $created_note->id,
+                    'material_id' => $request->input('material_id_' . $material_id),
+                    'quantity' => $request->input('material_id_' . $material_id . '_qtd'),
+                ]);
+                if (!$note_material) {
+                    return redirect()->back()->with('message', 'Erro ao salvar materiais.');
                 }
             }
+        }
 
 
-            if ($cr_note_tec1 && $updated_os) {
-                if ($request->input('finished')) {
-                    return redirect()->route('notes.index')->with('message', 'Solicitação de Assistência Técnica finalizada com sucesso.');
-                }
-                return redirect()->back()->with('message', 'Informações salvas com sucesso.');
+        if ($cr_note_tec1 && $updated_os) {
+            if ($request->input('finished')) {
+                return redirect()->route('notes.index')->with('message', 'Solicitação de Assistência Técnica finalizada com sucesso.');
             }
-            return redirect()->back()->with('message', 'Erro ao salvar informações.');
+            return redirect()->back()->with('message', 'Informações salvas com sucesso.');
+        }
+        return redirect()->back()->with('message', 'Erro ao salvar informações.');
     }
 
     // Show the form for deleting a note on the service orders
@@ -208,9 +208,9 @@ class NoteController extends Controller
             echo 'Erro de desencriptação.';
             die;
         }
- 
+
         // Get the first technician of the note
-        $note->first_tec = Note::find($note->id)->tecs[0];
+        $note->first_tec = Note::find($note->id)->tecs[0] ?? ' Não Informado';
 
         // Get the second technician of the note if he exists
         if (isset(Note::find($note->id)->tecs[1])) {
@@ -221,8 +221,11 @@ class NoteController extends Controller
         if (!isset(auth()->user()->tec)) {
             $msg = 'Informações do';
         } else {
-            if (auth()->user()->tec->id != $note->first_tec->id) {
-                $msg = 'Informações do';
+
+            if (isset($note->first_tec->id)) {
+                if (auth()->user()->tec->id != $note->first_tec->id) {
+                    $msg = 'Informações do';
+                }
             }
         }
 
@@ -247,7 +250,7 @@ class NoteController extends Controller
             die;
         }
 
-        $note->first_tec = Note::find($note->id)->tecs[0];
+        $note->first_tec = Note::find($note->id)->tecs[0] ?? ' Não Informado';
         if ($this->t->id != $note->first_tec->id) {
             return redirect()->back()->withErrors(['error' => 'Acesso não autorizado para editar anotacões de outro técnico.']);
         }
@@ -258,7 +261,7 @@ class NoteController extends Controller
         }
 
         // Get all technicians except the first
-        $tecs = Tec::where('id','!=', $note->first_tec->id)->get();
+        $tecs = Tec::where('id', '!=', $note->first_tec->id)->get();
 
         // Generate tables with all codes list
         $c_l = [
@@ -271,7 +274,7 @@ class NoteController extends Controller
 
         // Generate tables codes ids lists to validate
         foreach ($c_l as $key => $codes) {
-            session()->put($key.'_ids', $codes->pluck('id')->toArray());
+            session()->put($key . '_ids', $codes->pluck('id')->toArray());
         }
 
         // Remove seconds from requests time format
@@ -312,7 +315,7 @@ class NoteController extends Controller
     }
 
     public function update(FormNoteRequest $request, string $id)
-    {      
+    {
         // Check if user is logged is a technician
         if (!$this->t) {
             return view('login');
@@ -392,15 +395,15 @@ class NoteController extends Controller
                 foreach ($material_ids as $material_id) {
                     $note_material = MaterialNote::create([
                         'note_id' => $id,
-                        'material_id' => $request->input('material_id_'.$material_id),
-                        'quantity' => $request->input('material_id_'.$material_id.'_qtd'),
+                        'material_id' => $request->input('material_id_' . $material_id),
+                        'quantity' => $request->input('material_id_' . $material_id . '_qtd'),
                     ]);
                     if (!$note_material) {
                         return redirect()->back()->with('message', 'Erro ao salvar materiais.');
                     }
                 }
             }
-    
+
             if ($updated) {
                 return redirect()->back()->with('message', 'Registro de serviço atualizado com sucesso.');
             }
@@ -450,14 +453,14 @@ class NoteController extends Controller
             return view('login');
         }
 
-        for ($j=0; $j < $qtd; $j++) { 
-            for ($i=0; $i < 30; $i++) { 
+        for ($j = 0; $j < $qtd; $j++) {
+            for ($i = 0; $i < 30; $i++) {
                 $order_id = 43788 + $j;
                 $created_note = $this->note->create([
                     'order_id' => $order_id,
-                    'equip_mod' => 'Model order '.$order_id.' note '. $i,
-                    'equip_id' => 'Number order '.$order_id.' note '. $i,
-                    'equip_type' => 'Type order '.$order_id.' note '. $i,
+                    'equip_mod' => 'Model order ' . $order_id . ' note ' . $i,
+                    'equip_id' => 'Number order ' . $order_id . ' note ' . $i,
+                    'equip_type' => 'Type order ' . $order_id . ' note ' . $i,
                     'note_type_id' => 101,
                     'defect_id' => 201,
                     'cause_id' => 399,
@@ -471,7 +474,7 @@ class NoteController extends Controller
                     'back_start' => date('H:i'),
                     'back_end' => date('H:i'),
                 ]);
-    
+
                 // Create note_tec for first_tec
                 if ($created_note) {
                     $cr_note_tec1 = NoteTec::create([
@@ -479,7 +482,7 @@ class NoteController extends Controller
                         'tec_id' => auth()->user()->tec()->first()->id,
                         'signature' => 'data:image/png;base64,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',
                     ]);
-    
+
                     // Create note_tec for second_tec if he is not 0
                     if ($created_note) {
                         $cr_note_tec2 = NoteTec::create([
@@ -489,19 +492,19 @@ class NoteController extends Controller
                         ]);
                     }
                 }
-        
+
                 // Update client info and finshed status on order
                 $os = Order::find($order_id);
-                $os->cl_name = 'Client order '.$order_id;
-                $os->cl_function = "Function ".$order_id;
-                $os->cl_contact = '015 15 4433322'.$order_id;
+                $os->cl_name = 'Client order ' . $order_id;
+                $os->cl_function = "Function " . $order_id;
+                $os->cl_contact = '015 15 4433322' . $order_id;
                 $os->cl_date = \Carbon\Carbon::now()->format('Y-m-d');
                 $os->cl_sign = 'data:image/png;base64,iVBORw0KGgoAAAANSUhEUgAAAUAAAADICAYAAACZBDirAAAAAXNSR0IArs4c6QAABc5JREFUeF7t1AERAAAIAjHpX9ogPxswPHaOAAECUYFFc4tNgACBM4CegACBrIABzFYvOAECBtAPECCQFTCA2eoFJ0DAAPoBAgSyAgYwW73gBAgYQD9AgEBWwABmqxecAAED6AcIEMgKGMBs9YITIGAA/QABAlkBA5itXnACBAygHyBAICtgALPVC06AgAH0AwQIZAUMYLZ6wQkQMIB+gACBrIABzFYvOAECBtAPECCQFTCA2eoFJ0DAAPoBAgSyAgYwW73gBAgYQD9AgEBWwABmqxecAAED6AcIEMgKGMBs9YITIGAA/QABAlkBA5itXnACBAygHyBAICtgALPVC06AgAH0AwQIZAUMYLZ6wQkQMIB+gACBrIABzFYvOAECBtAPECCQFTCA2eoFJ0DAAPoBAgSyAgYwW73gBAgYQD9AgEBWwABmqxecAAED6AcIEMgKGMBs9YITIGAA/QABAlkBA5itXnACBAygHyBAICtgALPVC06AgAH0AwQIZAUMYLZ6wQkQMIB+gACBrIABzFYvOAECBtAPECCQFTCA2eoFJ0DAAPoBAgSyAgYwW73gBAgYQD9AgEBWwABmqxecAAED6AcIEMgKGMBs9YITIGAA/QABAlkBA5itXnACBAygHyBAICtgALPVC06AgAH0AwQIZAUMYLZ6wQkQMIB+gACBrIABzFYvOAECBtAPECCQFTCA2eoFJ0DAAPoBAgSyAgYwW73gBAgYQD9AgEBWwABmqxecAAED6AcIEMgKGMBs9YITIGAA/QABAlkBA5itXnACBAygHyBAICtgALPVC06AgAH0AwQIZAUMYLZ6wQkQMIB+gACBrIABzFYvOAECBtAPECCQFTCA2eoFJ0DAAPoBAgSyAgYwW73gBAgYQD9AgEBWwABmqxecAAED6AcIEMgKGMBs9YITIGAA/QABAlkBA5itXnACBAygHyBAICtgALPVC06AgAH0AwQIZAUMYLZ6wQkQMIB+gACBrIABzFYvOAECBtAPECCQFTCA2eoFJ0DAAPoBAgSyAgYwW73gBAgYQD9AgEBWwABmqxecAAED6AcIEMgKGMBs9YITIGAA/QABAlkBA5itXnACBAygHyBAICtgALPVC06AgAH0AwQIZAUMYLZ6wQkQMIB+gACBrIABzFYvOAECBtAPECCQFTCA2eoFJ0DAAPoBAgSyAgYwW73gBAgYQD9AgEBWwABmqxecAAED6AcIEMgKGMBs9YITIGAA/QABAlkBA5itXnACBAygHyBAICtgALPVC06AgAH0AwQIZAUMYLZ6wQkQMIB+gACBrIABzFYvOAECBtAPECCQFTCA2eoFJ0DAAPoBAgSyAgYwW73gBAgYQD9AgEBWwABmqxecAAED6AcIEMgKGMBs9YITIGAA/QABAlkBA5itXnACBAygHyBAICtgALPVC06AgAH0AwQIZAUMYLZ6wQkQMIB+gACBrIABzFYvOAECBtAPECCQFTCA2eoFJ0DAAPoBAgSyAgYwW73gBAgYQD9AgEBWwABmqxecAAED6AcIEMgKGMBs9YITIGAA/QABAlkBA5itXnACBAygHyBAICtgALPVC06AgAH0AwQIZAUMYLZ6wQkQMIB+gACBrIABzFYvOAECBtAPECCQFTCA2eoFJ0DAAPoBAgSyAgYwW73gBAgYQD9AgEBWwABmqxecAAED6AcIEMgKGMBs9YITIGAA/QABAlkBA5itXnACBAygHyBAICtgALPVC06AgAH0AwQIZAUMYLZ6wQkQMIB+gACBrIABzFYvOAECBtAPECCQFTCA2eoFJ0DAAPoBAgSyAgYwW73gBAgYQD9AgEBWwABmqxecAAED6AcIEMgKGMBs9YITIGAA/QABAlkBA5itXnACBAygHyBAICtgALPVC06AgAH0AwQIZAUMYLZ6wQkQMIB+gACBrIABzFYvOAECBtAPECCQFTCA2eoFJ0DAAPoBAgSyAgYwW73gBAg84oAAyUjb8HgAAAAASUVORK5CYII=';
                 $os->finished = 1;
                 $updated_os = $os->save();
             }
         }
-    
+
         if ($cr_note_tec1 && $updated_os) {
             return redirect()->route('notes.index')->with('message', 'Solicitações de Assistência Técnica para testes finalizadas com sucesso.');
         }

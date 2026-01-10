@@ -22,7 +22,7 @@
                 <hr>
 
                 <div>
-                    <a href="{{route('users.create')}}" class="btn btn-primary">Cadastrar Novo</a>
+                    <a href="{{route('users.create')}}" class="btn btn-primary"><i class="fa fa-plus"></i> Cadastrar Novo</a>
                 </div>
                 <hr>
 
@@ -32,7 +32,7 @@
                     </p>
                 @else
                     <table class="table table-striped">
-                        <thead class="table-dark">
+                        <thead class="table-primary">
                             <tr>
                                 <th>Nº</th>
                                 <th>Nome</th>
@@ -49,12 +49,12 @@
                                     <td>{{$user->name}}</td>
                                     <td>{{$user->function}}</td>
                                     <td>
-                                        <a href="{{route('users.edit', ['user' => Crypt::encryptString($user->id)])}}" class="btn btn-primary btn-sm">
+                                        <a href="{{route('users.edit', ['user' => Crypt::encryptString($user->id)])}}" class="btn btn-outline-primary btn-sm">
                                             <i class="fa fa-edit"></i>
                                         </a>
                                     </td>
                                     <td>
-                                        <a href="{{route('users.show', ['user' => Crypt::encryptString($user->id)])}}" class="btn btn-danger btn-sm">
+                                        <a href="{{route('users.show', ['user' => Crypt::encryptString($user->id)])}}" class="btn btn-outline-primary btn-sm">
                                             <i class="fa fa-trash"></i>
                                         </a>
                                     </td>

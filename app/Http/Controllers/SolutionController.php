@@ -9,7 +9,7 @@ use Illuminate\Contracts\Encryption\DecryptException;
 
 class SolutionController extends Controller
 {
-   
+
     public readonly Solution $solution;
 
     public function __construct()
@@ -24,12 +24,12 @@ class SolutionController extends Controller
 
         session()->put('table', 'solutions');
 
-        return redirect()->route('solutions.list' , 1);
+        return redirect()->route('solutions.list', 1);
     }
 
     public function list(bool $opt)
     {
-        
+
         if (session('main') !== auth()->user()->id) {
             return view('login');
         }
@@ -40,7 +40,7 @@ class SolutionController extends Controller
             $msg = 'Desativados';
             $cond = 'Ativar';
             $title = 'Ativos';
-            $btn_color = 'btn-success';
+            $btn_color = 'btn-outline-primary';
             $route = 'solutions.restore';
         } else {
             $solutions = $this->solution->select('id', 'description')->simplePaginate(20);
@@ -48,7 +48,7 @@ class SolutionController extends Controller
             $msg = 'Ativos';
             $cond = 'Desativar';
             $title = 'Desativados';
-            $btn_color = 'btn-danger';
+            $btn_color = 'btn-outline-primary';
             $route = 'solutions.desativate';
         }
 
@@ -64,7 +64,7 @@ class SolutionController extends Controller
     }
 
     public function create()
-    {    
+    {
         if (session('main') !== auth()->user()->id) {
             return view('login');
         }
@@ -95,7 +95,7 @@ class SolutionController extends Controller
         if (session('main') !== auth()->user()->id) {
             return view('login');
         }
-        
+
         return view('codes.solution.solution_delete', ['solution' => $solution]);
     }
 
@@ -122,7 +122,7 @@ class SolutionController extends Controller
         }
 
         $request->validated();
-        
+
         $updated = $this->solution->where('id', $id)->update($request->except(['_token', '_method']));
 
         if ($updated) {
@@ -136,7 +136,7 @@ class SolutionController extends Controller
         if (session('main') !== auth()->user()->id) {
             return view('login');
         }
-        
+
         $deleted = $this->solution->where('id', $id)->delete();
 
         if ($deleted) {
@@ -178,7 +178,7 @@ class SolutionController extends Controller
             echo 'Erro de desencriptação.';
             die;
         }
-        
+
         $deleted = $this->solution->where('id', $id)->delete();
 
         if ($deleted) {

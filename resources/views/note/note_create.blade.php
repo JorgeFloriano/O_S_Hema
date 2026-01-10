@@ -54,7 +54,7 @@
 
                     @if(count($order->notes) > 0)
                         <!-- Button trigger modal -->
-                        <button type="button" class="btn btn-info" data-bs-toggle="modal" data-bs-target="#exampleModal">
+                        <button type="button" class="btn btn-outline-primary" data-bs-toggle="modal" data-bs-target="#exampleModal">
                             Mostrar serviços anteriores
                         </button>
                         
@@ -74,7 +74,7 @@
                                         <div>
                                             @foreach ($order->notes as $note)
                                             <div>
-                                                <div>Registro nº {{$note->id ?? ''}}, Téc. {{$note->tecs->first()->id ?? ''}}-{{$note->tecs->first()->user->name ?? ''}},    {{date('d/m/Y',strtotime($note->date ?? ''))}}</div>
+                                                <div>Registro nº {{$note->id ?? ''}}, Téc. {{$note->tecs->first()->id ?? ''}}- {{$note->tecs->first()->user->name ?? ' Não Informado'}},    {{date('d/m/Y',strtotime($note->date ?? ''))}}</div>
                                                     <div class="mt-2"> 
                                                         @if ($note->tecs->first()->user_id ?? 0 == auth()->user()->id)
                                                             <a href="{{route('notes.edit', [
@@ -84,13 +84,13 @@
                                                             </a>
                                                             <a href="{{route('notes.show', [
                                                                 'note' => Crypt::encryptString($note->id),
-                                                            ])}}" class="btn btn-danger btn-sm">
+                                                            ])}}" class="btn btn-outline-primary btn-sm">
                                                                 Excluir
                                                             </a>
                                                         @else
                                                             <a href="{{route('notes.show', [
                                                                 'note' => Crypt::encryptString($note->id),
-                                                            ])}}" class="btn btn-info btn-sm">
+                                                            ])}}" class="btn btn-outline-primary btn-sm">
                                                                 Exibir
                                                             </a>
                                                         @endif
@@ -218,7 +218,7 @@
                             <label for="firstTec">Técnico 01</label>
                         </div>
 
-                        <button onclick="scrollToBottom()" class="btn btn-info" id="pen1" href="#" class="signature-button" data-bs-toggle="modal"     data-bs-target="#signature1Modal"><i class="fa fa-pencil" aria-hidden="true"></i>Assinar
+                        <button onclick="scrollToBottom()" class="btn btn-outline-primary" id="pen1" href="#" class="signature-button" data-bs-toggle="modal"     data-bs-target="#signature1Modal"><i class="fa fa-pencil" aria-hidden="true"></i>Assinar
                         </button>
 
                         <!-- Modal signature 01-->
@@ -258,7 +258,7 @@
                             <label for="secondTec">Técnico 02</label>
                         </div>
 
-                        <button class="btn btn-info mb-2" id="pen2" href="#" class="signature-button" data-bs-toggle="modal" data-bs-target="#signature2Modal"><i class="fa fa-pencil" aria-hidden="true"></i>Assinar
+                        <button class="btn btn-outline-primary mb-2" id="pen2" href="#" class="signature-button" data-bs-toggle="modal" data-bs-target="#signature2Modal"><i class="fa fa-pencil" aria-hidden="true"></i>Assinar
                         </button>
 
                         <!-- Modal signature 02-->
@@ -308,7 +308,7 @@
                                 <input type="text" name="cl_contact" class="form-control" id="clContact" value="{{old('cl_contact')}}" placeholder="Contato" maxlength="40">
                                 <label for="clContact">Contato:</label>
                             </div>
-                            <button class="btn btn-info mb-2" id="pen3" href="#" class="signature-button" data-bs-toggle="modal" data-bs-target="#signature3Modal"><i class="fa fa-pencil" aria-hidden="true"></i>Assinatura do Cliente
+                            <button class="btn btn-outline-primary mb-2" id="pen3" href="#" class="signature-button" data-bs-toggle="modal" data-bs-target="#signature3Modal"><i class="fa fa-pencil" aria-hidden="true"></i>Assinatura do Cliente
                             </button>
                             <!-- Modal signature 03-->
                             <div class="modal fade" id="signature3Modal" tabindex="-1" aria-labelledby="signature3ModalLabel" aria-hidden="true">
@@ -328,16 +328,16 @@
                                         <a id="clear3" href="#" class="signature-button"><i class="fa fa-eraser" aria-hidden="true"></i>Apagar </a>
                                         </div>
                                     </div>
-                                </div>
+                                </div><i class="fa fa-check"></i> 
                             </div>
                         </div>
 
                         <div class="my-2">
                             <button id="submitButton" type="button" class="btn btn-primary me-2" data-bs-dismiss="modal">
-                                Confirma
+                                <i class="fa fa-check"></i> Confirma
                             </button>
                             <a href="{{route('notes.index')}}" class="btn btn-outline-primary">
-                                Voltar
+                                <i class="fa fa-arrow-left"></i> Voltar
                             </a>
                         </div>
                     </form>
