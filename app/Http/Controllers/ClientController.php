@@ -40,7 +40,6 @@ class ClientController extends Controller
             $msg = 'Desativados';
             $cond = 'Reativar';
             $title = 'Ativos';
-            $btn_color = 'success';
             $route = 'clients.restore';
         } else {
             $clients = $this->client->select('id', 'name','unit')->orderBy('name')->simplePaginate(20);
@@ -49,7 +48,6 @@ class ClientController extends Controller
             $msg = 'Cadastrados';
             $cond = 'Arquivar';
             $title = 'Arquivados';
-            $btn_color = 'danger';
             $route = 'clients.desativate';
         }
 
@@ -59,7 +57,6 @@ class ClientController extends Controller
             'msg' => $msg,
             'cond' => $cond,
             'title' => $title,
-            'btn_color' => $btn_color,
             'icon' => $icon,
             'route' => $route
         ]);

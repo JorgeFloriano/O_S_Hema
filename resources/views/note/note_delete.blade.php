@@ -138,7 +138,7 @@
                         </div>
 
                         <div class="form-floating my-2">
-                            <input class="form-control" id="firstTec" disabled name="first_tec" value="{{$note->first_tec->id}} - {{$note->first_tec->user->name}}">
+                            <input class="form-control" id="firstTec" disabled name="first_tec" value="{{$note->first_tec->id ?? '00'}} - {{$note->first_tec->user->name ?? ' Não Identificado'}} ">
                             <label for="firstTec">Técnico 01</label>
                         </div>
 
@@ -149,15 +149,15 @@
 
                         <div class="my-2">
 
-                            @if(isset(auth()->user()->tec))
+                            @if(isset(auth()->user()->tec) && isset($note->first_tec->id))
                                 @if (auth()->user()->tec->id == $note->first_tec->id)
-                                    <button id="submitButton" type="submit" class="btn btn-danger me-2">
-                                        Deletar
+                                    <button id="submitButton" type="submit" class="btn btn-outline-primary me-2">
+                                        <i class="fa fa-trash"></i> Deletar
                                     </button>
                                 @endif
                             @endif
                             
-                            <a href="{{url()->previous()}}" class="btn btn-outline-primary ms-2" >Voltar</a>
+                            <a href="{{url()->previous()}}" class="btn btn-outline-primary ms-2" ><i class="fa fa-arrow-left"></i> Voltar</a>
                         </div>
                     </form>
                 </main>

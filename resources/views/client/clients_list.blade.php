@@ -13,15 +13,22 @@
                     {{session()->get('message')}}
                 </div>
                 @endif
-                <div id="header" class="my-2">
-                    <h2>Clientes {{$msg}}</h2>
-                </div>
 
-                <hr>
+                <div id="header" class="my-3 d-flex flex-wrap justify-content-between align-items-center">
+                    {{-- Título à esquerda --}}
+                    <div class="mb-2">
+                        <h2 class="mb-0">Clientes {{$msg}}</h2>
+                    </div>
 
-                <div>
-                    <a href="{{route('clients.create')}}" class="btn btn-primary me-2">Cadastrar Novo</a>
-                    <a href="{{route('clients.list', ['opt' => $opt])}}" class="btn btn-outline-primary">{{$title}}</a>
+                    {{-- Botões à direita (quando couber) --}}
+                    <div class="mb-2">
+                        <a href="{{route('clients.create')}}" class="btn btn-primary me-2">
+                            <i class="fa fa-plus"></i> Cadastrar Novo
+                        </a>
+                        <a href="{{route('clients.list', ['opt' => $opt])}}" class="btn btn-outline-primary"> 
+                            <i class="fa fa-{{$icon}}" aria-hidden="true"></i> {{$title}}
+                        </a>
+                    </div>
                 </div>
 
                 <hr>
@@ -32,7 +39,7 @@
                     </p>
                 @else
                     <table class="table table-striped">
-                        <thead class="table-dark">
+                        <thead class="table-primary">
                             <tr>
                                 <th>Nº</th>
                                 <th>Nome</th>
@@ -52,14 +59,14 @@
                                     <td>{{$client->unit}}</td>
                                     @if ($opt === 0)
                                         <td>
-                                            <a href="{{route('clients.edit', ['client' => Crypt::encryptString($client->id)])}}" class="btn btn-primary btn-sm">
+                                            <a href="{{route('clients.edit', ['client' => Crypt::encryptString($client->id)])}}" class="btn btn-outline-primary btn-sm">
                                                 <i class="fa fa-edit"></i>
                                             </a>
                                         </td>
                                     @endif
                                     
                                     <td>
-                                        <a href="{{route($route, ['client' => Crypt::encryptString($client->id)])}}" class="btn btn-{{$btn_color}} btn-sm">
+                                        <a href="{{route($route, ['client' => Crypt::encryptString($client->id)])}}" class="btn btn-outline-primary btn-sm">
                                             <i class="fa fa-{{$icon}}" aria-hidden="true"></i>
                                         </a>
                                     </td>

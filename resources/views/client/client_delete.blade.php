@@ -46,9 +46,9 @@
                         </div>
 
                         <div class="my-2">
-                            <button type="submit" class="btn btn-danger me-2">Deletar</button>
+                            <button type="submit" class="btn btn-outline-danger me-2"><i class="fa fa-trash"></i> Deletar</button>
                             <a href="{{route('clients.index')}}" class="btn btn-outline-primary">
-                                Voltar
+                                <i class="fa fa-arrow-left"></i> Voltar
                             </a>
                         </div>
                     </form>

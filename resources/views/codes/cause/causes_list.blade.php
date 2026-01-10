@@ -21,7 +21,7 @@
             
                 <hr>
                 <div>
-                    <a href="{{route('causes.create')}}" class="btn btn-primary me-2">Cadastrar Novo</a>
+                    <a href="{{route('causes.create')}}" class="btn btn-primary me-2"><i class="fa fa-plus"></i> Cadastrar Novo</a>
                     <a href="{{route('causes.list', ['opt' => $opt])}}" class="btn btn-outline-primary">{{$title}}</a>
                 </div>
 
@@ -33,7 +33,7 @@
                     </p>
                 @else
                     <table class="table table-striped">
-                        <thead class="table-dark">
+                        <thead class="table-primary">
                             <tr>
                                 <th>Nº</th>
                                 <th>Descrição</th>
@@ -52,14 +52,14 @@
                                     <td>{{$cause->description}}</td>
                                     @if ($opt === 0)
                                         <td>
-                                            <a href="{{route('causes.edit', ['cause' => Crypt::encryptString($cause->id)])}}" class="btn btn-primary btn-sm">
+                                            <a href="{{route('causes.edit', ['cause' => Crypt::encryptString($cause->id)])}}" class="btn btn-outline-primary btn-sm">
                                                 <i class="fa fa-edit"></i>
                                             </a>
                                         </td>
                                     @endif
 
                                     <td>
-                                        <a href="{{route($route, ['cause' => Crypt::encryptString($cause->id)])}}" class="btn btn-sm {{$btn_color}}">
+                                        <a href="{{route($route, ['cause' => Crypt::encryptString($cause->id)])}}" class="btn btn-sm btn-outline-primary">
                                             <i class="fa fa-exchange"></i>
                                         </a>
                                     </td>

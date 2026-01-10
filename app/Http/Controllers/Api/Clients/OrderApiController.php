@@ -49,7 +49,7 @@ class OrderApiController extends Controller
      */
     public function create()
     {
-        $return_error = $this->can->error([Auth::user()->cli->can_create_sat], 'Usuário sem permissão para criar ordens.');
+        $return_error = $this->can->error([Auth::user()->cli->can_create_sat], 'Usuário sem permissão para criar SAT.');
 
         if ($return_error) {
             return $return_error;
@@ -70,7 +70,7 @@ class OrderApiController extends Controller
     {
         $auth = Auth::user();
 
-        $return_error = $this->can->error([$auth->cli->can_create_sat], 'Usuário sem permissão para salvar ordens.');
+        $return_error = $this->can->error([$auth->cli->can_create_sat], 'Usuário sem permissão para salvar SAT.');
 
         if ($return_error) {
             return $return_error;
@@ -120,7 +120,7 @@ class OrderApiController extends Controller
      */
     public function show(Order $order)
     {
-        $return_error = $this->can->error([Auth::user()->cli->can_see_sat], 'Usuário sem permissão visualizar ordens.');
+        $return_error = $this->can->error([Auth::user()->cli->can_see_sat], 'Usuário sem permissão visualizar SAT.');
 
         if ($return_error) {
             return $return_error;

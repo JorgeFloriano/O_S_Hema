@@ -9,7 +9,7 @@ use Illuminate\Contracts\Encryption\DecryptException;
 
 class MaterialController extends Controller
 {
-   
+
     public readonly Material $material;
     public readonly array $units;
 
@@ -26,12 +26,12 @@ class MaterialController extends Controller
 
         session()->put('table', 'materials');
 
-        return redirect()->route('materials.list' , 1);
+        return redirect()->route('materials.list', 1);
     }
 
     public function list(bool $opt)
     {
-        
+
         if (session('main') !== auth()->user()->id && session('cli') !== auth()->user()->id) {
             return view('login');
         }
@@ -42,7 +42,7 @@ class MaterialController extends Controller
             $msg = 'Desativados';
             $cond = 'Ativar';
             $title = 'Ativos';
-            $btn_color = 'btn-success';
+            $btn_color = 'btn-outline-primary';
             $route = 'materials.restore';
         } else {
             $materials = $this->material->orderBy('description')->simplePaginate(20);
@@ -50,7 +50,7 @@ class MaterialController extends Controller
             $msg = 'Ativos';
             $cond = 'Desativar';
             $title = 'Desativados';
-            $btn_color = 'btn-danger';
+            $btn_color = 'btn-outline-primary';
             $route = 'materials.desativate';
         }
 
@@ -66,7 +66,7 @@ class MaterialController extends Controller
     }
 
     public function create()
-    {    
+    {
         if (session('main') !== auth()->user()->id && session('cli') !== auth()->user()->id) {
             return view('login');
         }
@@ -98,7 +98,7 @@ class MaterialController extends Controller
         if (session('main') !== auth()->user()->id && session('cli') !== auth()->user()->id) {
             return view('login');
         }
-        
+
         return view('material.material_delete', ['material' => $material]);
     }
 
@@ -128,7 +128,7 @@ class MaterialController extends Controller
         }
 
         $request->validated();
-        
+
         $updated = $this->material->where('id', $id)->update($request->except(['_token', '_method']));
 
         if ($updated) {
@@ -142,7 +142,7 @@ class MaterialController extends Controller
         if (session('main') !== auth()->user()->id && session('cli') !== auth()->user()->id) {
             return view('login');
         }
-        
+
         $deleted = $this->material->where('id', $id)->delete();
 
         if ($deleted) {
@@ -184,7 +184,7 @@ class MaterialController extends Controller
             echo 'Erro de desencriptação.';
             die;
         }
-        
+
         $deleted = $this->material->where('id', $id)->delete();
 
         if ($deleted) {

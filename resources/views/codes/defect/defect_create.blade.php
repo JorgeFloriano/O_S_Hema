@@ -36,10 +36,10 @@
 
                         <div class="my-2">
                             <button id="submitButton" type="submit" class="btn btn-primary me-2">
-                                Confirma
+                                <i class="fa fa-check"></i> Confirma
                             </button>
                             <a href="{{route('defects.index')}}" class="btn btn-outline-primary">
-                                Voltar
+                                <i class="fa fa-arrow-left"></i> Voltar
                             </a>
                         </div>
                     </form>
