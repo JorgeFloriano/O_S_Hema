@@ -8,23 +8,13 @@
      <div class="container box">
         <div class="row">
             <div class="col">
-                @if (session()->has('message'))
-                    <div class="alert alert-info" role="alert">
-                        {{session()->get('message')}}
-                    </div>
-                @endif
-
-                <div id="header" class="my-2">
-                    <h2>Códigos de Segmento de Serviços {{$msg}}</h2>
-                </div>
-            
-                <hr>
-                <div>
-                    <a href="{{route('order_types.create')}}" class="btn btn-primary me-2"><i class="fa fa-plus"></i> Cadastrar Novo</a>
-                    <a href="{{route('order_types.list', ['opt' => $opt])}}" class="btn btn-outline-primary">{{$title}}</a>
-                </div>
-
-                <hr>
+                <x-code-index-header
+                    text="Códigos de Segmentos de Serviços"
+                    :msg="$msg"
+                    object="order_types"
+                    :title="$title"
+                    :opt="$opt">
+                </x-code-index-header>
 
                 @if ($order_types->count() === 0)
                     <p>

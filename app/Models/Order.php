@@ -98,7 +98,7 @@ class Order extends Model
                 $order->emergencySatNotification($sup);
             }
 
-            // Buscamos todos os técnicos que estão de plantão, vinculados a este cliente e que ainda não tem uma ordem de emergência atribuida
+            // Buscamos todos os técnicos que estão de plantão, vinculados a este cliente e que ainda não tem uma SAT de emergência atribuida
             $client = Client::with(['emergencyTecs' => function ($query) {
                 $query->with('user')
                     ->where('on_call', 1)
@@ -164,7 +164,7 @@ class Order extends Model
                 'emergency_notification_pending' => false
             ]);
 
-            // 2. Finaliza a ordem
+            // 2. Finaliza a SAT
             $this->finished = true;
             $order_finished = $this->save();
 

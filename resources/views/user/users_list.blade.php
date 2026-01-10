@@ -10,20 +10,22 @@
         <div class="row">
             <div class="col">
 
-                @if (session()->has('message'))
-                <div class="alert alert-info" role="alert">
-                    {{session()->get('message')}}
-                </div>
-                @endif
+                <x-live-toast-message></x-live-toast-message>
 
-                <div id="header" class="my-2">
-                    <h2>Usuários Cadastrados</h2>
-                </div>
-                <hr>
+                <div id="header" class="my-3 d-flex flex-wrap justify-content-between align-items-center">
+                    {{-- Título à esquerda --}}
+                    <div class="mb-2">
+                        <h2>Usuários Cadastrados</h2>
+                    </div>
 
-                <div>
-                    <a href="{{route('users.create')}}" class="btn btn-primary"><i class="fa fa-plus"></i> Cadastrar Novo</a>
+                    {{-- Botões à direita (quando couber) --}}
+                    <div class="mb-2">
+                        <a href="{{route('users.create')}}" class="btn btn-primary" data-bs-toggle="tooltip" title="Criar novo Usuário">
+                            <i class="fa fa-plus"></i> Cadastrar
+                        </a>
+                    </div>
                 </div>
+
                 <hr>
 
                 @if ($users->count() === 0)

@@ -5,11 +5,7 @@
         <div class="row mt-1">
             <div class="col-lg-6 offset-lg-3">
 
-                @if (session()->has('message'))
-                    <div class="alert alert-info" role="alert">
-                        {{session()->get('message')}}
-                    </div>
-                @endif
+                <x-live-toast-message></x-live-toast-message>
 
                 <div id="header" class="text-center my-2">
                     <strong>Solicitação de Assistência Técnica nº <span style="color: red">{{number_format($note->order->id, 0, ',', '.')}}</span></strong>

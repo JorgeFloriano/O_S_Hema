@@ -8,23 +8,13 @@
      <div class="container box">
         <div class="row">
             <div class="col">
-                @if (session()->has('message'))
-                <div class="alert alert-info" role="alert">
-                    {{session()->get('message')}}
-                </div>
-                @endif
-
-                <div id="header" class="my-2">
-                    <h2>Códigos de Defeitos {{$msg}}</h2>
-                </div>
-            
-                <hr>
-                <div>
-                    <a href="{{route('defects.create')}}" class="btn btn-primary me-2"><i class="fa fa-plus"></i> Cadastrar Novo</a>
-                    <a href="{{route('defects.list', ['opt' => $opt])}}" class="btn btn-outline-primary">{{$title}}</a>
-                </div>
-
-                <hr>
+                <x-code-index-header
+                    text="Códigos de Defeitos"
+                    :msg="$msg"
+                    object="defects"
+                    :title="$title"
+                    :opt="$opt">
+                </x-code-index-header>
 
                 @if ($defects->count() === 0)
                     <p>

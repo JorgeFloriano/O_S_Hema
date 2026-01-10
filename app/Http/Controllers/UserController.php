@@ -63,7 +63,7 @@ class UserController extends Controller
         }
 
         $tecs = Tec::with(['emergencyClients', 'emergencyOrder:id,finished,tec_id'])
-            // Carregamos apenas as colunas id, finished e tec_id da ordem para economizar memória
+            // Carregamos apenas as colunas id, finished e tec_id da SAT para economizar memória
             ->join('users', 'tecs.user_id', '=', 'users.id')
             ->whereNotIn('tecs.user_id', [1, 2, 9999, 0])
             ->orderBy('users.name')
@@ -75,9 +75,9 @@ class UserController extends Controller
             $order = $tec->emergencyOrder;
 
             // Condições: 
-            // 1. Existe uma ordem vinculada
-            // 2. A ordem não está finalizada
-            // 3. O técnico da ordem é o próprio técnico (conferência de integridade)
+            // 1. Existe uma SAT vinculada
+            // 2. A SAT não está finalizada
+            // 3. O técnico da SAT é o próprio técnico (conferência de integridade)
             $tec->busy = ($order && !$order->finished && $order->tec_id == $tec->id);
 
             return $tec;
@@ -112,7 +112,7 @@ class UserController extends Controller
             $tec->emergencyClients()->sync($clientIds);
         }
 
-        return redirect()->back()->with('message', 'Sobreaviso e vínculos de clientes atualizados!');
+        return redirect()->back();
     }
 
     // If logged in user is supervisor, reset all emergencies for all technicians
@@ -120,7 +120,7 @@ class UserController extends Controller
     {
         if ($this->m) {
             auth()->user()->resetAllEmergencies();
-            return redirect()->back()->with('message', 'Todos os alertas de emergência foram interrompidos!');
+            return redirect()->back()->with('message', 'Todas as notificações de emergência foram imterrompidas.');
         }
 
         return view('login');

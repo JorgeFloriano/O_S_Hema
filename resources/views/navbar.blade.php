@@ -1,6 +1,6 @@
 <nav class="navbar navbar-expand-lg navbar-dark" style="background: #1b0363ff">
     {{-- Se a URL contiver 'orders', usa fluid (100%), caso contrário usa o container padrão --}}
-    <div class="{{ Request::is('*orders', '*notes', '*orders/filter') ? 'container-sm' : 'container' }}">
+    <div class="container-sm">
         <div>
             <img src="{{asset('assets/img/'.env('LOGO'))}}" alt="logo hema" width="130px">
         </div>

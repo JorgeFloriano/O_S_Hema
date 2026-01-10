@@ -1032,6 +1032,6 @@ class OrderController extends Controller
             );
         }
 
-        return redirect()->back()->with('success', 'Calendário atualizado!');
+        return redirect()->back()->with('message', 'Calendário atualizado!');
     }
 }

@@ -32,7 +32,7 @@
                          alt="-------" 
                          style="width: 100%; max-height: 80px; object-fit: contain;">
                 @else
-                    <img src={{$note->tecs[0]->pivot->signature}} 
+                    <img src={{$note->tecs[0]->pivot->signature ?? ''}} 
                         alt="-------" 
                         style="width: 100%; max-height: 80px; object-fit: contain;">
                 @endif
