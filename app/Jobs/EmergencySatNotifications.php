@@ -31,7 +31,7 @@ class EmergencySatNotifications implements ShouldQueue, ShouldBeUnique
         $this->queue = 'emergency';
     }
 
-    // O ID que define a unicidade (Técnico + Ordem)
+    // O ID que define a unicidade (Técnico + SAT)
     public function uniqueId()
     {
         return $this->tecId . '_' . $this->orderId;
@@ -53,7 +53,7 @@ class EmergencySatNotifications implements ShouldQueue, ShouldBeUnique
     {
         $tec = Tec::find($this->tecId);
 
-        // Pega apenas o necessário da Ordem e o nome do Cliente
+        // Pega apenas o necessário da SAT e o nome do Cliente
         $order = Order::with(['client:id,name'])
             ->select('id', 'client_id', 'req_descr', 'updated_at') // req_descr é necessário para a message
             ->find($this->orderId);
@@ -69,7 +69,7 @@ class EmergencySatNotifications implements ShouldQueue, ShouldBeUnique
             return;
         }
 
-        // Verifica se a ordem foi criada ou atualizada
+        // Verifica se a SAT foi criada ou atualizada
         if (!$order->updated_at || !$order->created_at) {
             $order->update([
                 'updated_at' => now(),
@@ -77,9 +77,9 @@ class EmergencySatNotifications implements ShouldQueue, ShouldBeUnique
             ]);
         }
 
-        // LIMITE DE 60 MINUTOS: Verifica se a ordem foi criada/atualizada há mais de uma hora e para de enviar notificações
+        // LIMITE DE 60 MINUTOS: Verifica se a SAT foi criada/atualizada há mais de uma hora e para de enviar notificações
         if ($order->updated_at->diffInMinutes(now()) > 60) {
-            Log::info("Send Emergency Alert Stoped: Ciclo de notificações encerrado por tempo limite (60min) para a SAT #{$this->orderId}, ordem foi criada / atualizada a {$order->updated_at->diffInMinutes(now())}min.");
+            Log::info("Send Emergency Alert Stoped: Ciclo de notificações encerrado por tempo limite (60min) para a SAT #{$this->orderId}, SAT foi criada / atualizada a {$order->updated_at->diffInMinutes(now())}min.");
 
             // Opcional: Aqui você pode desativar a flag no banco para o card parar de ser emergência
             // ou apenas parar as notificações. Vamos apenas parar as notificações:
@@ -93,7 +93,7 @@ class EmergencySatNotifications implements ShouldQueue, ShouldBeUnique
         }
 
         if ($tec->emergency_order_id !== $this->orderId) {
-            Log::info("Send Emergency Alert Stoped: SAT #{$this->orderId} não está ativa como emergencial para o técnico #{$this->tecId}, ordem atual: #{$tec->emergency_order_id}.");
+            Log::info("Send Emergency Alert Stoped: SAT #{$this->orderId} não está ativa como emergencial para o técnico #{$this->tecId}, SAT atual: #{$tec->emergency_order_id}.");
             return;
         }
 

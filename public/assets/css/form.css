@@ -15,11 +15,12 @@ html {
 }
 
 .box {
+    padding: 20px;
+    overflow: hidden;
     margin-top: 20px;
     margin-bottom: 20px;
-    background-color: white;
     border-radius: 10px;
-    padding: 20px;
+    background-color: white;
     box-shadow: 0px 0px 14px 0px rgba(0, 0, 0, 0.346);
 }
 
@@ -27,9 +28,10 @@ html {
 @media only screen and (max-width: 568px) {
     .box {
         margin-top: 20px;
+        overflow: hidden;
         margin-bottom: 20px;
-        background-color: white;
         border-radius: 10px;
+        background-color: white;
         padding: 20px 10px 20px 10px;
         box-shadow: 0px 0px 14px 0px rgba(0, 0, 0, 0.346);
     }

@@ -3,27 +3,34 @@
 @section('content')
     @php
         use Illuminate\Support\Facades\Crypt;
+        use App\Class\TextFormat;
+        $text = new TextFormat();
     @endphp
 
     {{-- container-sm was altered in my bootstrap.min.css --}}
     <div class="container-sm box">
         <div class="row">
             <div class="col">
-                @if (session()->has('message'))
-                    <div class="alert alert-info" role="alert">
-                        {{session()->get('message')}}
+                <x-live-toast-message></x-live-toast-message>
+
+                <div id="header" class="my-3 d-flex flex-wrap justify-content-between align-items-center">
+                    {{-- Título à esquerda --}}
+                    <div class="mb-2">
+                        <h2>Programação (SATs)</h2>
                     </div>
-                @endif
 
-                <div id="header" class="my-2">
-                    <h2>Programação</h2>
+                    @if (auth()->user()->tec->on_call)
+                        {{-- Botões à direita (quando couber) --}}
+                        <div class="mb-2">
+                            <a href="{{route('orders.create')}}" class="btn btn-primary"
+                            data-bs-toggle="tooltip" title="Criar novo Usuário">
+                                <i class="fa fa-plus"></i> Criar Nova
+                            </a>
+                        </div>
+                    @endif
                 </div>
-                <hr>
 
-                @if (auth()->user()->tec->on_call)
-                    <a href="{{route('orders.create')}}" class="btn btn-primary"><i class="fa fa-plus"></i> Gerar SAT</a>
-                    <hr>
-                @endif
+                <hr>
 
                 @if ($orders->count() === 0)
                     <p>
@@ -49,7 +56,7 @@
                                         <td>{{number_format($order->id, 0, ',', '.')}}</td>
                                         <td>{{$order->client->name}}</td>
                                         <td>{{$order->equipment ?? 'Não informado'}}</td>
-                                        <td>{{$order->req_descr}}</td>
+                                        <td>{{$text->spaceAfterPunctuation($order->req_descr)}}</td>
                                         <td>{{date('d/m/y',strtotime($order->req_date))}}</td>
                                         @if ($order->finished)
                                             <td>

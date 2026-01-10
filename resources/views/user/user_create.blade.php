@@ -5,11 +5,7 @@
         <div class="row mt-1">
             <div class="col-lg-8 offset-lg-2">
 
-                @if (session()->has('message'))
-                    <div class="alert alert-warning" role="alert">
-                        {{session()->get('message')}}
-                    </div>
-                @endif
+                <x-live-toast-message></x-live-toast-message>
 
                 @if ($errors->any())
                     <div class="alert alert-warning">

@@ -5,17 +5,15 @@
 @php
     use Illuminate\Support\Facades\Crypt;
     use App\Models\Cli;
+    use App\Class\TextFormat;
+    $p = new TextFormat();
 @endphp
 
 {{-- container-sm was altered in my bootstrap.min.css --}}
 <div class="container-sm box">
     <div class="row">
         <div class="col">
-            @if (session()->has('message'))
-                <div class="alert alert-info" role="alert">
-                    {{session()->get('message')}}
-                </div>
-            @endif
+            <x-live-toast-message></x-live-toast-message>
 
             @if ($errors->any())
                 <div class="alert alert-warning">
@@ -174,7 +172,7 @@
                                     <td>{{number_format($order->id, 0, ',', '.')}}</td>
                                     <td>{{$order->client->name ?? ''}}</td>
                                     <td>{{$order->equipment ?? 'Não informado'}}</td>
-                                    <td>{{$order->req_descr}}</td>
+                                    <td>{{$p->spaceAfterPunctuation($order->req_descr) ?? ''}}</td>
                                     <td>
                                         @if ($order->finished || (!$main && !$sup))
                                             <input class="form-control" disabled id="ord_{{$order->id}}" value="{{$order->tec->user->name ?? 'Indefinido'}} - [{{$order->tec->id ?? ''}}]">

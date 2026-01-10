@@ -48,7 +48,7 @@ Route::middleware('auth:sanctum')->group(function () {
 
     Route::post('/technician/clear-emergency', [NoteTeamApiController::class, 'clearEmergency'])->name('tec-clear-emergency');
 
-    // Verificação se o técnico tem ordem de emergência sendo enviada no momento de abrir o aplicativo para ir direto para a tela da ordem
+    // Verificação se o técnico tem SAT de emergência sendo enviada no momento de abrir o aplicativo para ir direto para a tela da SAT
     Route::get('/technician/check-emergency', function () {
         $tec = Auth::user()->tec;
         return response()->json([
@@ -66,7 +66,7 @@ Route::middleware('auth:sanctum')->group(function () {
             ->get();
     });
 
-    // Atualizar o tecnico da ordem
+    // Atualizar o tecnico da SAT
     Route::post('/sat/orders/{id}/update-tec', [SatTeamApiController::class, 'update_tec'])->name('sat-update-tec');
 
     // Rotas para a tela de controle de técnicos de sobreaviso (emergência)

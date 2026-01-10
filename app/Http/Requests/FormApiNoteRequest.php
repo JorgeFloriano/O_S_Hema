@@ -116,7 +116,7 @@ class FormApiNoteRequest extends FormRequest
     public function attributes(): array
     {
         return [
-            'order_id' => 'ordem de serviço',
+            'order_id' => 'SAT',
             'equip_mod' => 'modelo do equipamento',
             'equip_id' => 'ID do equipamento',
             'equip_type' => 'tipo do equipamento',

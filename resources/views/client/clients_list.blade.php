@@ -8,11 +8,7 @@
      <div class="container box">
         <div class="row">
             <div class="col">
-                @if (session()->has('message'))
-                <div class="alert alert-info" role="alert">
-                    {{session()->get('message')}}
-                </div>
-                @endif
+               <x-live-toast-message></x-live-toast-message>
 
                 <div id="header" class="my-3 d-flex flex-wrap justify-content-between align-items-center">
                     {{-- Título à esquerda --}}

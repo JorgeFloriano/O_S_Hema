@@ -77,13 +77,13 @@ class SatTeamApiController extends Controller
                 $order->satNotification($notifiable);
                 return response()->json([
                     'success' => true,
-                    'message' => 'Ordem atribuida e técnico notificado com sucesso!'
+                    'message' => 'SAT atribuida e técnico notificado com sucesso!'
                 ]);
             } catch (\Exception $e) {
                 Log::error("Falha ao notificar técnico {$notifiable->name} para SAT #{$order->id}: " . $e->getMessage());
                 return response()->json([
                     'success' => false,
-                    'message' => 'Ordem atribuida, não foi possivel notificar o técnico!'
+                    'message' => 'SAT atribuida, não foi possivel notificar o técnico!'
                 ]);
             }
         }
@@ -91,7 +91,7 @@ class SatTeamApiController extends Controller
         return response()->json([
             Log::error("Falha ao notificar técnico para SAT #{$order->id}, usuário desconhecido."),
             'success' => false,
-            'message' => 'Ordem atribuida, não foi encontrado usuário!'
+            'message' => 'SAT atribuida, não foi encontrado usuário!'
         ]);
     }
 }

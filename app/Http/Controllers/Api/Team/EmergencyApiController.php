@@ -43,7 +43,7 @@ class EmergencyApiController extends Controller
             // Usado no mobile para mostrar "Disponível" ou "Ocupado na SAT #"
             $tec->busy = ($order && !$order->finished && $order->tec_id == $tec->id);
 
-            // Opcional: Se quiser enviar o ID da ordem diretamente para facilitar o link no mobile
+            // Opcional: Se quiser enviar o ID da SAT diretamente para facilitar o link no mobile
             $tec->emergency_order_id = ($tec->busy) ? $order->id : null;
 
             return $tec;

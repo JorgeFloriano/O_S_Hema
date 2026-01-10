@@ -28,11 +28,11 @@
             {{-- Technician 1 Signature --}}
             <td style="width: 16.6%" rowspan="3">
                 @if(isset($note->tecs[0]) && $note->tecs[0]->pivot->signature_path && Storage::disk('public')->exists($note->tecs[0]->pivot->signature_path))
-                    <img src="{{ asset('storage/' . $note->tecs[0]->pivot->signature_path) }}" 
+                    <img src="{{ asset('storage/' . $note->tecs[0]->pivot->signature_path ?? '') }}" 
                         alt="------" 
                         style="width: 100%; max-height: 80px; object-fit: contain;">
                 @else
-                    <img src={{$note->tecs[0]->pivot->signature}} 
+                    <img src={{$note->tecs[0]->pivot->signature ?? ''}} 
                         alt="------" 
                         style="width: 100%; max-height: 80px; object-fit: contain;">
                 @endif

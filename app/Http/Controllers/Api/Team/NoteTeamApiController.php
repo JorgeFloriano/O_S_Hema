@@ -71,14 +71,14 @@ class NoteTeamApiController extends Controller
         $currentTec = $user->tec;
         $orderId = $request->order_id;
 
-        // 1. Verificamos se a ordem existe
+        // 1. Verificamos se a SAT existe
         $order = Order::find($orderId);
         if (!$order) {
-            return response()->json(['error' => 'Ordem não encontrada'], 404);
+            return response()->json(['error' => 'SAT não encontrada'], 404);
         }
 
         // 2. TRAVA DE SEGURANÇA: 
-        // Se a ordem já tem um técnico e não é o logado, ele não pode assumir/limpar
+        // Se a SAT já tem um técnico e não é o logado, ele não pode assumir/limpar
         if ($order->tec_id && $order->tec_id != $currentTec->id) {
             return response()->json([
                 'error' => 'SAT já atribuída a outro técnico.',
@@ -91,7 +91,7 @@ class NoteTeamApiController extends Controller
             return $this->can->AuthIsTec();
         }
 
-        // 4. Verifica se  ha algum loop de notificações pendentes para essa ordem
+        // 4. Verifica se  ha algum loop de notificações pendentes para essa SAT
         $notificationsPending = Tec::where('emergency_order_id', $orderId)
             ->where('emergency_notification_pending', true)
             ->exists();
@@ -100,7 +100,7 @@ class NoteTeamApiController extends Controller
         }
 
         // 5. PARAR NOTIFICAÇÕES PARA TODOS:
-        // Limpa a flag de loop (pending) de TODOS os técnicos que estavam com essa ordem aberta
+        // Limpa a flag de loop (pending) de TODOS os técnicos que estavam com essa SAT aberta
         Tec::where('emergency_order_id', $orderId)
             ->update(['emergency_notification_pending' => false]);
 
@@ -111,13 +111,13 @@ class NoteTeamApiController extends Controller
             ->where('id', '!=', $currentTec->id)
             ->update(['emergency_order_id' => null]);
 
-        // 7. ASSUMIR A ORDEM:
-        // Vincula formalmente a Ordem ao técnico que a abriu primeiro
+        // 7. ASSUMIR A SAT:
+        // Vincula formalmente a SAT ao técnico que a abriu primeiro
         $order->update(['tec_id' => $currentTec->id]);
 
         return response()->json([
             'success' => true,
-            'message' => 'Você assumiu a ordem e os alertas foram interrompidos para a equipe.'
+            'message' => 'Você assumiu a SAT e os alertas foram interrompidos para a equipe.'
         ]);
     }
 
@@ -140,7 +140,7 @@ class NoteTeamApiController extends Controller
         ])->select('id', 'client_id', 'equipment', 'req_date', 'req_descr', 'req_name', 'req_time', 'sector', 'user_id')
             ->find($id);
 
-        // Se a ordem já foi atribuida a outro técnico, bloqueia a tela do formulário
+        // Se a SAT já foi atribuida a outro técnico, bloqueia a tela do formulário
         $tec = Auth::user()->tec;
         if (!is_null($order->tec_id) && $order->tec_id != $tec->id) {
             return response()->json(['error' => 'Acesso negado. Esta SAT está vinculada a outro técnico.'], 403);
