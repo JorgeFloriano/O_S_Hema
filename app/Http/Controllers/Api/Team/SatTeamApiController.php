@@ -26,31 +26,89 @@ class SatTeamApiController extends Controller
     /**
      * Display a listing of the resource.
      */
-    public function index()
+    public function apiIndex(Request $request)
     {
         // Get orders with relationships
         // The user data (id, name, surname) is now automatically loaded
         //$order->tec->user will contain only id, name, surname
 
-        // Check if user is a supervisor
+        //Check if user is a supervisor
         if ($this->can->AuthIsSup()) {
             return $this->can->AuthIsSup();
         }
 
-        $orders = Order::with([
-            'type:id,description',
-            'client:id,name',
-            'tec:id,user_id',
-            'tec.user:id,name,surname',
-        ])
-            ->where('created_at', '>', now()->subDays(30))
+        // $orders = Order::with([
+        //     'type:id,description',
+        //     'client:id,name',
+        //     'tec:id,user_id',
+        //     'tec.user:id,name,surname',
+        // ])
+        //     ->where('created_at', '>', now()->subDays(30))
+        //     ->orderBy('id', 'desc')
+        //     ->get(['id', 'order_type_id', 'client_id', 'tec_id', 'req_descr', 'req_name', 'sector', 'req_date', 'req_time', 'equipment', 'finished']);
+
+        // return response()->json([
+        //     'orders' => $orders,
+        // ]);
+
+        // Tratamento do tec_id
+        if ($request->tec_id === '0') {
+            $tec_selected = '0';
+        } elseif ($request->tec_id == null) {
+            $tec_selected = null;
+        } else {
+            $tec_selected = $request->tec_id;
+        }
+
+        // ATENÇÃO: Atribuindo o encadeamento à variável $query
+        $query = Order::query()
+            ->with(['client:id,name', 'tec.user:id,name', 'type:id,description']) // Eager loading essencial para o Mobile
+            ->when($request->client_id, function ($q) use ($request) {
+                $q->where('client_id', $request->client_id);
+            })
+            ->when($tec_selected && $tec_selected !== '0', function ($q) use ($request) {
+                $q->where('tec_id', $request->tec_id);
+            })
+            ->when($tec_selected === '0', function ($q) {
+                // Usa um agrupamento where para não quebrar outros filtros com o orWhere
+                $q->where(function ($sub) {
+                    $sub->where('tec_id', '0')->orWhereNull('tec_id');
+                });
+            })
+            ->when($request->date_type == 'last_note_date', function ($q) use ($request) {
+                // Garante que a SAT tenha notas se o filtro for por nota
+                $q->whereHas('notes', function ($sub) use ($request) {
+                    if ($request->filled('date_start')) {
+                        $sub->where('date', '>=', $request->date_start);
+                    }
+                    if ($request->filled('date_end')) {
+                        $sub->where('date', '<=', $request->date_end);
+                    }
+                });
+            }, function ($q) use ($request) {
+                // Caso contrário (order_open_date), filtra na tabela orders
+                if ($request->filled('date_start')) {
+                    $q->where('req_date', '>=', $request->date_start);
+                }
+                if ($request->filled('date_end')) {
+                    $q->where('req_date', '<=', $request->date_end);
+                }
+            })
+            ->when($request->has('finished') && $request->finished != 2, function ($q) use ($request) {
+                $q->where('finished', $request->finished);
+            });
+
+        // Executa a busca
+        $orders = $query->select('id', 'order_type_id', 'req_descr', 'req_name', 'equipment', 'sector', 'client_id', 'user_id', 'tec_id', 'req_date', 'req_time', 'finished')
             ->orderBy('id', 'desc')
-            ->get(['id', 'order_type_id', 'client_id', 'tec_id', 'req_descr', 'req_name', 'sector', 'req_date', 'req_time', 'equipment', 'finished']);
+            ->limit(30)
+            ->get();
 
         return response()->json([
-            'orders' => $orders,
+            'orders' => $orders, // Collection é convertida automaticamente para array JSON
         ]);
     }
+
     public function update_tec(Request $request, $id)
     {
 

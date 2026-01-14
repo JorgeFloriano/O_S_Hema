@@ -19,7 +19,6 @@ use Illuminate\Support\Facades\Crypt;
 use Illuminate\Contracts\Encryption\DecryptException;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Webklex\PDFMerger\Facades\PDFMergerFacade as PDFMerger;
-use App\Notifications\NewSampleNotification;
 use Illuminate\Support\Facades\DB;
 
 class OrderController extends Controller
@@ -76,6 +75,7 @@ class OrderController extends Controller
         $cli_ids_array = $clients->pluck('id')->toArray();
         array_unshift($cli_ids_array, 0);
         session()->put('client_ids', $cli_ids_array);
+        session()->put('reference_router_back', 'orders.index');
 
         // Create date start_date and end_date
         $start_date = \Carbon\Carbon::now()->subMonth()->format('Y-m-d');
@@ -161,8 +161,8 @@ class OrderController extends Controller
             ->when($tec_selected, function ($query) use ($request) {
                 $query->where('tec_id', $request->tec_id);
             })
-            ->when($tec_selected == '0', function ($query) use ($request) {
-                $query->where('tec_id', '0');
+            ->when($tec_selected == '0', function ($query) {
+                $query->where('tec_id', '0')->orWhereNull('tec_id');
             })
             ->when($request->date_start, function ($query) use ($request) {
                 if ($request->date_type == 'order_open_date') {
@@ -319,6 +319,7 @@ class OrderController extends Controller
 
         $msg = $created ? 'Solicitação de Assistência Técnica criada com sucesso.' : 'Erro ao criar Solicitação de Assistência Técnica.';
         $route = $this->o && !$this->a ? 'notes.index' : 'orders.index';
+        $route = session('reference_router_back') ?? 'orders.index';
         return redirect()->route($route)->with('message', $msg);
     }
 
@@ -381,7 +382,7 @@ class OrderController extends Controller
 
         $disabled = '';
         $title = 'Editar ';
-        if (isset($ord_creator_is_cli) || !$this->a) {
+        if (isset($ord_creator_is_cli) || !$this->a || (session('reference_router_back') == 'tec_on')) {
             $disabled = 'disabled';
             $title = 'Informações da ';
         }
@@ -476,9 +477,9 @@ class OrderController extends Controller
         }
 
         if ($this->s->reopenOrder($id)) {
-            return redirect()->route('orders.index')->with('message', 'Solicitação de Assistência Técnica reaberta com sucesso.');
+            return redirect()->route(session('reference_router_back') ?? 'notes.index')->with('message', 'Solicitação de Assistência Técnica reaberta com sucesso.');
         }
-        return redirect()->route('orders.index')->with('message', 'Erro ao reabrir Solicitação de Assistência Técnica.');
+        return redirect()->route(session('reference_router_back') ?? 'notes.index')->with('message', 'Erro ao reabrir Solicitação de Assistência Técnica.');
     }
 
     // Shows the PDF for the order

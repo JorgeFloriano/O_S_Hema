@@ -11,6 +11,7 @@ class FormOrderApiRequest extends FormRequest
     {
         return [
             'order_type_id' => ['required','numeric',Rule::exists('order_types', 'id')],
+            'client_id' => ['nullable','numeric',Rule::exists('clients', 'id')],
             'sector' => 'required|max:30',
             'req_descr' => 'required|max:470',
             'equipment' => 'max:70',

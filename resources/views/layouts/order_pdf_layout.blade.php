@@ -27,7 +27,7 @@
                 </a>
             @endif
             @if (auth()->user()->adm()->first() || auth()->user()->sup()->first())
-                <a href="{{route('orders.index')}}" class="btn btn-outline-primary">
+                <a href="{{route(session('reference_router_back') ?? 'orders.index')}}" class="btn btn-outline-primary">
                     <i class="fa fa-arrow-left"></i> Voltar
                 </a>
             @else

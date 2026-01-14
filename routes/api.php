@@ -41,7 +41,7 @@ Route::middleware('auth:sanctum')->group(function () {
     Route::post('/notes', [NoteTeamApiController::class, 'store'])->name('notes.store');
 
     // Routes for SATs / orders
-    Route::get('/sat/orders', [SatTeamApiController::class, 'index'])->name('sat-orders');
+    Route::get('/sat/orders', [SatTeamApiController::class, 'apiIndex'])->name('sat-orders');
 
     // Token push - versão simplificada
     Route::post('/expo-tokens/associate', [ExpoTokenController::class, 'associate']);
