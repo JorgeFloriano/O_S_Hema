@@ -332,7 +332,7 @@
                             <button id="submitButton" type="button" class="btn btn-primary me-2" data-bs-dismiss="modal">
                                 <i class="fa fa-check"></i> Confirma
                             </button>
-                            <a href="{{route('notes.index')}}" class="btn btn-outline-primary">
+                            <a href="{{route(session('reference_router_back') ?? 'notes.index')}}" class="btn btn-outline-primary">
                                 <i class="fa fa-arrow-left"></i> Voltar
                             </a>
                         </div>

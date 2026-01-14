@@ -1,31 +1,19 @@
 <?php
 
 namespace App\Class;
+
 use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
 class ResponseJson
 {
-    public function error($conditions = [], $message)
+    public function array(bool $success, string $message, int $number = 200): object
     {
-        // Verify if user has access the feature
-        foreach ($conditions as $key => $condition) {
-            if (!isset($condition)) {
-                return response()->json([
-                    'error' => $message,
-                    'message' => $message
-                ], 200);
-            }
-
-            if (!$condition) {
-                return response()->json([
-                    'error' => $message,
-                    'message' => $message
-                ], 200);
-            }
-        }
-
-        return false;
+        return response()->json([
+            'success' => $success,
+            'error' => $message,
+            'message' => $message
+        ], $number);
     }
 
     public function numberOfUsersForClientLimit($auth)
@@ -69,7 +57,7 @@ class ResponseJson
                 'error' => 'Usuário sem cadastro de supervisor.',
                 'message' => 'Usuário sem cadastro de supervisor.'
             ], 403);
-        } 
+        }
     }
 
     public function isAuth()

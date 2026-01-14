@@ -2,9 +2,8 @@
 
 namespace App\Models;
 
-// use Illuminate\Contracts\Auth\MustVerifyEmail;
-
 use Illuminate\Database\Eloquent\Factories\HasFactory;
+use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
@@ -58,8 +57,6 @@ class User extends Authenticatable
         return $this->hasOne(Adm::class);
     }
 
-    public function isTec() {}
-
     public function tec(): HasOne
     {
         return $this->hasOne(Tec::class);
@@ -75,10 +72,18 @@ class User extends Authenticatable
         return $this->hasOne(Cli::class);
     }
 
+    public function userClientCompanyId(): int | null
+    {
+        if (!$this->cli) {
+            return null;
+        }
+        return $this->cli->client_id;
+    }
+
     /**
      * RELACIONAMENTO com tokens Expo
      */
-    public function expoTokens()
+    public function expoTokens(): HasMany
     {
         return $this->hasMany(ExpoToken::class);
     }
@@ -162,14 +167,36 @@ class User extends Authenticatable
         return parent::delete();
     }
 
-    public function getFullName()
+    public function getFullName(): string
     {
         return $this->name . ' ' . $this->surname;
     }
 
-     public function resetAllEmergencies()
+    public function resetAllEmergencies()
     {
         // Chama o comando que criamos internamente
         Artisan::call('emergency:reset-all');
+    }
+
+    public function canCreateSat(): bool
+    {
+        // Verify if client user has access to create sat
+        $cli_can = false;
+        if ($this->cli) {
+            $cli_can = $this->cli->can_create_sat;
+        }
+
+        // Verify if user has supervisor access
+        $sup_can = false;
+        if ($this->sup) {
+            $sup_can = $this->sup;
+        }
+
+        // If user is a client with access to create sat or is a supervisor, return true
+        return $cli_can || $sup_can;
+    }
+    public function cantCreateSatMessage(): string
+    {
+        return 'Usuário sem permissão para criar SATs.';
     }
 }

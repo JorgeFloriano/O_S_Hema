@@ -14,11 +14,13 @@ use Illuminate\Support\Facades\Auth;
 
 class OrderApiController extends Controller
 {
-    public $can;
+    private $resp_json;
+    private $user;
 
     public function __construct()
     {
-        $this->can = new ResponseJson();
+        $this->resp_json = new ResponseJson();
+        $this->user = Auth::user();
     }
     /**
      * Display a listing of the resource.
@@ -29,8 +31,7 @@ class OrderApiController extends Controller
         // The user data (id, name, surname) is now automatically loaded
         //$order->tec->user will contain only id, name, surname
 
-        $auth = Auth::user();
-        $client_id = $auth->cli->client_id;
+        $client_id = $this->user->cli->client_id;
 
         $orders = Order::with([
             'type:id,description',
@@ -49,12 +50,10 @@ class OrderApiController extends Controller
      */
     public function create()
     {
-        $return_error = $this->can->error([Auth::user()->cli->can_create_sat], 'Usuário sem permissão para criar SAT.');
-
-        if ($return_error) {
-            return $return_error;
-        }
-
+        // Check if user can create sat
+        if (!$this->user->canCreateSat()) 
+            return $this->resp_json->array(false, $this->user->cantCreateSatMessage());
+        
         // Get all order types
         $types = OrderType::select('id', 'description')->get();
 
@@ -68,18 +67,18 @@ class OrderApiController extends Controller
      */
     public function store(FormOrderApiRequest $request)
     {
-        $auth = Auth::user();
+        // Check if user can create sat
+        if (!$this->user->canCreateSat()) 
+            return $this->resp_json->array(false, $this->user->cantCreateSatMessage());
 
-        $return_error = $this->can->error([$auth->cli->can_create_sat], 'Usuário sem permissão para salvar SAT.');
-
-        if ($return_error) {
-            return $return_error;
+        
+        // Check if 'client_id' is fillable ou SAT was created by specific user client
+        if (!$this->user->userClientCompanyId() && !$request->client_id) {
+            return $this->resp_json->array(false, 'ID do cliente não encontrado', 400);
         }
-
-        $client_id = $auth->cli->client_id;
-        $complete_name = $auth->name . ' ' . $auth->surname;
-        $user_id = $auth->id;
-
+        
+        // Get client_id
+        $client_id = $this->user->userClientCompanyId() ? $this->user->userClientCompanyId() : $request->client_id;
 
         try {
             $text = new TextFormat;
@@ -89,8 +88,8 @@ class OrderApiController extends Controller
                 'client_id' => $client_id,
                 'order_type_id' => $request->order_type_id,
                 'sector' => $request->sector,
-                'req_name' => $complete_name, // Fixed variable name
-                'user_id' => $user_id, // Use auth()->id() instead of auth()->user()->id
+                'req_name' => $this->user->getFullName(), // Fixed variable name
+                'user_id' => $this->user->id, // Use auth()->id() instead of auth()->user()->id
                 'tec_id' => null,
                 'equipment' => $request->equipment,
                 'req_date' => now()->format('Y-m-d'), // Current date in proper format

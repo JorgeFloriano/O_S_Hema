@@ -45,6 +45,7 @@ class NoteController extends Controller
             return view('login');
         }
 
+        session()->put('reference_router_back', 'notes.index');
         $orders = Order::select('id', 'client_id', 'equipment', 'req_descr', 'req_date', 'finished')->where('tec_id', auth()->user()->tec->id)->orderBy('id', 'desc')->simplePaginate(20);
 
         return view('note.notes_list', ['orders' => $orders]);

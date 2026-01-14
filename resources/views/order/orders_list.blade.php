@@ -152,8 +152,8 @@
             </div>
 
             <hr>
-                <div class="table-responsive">
-                    <table class="table table-striped table-hover" id="orders_list">
+                <div class="table-responsive" style="overflow-x: visible">
+                    <table class="table table-striped table-hover" id="orders_list" style="overflow-x: visible">
                         <thead class="table-primary">
                             <tr>
                                 <th>Nº</th>

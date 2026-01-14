@@ -84,6 +84,7 @@ class UserController extends Controller
         });
 
         session()->put('tecs', $tecs);
+        session()->put('reference_router_back', 'tec_on');
 
         $clients = Client::select('id', 'name')->orderBy('name')->get();
 

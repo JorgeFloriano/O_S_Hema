@@ -126,7 +126,7 @@
                                     <i class="fa fa-check"></i> Confirma
                                 </button>
                             @endif
-                            <a href="{{redirect()->back()->getTargetUrl()}}" class="btn btn-outline-primary">
+                            <a href="{{route(session('reference_router_back') ?? 'orders.index')}}" class="btn btn-outline-primary">
                                 <i class="fa fa-arrow-left"></i> Voltar
                             </a>
                         </div>

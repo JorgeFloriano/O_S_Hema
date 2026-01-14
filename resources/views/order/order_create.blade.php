@@ -66,9 +66,9 @@
                                 <i class="fa fa-check"></i> Confirma
                             </button>
                             @if (isset(auth()->user()->adm) || isset(auth()->user()->sup))
-                                <a href="{{route('orders.index')}}" class="btn btn-outline-primary">
+                                <a href="{{route(session('reference_router_back') ?? 'orders.index')}}" class="btn btn-outline-primary">
                             @else
-                                <a href="{{route('notes.index')}}" class="btn btn-outline-primary">
+                                <a href="{{route(session('reference_router_back') ?? 'notes.index')}}" class="btn btn-outline-primary">
                             @endif
                                 <i class="fa fa-arrow-left"></i> Voltar
                             </a>
