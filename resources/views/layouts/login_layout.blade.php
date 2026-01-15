@@ -5,7 +5,7 @@
     <meta http-equiv="Content-Type"/>
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <link rel="stylesheet" href="{{ asset('assets/fontawesome/font-awesome.min.css')}}" type="text/css">
-    <link rel="stylesheet" href="{{ asset('assets/boodstrap/bootstrap.min.css')}}" type="text/css">
+    <link rel="stylesheet" href="{{ asset('assets/bootstrap/bootstrap.min.css')}}" type="text/css">
     <link rel="shortcut icon" href="{{asset('favicon.ico')}}">
     <style>
         body {
@@ -56,7 +56,7 @@
         <small>Created by Jorge Luis &copy; 2024</small>
     </div>
 
-    <script src="{{asset('assets/boodstrap/bootstrap.bundle.min.js')}}"></script>
+    <script src="{{asset('assets/bootstrap/bootstrap.bundle.min.js')}}"></script>
     <script src="{{asset('assets/js/functions.js')}}"></script>
 </body>
 </html>
