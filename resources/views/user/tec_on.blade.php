@@ -181,12 +181,6 @@
                                                     <div class="modal-body" style="max-height: 680px; overflow-y: auto;">
                                                         <div class="row">
                                                             <div class="modal-body">
-                                                                <div class="alert alert-primary d-flex align-items-center mb-3" role="alert">
-                                                                    <i class="fa fa-info-circle me-4 fs-4"></i> <div>
-                                                                        Para melhor gerenciamento dos atendimentos e performance do sistema, recomenda-se vincular 1 ou 2, no máximo <strong>3 clientes</strong> por técnico.
-                                                                    </div>
-                                                                </div>
-
                                                                 <div class="row">
                                                                     @foreach($clients as $client)
                                                                         @endforeach

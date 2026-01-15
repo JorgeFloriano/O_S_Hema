@@ -39,6 +39,22 @@
         </button>
         <div class="collapse navbar-collapse mt-3" id="navbarSupportedContent">
             <ul class="navbar-nav me-auto mb-lg-0">
+                @if (auth()->user()->sup()->first() || auth()->user()->adm()->first())
+                    <li>
+                        <a class="nav-link me-2 {{ Request::is('*orders*') ? 'fw-bold active border-bottom border-white pb-1' : '' }}" href="{{route('orders.index')}}">
+                            SATs
+                        </a>
+                    </li>
+                @endif
+
+                @if (auth()->user()->tec()->first())
+                    <li class="nav-item">
+                        <a class="nav-link me-2 {{ Request::is('*notes*') ? 'fw-bold active border-bottom border-white pb-1' : '' }}" href="{{route('notes.index')}}">
+                            Programação
+                        </a>
+                    </li>
+                @endif
+
                 @if (session('main') == auth()->user()->id)
                     <li class="nav-item">
                         <a class="nav-link me-2 {{ Request::is('*clients*') ? 'fw-bold active border-bottom border-white pb-1' : '' }}" href="{{route('clients.index')}}">
@@ -69,22 +85,6 @@
                     <li class="nav-item">
                         <a class="nav-link me-2 {{ Request::is('*materials*') ? 'fw-bold active border-bottom border-white pb-1' : '' }}" href="{{route('materials.index')}}">
                             Materiais
-                        </a>
-                    </li>
-                @endif
-
-                @if (auth()->user()->tec()->first())
-                    <li class="nav-item">
-                        <a class="nav-link me-2 {{ Request::is('*notes*') ? 'fw-bold active border-bottom border-white pb-1' : '' }}" href="{{route('notes.index')}}">
-                            Programação
-                        </a>
-                    </li>
-                @endif
-
-                @if (auth()->user()->sup()->first() || auth()->user()->adm()->first())
-                    <li>
-                        <a class="nav-link me-2 {{ Request::is('*orders*') ? 'fw-bold active border-bottom border-white pb-1' : '' }}" href="{{route('orders.index')}}">
-                            SATs
                         </a>
                     </li>
                 @endif
