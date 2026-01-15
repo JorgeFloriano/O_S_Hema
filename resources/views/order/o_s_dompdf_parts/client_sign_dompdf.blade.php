@@ -3,13 +3,13 @@
         <tr style="border-bottom: none">
             <th colspan="2">Dados do Cliente</th>
             <td style="width: 18%; border-right: hidden" rowspan="4">
-                @if(isset($order->cl_sign_path) && Storage::disk('public')->exists($order->cl_sign_path))
-                    <img src="data:image/png;base64,{{ base64_encode(Storage::disk('public')->get($order->cl_sign_path))}}" 
+                @if(isset($order->cl_sign_path))
+                    <img src="storage/{{$order->cl_sign_path}}"
                          alt="-------" 
                          style="width: 100%; max-height: 80px; object-fit: contain;">
                 @else
                     @if (isset($order->cl_sign))
-                        <img src={{$order->cl_sign}} 
+                        <img src="{{$order->cl_sign}}"
                             alt="-------" 
                             style="width: 100%; max-height: 80px; object-fit: contain;">
                     @endif

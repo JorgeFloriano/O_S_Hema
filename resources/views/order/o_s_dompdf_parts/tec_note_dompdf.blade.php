@@ -28,7 +28,7 @@
             {{-- Technician 1 Signature --}}
             <td style="width: 16.6%" rowspan="3">
                 @if(isset($note->tecs[0]) && $note->tecs[0]->pivot->signature_path)
-                    <img src="data:image/png;base64,{{ base64_encode(Storage::disk('public')->get($note->tecs[0]->pivot->signature_path)) }}" 
+                    <img src="storage/{{ $note->tecs[0]->pivot->signature_path }}" 
                          alt="-------" 
                          style="width: 100%; max-height: 80px; object-fit: contain;">
                 @else
@@ -43,7 +43,7 @@
             {{-- Technician 2 Signature --}}
             <td style="width: 16.6%; border-right: hidden" rowspan="3">
                 @if(isset($note->tecs[1]) && $note->tecs[1]->pivot->signature_path)
-                    <img src="data:image/png;base64,{{ base64_encode(Storage::disk('public')->get($note->tecs[1]->pivot->signature_path)) }}" 
+                    <img src="storage/{{ $note->tecs[1]->pivot->signature_path }}" 
                          alt="-------" 
                          style="width: 100%; max-height: 80px; object-fit: contain;">
                 @else
