@@ -137,95 +137,94 @@
                     @csrf
                     <input type="hidden" name="_method" id="idNum" value="PUT">
                 
-                    <table class="table table-striped table-hover">
-                        <thead class="table-primary">
-                            <tr>
-                                <th>Nº</th>
-                                <th>Nome</th>
-                                <th>Função</th>
-                                <th>Ativo</th>
-                                <th>Clientes</th>
-                                <th>Condição</th>
-                            </tr>
-                        </thead>
-
-                        <tbody>
-                            @foreach ($tecs as $tec)
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead class="table-primary">
                                 <tr>
-                                    <td>{{$tec->id}}</td>
-                                    <td>{{$tec->user->name}}</td>
-                                    <td>{{$tec->user->function}}</td>
-                                    <td>
-                                        @if ($tec->on_call)
-                                            <div class="form-check form-switch">
-                                                <input onchange="form.submit()" class="form-check-input" name="tec{{$tec->id}}" checked type="checkbox" value="1" id="tec{{$tec->id}}">
-                                            </div>
-                                        @else
-                                            <div class="form-check form-switch">
-                                                <input onchange="form.submit()" class="form-check-input" name="tec{{$tec->id}}" type="checkbox" value="1" id="tec{{$tec->id}}">
-                                            </div>
-                                        @endif
-                                    </td>
-                                    <td>
-                                        <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalClients{{$tec->id}}">
-                                            Vincular Clientes ({{$tec->emergencyClients->count()}})
-                                        </button>
-
-                                        <div class="modal fade" id="modalClients{{$tec->id}}" tabindex="-1" aria-hidden="true">
-                                            <div class="modal-dialog modal-lg">
-                                                <div class="modal-content text-dark">
-                                                    <div class="modal-header">
-                                                        <h5 class="modal-title">Clientes de {{$tec->user->name}}</h5>
-                                                        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
-                                                    </div>
-                                                    <div class="modal-body" style="max-height: 680px; overflow-y: auto;">
-                                                        <div class="row">
-                                                            <div class="modal-body">
-                                                                <div class="row">
-                                                                    @foreach($clients as $client)
-                                                                        @endforeach
-                                                                </div>
-                                                            </div>
-
-                                                            @foreach($clients as $client)
-                                                                <div class="col-lg-4 col-md-6 col-12 mb-2 text-start">
-                                                                    <div class="form-check">
-                                                                        <input class="form-check-input" type="checkbox" 
-                                                                            name="clients[{{$tec->id}}][]" 
-                                                                            value="{{$client->id}}" 
-                                                                            id="client{{$tec->id}}_{{$client->id}}"
-                                                                            {{ $tec->emergencyClients->contains($client->id) ? 'checked' : '' }}>
-                                                                        <label class="form-check-label" for="client{{$tec->id}}_{{$client->id}}">
-                                                                            {{$client->name}}
-                                                                        </label>
+                                    <th>Nº</th>
+                                    <th>Nome</th>
+                                    <th>Função</th>
+                                    <th>Ativo</th>
+                                    <th>Clientes</th>
+                                    <th>Condição</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                @foreach ($tecs as $tec)
+                                    <tr>
+                                        <td>{{$tec->id}}</td>
+                                        <td>{{$tec->user->name}}</td>
+                                        <td>{{$tec->user->function}}</td>
+                                        <td>
+                                            @if ($tec->on_call)
+                                                <div class="form-check form-switch">
+                                                    <input onchange="form.submit()" class="form-check-input" name="tec{{$tec->id}}" checked type="checkbox" value="1" id="tec{{$tec->id}}">
+                                                </div>
+                                            @else
+                                                <div class="form-check form-switch">
+                                                    <input onchange="form.submit()" class="form-check-input" name="tec{{$tec->id}}" type="checkbox" value="1" id="tec{{$tec->id}}">
+                                                </div>
+                                            @endif
+                                        </td>
+                                        <td>
+                                            <button type="button" class="btn btn-sm btn-outline-primary" data-bs-toggle="modal" data-bs-target="#modalClients{{$tec->id}}">
+                                                Vincular Clientes ({{$tec->emergencyClients->count()}})
+                                            </button>
+                                            <div class="modal fade" id="modalClients{{$tec->id}}" tabindex="-1" aria-hidden="true">
+                                                <div class="modal-dialog modal-lg">
+                                                    <div class="modal-content text-dark">
+                                                        <div class="modal-header">
+                                                            <h5 class="modal-title">Clientes de {{$tec->user->name}}</h5>
+                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                        </div>
+                                                        <div class="modal-body" style="max-height: 680px; overflow-y: auto;">
+                                                            <div class="row">
+                                                                <div class="modal-body">
+                                                                    <div class="row">
+                                                                        @foreach($clients as $client)
+                                                                            @endforeach
                                                                     </div>
                                                                 </div>
-                                                            @endforeach
+                                                                @foreach($clients as $client)
+                                                                    <div class="col-lg-4 col-md-6 col-12 mb-2 text-start">
+                                                                        <div class="form-check">
+                                                                            <input class="form-check-input" type="checkbox"
+                                                                                name="clients[{{$tec->id}}][]"
+                                                                                value="{{$client->id}}"
+                                                                                id="client{{$tec->id}}_{{$client->id}}"
+                                                                                {{ $tec->emergencyClients->contains($client->id) ? 'checked' : '' }}>
+                                                                            <label class="form-check-label" for="client{{$tec->id}}_{{$client->id}}">
+                                                                                {{$client->name}}
+                                                                            </label>
+                                                                        </div>
+                                                                    </div>
+                                                                @endforeach
+                                                            </div>
                                                         </div>
-                                                    </div>
-                                                    <div class="modal-footer">
-                                                        <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">Fechar</button>
-                                                        <button type="submit" class="btn btn-primary">Salvar Todos</button>
+                                                        <div class="modal-footer">
+                                                            <button type="button" class="btn btn-outline-primary" data-bs-dismiss="modal">Fechar</button>
+                                                            <button type="submit" class="btn btn-primary">Salvar Todos</button>
+                                                        </div>
                                                     </div>
                                                 </div>
                                             </div>
-                                        </div>
-                                    </td>
-                                    <td>
-                                        @if (!$tec->busy)
-                                            Disponível
-                                        @else
-                                            <a href="{{route('orders.edit', ['order' => Crypt::encryptString($tec->emergency_order_id)])}}">
-                                                <button type="button" class="btn btn-sm btn-outline-primary">
-                                                    SAT {{$tec->emergency_order_id}}
-                                                </button>
-                                            </a>
-                                        @endif
-                                    </td>
-                                </tr>
-                            @endforeach
-                        </tbody> 
-                    </table>
+                                        </td>
+                                        <td>
+                                            @if (!$tec->busy)
+                                                Disponível
+                                            @else
+                                                <a href="{{route('orders.edit', ['order' => Crypt::encryptString($tec->emergency_order_id)])}}">
+                                                    <button type="button" class="btn btn-sm btn-outline-primary">
+                                                        SAT {{$tec->emergency_order_id}}
+                                                    </button>
+                                                </a>
+                                            @endif
+                                        </td>
+                                    </tr>
+                                @endforeach
+                            </tbody>
+                        </table>
+                    </div>
                     <div>
                         {{$tecs->links()}}
                     </div>

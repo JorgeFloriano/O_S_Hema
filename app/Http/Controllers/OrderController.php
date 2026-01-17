@@ -767,7 +767,7 @@ class OrderController extends Controller
             ]);
 
             // Enviamos uma notificação para o técnico
-            if ($notifiable = User::find($tec->user_id)) {
+            if ( $tec && $notifiable = User::find($tec->user_id)) {
                 $order->tecSatNotification($notifiable);
             }
         }

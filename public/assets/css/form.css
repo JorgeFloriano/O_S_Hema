@@ -27,7 +27,6 @@ html {
 @media only screen and (max-width: 568px) {
     .box {
         margin-top: 20px;
-        overflow: hidden;
         margin-bottom: 20px;
         border-radius: 10px;
         background-color: white;

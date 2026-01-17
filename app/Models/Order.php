@@ -155,6 +155,64 @@ class Order extends Model
         $notifiable->notify(new NewSampleNotification());
     }
 
+    public function emergencySatTecNotification($tec_id)
+    {
+        $tec = Tec::find($tec_id);
+
+        if (!$tec) {
+            Log::info("Send Emergency Alert Stoped: Técnico #{$tec_id} não encontrado.");
+            return;
+        }
+
+        // Verifica se a SAT foi criada ou atualizada
+        if (!$this->updated_at || !$this->created_at) {
+            $this->update([
+                'updated_at' => now(),
+                'created_at' => now()
+            ]);
+        }
+
+        // LIMITE DE 60 MINUTOS: Verifica se a SAT foi criada/atualizada há mais de uma hora e para de enviar notificações
+        if ($this->updated_at->diffInMinutes(now()) > 60) {
+            Log::info("Send Emergency Alert Stoped: Ciclo de notificações encerrado por tempo limite (60min) para a SAT #{$this->id}, SAT foi criada / atualizada a {$this->updated_at->diffInMinutes(now())}min.");
+
+            // Opcional: Aqui você pode desativar a flag no banco para o card parar de ser emergência
+            // ou apenas parar as notificações. Vamos apenas parar as notificações:
+            $tec->update(['emergency_notification_pending' => false]);
+            return;
+        }
+
+        if (!$tec->emergency_notification_pending) {
+            Log::info("Send Emergency Alert Stoped: Técnico #{$tec_id} sem notificações emergenciais ativas no momento (provavelmente já abriu a SAT).");
+            return;
+        }
+
+        if ($tec->emergency_this_id !== $this->id) {
+            Log::info("Send Emergency Alert Stoped: SAT #{$this->id} não está ativa como emergencial para o técnico #{$tec_id}, SAT atual: #{$tec->emergency_this_id}.");
+            return;
+        }
+
+        if (!$tec->on_call) {
+            $tec->resetSatEmergencyCondition();
+            Log::info("Send Emergency Alert Stoped: Técnico #{$tec_id} não está de plantão no momento.");
+            return;
+        }
+        try {
+            if ($notifiable = User::find($tec->user_id)) {
+                // Preparamos os dados para a notificação
+                $notifiable->title = '🚨 SAT EMERGENCIAL ' . $this->id . ' - ' . $this->client->name . ' - ABERTA!';
+                $notifiable->order_id = $this->id;
+                $notifiable->type = 'emergency';
+                $notifiable->channel_id = 'emergency';
+                $notifiable->message = $this->req_descr ?? 'Manutenção Urgente Pendente!';
+                $notifiable->notify(new NewSampleNotification());
+            }
+        } catch (\Exception $e) {
+            Log::error("Falha ao enviar push na emergência #{$this->id}: " . $e->getMessage());
+            // Não damos 'return' aqui para que o finally agende a próxima tentativa
+        }
+    }
+
     public function finish(): bool
     {
         try {
