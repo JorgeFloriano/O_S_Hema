@@ -12,14 +12,15 @@ use Illuminate\Foundation\Bus\Dispatchable;
 use Illuminate\Queue\InteractsWithQueue;
 use Illuminate\Queue\SerializesModels;
 use Illuminate\Support\Facades\Log;
-use Illuminate\Contracts\Queue\ShouldBeUnique;
 
-class EmergencySatNotifications implements ShouldQueue, ShouldBeUnique
+class EmergencySatNotifications implements ShouldQueue
 {
     use Dispatchable, InteractsWithQueue, Queueable, SerializesModels;
 
     public int $orderId;
     public int $tecId;
+    // Adicione essa propriedade dentro da classe
+    public $uniqueFor = 20; // O lock de unicidade expira em 20 segundos
 
     /**
      * Agora o construtor recebe e armazena os IDs
@@ -43,7 +44,7 @@ class EmergencySatNotifications implements ShouldQueue, ShouldBeUnique
      */
     public function retryUntil()
     {
-        return now()->addMinutes(5); // Se o Job ficar preso por mais de 5 min, morre.
+        return now()->addHours(1); // Tenta re-executar por até 1 hora se o worker cair
     }
 
     /**
@@ -51,6 +52,9 @@ class EmergencySatNotifications implements ShouldQueue, ShouldBeUnique
      */
     public function handle(): void
     {
+        
+        Log::info("--- Executando Job de Emergência: Técnico #{$this->tecId} / SAT #{$this->orderId} ---");
+        
         $tec = Tec::find($this->tecId);
 
         // Pega apenas o necessário da SAT e o nome do Cliente
@@ -103,7 +107,7 @@ class EmergencySatNotifications implements ShouldQueue, ShouldBeUnique
             return;
         }
         try {
-            if ($notifiable = User::find($tec->user_id)) {
+            if ($tec && $notifiable = User::find($tec->user_id)) {
                 // Preparamos os dados para a notificação
                 $notifiable->title = '🚨 SAT EMERGENCIAL ' . $order->id . ' - ' . $order->client->name . ' - ABERTA!';
                 $notifiable->order_id = $this->orderId;
@@ -111,16 +115,11 @@ class EmergencySatNotifications implements ShouldQueue, ShouldBeUnique
                 $notifiable->channel_id = 'emergency';
                 $notifiable->message = $order->req_descr ?? 'Manutenção Urgente Pendente!';
                 $notifiable->notify(new NewSampleNotification());
+                Log::info("Notificação enviada para Técnico #{$this->tecId}");
             }
         } catch (\Exception $e) {
-            Log::error("Falha ao enviar push na emergência #{$this->orderId}: " . $e->getMessage());
-            // Não damos 'return' aqui para que o finally agende a próxima tentativa
-        } finally {
-            // 5. GARANTIA DE REAGENDAMENTO
-            // Só reagenda se a condição de pendência ainda for verdadeira
-            if ($tec->fresh()->emergency_notification_pending) {
-                self::dispatch($this->tecId, $this->orderId)->delay(now()->addSeconds(30));
-            }
+            Log::error("Erro no envio: " . $e->getMessage());
         }
     }
 }
+
