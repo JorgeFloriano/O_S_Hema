@@ -8,7 +8,6 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
-use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Log;
 
@@ -90,42 +89,36 @@ class Order extends Model
         // Verificação de Horário de Emergência
         $hours = new Hours();
 
-        // Horário de Emergência (fora do horário comercial)
-        if ($hours->isEmergency()) {
+        // Notifica os supervisores sobre a SAT
+        foreach ($supervisors as $sup) {
+            $order->emergencySatNotification($sup);
+        }
 
-            // Notifica os supervisores sobre a SAT de emergência
-            foreach ($supervisors as $sup) {
-                $order->emergencySatNotification($sup);
-            }
+        // Horário de comercial, não é emergência
+        if (!$hours->isEmergency()) {
+            return;
+        }
 
-            // Buscamos todos os técnicos que estão de plantão, vinculados a este cliente e que ainda não tem uma SAT de emergência atribuida
-            $client = Client::with(['emergencyTecs' => function ($query) {
-                $query->with('user')
-                    ->where('on_call', 1)
-                    ->where(function ($q) {
-                        $q->whereNull('emergency_order_id')
-                            ->orWhere('emergency_order_id', 0)
-                            ->orWhere('emergency_order_id', '');
-                    });
-            }])->find($order->client_id);
+        // Buscamos todos os técnicos que estão de plantão, vinculados a este cliente e que ainda não tem uma SAT de emergência atribuida
+        $client = Client::with(['emergencyTecs' => function ($query) {
+            $query->with('user')
+                ->where('on_call', 1)
+                ->where(function ($q) {
+                    $q->whereNull('emergency_order_id')
+                        ->orWhere('emergency_order_id', 0)
+                        ->orWhere('emergency_order_id', '');
+                });
+        }])->find($order->client_id);
 
-            foreach ($client->emergencyTecs as $tec) {
-                // Atualizamos cada técnico para o estado de emergência
-                $tec->update([
-                    'emergency_order_id' => $order->id,
-                    'emergency_notification_pending' => true, // Loop notification activated
-                ]);
+        foreach ($client->emergencyTecs as $tec) {
+            // Atualizamos cada técnico para o estado de emergência
+            $tec->update([
+                'emergency_order_id' => $order->id,
+                'emergency_notification_pending' => true, // Loop notification activated
+            ]);
 
-                // Dispara o job que envia a notificação os técnicos a cada 30 segundos, até que um visualize a SAT
-                \App\Jobs\EmergencySatNotifications::dispatch($tec->id, $order->id);
-            }
-
-            // Horário comercial (não é emergência)    
-        } else {
-            // Apenas notifica os supervisores sobre a SAT
-            foreach ($supervisors as $sup) {
-                $order->satNotification($sup);
-            }
+            // Dispara o job que envia a notificação os técnicos a cada 30 segundos, até que um visualize a SAT, no routes/console.php
+            // \App\Jobs\EmergencySatNotifications::dispatch($tec->id, $order->id);
         }
     }
 
@@ -153,6 +146,21 @@ class Order extends Model
         $notifiable->order_id = $this->id;
         $notifiable->message = $this->req_descr ?? 'Atividade de manutenção!';
         $notifiable->notify(new NewSampleNotification());
+    }
+
+    public function notifySupsThatTecGetEmergencySat($tec_id)
+    {
+        $tec = Tec::findOrFail($tec_id);
+
+        $supervisors = User::whereHas('sup')->get();
+
+        foreach ($supervisors as $sup) {
+            $sup->title = "SAT {$this->id} - " . $this->client->name . " - visualizada pelo Técnico {$tec->user->name}!";
+            $sup->order_id = $this->id;
+            $sup->type = 'info';
+            $sup->message = $this->req_descr ?? 'Atividade de manutenção!';
+            $sup->notify(new NewSampleNotification());
+        }
     }
 
     public function emergencySatTecNotification($tec_id)

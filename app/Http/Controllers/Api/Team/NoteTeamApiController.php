@@ -113,7 +113,14 @@ class NoteTeamApiController extends Controller
 
         // 7. ASSUMIR A SAT:
         // Vincula formalmente a SAT ao técnico que a abriu primeiro
-        $order->update(['tec_id' => $currentTec->id]);
+        $tec_seen_sat = $order->update(['tec_id' => $currentTec->id]);
+
+        // 8. NOTIFICAÇÃO DE QUE A SAT FOI ASSUMIDA:
+        // Envia uma notificação para os supervisores que a SAT foi assumida
+        if ($tec_seen_sat) {
+            Log::info("Send Emergency Supervisor Notification: Técnico #{$currentTec->id} assumiu a SAT #{$orderId}");
+            $order->notifySupsThatTecGetEmergencySat($currentTec->id);
+        }
 
         return response()->json([
             'success' => true,
