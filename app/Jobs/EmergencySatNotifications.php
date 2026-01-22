@@ -20,7 +20,8 @@ class EmergencySatNotifications implements ShouldQueue
     public int $orderId;
     public int $tecId;
     // Adicione essa propriedade dentro da classe
-    public $uniqueFor = 20; // O lock de unicidade expira em 20 segundos
+    // public $uniqueFor = 20; // O lock de unicidade expira em 20 segundos
+    public $timeout = 20; // O Job expira em 20 segundos
 
     /**
      * Agora o construtor recebe e armazena os IDs
@@ -32,11 +33,6 @@ class EmergencySatNotifications implements ShouldQueue
         $this->queue = 'emergency';
     }
 
-    // O ID que define a unicidade (Técnico + SAT)
-    public function uniqueId()
-    {
-        return $this->tecId . '_' . $this->orderId;
-    }
 
     /**
      * Determina por quanto tempo o Job pode ser tentado.
@@ -73,23 +69,8 @@ class EmergencySatNotifications implements ShouldQueue
             return;
         }
 
-        // Verifica se a SAT foi criada ou atualizada
-        if (!$order->updated_at || !$order->created_at) {
-            $order->update([
-                'updated_at' => now(),
-                'created_at' => now()
-            ]);
-        }
-
-        // LIMITE DE 60 MINUTOS: Verifica se a SAT foi criada/atualizada há mais de uma hora e para de enviar notificações
-        if ($order->updated_at->diffInMinutes(now()) > 60) {
-            Log::info("Send Emergency Alert Stoped: Ciclo de notificações encerrado por tempo limite (60min) para a SAT #{$this->orderId}, SAT foi criada / atualizada a {$order->updated_at->diffInMinutes(now())}min.");
-
-            // Opcional: Aqui você pode desativar a flag no banco para o card parar de ser emergência
-            // ou apenas parar as notificações. Vamos apenas parar as notificações:
-            $tec->update(['emergency_notification_pending' => false]);
-            return;
-        }
+        // Resseta o ciclo de notificações para o Técnico por timeout
+        $tec->timeoutResetSatEmergencyCondition($order, 60);
 
         if (!$tec->emergency_notification_pending) {
             Log::info("Send Emergency Alert Stoped: Técnico #{$this->tecId} sem notificações emergenciais ativas no momento (provavelmente já abriu a SAT).");

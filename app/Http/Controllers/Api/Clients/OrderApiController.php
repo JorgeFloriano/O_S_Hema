@@ -8,9 +8,9 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\FormOrderApiRequest;
 use App\Models\Order;
 use App\Models\OrderType;
-use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Log;
 
 class OrderApiController extends Controller
 {
@@ -31,6 +31,9 @@ class OrderApiController extends Controller
         // The user data (id, name, surname) is now automatically loaded
         //$order->tec->user will contain only id, name, surname
 
+        if ($this->resp_json->isAuth()) 
+            return $this->resp_json->isAuth();
+
         $client_id = $this->user->cli->client_id;
 
         $orders = Order::with([
@@ -50,10 +53,9 @@ class OrderApiController extends Controller
      */
     public function create()
     {
-        // Check if user can create sat
-        if (!$this->user->canCreateSat()) 
-            return $this->resp_json->array(false, $this->user->cantCreateSatMessage());
-        
+        if ($this->resp_json->canCreateSat()) 
+           return $this->resp_json->canCreateSat();
+
         // Get all order types
         $types = OrderType::select('id', 'description')->get();
 
@@ -67,16 +69,15 @@ class OrderApiController extends Controller
      */
     public function store(FormOrderApiRequest $request)
     {
-        // Check if user can create sat
-        if (!$this->user->canCreateSat()) 
-            return $this->resp_json->array(false, $this->user->cantCreateSatMessage());
 
-        
+        if ($this->resp_json->canCreateSat()) 
+            return $this->resp_json->canCreateSat();
+
         // Check if 'client_id' is fillable ou SAT was created by specific user client
         if (!$this->user->userClientCompanyId() && !$request->client_id) {
             return $this->resp_json->array(false, 'ID do cliente não encontrado', 400);
         }
-        
+
         // Get client_id
         $client_id = $this->user->userClientCompanyId() ? $this->user->userClientCompanyId() : $request->client_id;
 
@@ -97,8 +98,14 @@ class OrderApiController extends Controller
                 'req_descr' => $text->spaceAfterPunctuation($request->req_descr),
             ]);
 
+            if ($order) {
+                Log::info("New Technical Assistance Request created: SAT #{$order->id}");
+            }
+
             // Notification management when a Technical Assistance Request is opened by the client.
             $order->notificationWhenOpenedByClient();
+
+            Log::info("Passou pelo notificationWhenOpenedByClient");
 
             return response()->json([
                 'success' => true,
@@ -119,39 +126,12 @@ class OrderApiController extends Controller
      */
     public function show(Order $order)
     {
-        $return_error = $this->can->error([Auth::user()->cli->can_see_sat], 'Usuário sem permissão visualizar SAT.');
-
-        if ($return_error) {
-            return $return_error;
-        }
+        if ($this->resp_json->cliCanSeeSat()) 
+            return $this->resp_json->cliCanSeeSat();
 
         $order = $order->load(['type:id,description', 'tec:id,user_id', 'notes.materials', 'notes.tecs.user:id,name,surname,function']);
         return response()->json([
             'order' => $order
         ]);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
     }
 }

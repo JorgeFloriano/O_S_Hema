@@ -7,6 +7,11 @@ use Illuminate\Support\Facades\Auth;
 
 class ResponseJson
 {
+    private $auth;
+    public function __construct()
+    {
+        $this->auth = Auth::user();
+    }
     public function array(bool $success, string $message, int $number = 200): object
     {
         return response()->json([
@@ -37,8 +42,7 @@ class ResponseJson
     }
     public function AuthIsTec()
     {
-        $auth = Auth::user();
-        if (!$auth->tec) {
+        if (!$this->auth->tec) {
             return response()->json([
                 'success' => false,
                 'error' => 'Usuário sem cadastro de técnico.',
@@ -49,8 +53,7 @@ class ResponseJson
 
     public function AuthIsSup()
     {
-        $auth = Auth::user();
-        if (!$auth->sup) {
+        if (!$this->auth->sup) {
             return response()->json([
                 'isSup' => false,
                 'success' => false,
@@ -62,13 +65,44 @@ class ResponseJson
 
     public function isAuth()
     {
-        $auth = Auth::user();
-        if (!$auth) {
-            return response()->json([
-                'success' => false,
-                'error' => 'Usuário sem cadastro.',
-                'message' => 'Usuário sem cadastro.'
-            ], 403);
+        if (!$this->auth) {
+            return $this->array(false, 'Usuário sem cadastro.', 403);
         }
+    }
+
+    public function isAuthCli()
+    {
+        if ($this->isAuth())
+            return $this->isAuth();
+
+        if (!$this->auth->cli) {
+            return $this->array(false, 'Usuário sem cadastro de cliente.', 403);
+        }
+    }
+
+    public function cliCanSeeSat()
+    {
+        if ($this->isAuthCli())
+            return $this->isAuthCli();
+
+        if (!$this->auth->cli->can_see_sat) {
+            return $this->array(false, 'Usuário sem permissão para ver Solicitações de Assistência Técnica.', 403);
+        }
+    }
+
+    public function cliCanCreateSat()
+    {
+        if ($this->isAuthCli())
+            return $this->isAuthCli();
+
+        if (!$this->auth->cli->can_create_sat) {
+            return $this->array(false, 'Usuário sem permissão para criar Solicitações de Assistência Técnica.', 403);
+        }
+    }
+
+    public function canCreateSat()
+    {
+        if ($this->cliCanCreateSat() && $this->AuthIsSup())
+            return $this->array(false, 'Usuário sem permissão para criar Solicitações de Assistência Técnica.', 403);
     }
 }

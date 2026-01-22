@@ -60,7 +60,7 @@ class LoginController extends Controller
 
             if ($adm) {
                 if ($adm->main) {
-                    return redirect()->route('clients.index');
+                    return redirect()->route('orders.index');
                 }
                 return redirect()->route('orders.index');
             }
@@ -74,7 +74,7 @@ class LoginController extends Controller
             $sup = auth()->user()->sup()->first();
 
             if ($sup) {
-                return redirect()->route('tec_on');
+                return redirect()->route('orders.index');
             }
         }
         return view("login");
@@ -113,7 +113,7 @@ class LoginController extends Controller
                 // Main adm log
                 $this->logger->log('info', 'Main Administrator logged in');
 
-                return redirect()->route('clients.index')->with([
+                return redirect()->route('orders.index')->with([
                     'success' => 'Olá',
                 ]);
             }
@@ -149,7 +149,7 @@ class LoginController extends Controller
             // Sup log
             $this->logger->log('info', 'Supervisor logged in');
 
-            return redirect()->route('tec_on')->with([
+            return redirect()->route('orders.index')->with([
                 'success' => 'Olá',
             ]);
         }
