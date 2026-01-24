@@ -31,6 +31,7 @@ return new class extends Migration
             $table->date('cl_date')->nullable();
             $table->text('cl_sign')->nullable();
             $table->string('cl_sign_path')->nullable();
+            $table->boolean('is_emergency')->nullable()->default(false);
             $table->timestamps();
             $table->softDeletes();
         });

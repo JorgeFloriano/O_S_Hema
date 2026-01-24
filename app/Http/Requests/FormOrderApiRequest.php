@@ -15,6 +15,7 @@ class FormOrderApiRequest extends FormRequest
             'sector' => 'required|max:30',
             'req_descr' => 'required|max:470',
             'equipment' => 'max:70',
+            'is_emergency' => 'boolean',
         ];
     }
 
@@ -30,6 +31,7 @@ class FormOrderApiRequest extends FormRequest
             'req_descr.required' => 'Insira a descrição do problema',
             'req_descr.max' => 'Problema deve ter no máximo 470 caracteres',
             'equipment.max' => 'Equipamento deve ter no máximo 70 caracteres',
+            'is_emergency.boolean' => 'O campo de Emergência deve ser apenas verdadeiro ou falso',
         ];
     }
 }

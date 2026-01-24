@@ -1,5 +1,6 @@
 <?php
 
+// app/Console/Commands/ResetEmergencyTecsSat.php
 namespace App\Console\Commands;
 
 use App\Models\Tec;
@@ -35,7 +36,7 @@ class ResetEmergencyTecsSat extends Command
         // 2. Resetamos todos de uma vez
         // O update direto no Builder (com withTrashed) garante que os deletados também sejam limpos
         $query->update([
-            'emergency_notification_pending' => null,
+            'emergency_notification_pending' => false,
             'emergency_order_id' => null
         ]);
 

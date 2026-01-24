@@ -501,7 +501,7 @@ class UserController extends Controller
             $tec->update([
                 'on_call' => 0,
                 'emergency_order_id' => null,
-                'emergency_notification_pending' => null,
+                'emergency_notification_pending' => false,
             ]);
 
             $tec_dl = $tec->delete();
