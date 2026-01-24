@@ -93,19 +93,14 @@ class OrderApiController extends Controller
                 'user_id' => $this->user->id, // Use auth()->id() instead of auth()->user()->id
                 'tec_id' => null,
                 'equipment' => $request->equipment,
+                'is_emergency' => $request->is_emergency ? true : false,
                 'req_date' => now()->format('Y-m-d'), // Current date in proper format
                 'req_time' => now()->format('H:i:s'), // Current time in proper format
                 'req_descr' => $text->spaceAfterPunctuation($request->req_descr),
             ]);
 
-            if ($order) {
-                Log::info("New Technical Assistance Request created: SAT #{$order->id}");
-            }
-
             // Notification management when a Technical Assistance Request is opened by the client.
             $order->notificationWhenOpenedByClient();
-
-            Log::info("Passou pelo notificationWhenOpenedByClient");
 
             return response()->json([
                 'success' => true,

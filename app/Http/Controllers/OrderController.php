@@ -756,21 +756,8 @@ class OrderController extends Controller
         }
 
         $order = session('ords')->where('id', $id)->first();
-        $tec = Tec::find($request->tec_id);
 
-        if ($order) {
-            $order->tec_id = $request->tec_id;
-            $order->save();
-
-            Tec::where('emergency_order_id', $order->id)->update([
-                'emergency_order_id' => null,
-            ]);
-
-            // Enviamos uma notificação para o técnico
-            if ( $tec && $notifiable = User::find($tec->user_id)) {
-                $order->tecSatNotification($notifiable);
-            }
-        }
+        $order->updateTecId($request->tec_id);
     }
 
     // Add orders for testing

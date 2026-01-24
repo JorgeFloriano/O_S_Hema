@@ -29,7 +29,7 @@ class ResetEmergencyAlerts extends Command
         // 2. Resetamos todos os técnicos de uma vez
         // Isso fará com que todos os Jobs EmergencySatNotifications morram no próximo ciclo (handle)
         Tec::query()->update([
-            'emergency_notification_pending' => null,
+            'emergency_notification_pending' => false,
             'emergency_order_id' => null
         ]);
 

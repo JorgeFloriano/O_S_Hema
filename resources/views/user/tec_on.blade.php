@@ -173,22 +173,25 @@
                                             <div class="modal fade" id="modalClients{{$tec->id}}" tabindex="-1" aria-hidden="true">
                                                 <div class="modal-dialog modal-lg">
                                                     <div class="modal-content text-dark">
-                                                        <div class="modal-header">
-                                                            <h5 class="modal-title">Clientes de {{$tec->user->name}}</h5>
-                                                            <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                        <div class="modal-header d-flex flex-column align-items-start">
+                                                            <div class="d-flex justify-content-between w-100">
+                                                                <h5 class="modal-title">Clientes de {{$tec->user->name}}</h5>
+                                                                <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+                                                            </div>
+                                                            <button type="button" 
+                                                                    class="btn btn-outline-secondary mt-2" 
+                                                                    onclick="toggleSelectAll({{$tec->id}})">
+                                                                Selecionar Todos
+                                                            </button>
                                                         </div>
+                                                        
                                                         <div class="modal-body" style="max-height: 680px; overflow-y: auto;">
                                                             <div class="row">
-                                                                <div class="modal-body">
-                                                                    <div class="row">
-                                                                        @foreach($clients as $client)
-                                                                            @endforeach
-                                                                    </div>
-                                                                </div>
                                                                 @foreach($clients as $client)
                                                                     <div class="col-lg-4 col-md-6 col-12 mb-2 text-start">
                                                                         <div class="form-check">
-                                                                            <input class="form-check-input" type="checkbox"
+                                                                            <input class="form-check-input client-checkbox-{{$tec->id}}" 
+                                                                                type="checkbox"
                                                                                 name="clients[{{$tec->id}}][]"
                                                                                 value="{{$client->id}}"
                                                                                 id="client{{$tec->id}}_{{$client->id}}"

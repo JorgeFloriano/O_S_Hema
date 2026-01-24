@@ -10,6 +10,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 
 class Order extends Model
 {
@@ -33,11 +34,18 @@ class Order extends Model
         'cl_contact',
         'cl_date',
         'cl_sign',
-        'cl_sign_path'
+        'cl_sign_path',
+        'is_emergency',
     ];
 
     protected $table = "orders";
     protected $primaryKey = "id";
+    protected $hours;
+
+    public function __construct()
+    {
+        $this->hours = new Hours();
+    }
 
     public function client(): BelongsTo
     {
@@ -80,24 +88,20 @@ class Order extends Model
     // Notification management when a Technical Assistance Request is opened by the client.
     public function notificationWhenOpenedByClient()
     {
-        // Get the order created
-        $order = Order::with('client:id,name')->find($this->id);
-
         // Get all supervisors
         $supervisors = User::whereHas('sup')->get();
 
-        // Verificação de Horário de Emergência
-        $hours = new Hours();
-
-        // Notifica os supervisores sobre a SAT
+        // Notifica os supervisores sobre a SAT diferenciando se é emergencial ou não
         foreach ($supervisors as $sup) {
-            $order->emergencySatNotification($sup);
+            $this->openedSatNotification($sup);
         }
 
-        // Horário de comercial, não é emergência
-        if (!$hours->isEmergency()) {
+        // Business hours or client not need to service in emergency, stop here
+        if (!$this->hours->isEmergency() || !$this->is_emergency) {
             return;
         }
+
+        Log::info("Send Emergency Alert: SAT #{$this->id} -  " . $this->client->name . " - Entrou na condição de emergência!");
 
         // Buscamos todos os técnicos que estão de plantão, vinculados a este cliente e que ainda não tem uma SAT de emergência atribuida
         $client = Client::with(['emergencyTecs' => function ($query) {
@@ -108,21 +112,19 @@ class Order extends Model
                         ->orWhere('emergency_order_id', 0)
                         ->orWhere('emergency_order_id', '');
                 });
-        }])->find($order->client_id);
+        }])->find($this->client_id);
 
         foreach ($client->emergencyTecs as $tec) {
             // Atualizamos cada técnico para o estado de emergência
+            // Tarefa corn do servidor chama o comando (EmergencyDaemon.php) para enviar a notificação a partir das colunas do tecnico atualizadas
             $tec->update([
-                'emergency_order_id' => $order->id,
+                'emergency_order_id' => $this->id,
                 'emergency_notification_pending' => true, // Loop notification activated
             ]);
-
-            // Dispara o job que envia a notificação os técnicos a cada 30 segundos, até que um visualize a SAT, no routes/console.php
-            // \App\Jobs\EmergencySatNotifications::dispatch($tec->id, $order->id);
         }
     }
 
-    public function emergencySatNotification($notifiable)
+    public function emergencySatNotification(User $notifiable): void
     {
         $notifiable->title = "SAT EMERGENCIAL Nº{$this->id} -  " . $this->client->name . " - ABERTA!";
         $notifiable->order_id = $this->id;
@@ -131,7 +133,27 @@ class Order extends Model
         $notifiable->notify(new NewSampleNotification());
     }
 
-    public function satNotification($notifiable)
+    public function normalSatNotification(User $notifiable): void
+    {
+        $notifiable->title = "SAT {$this->id} - " . $this->client->name . " - " . $this->client->name . " - aberta!";
+        $notifiable->order_id = $this->id;
+        $notifiable->type = 'sat_info';
+        $notifiable->message = $this->req_descr ?? 'Atividade de manutenção!';
+        $notifiable->notify(new NewSampleNotification());
+    }
+
+    // Notification that SAT was opened by client
+    public function openedSatNotification(User $notifiable)
+    {
+        if (!$this->is_emergency || !$this->hours->isEmergency()) {
+            return $this->normalSatNotification($notifiable);
+        }
+
+        // Notification will be emergency only if is out of business hours and is emergency field was checked by client
+        return $this->emergencySatNotification($notifiable);
+    }
+
+    public function satNotification(User $notifiable)
     {
         $notifiable->title = "SAT {$this->id} - " . $this->client->name . " - " . $this->client->name . " - aberta!";
         $notifiable->order_id = $this->id;
@@ -140,12 +162,16 @@ class Order extends Model
         $notifiable->notify(new NewSampleNotification());
     }
 
-    public function tecSatNotification($notifiable)
+    public function tecSatNotification(User $notifiable)
     {
-        $notifiable->title = 'SAT - ' . $this->id . ' - ' . $this->client->name . ' - atribuída pelo Supervisor!';
+        $notifier = Auth::user();
+
+        $notifiable->title = 'SAT - ' . $this->id . ' - ' . $this->client->name . ' - atribuída pelo Supervisor ' . $notifier->getFullName() .  '!';
         $notifiable->order_id = $this->id;
         $notifiable->message = $this->req_descr ?? 'Atividade de manutenção!';
         $notifiable->notify(new NewSampleNotification());
+
+        return true;
     }
 
     public function notifySupsThatTecGetEmergencySat($tec_id)
@@ -255,5 +281,52 @@ class Order extends Model
             Log::error("Erro ao finalizar SAT #{$this->id}: " . $e->getMessage());
             return false;
         }
+    }
+
+    // Updates the tec_id of the order
+    public function updateTecId($tec_id)
+    {
+
+        // Limpa o estado de emergência dos técnicos referente a esta SAT
+        Tec::where('emergency_order_id', $this->id)->update([
+            'emergency_notification_pending' => false,
+            'emergency_order_id' => null,
+        ]);
+
+        try {
+            $tec = Tec::find($tec_id);
+            // Update the order
+            $this->tec_id = $tec->id;
+            $this->save();
+        } catch (\Exception $e) {
+
+            // SAT without technician
+            $this->tec_id = 0;
+            $this->save();
+            return [
+                'success' => true,
+                'message' => "SAT {$this->id} ainda sem técnico atriubuído!"
+            ];
+        }
+
+        if ($tec) {
+            // Enviamos uma notificação para o técnico
+            $notified = false;
+            if ($notifiable = User::find($tec->user_id)) {
+                $notified = $this->tecSatNotification($notifiable);
+            }
+        }
+
+        if (!$notified) {
+            return [
+                'success' => true,
+                'message' => "SAT {$this->id} atribuida ao técnico {$tec->user->name} com falha ao enviar notificação!"
+            ];
+        }
+
+        return [
+            'success' => true,
+            'message' => "SAT {$this->id} atribuida ao técnico {$tec->user->name} e notificação enviada com sucesso!"
+        ];
     }
 }

@@ -111,45 +111,15 @@ class SatTeamApiController extends Controller
 
     public function update_tec(Request $request, $id)
     {
-
         // Check if user is a supervisor
         if ($this->can->AuthIsSup()) {
             return $this->can->AuthIsSup();
         }
 
-        $tec = Tec::findOrFail($request->tec_id);
-
-        // Update the order
+        // Get the order
         $order = Order::findOrFail($id);
-        $order->update(['tec_id' => $request->tec_id]);
 
-
-        Tec::where('emergency_order_id', $order->id)->update([
-            'emergency_order_id' => null,
-            'emergency_notification_pending' => false
-        ]);
-
-        // Enviamos uma notificação para o técnico
-        if ($notifiable = User::find($tec->user_id)) {
-            try {
-                $order->satNotification($notifiable);
-                return response()->json([
-                    'success' => true,
-                    'message' => 'SAT atribuida e técnico notificado com sucesso!'
-                ]);
-            } catch (\Exception $e) {
-                Log::error("Falha ao notificar técnico {$notifiable->name} para SAT #{$order->id}: " . $e->getMessage());
-                return response()->json([
-                    'success' => false,
-                    'message' => 'SAT atribuida, não foi possivel notificar o técnico!'
-                ]);
-            }
-        }
-
-        return response()->json([
-            Log::error("Falha ao notificar técnico para SAT #{$order->id}, usuário desconhecido."),
-            'success' => false,
-            'message' => 'SAT atribuida, não foi encontrado usuário!'
-        ]);
+        // Update the order tec_id
+        return response()->json($order->updateTecId($request->tec_id));
     }
 }
