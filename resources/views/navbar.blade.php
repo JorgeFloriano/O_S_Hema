@@ -17,7 +17,7 @@
             </a>
           
             <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                @if (session('main') == auth()->user()->id)
+                @if (session('main') == auth()->user()->id || auth()->user()->cli->is_admin)
                     <li>
                         <a class="dropdown-item" href="{{route('users.edit', ['user' => Crypt::encryptString(auth()->user()->id)])}}">
                             <i class="fa fa-user" aria-hidden="true"></i>
@@ -39,6 +39,22 @@
         </button>
         <div class="collapse navbar-collapse mt-3" id="navbarSupportedContent">
             <ul class="navbar-nav me-auto mb-lg-0">
+                @if (auth()->user()->cli)
+                    <li>
+                        <a class="nav-link me-2 {{ Request::is('*orders*') ? 'fw-bold active border-bottom border-white pb-1' : '' }}" href="{{route('client.orders.index')}}">
+                            Solicitações
+                        </a>
+                    </li>
+                @endif
+
+                @if (auth()->user()->cli->is_admin)
+                    <li class="nav-item">
+                        <a class="nav-link me-2 {{ Request::is('*users*') ? 'fw-bold active border-bottom border-white pb-1' : '' }}" href="{{route('client.users.index')}}">
+                            Usuários
+                        </a>
+                    </li>
+                @endif
+
                 @if (auth()->user()->sup()->first() || auth()->user()->adm()->first())
                     <li>
                         <a class="nav-link me-2 {{ Request::is('*orders*') ? 'fw-bold active border-bottom border-white pb-1' : '' }}" href="{{route('orders.index')}}">

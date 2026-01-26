@@ -8,9 +8,7 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\FormOrderApiRequest;
 use App\Models\Order;
 use App\Models\OrderType;
-use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Illuminate\Support\Facades\Log;
 
 class OrderApiController extends Controller
 {

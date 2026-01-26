@@ -12,7 +12,6 @@ use App\Http\Controllers\DefectController;
 use App\Http\Controllers\CauseController;
 use App\Http\Controllers\SolutionController;
 use App\Http\Controllers\MaterialController;
-use Illuminate\Support\Facades\Artisan;
 use Illuminate\Support\Facades\Route;
 use App\Notifications\NewSampleNotification;
 

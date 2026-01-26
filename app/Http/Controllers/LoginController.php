@@ -56,6 +56,12 @@ class LoginController extends Controller
         // Check if the user is logged out
         if (auth()->user()) {
 
+            $cli = auth()->user()->cli()->first();
+
+            if ($cli) {
+                return redirect()->route('client.orders.index');
+            }
+
             $adm = auth()->user()->adm()->first();
 
             if ($adm) {
@@ -102,6 +108,17 @@ class LoginController extends Controller
             // User credentials not found log
             $this->logger->log('error', 'Credentials for user' . $request->username . ' not found');
             return redirect()->route('login.index')->withErrors(['error' => 'Credenciais inválidas']);
+        }
+
+        $cli = auth()->user()->cli()->first();
+
+        if ($cli) {
+            // Cli log
+            $this->logger->log('info', 'Client logged in');
+
+            return redirect()->route('client.orders.index')->with([
+                'success' => 'Olá',
+            ]);
         }
 
         $adm = auth()->user()->adm()->first();
