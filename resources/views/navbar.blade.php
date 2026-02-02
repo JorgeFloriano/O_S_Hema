@@ -2,7 +2,7 @@
     {{-- Se a URL contiver 'orders', usa fluid (100%), caso contrário usa o container padrão --}}
     <div class="container-sm">
         <div>
-            <img src="{{asset('assets/img/'.env('LOGO'))}}" alt="logo hema" width="130px">
+            <img src="{{asset('assets/img/'.env('LOGO'))}}" alt="logo hema" width="140px">
         </div>
 
         <div class="dropdown">
@@ -17,7 +17,7 @@
             </a>
           
             <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                @if (session('main') == auth()->user()->id || auth()->user()->cli->is_admin)
+                @if (session('main') == auth()->user()->id || auth()->user()->isCliAdmin())
                     <li>
                         <a class="dropdown-item" href="{{route('users.edit', ['user' => Crypt::encryptString(auth()->user()->id)])}}">
                             <i class="fa fa-user" aria-hidden="true"></i>
@@ -42,22 +42,25 @@
                 @if (auth()->user()->cli)
                     <li>
                         <a class="nav-link me-2 {{ Request::is('*orders*') ? 'fw-bold active border-bottom border-white pb-1' : '' }}" href="{{route('client.orders.index')}}">
+                            <i class="fa fa-file-text-o"></i>
                             Solicitações
                         </a>
                     </li>
-                @endif
-
-                @if (auth()->user()->cli->is_admin)
-                    <li class="nav-item">
-                        <a class="nav-link me-2 {{ Request::is('*users*') ? 'fw-bold active border-bottom border-white pb-1' : '' }}" href="{{route('client.users.index')}}">
-                            Usuários
-                        </a>
-                    </li>
+                    
+                    @if (auth()->user()->isCliAdmin())
+                        <li class="nav-item">
+                            <a class="nav-link me-2 {{ Request::is('*users*') ? 'fw-bold active border-bottom border-white pb-1' : '' }}" href="{{route('client.users.index')}}">
+                                <i class="fa fa-user-o"></i>
+                                Usuários
+                            </a>
+                        </li>
+                    @endif
                 @endif
 
                 @if (auth()->user()->sup()->first() || auth()->user()->adm()->first())
                     <li>
                         <a class="nav-link me-2 {{ Request::is('*orders*') ? 'fw-bold active border-bottom border-white pb-1' : '' }}" href="{{route('orders.index')}}">
+                            <i class="fa fa-file-text-o"></i>
                             SATs
                         </a>
                     </li>
@@ -66,6 +69,7 @@
                 @if (auth()->user()->tec()->first())
                     <li class="nav-item">
                         <a class="nav-link me-2 {{ Request::is('*notes*') ? 'fw-bold active border-bottom border-white pb-1' : '' }}" href="{{route('notes.index')}}">
+                            <i class="fa fa-exclamation-circle"></i>
                             Programação
                         </a>
                     </li>
@@ -74,18 +78,21 @@
                 @if (session('main') == auth()->user()->id)
                     <li class="nav-item">
                         <a class="nav-link me-2 {{ Request::is('*clients*') ? 'fw-bold active border-bottom border-white pb-1' : '' }}" href="{{route('clients.index')}}">
+                            <i class="fa fa-handshake-o"></i>
                             Clientes
                         </a>
                     </li>
 
                     <li class="nav-item">
                         <a class="nav-link me-2 {{ Request::is('*users*') ? 'fw-bold active border-bottom border-white pb-1' : '' }}" href="{{route('users.index')}}">
+                            <i class="fa fa-user-o"></i>
                             Usuários
                         </a>
                     </li>
 
                     <li class="nav-item">
                         <a class="nav-link me-2 {{ Request::is('*material*') ? 'fw-bold active border-bottom border-white pb-1' : '' }}" href="{{route('materials.index')}}">
+                            <i class="fa fa-hdd-o"></i>
                             Materiais
                         </a>
                     </li>
@@ -94,12 +101,14 @@
                 @if (session('cli') == auth()->user()->id)
                     <li class="nav-item">
                         <a class="nav-link me-2 {{ Request::is('*clients*') ? 'fw-bold active border-bottom border-white pb-1' : '' }}" href="{{route('clients.index')}}">
+                            <i class="fa fa-handshake-o"></i>
                             Clientes
                         </a>
                     </li>
 
                     <li class="nav-item">
                         <a class="nav-link me-2 {{ Request::is('*materials*') ? 'fw-bold active border-bottom border-white pb-1' : '' }}" href="{{route('materials.index')}}">
+                            <i class="fa fa-hdd-o"></i>
                             Materiais
                         </a>
                     </li>
@@ -108,6 +117,7 @@
                 @if (auth()->user()->sup()->first())
                     <li>
                         <a class="nav-link me-2 {{ Request::is('*tec_on*') ? 'fw-bold active border-bottom border-white pb-1' : '' }}" href="{{route('tec_on')}}">
+                            <i class="fa fa-bell-o"></i>
                             Sobreaviso
                         </a>
                     </li>
@@ -116,6 +126,7 @@
                 @if (session('main') == auth()->user()->id)
                     <li class="nav-item dropdown">
                         <a class="nav-link me-2 dropdown-toggle {{ Request::is('*order_types*', '*note_types*', '*defects*', '*causes*', '*solutions*') ? 'fw-bold active border-bottom border-white pb-1' : '' }}" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                        <i class="fa fa-bars"></i>
                         Códigos
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="navbarDropdown">

@@ -135,7 +135,7 @@ class Order extends Model
 
     public function normalSatNotification(User $notifiable): void
     {
-        $notifiable->title = "SAT {$this->id} - " . $this->client->name . " - " . $this->client->name . " - aberta!";
+        $notifiable->title = "SAT {$this->id} - " . $this->client->name . " - aberta!";
         $notifiable->order_id = $this->id;
         $notifiable->type = 'sat_info';
         $notifiable->message = $this->req_descr ?? 'Atividade de manutenção!';
@@ -155,7 +155,7 @@ class Order extends Model
 
     public function satNotification(User $notifiable)
     {
-        $notifiable->title = "SAT {$this->id} - " . $this->client->name . " - " . $this->client->name . " - aberta!";
+        $notifiable->title = "SAT {$this->id} - " . $this->client->name . " - aberta!";
         $notifiable->order_id = $this->id;
         $notifiable->type = 'info';
         $notifiable->message = $this->req_descr ?? 'Atividade de manutenção!';

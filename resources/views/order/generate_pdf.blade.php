@@ -45,7 +45,7 @@
                 <div class="col-md-8 offset-md-2 col-sm-10 offset-sm-1">
                     <div class="card">
                         <div class="col-4 py-2">
-                            <img src="{{ asset('assets/img/'.env('LOGO'))}}" width="100px" alt="logo hema">
+                            <img src="{{ asset('assets/img/'.env('LOGO'))}}" width="150px" alt="logo hema">
                         </div>
                         <div class="text-center my-3">
                             <h2>

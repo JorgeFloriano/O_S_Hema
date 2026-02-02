@@ -86,38 +86,35 @@
             </form>
             {{-- Alterado: justify-content-end para alinhar tudo à direita --}}
             <div class="my-3 d-flex flex-wrap justify-content-end align-items-center" id="buttons">
-                
-                @if ($orders->count() > 0)
-                    @if ($adm)
-                        {{-- Removido float-end (desnecessário com flexbox) e adicionado d-flex --}}
-                        <div class="d-flex align-items-center">
-                            <button onclick="formSubmit('filter_form')" data-bs-toggle="tooltip" title="Filtrar..." id="submitButton" type="submit" class="btn btn-outline-primary">
-                                <i class="fa fa-filter"></i> Filtrar
-                            </button>
+                @if ($adm)
+                    {{-- Removido float-end (desnecessário com flexbox) e adicionado d-flex --}}
+                    <div class="d-flex align-items-center">
+                        <button onclick="formSubmit('filter_form')" data-bs-toggle="tooltip" title="Filtrar..." id="submitButton" type="submit" class="btn btn-outline-primary">
+                            <i class="fa fa-filter"></i> Filtrar
+                        </button>
 
-                            <button type="button" data-bs-toggle="modal" data-bs-target="#reportTitle" class="btn btn-outline-primary mx-2">
-                                <div data-bs-toggle="tooltip" title="Gerar relatório PDF">
-                                    <i class="fa fa-file-pdf-o"></i> PDF
-                                </div>
-                            </button>
+                        <button type="button" data-bs-toggle="modal" data-bs-target="#reportTitle" class="btn btn-outline-primary mx-2">
+                            <div data-bs-toggle="tooltip" title="Gerar relatório PDF">
+                                <i class="fa fa-file-pdf-o"></i> PDF
+                            </div>
+                        </button>
 
-                            <button type="button" data-bs-toggle="tooltip" title="Gerar arquivo xlsx"
-                                onclick="submitRoute('{{route('orders.orders_csv')}}', 'csv_form', '{{$able_btn ?? ''}}')"
-                                class="btn btn-outline-primary">
-                                <i class="fa fa-file-excel-o"></i> CSV
-                            </button>
-                        </div>
-                    @endif
-
-                    @if (!$adm && $sup)
-                        <div>
-                            <button onclick="formSubmit('filter_form')" data-bs-toggle="tooltip" title="Filtrar..." id="submitButton" type="submit" class="btn btn-outline-primary">
-                                <i class="fa fa-filter"></i> Filtrar
-                            </button>
-                        </div>
-                    @endif
+                        <button type="button" data-bs-toggle="tooltip" title="Gerar arquivo xlsx"
+                            onclick="submitRoute('{{route('orders.orders_csv')}}', 'csv_form', '{{$able_btn ?? ''}}')"
+                            class="btn btn-outline-primary">
+                            <i class="fa fa-file-excel-o"></i> CSV
+                        </button>
+                    </div>
                 @endif
 
+                @if (!$adm && $sup)
+                    <div>
+                        <button onclick="formSubmit('filter_form')" data-bs-toggle="tooltip" title="Filtrar..." id="submitButton" type="submit" class="btn btn-outline-primary">
+                            <i class="fa fa-filter"></i> Filtrar
+                        </button>
+                    </div>
+                @endif
+                
                 {{-- Forms invisíveis (não afetam o alinhamento visual) --}}
                 <form action="{{route('orders.orders_csv')}}" id="csv_form" method="post">
                     @csrf
@@ -146,9 +143,6 @@
                         </div>
                     </div>
                 </form>
-                @if ($orders->count() === 0)
-                    <p>Nenhum registro encontrado !</p>
-                @endif
             </div>
 
             <hr>
@@ -222,7 +216,16 @@
                                                     @endif
                                                 </li>
 
-                                                @if ($main) 
+                                                @if ($sup && $order->finished) 
+                                                    <li>
+                                                        <a href="{{route('orders.reopen', ['order' => $order->id])}}" class="dropdown-item">
+                                                            <i class="fa fa-file-text-o"></i>
+                                                            Reabrir
+                                                        </a>
+                                                    </li>
+                                                @endif
+
+                                                @if ($main || ($sup && !$order->finished)) 
                                                     <li><hr class="dropdown-divider"></li>
 
                                                     <li>
@@ -254,6 +257,10 @@
                             @endforeach
                         </tbody>
                     </table>
+                    
+                    @if ($orders->count() === 0)
+                        <p>Nenhum registro encontrado !</p>
+                    @endif
                 </div>
             </div>
         </div>

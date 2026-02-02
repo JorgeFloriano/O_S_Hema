@@ -226,7 +226,6 @@ select:focus {
 
 .signature-button {
     margin-right: 15px;
-    color: var(--blue1);
     text-decoration: none;
 }
 

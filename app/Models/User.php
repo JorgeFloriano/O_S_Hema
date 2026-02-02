@@ -72,6 +72,19 @@ class User extends Authenticatable
         return $this->hasOne(Cli::class);
     }
 
+    public function isCliAdmin(): bool
+    {
+        if (!$this->cli) {
+            return false;
+        }
+
+        if (!$this->cli->is_admin) {
+            return false;
+        }
+
+        return true;
+    }
+
     public function userClientCompanyId(): int | null
     {
         if (!$this->cli) {
