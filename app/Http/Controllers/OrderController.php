@@ -84,6 +84,7 @@ class OrderController extends Controller
         // get orders
         $orders = $this->os
             ->select('id', 'order_type_id', 'req_descr', 'req_name', 'equipment', 'sector', 'client_id', 'user_id', 'tec_id', 'req_date', 'req_time', 'finished')
+            ->whereNull('deleted_at') // Adicione esta linha explicitamente
             ->whereBetween('req_date', [$start_date, $end_date])
             ->orderBy('id', 'desc')
             ->get();
@@ -158,11 +159,21 @@ class OrderController extends Controller
             ->when($request->client_id, function ($query) use ($request) {
                 $query->where('client_id', $request->client_id);
             })
-            ->when($tec_selected, function ($query) use ($request) {
-                $query->where('tec_id', $request->tec_id);
-            })
-            ->when($tec_selected == '0', function ($query) {
-                $query->where('tec_id', '0')->orWhereNull('tec_id');
+            // 1. Verificamos se o campo tec_id existe na requisição e não é uma string vazia/null
+            ->when($request->filled('tec_id') || $request->tec_id === '0', function ($query) use ($request) {
+                $tec = $request->tec_id;
+
+                // 2. Se for '0' ou 0, buscamos os "sem técnico" (null ou 0)
+                if ($tec === '0' || $tec == 0) {
+                    $query->where(function ($q) {
+                        $q->where('tec_id', 0)
+                            ->orWhereNull('tec_id');
+                    });
+                }
+                // 3. Se for um ID normal, filtra por ele
+                else {
+                    $query->where('tec_id', $tec);
+                }
             })
             ->when($request->date_start, function ($query) use ($request) {
                 if ($request->date_type == 'order_open_date') {
@@ -194,6 +205,7 @@ class OrderController extends Controller
                 $query->where('finished', $request->finished);
             })
             ->select('id', 'order_type_id', 'req_descr', 'req_name', 'equipment', 'sector', 'client_id', 'user_id', 'tec_id', 'req_date', 'req_time', 'finished')
+            ->whereNull('deleted_at') // Adicione esta linha explicitamente
             ->orderBy('id', 'desc')
             ->get();
 
@@ -216,18 +228,14 @@ class OrderController extends Controller
             $old_client = $old_client->name . ' - [' . $old_client->id . ']';
         }
 
-        // Last tecnician selected
-        if ($tec_selected == '') {
+        // Substitua a lógica do $old_tec por esta:
+        if ($request->tec_id === null || $request->tec_id === '') {
             $old_tec = 'Técnico (todos)';
-        } elseif ($tec_selected == '0') {
+        } elseif ($request->tec_id === '0' || $request->tec_id == 0) {
             $old_tec = 'Não selecionado - [0]';
         } else {
-            $old_tec = Tec::with('user:id,name') // Eager load the user relationship
-                ->where('id', $request->tec_id)
-                ->first();
-            if ($old_tec) {
-                $old_tec = $old_tec->user->name . ' - [' . $old_tec->id . ']';
-            }
+            $tec_model = Tec::with('user:id,name')->find($request->tec_id);
+            $old_tec = $tec_model ? $tec_model->user->name . ' - [' . $tec_model->id . ']' : 'Técnico não encontrado';
         }
 
         // Orders list, to updated tecnicians
@@ -259,7 +267,7 @@ class OrderController extends Controller
     public function create()
     {
         // If user is not administrator or on call technician, redirect to login
-        if (!$this->a && !$this->o) {
+        if (!$this->a && !$this->o && !$this->s) {
             return view('login');
         }
 
@@ -286,7 +294,7 @@ class OrderController extends Controller
     {
 
         // If user is not administrator or on call technician, redirect to login
-        if (!$this->a && !$this->o) {
+        if (!$this->a && !$this->o ) {
             return view('login');
         }
 
@@ -326,10 +334,11 @@ class OrderController extends Controller
     // Shows the form to delete the order
     public function show($order)
     {
-        // Only administrator can delete orders
-        if (!$this->a) {
+        // Only administrators, main administrators or supervisors can delete orders
+        if (!$this->a && !$this->s) {
             return view('login');
         }
+
 
         // Decrypt the order id
         try {
@@ -426,7 +435,7 @@ class OrderController extends Controller
     // Only administrators can delete orders
     public function destroy(string $id)
     {
-        if (!$this->a) {
+        if (!$this->a && !$this->m && !$this->s) {
             return view('login');
         }
 
@@ -437,6 +446,7 @@ class OrderController extends Controller
             'emergency_notification_pending' => false
         ]);
 
+        // Delete all notes of this order
         foreach ($order->notes as $key => $note) {
             foreach ($note->tecs as $key => $tec) {
                 $note_tec = NoteTec::where('note_id', $note->id)->where('tec_id', $tec->id)->first();
@@ -472,13 +482,14 @@ class OrderController extends Controller
 
     public function reopen($id)
     {
-        if (!$this->m) {
-            return view('login');
+        if (!$this->s) {
+            return redirect()->route(session('reference_router_back') ?? 'notes.index')->with('message', 'Somente supervisores tem permissão para reabrir Solicitações de Assistência Técnica.');
         }
 
         if ($this->s->reopenOrder($id)) {
             return redirect()->route(session('reference_router_back') ?? 'notes.index')->with('message', 'Solicitação de Assistência Técnica reaberta com sucesso.');
         }
+
         return redirect()->route(session('reference_router_back') ?? 'notes.index')->with('message', 'Erro ao reabrir Solicitação de Assistência Técnica.');
     }
 

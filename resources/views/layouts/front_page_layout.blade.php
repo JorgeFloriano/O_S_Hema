@@ -18,29 +18,13 @@
 
             body {
                 position: relative;
-                min-height: 100vh;
                 margin: 0;
-                background-color: #f8f9fa; /* Cor de fundo caso a imagem falhe */
+                padding: 0;
+                
+                /* Impede a rolagem lateral horizontal */
+                overflow-x: hidden; 
             }
 
-            /* Camada da Imagem */
-            body::before {
-                content: "";
-                position: fixed; 
-                top: 0;
-                left: 0;
-                width: 100%;
-                height: 100%;
-                /* Aspa simples adicionada corretamente abaixo: */
-                background-image: url("{{ asset('assets/img/bg_image.jpg') }}"); 
-                background-size: cover;
-                background-position: center;
-                background-repeat: no-repeat;
-                
-                opacity: 0.3; 
-                z-index: -1; 
-            }
-            
             .logo {
                 position: absolute;
                 top: 40%; left: 50%; 
