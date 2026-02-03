@@ -38,7 +38,18 @@
                 </div>
 
                 {{-- Botões à direita (quando couber) --}}
-                <div class="mb-2">
+                <div class="mb-2 d-flex">
+                    <form action="{{route('orders.search')}}" id="search_form" method="post" class="me-2 d-flex">
+                    @csrf
+                        <input type="text" 
+                        class="form-control" 
+                        id="search" 
+                        name="search" 
+                        placeholder="SAT Nº" 
+                        style="width: 80px; font-family: FontAwesome, Arial;">
+                        <button type="submit" class="btn btn-outline-primary"><i class="fa fa-search"></i></button>
+                    </form>
+
                     <a href="{{route('orders.create')}}" class="btn btn-primary" data-bs-toggle="tooltip" title="Criar nova Solicitação de Assistência Técnica">
                         <i class="fa fa-plus"></i> Nova
                     </a>
@@ -46,7 +57,6 @@
             </div>
 
             <form action="{{route('orders.filter')}}" id="filter_form" method="post">
-
                 @csrf
                 <div class="row g-2 mb-2">
                     <div class="col-xl-2 col-md-4 col-6">

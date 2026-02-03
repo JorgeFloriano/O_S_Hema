@@ -18,6 +18,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Contracts\Encryption\DecryptException;
 use Barryvdh\DomPDF\Facade\Pdf;
+use Carbon\Carbon;
 use Webklex\PDFMerger\Facades\PDFMergerFacade as PDFMerger;
 use Illuminate\Support\Facades\DB;
 
@@ -78,8 +79,8 @@ class OrderController extends Controller
         session()->put('reference_router_back', 'orders.index');
 
         // Create date start_date and end_date
-        $start_date = \Carbon\Carbon::now()->subMonth()->format('Y-m-d');
-        $end_date = \Carbon\Carbon::now()->format('Y-m-d');
+        $start_date = Carbon::now()->subMonth()->format('Y-m-d');
+        $end_date = Carbon::now()->format('Y-m-d');
 
         // get orders
         $orders = $this->os
@@ -119,6 +120,38 @@ class OrderController extends Controller
         ]);
     }
 
+    public function search(Request $request)
+    {
+        $validated = $request->validate([
+            'search' => 'required|numeric|max:999999999',
+        ]);
+
+        // get orders
+        $orders = $this->os
+            ->select('id', 'order_type_id', 'req_descr', 'req_name', 'equipment', 'sector', 'client_id', 'user_id', 'tec_id', 'req_date', 'req_time', 'finished')
+            ->where('id', $validated['search'])
+            ->whereNull('deleted_at') // Adicione esta linha explicitamente
+            ->get();
+
+        $tecs = Tec::all();
+
+        return view('order.orders_list', [
+            'orders' => $orders,
+            'order_ids' => $orders->pluck('id')->implode(','),
+            'able_btn' => $able_btn ?? '',
+            'tecs' => $tecs->sortBy('user.name'),
+            'clients' => Client::select('id', 'name')->orderBy('name')->get(),
+            'main' => $this->m ?? null,
+            'sup' => $this->s ?? null,
+            'adm' => $this->a ?? null,
+            'old_client' => 'Cliente (todos)',
+            'old_tec' => 'Técnico (todos)',
+            'old_finished' => 2,
+            'date_s' => Carbon::now()->subMonth()->format('Y-m-d'),
+            'date_e' => Carbon::now()->format('Y-m-d')
+        ]);
+    }
+
     // Show the form for filtering orders
     public function filter(FormFilterRequest  $request)
     {
@@ -144,15 +177,6 @@ class OrderController extends Controller
         if ($request->date_type == 'last_note_date') {
             $order_open_select = '';
             $last_note_select = 'selected';
-        }
-
-        // If techician selected is "Não selecionado", get orders where tec_id is 0
-        if ($request->tec_id == '0') {
-            $tec_selected = '0';
-        } elseif ($request->tec_id == null) {
-            $tec_selected = null;
-        } else {
-            $tec_selected = $request->tec_id;
         }
 
         $orders = $this->os
@@ -294,7 +318,7 @@ class OrderController extends Controller
     {
 
         // If user is not administrator or on call technician, redirect to login
-        if (!$this->a && !$this->o ) {
+        if (!$this->a && !$this->o) {
             return view('login');
         }
 
