@@ -274,3 +274,13 @@ div.signature {
     margin: auto;
     text-align: center;
 }
+
+.no-spin::-webkit-outer-spin-button,
+.no-spin::-webkit-inner-spin-button {
+  -webkit-appearance: none;
+  margin: 0;
+}
+
+.no-spin[type=number] {
+  -moz-appearance: textfield;
+}

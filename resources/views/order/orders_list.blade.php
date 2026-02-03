@@ -30,27 +30,30 @@
                 <div class="mb-2">
                     <h2 class="mb-0">
                         {{-- Texto longo: Escondido em telas menores que 576px, visível em telas 'sm' ou maiores --}}
-                        <span class="d-none d-sm-inline">Solicitações de Assistência Técnica</span>
+                        <span class="d-none d-md-inline">Solicitações de Assistência Técnica</span>
                         
                         {{-- Texto curto: Visível em telas pequenas, escondido em telas 'sm' ou maiores --}}
-                        <span class="d-inline d-sm-none">SATs</span>
+                        <span class="d-inline d-md-none">SATs</span>
                     </h2>
                 </div>
 
                 {{-- Botões à direita (quando couber) --}}
-                <div class="mb-2 d-flex">
-                    <form action="{{route('orders.search')}}" id="search_form" method="post" class="me-2 d-flex">
+                <div class="d-flex">
+                    <form action="{{route('orders.search')}}" id="search_form" method="post">
                     @csrf
-                        <input type="text" 
-                        class="form-control" 
-                        id="search" 
-                        name="search" 
-                        placeholder="SAT Nº" 
-                        style="width: 80px; font-family: FontAwesome, Arial;">
-                        <button type="submit" class="btn btn-outline-primary"><i class="fa fa-search"></i></button>
+                        <div class="input-group">
+                            <input type="number"
+                            class="form-control no-spin"
+                            id="search"
+                            name="search"
+                            placeholder="Buscar nº"
+                            style="width: 95px; font-family: FontAwesome, Arial;"
+                            required>
+                            <button type="submit" class="btn btn-outline-primary"><i class="fa fa-search"></i></button>
+                        </div>
                     </form>
 
-                    <a href="{{route('orders.create')}}" class="btn btn-primary" data-bs-toggle="tooltip" title="Criar nova Solicitação de Assistência Técnica">
+                    <a href="{{route('orders.create')}}" class="btn btn-primary ms-2" data-bs-toggle="tooltip" title="Criar nova Solicitação de Assistência Técnica">
                         <i class="fa fa-plus"></i> Nova
                     </a>
                 </div>
@@ -156,7 +159,7 @@
             </div>
 
             <hr>
-                <div class="table-responsive">
+                <div class="table-responsive" style="padding-bottom: {{count($orders) < 5 ? '130px' : '0px'}}">
                     <table class="table table-striped table-hover" id="orders_list">
                         <thead class="table-primary">
                             <tr>
