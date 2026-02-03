@@ -123,7 +123,7 @@ class OrderController extends Controller
     public function search(Request $request)
     {
         $validated = $request->validate([
-            'search' => 'required|numeric|max:999999999',
+            'search' => 'required|numeric|max:999999999|min:1',
         ]);
 
         // get orders
@@ -318,7 +318,7 @@ class OrderController extends Controller
     {
 
         // If user is not administrator or on call technician, redirect to login
-        if (!$this->a && !$this->o) {
+        if (!$this->a && !$this->o && !$this->s) {
             return view('login');
         }
 
