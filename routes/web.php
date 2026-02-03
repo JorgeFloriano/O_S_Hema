@@ -29,6 +29,7 @@ Route::get('/', function () {
 Route::middleware(CheckSession::class)->group(function () {
     Route::resource('orders', OrderController::class);
     Route::post('/orders/filter', [OrderController::class, 'filter'])->name('orders.filter');
+    Route::post('/orders/search', [OrderController::class, 'search'])->name('orders.search');
     Route::post('/orders/orders_pdf', [OrderController::class, 'orders_pdf'])->name('orders.orders_pdf');
     Route::get('/orders/{order}/finish', [OrderController::class, 'finish'])->name('orders.finish');
     Route::get('/orders/{order}/reopen', [OrderController::class, 'reopen'])->name('orders.reopen');
