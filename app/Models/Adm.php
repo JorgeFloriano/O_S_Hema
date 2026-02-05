@@ -11,6 +11,7 @@ use Illuminate\Foundation\Auth\User;
 class Adm extends Model
 {
     use SoftDeletes;
+    use HasFactory;
     public function user(): BelongsTo
     {
         return $this->belongsTo(User::class);
@@ -27,6 +28,9 @@ class Adm extends Model
         'main',
         'cli',
     ];
-
-    use HasFactory;
+    
+    public function isMain(): bool
+    {
+        return $this->main;
+    }
 }

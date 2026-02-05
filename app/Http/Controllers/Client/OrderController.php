@@ -14,7 +14,9 @@ use Illuminate\Support\Facades\Crypt;
 use Illuminate\Contracts\Encryption\DecryptException;
 use App\Http\Controllers\Controller;
 use App\Models\User;
+use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Http\Request;
 
 class OrderController extends Controller
 {
@@ -22,6 +24,7 @@ class OrderController extends Controller
     public readonly User $user;
     public $logger; // logger class
     public $text; // text format functions
+    public $client_name;
     public function __construct()
     {
         // Set a nem service order
@@ -39,49 +42,29 @@ class OrderController extends Controller
 
     public function index()
     {
-        $clients = Client::select('id', 'name')->orderBy('name')->get();
-
-        // create session variable wich contains 0 and all clients ids to validated in FormFilterRequest
-        $cli_ids_array = $clients->pluck('id')->toArray();
-        array_unshift($cli_ids_array, 0);
-        session()->put('client_ids', $cli_ids_array);
-        session()->put('reference_router_back', 'orders.index');
+        // If user is not suprevisor or administrator, redirect to login
+        if (!$this->user->isCli()) {
+            return redirect()->route('login.destroy')->withErrors(['error' => 'Acesso negado']);
+        }
 
         // Create date start_date and end_date
-        $start_date = \Carbon\Carbon::now()->subMonth()->format('Y-m-d');
-        $end_date = \Carbon\Carbon::now()->format('Y-m-d');
+        $start_date = Carbon::now()->subMonth()->format('Y-m-d');
+        $end_date = Carbon::now()->format('Y-m-d');
 
         // get orders
         $orders = $this->os
             ->select('id', 'order_type_id', 'req_descr', 'req_name', 'equipment', 'sector', 'client_id', 'user_id', 'tec_id', 'req_date', 'req_time', 'finished')
             ->whereBetween('req_date', [$start_date, $end_date])
-            ->where('client_id', $this->user->cli->client_id)
+            ->whereNull('deleted_at') // Adicione esta linha explicitamente
+            ->where('client_id', $this->user->clientId()) // Somente os orders do client logado
             ->orderBy('id', 'desc')
             ->get();
-
-        session()->put('ords', $orders);
-
-        // create an array with the orders ids for generate the pdf
-        $order_ids = $orders->pluck('id')->implode(',');
-
-        // Verify if the list of orders is not empty and if all orders are finished to ability "Gerar pdf" button
-        $finisheds = $orders->pluck('finished')->toArray();
-        if (in_array(0, $finisheds) || count($finisheds) == 0) {
-            $able_btn = 'Não é possívle gerar arquivo de Solicitação de Assistência Técnica não finalizadas, tente filtar novamente';
-        }
 
         $tecs = Tec::all();
 
         return view('order.orders_list', [
             'orders' => $orders,
-            'order_ids' => $order_ids,
-            'able_btn' => $able_btn ?? '',
             'tecs' => $tecs->sortBy('user.name'),
-            'clients' => $clients,
-            'main' => $this->m ?? null,
-            'sup' => $this->s ?? null,
-            'adm' => $this->a ?? null,
-            'old_client' => 'Cliente (todos)',
             'old_tec' => 'Técnico (todos)',
             'old_finished' => 2,
             'date_s' => $start_date,
@@ -89,12 +72,47 @@ class OrderController extends Controller
         ]);
     }
 
+    public function search(Request $request)
+    {
+
+        // If user is not suprevisor or administrator, redirect to login
+        if (!$this->user->isCli()) {
+            return redirect()->route('login.destroy')->withErrors(['error' => 'Acesso negado']);
+        }
+
+        $validated = $request->validate([
+            'search' => 'required|numeric|max:999999999|min:1',
+        ]);
+
+        // get orders
+        $orders = $this->os
+            ->select('id', 'order_type_id', 'req_descr', 'req_name', 'equipment', 'sector', 'client_id', 'user_id', 'tec_id', 'req_date', 'req_time', 'finished')
+            ->where('id', $validated['search'])
+            ->where('client_id', $this->user->clientId()) // Somente os orders do client logado
+            ->whereNull('deleted_at') // Adicione esta linha explicitamente
+            ->get();
+
+        $tecs = Tec::all();
+
+        return view('order.orders_list', [
+            'orders' => $orders,
+            'order_ids' => $orders->pluck('id')->implode(','),
+            'tecs' => $tecs->sortBy('user.name'),
+            'old_client' => 'Cliente (todos)',
+            'old_tec' => 'Técnico (todos)',
+            'old_finished' => 2,
+            'date_s' => Carbon::now()->subMonth()->format('Y-m-d'),
+            'date_e' => Carbon::now()->format('Y-m-d'),
+            'old_client' => $this->user->clientStringForUnlabeledDList(),
+        ]);
+    }
+
     // Show the form for filtering orders
     public function filter(FormFilterRequest  $request)
     {
         // If user is not suprevisor or administrator, redirect to login
-        if (!$this->s && !$this->a) {
-            return view('login');
+        if (!$this->user->isCli()) {
+            return redirect()->route('login.destroy')->withErrors(['error' => 'Acesso negado']);
         }
 
         $request->validated();
@@ -126,14 +144,21 @@ class OrderController extends Controller
         }
 
         $orders = $this->os
-            ->when($request->client_id, function ($query) use ($request) {
-                $query->where('client_id', $request->client_id);
-            })
-            ->when($tec_selected, function ($query) use ($request) {
-                $query->where('tec_id', $request->tec_id);
-            })
-            ->when($tec_selected == '0', function ($query) {
-                $query->where('tec_id', '0')->orWhereNull('tec_id');
+            // 1. Verificamos se o campo tec_id existe na requisição e não é uma string vazia/null
+            ->when($request->filled('tec_id') || $request->tec_id === '0', function ($query) use ($request) {
+                $tec = $request->tec_id;
+
+                // 2. Se for '0' ou 0, buscamos os "sem técnico" (null ou 0)
+                if ($tec === '0' || $tec == 0) {
+                    $query->where(function ($q) {
+                        $q->where('tec_id', 0)
+                            ->orWhereNull('tec_id');
+                    });
+                }
+                // 3. Se for um ID normal, filtra por ele
+                else {
+                    $query->where('tec_id', $tec);
+                }
             })
             ->when($request->date_start, function ($query) use ($request) {
                 if ($request->date_type == 'order_open_date') {
@@ -165,27 +190,10 @@ class OrderController extends Controller
                 $query->where('finished', $request->finished);
             })
             ->select('id', 'order_type_id', 'req_descr', 'req_name', 'equipment', 'sector', 'client_id', 'user_id', 'tec_id', 'req_date', 'req_time', 'finished')
+            ->where('client_id', $this->user->clientId()) // Somente as ordens do cliente logado
+            ->whereNull('deleted_at') // Adicione esta linha explicitamente
             ->orderBy('id', 'desc')
             ->get();
-
-        // create an array with the orders ids for generate the pdf
-        $order_ids = $orders->pluck('id')->implode(',');
-
-        if ($order_ids == '' || $order_ids == null) {
-            $order_ids = 0;
-        }
-
-        // Verify if the list of orders is not empty and if all orders are finished to ability "Gerar pdf" button
-        $finisheds = $orders->pluck('finished')->toArray();
-        if (in_array(0, $finisheds) || count($finisheds) == 0) {
-            $able_btn = 'Não é possívle gerar arquivo de Solicitação de Assistência Técnica não finalizadas, tente filtrar novamente';
-        }
-
-        //Last client selected
-        $old_client = Client::select('id', 'name')->where('id', $request->client_id)->first();
-        if ($old_client) {
-            $old_client = $old_client->name . ' - [' . $old_client->id . ']';
-        }
 
         // Last tecnician selected
         if ($tec_selected == '') {
@@ -201,23 +209,14 @@ class OrderController extends Controller
             }
         }
 
-        // Orders list, to updated tecnicians
-        session()->put('ords', $orders);
-
         $tecs = Tec::all();
 
         return view('order.orders_list', [
             'orders' => $orders,
             'ids' => $order_ids ?? 0,
-            'able_btn' => $able_btn ?? '',
             'tecs' => $tecs->sortBy('user.name'),
-            'clients' => Client::select('id', 'name')->orderBy('name')->get(),
-            'main' => $this->m ?? null,
-            'sup' => $this->s ?? null,
-            'adm' => $this->a ?? null,
             'date_s' => $request->date_start,
             'date_e' => $request->date_end,
-            'old_client' => $old_client ?? 'Cliente (todos)',
             'old_tec' => $old_tec ?? 'Técnico (todos)',
             'old_finished' => $request->finished ?? null,
             'fin_select' => $fin_select ?? ['', '', ''],
@@ -229,24 +228,15 @@ class OrderController extends Controller
     // Show the form for creating a new order
     public function create()
     {
-        // If user is not administrator or on call technician, redirect to login
-        if (!$this->a && !$this->o) {
-            return view('login');
+        // If user is not a authorized client, redirect to login
+        if (!$this->user->clientCanCreateSat()) {
+            return redirect()->back()->with('error', 'Acesso negado');
         }
-
-        // Get id and name of all clients order by name
-        $clients = Client::select('id', 'name')->orderBy('name')->get();
 
         // Create session variable wich contains all order types ids to validated in FormOrderRequest
         $types = OrderType::all();
-        session()->put('types_ids', $types->pluck('id')->toArray());
-
-        // Create session variable wich contains all clients ids to validated in FormOrderRequest
-        $cli_ids_array = Client::all()->pluck('id')->toArray();
-        session()->put('client_ids', $cli_ids_array);
 
         return view('order.order_create', [
-            'clients' => $clients,
             'tecs' => Tec::all(),
             'types' => $types
         ]);
@@ -256,42 +246,28 @@ class OrderController extends Controller
     public function store(FormOrderRequest $request)
     {
 
-        // If user is not administrator or on call technician, redirect to login
-        if (!$this->a && !$this->o) {
-            return view('login');
+        // If user is not a authorized client, redirect to login
+        if (!$this->user->clientCanCreateSat()) {
+            return redirect()->back()->with('error', 'Acesso negado');
         }
 
         $request->validated();
 
-        $auth = auth()->user();
-
-        // If there is no contact name, then use the name of the client that was selected
-        $cont_name_client = $request->req_name;
-        if (!$request->req_name) {
-            $cont_name_client = Client::find($request->client_id)->contact;
-        }
-
         // Create new order
         $created = $this->os->create([
-            'client_id' => $request->client_id,
+            'client_id' => $this->user->clientId(),
             'order_type_id' => $request->order_type_id,
             'sector' => $request->sector,
-            'req_name' => $cont_name_client,
-            'user_id' => $auth->id,
+            'req_name' => $this->user->name,
+            'user_id' => $this->user->id,
             'equipment' => $request->equipment,
-            'req_date' => $request->req_date,
-            'req_time' => $request->req_time,
+            'req_date' => Carbon::now()->format('Y-m-d'),
+            'req_time' => Carbon::now()->format('H:i:s'),
             'req_descr' => $this->text->spaceAfterPunctuation($request->req_descr),
         ]);
 
-        // Provisório, teste
-        // Notification management when a Technical Assistance Request is opened by the client.
-        // $created->notificationWhenOpenedByClient();
-
         $msg = $created ? 'Solicitação de Assistência Técnica criada com sucesso.' : 'Erro ao criar Solicitação de Assistência Técnica.';
-        $route = $this->o && !$this->a ? 'notes.index' : 'orders.index';
-        $route = session('reference_router_back') ?? 'orders.index';
-        return redirect()->route($route)->with('message', $msg);
+        return redirect()->route('client.orders.index')->with('message', $msg);
     }
 
     // Shows the form to delete the order

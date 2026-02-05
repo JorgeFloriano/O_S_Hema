@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Route;
 Route::middleware(CheckSession::class)->group(function () {
     Route::resource('orders', OrderController::class);
     Route::post('orders/filter', [OrderController::class, 'filter'])->name('orders.filter');
+    Route::post('orders/search', [OrderController::class, 'search'])->name('orders.search');
     Route::get('orders/{order}/show_pdf', [OrderController::class, 'show_pdf'])->name('orders.show_pdf');
     Route::resource('users', UserController::class);
 });

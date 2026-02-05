@@ -72,17 +72,67 @@ class User extends Authenticatable
         return $this->hasOne(Cli::class);
     }
 
+    public function isAdm(): bool
+    {
+        return $this->adm ? true : false;
+    }
+
+    public function isMainAdm(): bool
+    {
+        return $this->adm ? $this->adm->isMain() : false;
+    }
+
+    public function isTec(): bool
+    {
+        return $this->tec ? true : false;
+    }
+
+    public function isSup(): bool
+    {
+        return $this->sup ? true : false;
+    }
+
+    public function isCli(): bool
+    {
+        return $this->cli ? true : false;
+    }
+
     public function isCliAdmin(): bool
     {
-        if (!$this->cli) {
+        return $this->cli ? $this->cli->isAdmin() : false;
+    }
+
+    public function clientCanCreateSat(): bool
+    {
+        return $this->cli ? $this->cli->canCreateSat() : false;
+    }
+
+    public function clientCanSeeSat(): bool
+    {
+        return $this->cli ? $this->cli->canSeeSat() : false;
+    }
+
+    public function clientId(): int | null
+    {
+        return $this->cli ? $this->cli->clientId() : null;
+    }
+
+    public function canAcessClientsAndMaterials(): bool
+    {
+        if (!$this->adm) {
             return false;
         }
 
-        if (!$this->cli->is_admin) {
-            return false;
+        if ($this->adm->main) {
+            return true;
         }
 
-        return true;
+        return $this->adm->cli ? true : false;
+    }
+
+    public function clientStringForUnlabeledDList(): string
+    {
+        return $this->cli ? $this->cli->stringForUnlabeledDList() : 'Cliente não encontrado para usuário';
     }
 
     public function userClientCompanyId(): int | null
@@ -90,7 +140,7 @@ class User extends Authenticatable
         if (!$this->cli) {
             return null;
         }
-        return $this->cli->client_id;
+        return $this->cli->clientId();
     }
 
     /**
