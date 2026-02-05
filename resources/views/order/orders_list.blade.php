@@ -7,6 +7,7 @@
     use App\Models\Cli;
     use App\Class\TextFormat;
     $p = new TextFormat();
+    $auth = auth()->user();
 @endphp
 
 {{-- container-sm was altered in my bootstrap.min.css --}}
@@ -39,7 +40,7 @@
 
                 {{-- Botões à direita (quando couber) --}}
                 <div class="d-flex">
-                    <form action="{{route('orders.search')}}" id="search_form" method="post">
+                    <form action="{{route($auth->isCli() ? 'client.orders.search' : 'orders.search')}}" id="search_form" method="post">
                     @csrf
                         <div class="input-group">
                             <input type="number"
@@ -53,17 +54,24 @@
                         </div>
                     </form>
 
-                    <a href="{{route('orders.create')}}" class="btn btn-primary ms-2" data-bs-toggle="tooltip" title="Criar nova Solicitação de Assistência Técnica">
+                    <a href="{{route($auth->isCli() ? 'client.orders.create' : 'orders.create')}}"
+                        class="btn btn-primary ms-2"
+                        data-bs-toggle="tooltip"
+                        title="Criar nova Solicitação de Assistência Técnica">
                         <i class="fa fa-plus"></i> Nova
                     </a>
                 </div>
             </div>
 
-            <form action="{{route('orders.filter')}}" id="filter_form" method="post">
+            <form action="{{route($auth->isCli() ? 'client.orders.filter' : 'orders.filter')}}" id="filter_form" method="post">
                 @csrf
                 <div class="row g-2 mb-2">
                     <div class="col-xl-2 col-md-4 col-6">
-                        <x-unlabeled-dlist :objs="$clients" obj="client" des="name" :val="$old_client ?? ''" :place="'Cliente (todos)'" onfoc="clearInputs('client', 'client_id' ,'0')"/>
+                        @if ($auth->isCli())
+                            <input type='text' class='form-control' disabled value='{{$auth->clientStringForUnlabeledDList()}}' readonly>
+                        @else
+                            <x-unlabeled-dlist :objs="$clients ?? []" obj="client" des="name" :val="$old_client ?? ''" :place="'Cliente (todos)'" onfoc="clearInputs('client', 'client_id' ,'0')"/>
+                        @endif
                     </div>
 
                     <div class="col-xl-2 col-md-4 col-6">
@@ -99,7 +107,7 @@
             </form>
             {{-- Alterado: justify-content-end para alinhar tudo à direita --}}
             <div class="my-3 d-flex flex-wrap justify-content-end align-items-center" id="buttons">
-                @if ($adm)
+                @if ($auth->isAdm())
                     {{-- Removido float-end (desnecessário com flexbox) e adicionado d-flex --}}
                     <div class="d-flex align-items-center">
                         <button onclick="formSubmit('filter_form')" data-bs-toggle="tooltip" title="Filtrar..." id="submitButton" type="submit" class="btn btn-outline-primary">
@@ -120,7 +128,7 @@
                     </div>
                 @endif
 
-                @if (!$adm && $sup)
+                @if ((!$auth->isAdm() && $auth->isSup()) || $auth->isCli())
                     <div>
                         <button onclick="formSubmit('filter_form')" data-bs-toggle="tooltip" title="Filtrar..." id="submitButton" type="submit" class="btn btn-outline-primary">
                             <i class="fa fa-filter"></i> Filtrar
@@ -164,7 +172,11 @@
                         <thead class="table-primary">
                             <tr>
                                 <th>Nº</th>
-                                <th>Cliente</th>
+
+                                @if(!$auth->isCli())
+                                    <th>Cliente</th>
+                                @endif
+
                                 <th>Equipamento</th>
                                 <th>Problema relatado</th>
                                 <th style="min-width: 160px">Técnico</th>
@@ -177,11 +189,13 @@
                             @foreach ($orders as $order)
                                 <tr>
                                     <td>{{number_format($order->id, 0, ',', '.')}}</td>
-                                    <td>{{$order->client->name ?? ''}}</td>
+                                    @if(!$auth->isCli())
+                                        <td>{{$order->client->name ?? ''}}</td>
+                                    @endif
                                     <td>{{$order->equipment ?? 'Não informado'}}</td>
                                     <td>{{$p->spaceAfterPunctuation($order->req_descr) ?? ''}}</td>
                                     <td>
-                                        @if ($order->finished || (!$main && !$sup))
+                                        @if ($order->finished || (!$auth->isMainAdm() && !$auth->isSup()))
                                             <input class="form-control" disabled id="ord_{{$order->id}}" value="{{$order->tec->user->name ?? 'Indefinido'}} - [{{$order->tec->id ?? ''}}]">
                                         @else
                                             <x-unlabeled-dlist :objs="$tecs" obj="tec" des="user" place="Não selecionado" val="{{$order->tec->user->name ?? ''}} - [{{$order->tec->id ?? ''}}]" ind="{{$order->id}}" subdes="name" onfoc="clearInputs('{{$order->id}}tec', '{{$order->id}}tec_id' ,'0'), updateOrderTec('{{$order->id}}', 0)"/>
@@ -218,7 +232,7 @@
                                                                 $icon = 'edit';
                                                                 $text = 'Editar';
                                                                 $ord_creator_is_cli = Cli::where('user_id', $order->user_id)->first();
-                                                                if (isset($ord_creator_is_cli) || !$main) {
+                                                                if ($ord_creator_is_cli || !$auth->isMainAdm()) {
                                                                     $icon = 'file-text-o';
                                                                     $text = 'Visualizar';
                                                                 }
@@ -229,7 +243,7 @@
                                                     @endif
                                                 </li>
 
-                                                @if ($sup && $order->finished) 
+                                                @if ($auth->isSup() && $order->finished) 
                                                     <li>
                                                         <a href="{{route('orders.reopen', ['order' => $order->id])}}" class="dropdown-item">
                                                             <i class="fa fa-file-text-o"></i>
@@ -238,7 +252,7 @@
                                                     </li>
                                                 @endif
 
-                                                @if ($main || ($sup && !$order->finished)) 
+                                                @if ($auth->isMainAdm() || ($auth->isSup() && !$order->finished)) 
                                                     <li><hr class="dropdown-divider"></li>
 
                                                     <li>

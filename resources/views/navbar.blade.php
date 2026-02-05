@@ -1,3 +1,76 @@
+
+@php
+    $user = auth()->user();
+
+    $navLinks = collect([
+        [
+            'label' => 'Solicitações',
+            'route' => route('client.orders.index'),
+            'icon'  => 'fa-file-text-o',
+            'active'=> Request::is('*orders*'),
+            'show'  => $user->isCli()
+        ],
+        [
+            'label' => 'Usuários',
+            'route' => route('client.users.index'),
+            'icon'  => 'fa-user-o',
+            'active'=> Request::is('*users*'),
+            'show'  => $user->isCliAdmin()
+        ],
+        [
+            'label' => 'SATs',
+            'route' => route('orders.index'),
+            'icon'  => 'fa-file-text-o',
+            'active'=> Request::is('*orders*'),
+            'show'  => $user->isSup() || $user->isAdm()
+        ],
+        [
+            'label' => 'Programação',
+            'route' => route('notes.index'),
+            'icon'  => 'fa-exclamation-circle',
+            'active'=> Request::is('*notes*'),
+            'show'  => $user->isTec()
+        ],
+        [
+            'label' => 'Clientes',
+            'route' => route('clients.index'),
+            'icon'  => 'fa-handshake-o',
+            'active'=> Request::is('*clients*'),
+            'show'  => $user->canAcessClientsAndMaterials()
+        ],
+        [
+            'label' => 'Materiais',
+            'route' => route('materials.index'),
+            'icon'  => 'fa-hdd-o',
+            'active'=> Request::is('*material*'),
+            'show'  => $user->canAcessClientsAndMaterials()
+        ],
+        [
+            'label' => 'Usuários',
+            'route' => route('users.index'),
+            'icon'  => 'fa-user-o',
+            'active'=> Request::is('*users*'),
+            'show'  => $user->isMainAdm()
+        ],
+        [
+            'label' => 'Sobreaviso',
+            'route' => route('tec_on'),
+            'icon'  => 'fa-bell-o',
+            'active'=> Request::is('*tec_on*'),
+            'show'  => $user->isSup()
+        ],
+    ])->where('show', true);
+
+    // Array específico para o dropdown de "Códigos"
+    $codigoLinks = [
+        ['label' => 'Segmentos', 'route' => route('order_types.index'), 'pattern' => '*order_types*'],
+        ['label' => 'Tipos', 'route' => route('note_types.index'), 'pattern' => '*note_types*'],
+        ['label' => 'Defeitos', 'route' => route('defects.index'), 'pattern' => '*defects*'],
+        ['label' => 'Causas', 'route' => route('causes.index'), 'pattern' => '*causes*'],
+        ['label' => 'Soluções', 'route' => route('solutions.index'), 'pattern' => '*solutions*'],
+    ];
+@endphp
+
 <nav class="navbar navbar-expand-lg navbar-dark" style="background: #1b0363ff">
     {{-- Se a URL contiver 'orders', usa fluid (100%), caso contrário usa o container padrão --}}
     <div class="container-sm">
@@ -17,7 +90,7 @@
             </a>
           
             <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                @if (session('main') == auth()->user()->id || auth()->user()->isCliAdmin())
+                @if (auth()->user()->isMainAdm() || auth()->user()->isCliAdmin())
                     <li>
                         <a class="dropdown-item" href="{{route('users.edit', ['user' => Crypt::encryptString(auth()->user()->id)])}}">
                             <i class="fa fa-user" aria-hidden="true"></i>
@@ -39,126 +112,31 @@
         </button>
         <div class="collapse navbar-collapse mt-3" id="navbarSupportedContent">
             <ul class="navbar-nav me-auto mb-lg-0">
-                @if (auth()->user()->cli)
-                    <li>
-                        <a class="nav-link me-2 {{ Request::is('*orders*') ? 'fw-bold active border-bottom border-white pb-1' : '' }}" href="{{route('client.orders.index')}}">
-                            <i class="fa fa-file-text-o"></i>
-                            Solicitações
-                        </a>
-                    </li>
-                    
-                    @if (auth()->user()->isCliAdmin())
-                        <li class="nav-item">
-                            <a class="nav-link me-2 {{ Request::is('*users*') ? 'fw-bold active border-bottom border-white pb-1' : '' }}" href="{{route('client.users.index')}}">
-                                <i class="fa fa-user-o"></i>
-                                Usuários
-                            </a>
-                        </li>
-                    @endif
-                @endif
-
-                @if (auth()->user()->sup()->first() || auth()->user()->adm()->first())
-                    <li>
-                        <a class="nav-link me-2 {{ Request::is('*orders*') ? 'fw-bold active border-bottom border-white pb-1' : '' }}" href="{{route('orders.index')}}">
-                            <i class="fa fa-file-text-o"></i>
-                            SATs
-                        </a>
-                    </li>
-                @endif
-
-                @if (auth()->user()->tec()->first())
+                @foreach ($navLinks as $link)
                     <li class="nav-item">
-                        <a class="nav-link me-2 {{ Request::is('*notes*') ? 'fw-bold active border-bottom border-white pb-1' : '' }}" href="{{route('notes.index')}}">
-                            <i class="fa fa-exclamation-circle"></i>
-                            Programação
+                        <a class="nav-link me-2 {{ $link['active'] ? 'fw-bold active border-bottom border-white pb-1' : '' }}" 
+                        href="{{ $link['route'] }}">
+                            <i class="fa {{ $link['icon'] }}"></i>
+                            {{ $link['label'] }}
                         </a>
                     </li>
-                @endif
+                @endforeach
 
-                @if (session('main') == auth()->user()->id)
-                    <li class="nav-item">
-                        <a class="nav-link me-2 {{ Request::is('*clients*') ? 'fw-bold active border-bottom border-white pb-1' : '' }}" href="{{route('clients.index')}}">
-                            <i class="fa fa-handshake-o"></i>
-                            Clientes
-                        </a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link me-2 {{ Request::is('*users*') ? 'fw-bold active border-bottom border-white pb-1' : '' }}" href="{{route('users.index')}}">
-                            <i class="fa fa-user-o"></i>
-                            Usuários
-                        </a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link me-2 {{ Request::is('*material*') ? 'fw-bold active border-bottom border-white pb-1' : '' }}" href="{{route('materials.index')}}">
-                            <i class="fa fa-hdd-o"></i>
-                            Materiais
-                        </a>
-                    </li>
-                @endif
-
-                @if (session('cli') == auth()->user()->id)
-                    <li class="nav-item">
-                        <a class="nav-link me-2 {{ Request::is('*clients*') ? 'fw-bold active border-bottom border-white pb-1' : '' }}" href="{{route('clients.index')}}">
-                            <i class="fa fa-handshake-o"></i>
-                            Clientes
-                        </a>
-                    </li>
-
-                    <li class="nav-item">
-                        <a class="nav-link me-2 {{ Request::is('*materials*') ? 'fw-bold active border-bottom border-white pb-1' : '' }}" href="{{route('materials.index')}}">
-                            <i class="fa fa-hdd-o"></i>
-                            Materiais
-                        </a>
-                    </li>
-                @endif
-
-                @if (auth()->user()->sup()->first())
-                    <li>
-                        <a class="nav-link me-2 {{ Request::is('*tec_on*') ? 'fw-bold active border-bottom border-white pb-1' : '' }}" href="{{route('tec_on')}}">
-                            <i class="fa fa-bell-o"></i>
-                            Sobreaviso
-                        </a>
-                    </li>
-                @endif
-
-                @if (session('main') == auth()->user()->id)
+                {{-- Dropdown de Códigos (Lógica especial) --}}
+                @if ($user->isMainAdm())
                     <li class="nav-item dropdown">
-                        <a class="nav-link me-2 dropdown-toggle {{ Request::is('*order_types*', '*note_types*', '*defects*', '*causes*', '*solutions*') ? 'fw-bold active border-bottom border-white pb-1' : '' }}" href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
-                        <i class="fa fa-bars"></i>
-                        Códigos
+                        <a class="nav-link me-2 dropdown-toggle {{ Request::is('*order_types*', '*note_types*', '*defects*', '*causes*', '*solutions*') ? 'fw-bold active border-bottom border-white pb-1' : '' }}" 
+                        href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
+                            <i class="fa fa-bars"></i> Códigos
                         </a>
                         <ul class="dropdown-menu" aria-labelledby="navbarDropdown">
-                            <li>
-                                <a class="dropdown-item {{ Request::is('*order_types*') ? 'active' : '' }}" href="{{route('order_types.index')}}">
-                                    Segmentos de serviços
-                                </a>
-                            </li>
-
-                            <li>
-                                <a class="dropdown-item {{ Request::is('*note_types*') ? 'active' : '' }}" href="{{route('note_types.index')}}">
-                                    Tipos de serviços
-                                </a>
-                            </li>
-
-                            <li>
-                                <a class="dropdown-item {{ Request::is('*defects*') ? 'active' : '' }}" href="{{route('defects.index')}}">
-                                    Defeitos 
-                                </a>
-                            </li>
-
-                            <li>
-                                <a class="dropdown-item {{ Request::is('*causes*') ? 'active' : '' }}" href="{{route('causes.index')}}">
-                                    Causas
-                                </a>
-                            </li>
-
-                            <li>
-                                <a class="dropdown-item {{ Request::is('*solutions*') ? 'active' : '' }}" href="{{route('solutions.index')}}">
-                                    Soluções
-                                </a>
-                            </li>
+                            @foreach ($codigoLinks as $item)
+                                <li>
+                                    <a class="dropdown-item {{ Request::is($item['pattern']) ? 'active' : '' }}" href="{{ $item['route'] }}">
+                                        {{ $item['label'] }}
+                                    </a>
+                                </li>
+                            @endforeach
                         </ul>
                     </li>
                 @endif

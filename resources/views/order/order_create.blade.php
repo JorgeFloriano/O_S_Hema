@@ -27,7 +27,9 @@
                     <form action="{{route('orders.store')}}" id="form" method="post" autocomplete="on">
                         @csrf
 
-                        <x-datalist :objs="$clients" obj="client" tit="Cliente" :val="old('client')" des="name" req='required'/>
+                        @if(!auth()->user()->isCli())
+                            <x-datalist :objs="$clients" obj="client" tit="Cliente" :val="old('client')" des="name" req='required'/>
+                        @endif
 
                         <x-selected-old :tab="$types" nam="order_type_id" nom="Serviço" des="description"/>
 
@@ -36,20 +38,22 @@
                             <label for="sector">Setor</label>
                         </div>
 
-                        <div class="form-floating my-2">
-                            <input type="text" class="form-control" id="req_name" name="req_name" maxlength="20" placeholder="Solicitante do Solicitante" required value={{old('req_name')}}>
-                            <label for="req_name">Nome do Solicitante</label>
-                        </div>
+                        @if(!auth()->user()->isCli())
+                            <div class="form-floating my-2">
+                                <input type="text" class="form-control" id="req_name" name="req_name" maxlength="20" placeholder="Solicitante do Solicitante" required value={{old('req_name')}}>
+                                <label for="req_name">Nome do Solicitante</label>
+                            </div>
 
-                        <div class="form-floating my-2">
-                            <input type="date" class="form-control" id="req_date" name="req_date" placeholder="Data do Acionamento" value="{{\Carbon\Carbon::now()->format('Y-m-d')}}" required>
-                            <label for="req_date">Data do Acionamento</label>
-                        </div>
+                            <div class="form-floating my-2">
+                                <input type="date" class="form-control" id="req_date" name="req_date" placeholder="Data do Acionamento" value="{{\Carbon\Carbon::now()->format('Y-m-d')}}" required>
+                                <label for="req_date">Data do Acionamento</label>
+                            </div>
 
-                        <div class="form-floating my-2">
-                            <input type="time" class="form-control" id="req_time" name="req_time" placeholder="Hora do Acionamento" value="{{\Carbon\Carbon::now()->format('H:i')}}" required>
-                            <label for="req_time">Hora do Acionamento</label>
-                        </div>
+                            <div class="form-floating my-2">
+                                <input type="time" class="form-control" id="req_time" name="req_time" placeholder="Hora do Acionamento" value="{{\Carbon\Carbon::now()->format('H:i')}}" required>
+                                <label for="req_time">Hora do Acionamento</label>
+                            </div>
+                        @endif
 
                         <div class="form-floating my-2">
                             <textarea id="req_descr" name="req_descr" maxlength="470" placeholder="Problema Relatado" class='autoExpand form-control' rows='1' data-min-rows='1' required>{{old('req_descr')}}</textarea>
@@ -65,10 +69,12 @@
                             <button id="submitButton" type="submit" class="btn btn-primary me-2" data-bs-dismiss="modal">
                                 <i class="fa fa-check"></i> Confirma
                             </button>
-                            @if (isset(auth()->user()->adm) || isset(auth()->user()->sup))
+                            @if (auth()->user()->isAdm() || auth()->user()->isSup())
                                 <a href="{{route(session('reference_router_back') ?? 'orders.index')}}" class="btn btn-outline-primary">
-                            @else
+                            @elseif (auth()->user()->isTec())
                                 <a href="{{route(session('reference_router_back') ?? 'notes.index')}}" class="btn btn-outline-primary">
+                            @else
+                                <a href="{{route('client.orders.index')}}" class="btn btn-outline-primary">
                             @endif
                                 <i class="fa fa-arrow-left"></i> Voltar
                             </a>
