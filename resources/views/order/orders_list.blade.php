@@ -181,7 +181,9 @@
                                 <th>Problema relatado</th>
                                 <th style="min-width: 160px">Técnico</th>
                                 <th>Data</th>
-                                <th><i class="fa fa-bars"></i></th>
+                                @if ($auth->canSeeSat())
+                                    <th><i class="fa fa-bars"></i></th>
+                                @endif
                                 <th><i style="font-size: 20px;" class="fa fa-exclamation-circle"></i></th>
                             </tr>
                         </thead>
@@ -203,67 +205,69 @@
                                     </td>
                                     <td>{{date('d/m/y',strtotime($order->req_date))}}</td>
                                     <td>
-                                        <div class="dropdown">
-                                            <button style="background-color: transparent; border: none;" data-bs-toggle="dropdown">
-                                                <i class="fa fa-ellipsis-v" ></i>
-                                            </button>
-                                            <ul class="dropdown-menu">
-                                                <li>
-                                                    <button class="dropdown-item copy-button"
-                                                        style="border: none;"
-                                                        data-order-id="{{$order->id}}">
-                                                        <i class="fa fa-copy"></i>
-                                                        Copiar Dados
-                                                    </button>
-                                                    <!-- Hidden input with order data -->
-                                                    <input type="hidden" class="order-data" value="SAT Nº {{$order->id ?? ''}}<br>CLIENTE: {{$order->client->name ?? ''}}<br>SERVIÇO: {{$order->type->description ?? ''}}<br>SETOR: {{$order->sector ?? ''}}<br>NOME DO SOLICITANTE: {{$order->req_name ?? ''}}<br>DATA DO ACIONAMENTO: {{date('d/m/y',strtotime($order->req_date)) ?? ''}}<br>HORA DO ACIONAMENTO: {{date('H:i',strtotime($order->req_time)) ?? ''}}<br>PROBLEMA RELATADO: {{$order->req_descr ?? ''}}">
-                                                </li>
+                                        @if ($auth->canSeeSat())
+                                            <div class="dropdown">
+                                                <button style="background-color: transparent; border: none;" data-bs-toggle="dropdown">
+                                                    <i class="fa fa-ellipsis-v" ></i>
+                                                </button>
+                                                <ul class="dropdown-menu">
+                                                    <li>
+                                                        <button class="dropdown-item copy-button"
+                                                            style="border: none;"
+                                                            data-order-id="{{$order->id}}">
+                                                            <i class="fa fa-copy"></i>
+                                                            Copiar Dados
+                                                        </button>
+                                                        <!-- Hidden input with order data -->
+                                                        <input type="hidden" class="order-data" value="SAT Nº {{$order->id ?? ''}}<br>CLIENTE: {{$order->client->name ?? ''}}<br>SERVIÇO: {{$order->type->description ?? ''}}<br>SETOR: {{$order->sector ?? ''}}<br>NOME DO SOLICITANTE: {{$order->req_name ?? ''}}<br>DATA DO ACIONAMENTO: {{date('d/m/y',strtotime($order->req_date)) ?? ''}}<br>HORA DO ACIONAMENTO: {{date('H:i',strtotime($order->req_time)) ?? ''}}<br>PROBLEMA RELATADO: {{$order->req_descr ?? ''}}">
+                                                    </li>
 
-                                                <li>
-                                                    @if ($order->finished)
-                                                        <a href="{{route('orders.show_pdf', ['order' => Crypt::encryptString($order->id)])}}" class="dropdown-item">
-                                                            <i class="fa fa-file-pdf-o"></i>
-                                                            Visualizar
-                                                        </a>
-                                                    @else
-                                                        <a href="{{route('orders.edit', ['order' => Crypt::encryptString($order->id)])}}" class="dropdown-item">
-                                                            @php
-                                                                // Set icon,if order is created by client or user isn't main adm SAT cant be edited
-                                                                $icon = 'edit';
-                                                                $text = 'Editar';
-                                                                $ord_creator_is_cli = Cli::where('user_id', $order->user_id)->first();
-                                                                if ($ord_creator_is_cli || !$auth->isMainAdm()) {
-                                                                    $icon = 'file-text-o';
-                                                                    $text = 'Visualizar';
-                                                                }
-                                                            @endphp
-                                                            <i class="fa fa-{{$icon}}"></i>
-                                                            {{$text}}
-                                                        </a>
+                                                    <li>
+                                                        @if ($order->finished)
+                                                            <a href="{{route( $auth->isCli() ? 'client.orders.show_pdf' : 'orders.show_pdf', ['order' => Crypt::encryptString($order->id)])}}" class="dropdown-item">
+                                                                <i class="fa fa-file-pdf-o"></i>
+                                                                Visualizar
+                                                            </a>
+                                                        @else
+                                                            <a href="{{route( $auth->isCli() ? 'client.orders.show' : 'orders.edit', ['order' => Crypt::encryptString($order->id)])}}" class="dropdown-item">
+                                                                @php
+                                                                    // Set icon,if order is created by client or user isn't main adm SAT cant be edited
+                                                                    $icon = 'edit';
+                                                                    $text = 'Editar';
+                                                                    $ord_creator_is_cli = Cli::where('user_id', $order->user_id)->first();
+                                                                    if ($ord_creator_is_cli || !$auth->isMainAdm() || $auth->isCli()) {
+                                                                        $icon = 'file-text-o';
+                                                                        $text = 'Visualizar';
+                                                                    }
+                                                                @endphp
+                                                                <i class="fa fa-{{$icon}}"></i>
+                                                                {{$text}}
+                                                            </a>
+                                                        @endif
+                                                    </li>
+
+                                                    @if ($auth->isSup() && $order->finished) 
+                                                        <li>
+                                                            <a href="{{route('orders.reopen', ['order' => $order->id])}}" class="dropdown-item">
+                                                                <i class="fa fa-file-text-o"></i>
+                                                                Reabrir
+                                                            </a>
+                                                        </li>
                                                     @endif
-                                                </li>
 
-                                                @if ($auth->isSup() && $order->finished) 
-                                                    <li>
-                                                        <a href="{{route('orders.reopen', ['order' => $order->id])}}" class="dropdown-item">
-                                                            <i class="fa fa-file-text-o"></i>
-                                                            Reabrir
-                                                        </a>
-                                                    </li>
-                                                @endif
+                                                    @if ($auth->isMainAdm() || ($auth->isSup() && !$order->finished)) 
+                                                        <li><hr class="dropdown-divider"></li>
 
-                                                @if ($auth->isMainAdm() || ($auth->isSup() && !$order->finished)) 
-                                                    <li><hr class="dropdown-divider"></li>
-
-                                                    <li>
-                                                        <a href="{{route('orders.show', ['order' => Crypt::encryptString($order->id)])}}" class="dropdown-item text-danger">
-                                                            <i class="fa fa-trash"></i>
-                                                            Excluir
-                                                        </a>
-                                                    </li>
-                                                @endif
-                                            </ul>
-                                        </div>
+                                                        <li>
+                                                            <a href="{{route('orders.show', ['order' => Crypt::encryptString($order->id)])}}" class="dropdown-item text-danger">
+                                                                <i class="fa fa-trash"></i>
+                                                                Excluir
+                                                            </a>
+                                                        </li>
+                                                    @endif
+                                                </ul>
+                                            </div>
+                                        @endif
                                     </td>
                                     <td class="text-center align-middle">
                                         @if ($order->finished)

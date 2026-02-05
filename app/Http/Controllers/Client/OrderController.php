@@ -3,8 +3,6 @@
 namespace App\Http\Controllers\Client;
 
 use App\Http\Requests\FormFilterRequest;
-use App\Http\Requests\FormOrderRequest;
-use App\Models\Client;
 use App\Models\Order;
 use App\Models\OrderType;
 use App\Models\Tec;
@@ -13,6 +11,7 @@ use App\Class\TextFormat;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Contracts\Encryption\DecryptException;
 use App\Http\Controllers\Controller;
+use App\Http\Requests\FormOrderApiRequest;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -230,7 +229,7 @@ class OrderController extends Controller
     {
         // If user is not a authorized client, redirect to login
         if (!$this->user->clientCanCreateSat()) {
-            return redirect()->back()->with('error', 'Acesso negado');
+            return redirect()->route('client.orders.index')->with('message', 'Usuário sem permissão para abrir solicitações.');
         }
 
         // Create session variable wich contains all order types ids to validated in FormOrderRequest
@@ -243,12 +242,12 @@ class OrderController extends Controller
     }
 
     // Create a new order
-    public function store(FormOrderRequest $request)
+    public function store(FormOrderApiRequest $request)
     {
 
         // If user is not a authorized client, redirect to login
         if (!$this->user->clientCanCreateSat()) {
-            return redirect()->back()->with('error', 'Acesso negado');
+            return redirect()->route('client.orders.index')->with('message', 'Usuário sem permissão para abrir solicitações.');
         }
 
         $request->validated();
@@ -264,18 +263,19 @@ class OrderController extends Controller
             'req_date' => Carbon::now()->format('Y-m-d'),
             'req_time' => Carbon::now()->format('H:i:s'),
             'req_descr' => $this->text->spaceAfterPunctuation($request->req_descr),
+            'is_emergency' => $request->is_emergency ?? false
         ]);
 
         $msg = $created ? 'Solicitação de Assistência Técnica criada com sucesso.' : 'Erro ao criar Solicitação de Assistência Técnica.';
         return redirect()->route('client.orders.index')->with('message', $msg);
     }
 
-    // Shows the form to delete the order
+    // Shows the the order
     public function show($order)
     {
-        // Only administrator can delete orders
-        if (!$this->a) {
-            return view('login');
+        // If user is not a authorized client, redirect to login
+        if (!$this->user->clientCanSeeSat()) {
+            return redirect()->route('client.orders.index')->with('message', 'Usuário sem permissão para ver solicitações.');
         }
 
         // Decrypt the order id
@@ -293,6 +293,12 @@ class OrderController extends Controller
     // Shows the PDF for the order
     public function show_pdf($order)
     {
+
+        // If user is not a authorized client, redirect to login
+        if (!$this->user->clientCanSeeSat()) {
+            return redirect()->route('client.orders.index')->with('message', 'Usuário sem permissão para ver solicitações.');
+        }
+
         // Decrypt the order id
         try {
             $order = $this->os->find(Crypt::decryptString($order));

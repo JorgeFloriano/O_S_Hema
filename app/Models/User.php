@@ -92,6 +92,11 @@ class User extends Authenticatable
         return $this->sup ? true : false;
     }
 
+    public function isHemaTeam(): bool
+    {
+        return $this->adm || $this->sup || $this->tec;
+    }
+
     public function isCli(): bool
     {
         return $this->cli ? true : false;
@@ -128,6 +133,11 @@ class User extends Authenticatable
         }
 
         return $this->adm->cli ? true : false;
+    }
+
+    public function canSeeSat(): bool
+    {
+        return $this->isHemaTeam() || $this->clientCanSeeSat();
     }
 
     public function clientStringForUnlabeledDList(): string

@@ -7,7 +7,12 @@
             <div class="col-lg-8 offset-lg-2">
 
                 <div id="header" class="my-2">
-                    <h2>Deletar Solicitação de Assistência Técnica nº {{number_format($order->id, 0, ',', '.')}}</h2>
+                    <h2>
+                        @if (!auth()->user()->isCli())
+                            Deletar 
+                        @endif
+                        Solicitação de Assistência Técnica nº {{number_format($order->id, 0, ',', '.')}}
+                    </h2>
                 </div>
                 <hr>
                 <main>
@@ -42,15 +47,19 @@
                             <label for="equipment">Equipamento</label>
                         </div>
 
-                        <div class="alert alert-warning">
-                            Atenção, as informações desta Solicitação de Assistência Técnica serão perdidas após a mesma ser deletada!
-                        </div>
+                        @if (!auth()->user()->isCli())
+                            <div class="alert alert-warning">
+                                Atenção, as informações desta Solicitação de Assistência Técnica serão perdidas após a mesma ser deletada!
+                            </div>
+                        @endif
 
                         <div class="my-2">
-                            <button id="submitButton" type="submit" class="btn btn-outline-danger me-2" data-bs-dismiss="modal">
-                                Delete
-                            </button>
-                            <a href="{{url()->previous()}}" class="btn btn-outline-primary ms-2" ><i class="fa fa-arrow-left"></i> Voltar</a>
+                            @if (!auth()->user()->isCli())
+                                <button id="submitButton" type="submit" class="btn btn-outline-danger me-2" data-bs-dismiss="modal">
+                                    Delete
+                                </button>
+                            @endif
+                            <a href="{{url()->previous()}}" class="btn btn-outline-primary" ><i class="fa fa-arrow-left"></i> Voltar</a>
                         </div>
                     </form>
                 </main>
