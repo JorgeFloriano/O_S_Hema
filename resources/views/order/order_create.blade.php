@@ -24,7 +24,7 @@
                 <hr>
                 <main>
                 
-                    <form action="{{route('orders.store')}}" id="form" method="post" autocomplete="on">
+                    <form action="{{route(auth()->user()->isCli() ? 'client.orders.store' : 'orders.store')}}" id="form" method="post" autocomplete="on">
                         @csrf
 
                         @if(!auth()->user()->isCli())
@@ -64,6 +64,15 @@
                             <input type="text" class="form-control" id="equipment" name="equipment" maxlength="70" placeholder="Equipamento" value="{{old('equipment')}}">
                             <label for="equipment">Equipamento</label>
                         </div>
+                        @if (auth()->user()->isCli())
+                            <p class="mb-2 mt-4 text-muted">Selecione o campo abaixo apenas se precisa de atendimento urgente fora do horário comercial!</p>
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="1" name="is_emergency" id="is_emergency">
+                                <label class="form-check-label" for="is_emergency">
+                                    <strong>Emergencial </strong> <icon style="color: red" class="fa fa-exclamation-circle"></icon>
+                                </label>
+                            </div>
+                        @endif
 
                         <div class="my-2">
                             <button id="submitButton" type="submit" class="btn btn-primary me-2" data-bs-dismiss="modal">
@@ -73,7 +82,7 @@
                                 <a href="{{route(session('reference_router_back') ?? 'orders.index')}}" class="btn btn-outline-primary">
                             @elseif (auth()->user()->isTec())
                                 <a href="{{route(session('reference_router_back') ?? 'notes.index')}}" class="btn btn-outline-primary">
-                            @else
+                            @elseif (auth()->user()->isCli())
                                 <a href="{{route('client.orders.index')}}" class="btn btn-outline-primary">
                             @endif
                                 <i class="fa fa-arrow-left"></i> Voltar
