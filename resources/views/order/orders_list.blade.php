@@ -54,12 +54,14 @@
                         </div>
                     </form>
 
-                    <a href="{{route($auth->isCli() ? 'client.orders.create' : 'orders.create')}}"
-                        class="btn btn-primary ms-2"
-                        data-bs-toggle="tooltip"
-                        title="Criar nova Solicitação de Assistência Técnica">
-                        <i class="fa fa-plus"></i> Nova
-                    </a>
+                    @if ($auth->canCreateSat())
+                        <a href="{{route($auth->isCli() ? 'client.orders.create' : 'orders.create')}}"
+                            class="btn btn-primary ms-2"
+                            data-bs-toggle="tooltip"
+                            title="Criar nova Solicitação de Assistência Técnica">
+                            <i class="fa fa-plus"></i> Nova
+                        </a>
+                    @endif
                 </div>
             </div>
 
@@ -83,8 +85,11 @@
                     </div>
 
                     <div class="col-xl-2 col-md-4 col-6">
-                        <x-unlabeled-dlist :objs="$tecs" obj="tec" des="user" :val="$old_tec ?? ''" :place="'Técnico (todos)'" subdes="name"
-                        onfoc="clearInputs('tec', 'tec_id', '')"/>
+                        @if ($auth->isCli())
+                            <input type='text' class='form-control' disabled value='Todos os Técnicos' readonly>
+                        @else
+                            <x-unlabeled-dlist :objs="$tecs" obj="tec" des="user" :val="$old_tec ?? ''" :place="'Técnico (todos)'" subdes="name" onfoc="clearInputs('tec', 'tec_id', '')"/>
+                        @endif
                     </div>
 
                     <div class="col-xl-2 col-md-4 col-6">
@@ -96,12 +101,12 @@
 
                     <div class="col-xl-2 col-md-4 col-6">
                         <label for="Start" class="col-form-label" style="width: 20%;float: left">de</label>
-                        <input type="date" class="form-control" id="Start" style="width: 80%;float: right" name="date_start" placeholder="Início" value="{{$date_s}}">
+                        <input type="date" max="{{now()->format('Y-m-d')}}" class="form-control" id="Start" style="width: 80%;float: right" name="date_start" placeholder="Início" value="{{$date_s}}">
                     </div>
                     
                     <div class="col-xl-2 col-md-4 col-6">    
                         <label for="End" class="col-form-label" style="width: 20%;float: left">até</label>
-                        <input type="date" class="form-control" id="End" style="width: 80%;float: right" name="date_end" placeholder="Término" value="{{$date_e}}">
+                        <input type="date" max="{{now()->format('Y-m-d')}}" class="form-control" id="End" style="width: 80%;float: right" name="date_end" placeholder="Término" value="{{$date_e}}">
                     </div>
                 </div>
             </form>
@@ -204,8 +209,8 @@
                                         @endif
                                     </td>
                                     <td>{{date('d/m/y',strtotime($order->req_date))}}</td>
-                                    <td>
-                                        @if ($auth->canSeeSat())
+                                    @if ($auth->canSeeSat())
+                                        <td>
                                             <div class="dropdown">
                                                 <button style="background-color: transparent; border: none;" data-bs-toggle="dropdown">
                                                     <i class="fa fa-ellipsis-v" ></i>
@@ -267,8 +272,8 @@
                                                     @endif
                                                 </ul>
                                             </div>
-                                        @endif
-                                    </td>
+                                        </td>
+                                    @endif
                                     <td class="text-center align-middle">
                                         @if ($order->finished)
                                             <div class="rounded-circle bg-success text-white d-flex align-items-center justify-content-center" 

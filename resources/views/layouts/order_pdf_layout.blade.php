@@ -20,18 +20,18 @@
 
     <body>
         <div id="buttonGroup">
-            <button id="btnPdf" class="btn btn-primary">Baixar PDF</button>
+            <button id="btnPdf" class="btn btn-primary me-2">Baixar PDF</button>
             @if (auth()->user()->adm()->first())
-                <a href="{{route('orders.reopen', ['order' => $order->id])}}" class="btn btn-primary mx-2">
+                <a href="{{route('orders.reopen', ['order' => $order->id])}}" class="btn btn-primary me-2">
                     Reabrir
                 </a>
             @endif
-            @if (auth()->user()->adm()->first() || auth()->user()->sup()->first())
-                <a href="{{route(session('reference_router_back') ?? 'orders.index')}}" class="btn btn-outline-primary">
+            @if (auth()->user()->isAdm() || auth()->user()->isSup())
+                <a href="{{route(session('reference_router_back') ?? 'orders.index')}}" class="btn btn-outline-primary me-2">
                     <i class="fa fa-arrow-left"></i> Voltar
                 </a>
             @else
-                <a href="{{url()->previous()}}" class="btn btn-outline-primary ms-2" ><i class="fa fa-arrow-left"></i> Voltar</a>
+                <a href="{{route(auth()->user()->isCli() ? 'client.orders.index' : 'notes.index')}}" class="btn btn-outline-primary me-2" ><i class="fa fa-arrow-left"></i> Voltar</a>
             @endif
         </div>
         <section id="print">

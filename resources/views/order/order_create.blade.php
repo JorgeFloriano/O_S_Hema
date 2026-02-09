@@ -45,7 +45,7 @@
                             </div>
 
                             <div class="form-floating my-2">
-                                <input type="date" class="form-control" id="req_date" name="req_date" placeholder="Data do Acionamento" value="{{\Carbon\Carbon::now()->format('Y-m-d')}}" required>
+                                <input type="date" max="{{now()->format('Y-m-d')}}" class="form-control" id="req_date" name="req_date" placeholder="Data do Acionamento" value="{{\Carbon\Carbon::now()->format('Y-m-d')}}" required>
                                 <label for="req_date">Data do Acionamento</label>
                             </div>
 

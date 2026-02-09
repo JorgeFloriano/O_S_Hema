@@ -415,9 +415,11 @@ class OrderController extends Controller
 
         $disabled = '';
         $title = 'Editar ';
+        $confirm_button = true;
         if (isset($ord_creator_is_cli) || !$this->a || (session('reference_router_back') == 'tec_on')) {
             $disabled = 'disabled';
             $title = 'Informações da ';
+            $confirm_button = false;
         }
 
 
@@ -428,7 +430,8 @@ class OrderController extends Controller
             'tecs' => $tecs,
             'user' => $user,
             'disabled' => $disabled,
-            'title' => $title
+            'title' => $title,
+            'confirm_button' => $confirm_button
         ]);
     }
 

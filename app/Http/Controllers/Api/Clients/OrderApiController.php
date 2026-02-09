@@ -8,12 +8,13 @@ use App\Http\Controllers\Controller;
 use App\Http\Requests\FormOrderApiRequest;
 use App\Models\Order;
 use App\Models\OrderType;
+use App\Models\User;
 use Illuminate\Support\Facades\Auth;
 
 class OrderApiController extends Controller
 {
     private $resp_json;
-    private $user;
+    public readonly User $user;
 
     public function __construct()
     {

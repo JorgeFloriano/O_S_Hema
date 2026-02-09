@@ -92,7 +92,7 @@
             <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
                 @if (auth()->user()->isMainAdm() || auth()->user()->isCliAdmin())
                     <li>
-                        <a class="dropdown-item" href="{{route('users.edit', ['user' => Crypt::encryptString(auth()->user()->id)])}}">
+                        <a class="dropdown-item" href="{{route(auth()->user()->isCli() ? 'client.users.edit' : 'users.edit', ['user' => Crypt::encryptString(auth()->user()->id)])}}">
                             <i class="fa fa-user" aria-hidden="true"></i>
                             Perfil
                         </a>

@@ -107,19 +107,30 @@ class User extends Authenticatable
         return $this->cli ? $this->cli->isAdmin() : false;
     }
 
-    public function clientCanCreateSat(): bool
+    public function clientCanCreateSat(): bool | null
     {
         return $this->cli ? $this->cli->canCreateSat() : false;
     }
 
-    public function clientCanSeeSat(): bool
+    public function clientCanSeeSat(): bool | null
     {
         return $this->cli ? $this->cli->canSeeSat() : false;
     }
 
-    public function clientId(): int | null
+    public function clientCanAccessClient($user_id): bool | null
     {
-        return $this->cli ? $this->cli->clientId() : null;
+        if (!auth()->id()) return false;
+
+        $user = User::find($user_id);
+
+        if (!$user->userClientId()) return false;
+
+        return $this->isCli() ? $this->cli->canAccessClient($user->userClientId()) : false;
+    }
+
+    public function userClientId(): int | bool
+    {
+        return $this->cli ? $this->cli->id : false;
     }
 
     public function canAcessClientsAndMaterials(): bool
@@ -140,6 +151,21 @@ class User extends Authenticatable
         return $this->isHemaTeam() || $this->clientCanSeeSat();
     }
 
+    public function canCreateSat(): bool
+    {
+        // If user is a client with access to create sat or is a supervisor, return true
+        return $this->clientCanCreateSat() || $this->isSup() || $this->isAdm();
+    }
+
+    public function canDeleteSat($order): bool
+    {
+        if ($this->isMainAdm()) return true;
+
+        if (($this->isSup() || $this->isAdm()) && !$order->finished) return true;
+
+        return false;
+    }
+
     public function clientStringForUnlabeledDList(): string
     {
         return $this->cli ? $this->cli->stringForUnlabeledDList() : 'Cliente não encontrado para usuário';
@@ -151,6 +177,14 @@ class User extends Authenticatable
             return null;
         }
         return $this->cli->clientId();
+    }
+
+    public function userClientCompanyName(): string | null
+    {
+        if (!$this->cli) {
+            return null;
+        }
+        return $this->cli->clientName();
     }
 
     /**
@@ -251,25 +285,34 @@ class User extends Authenticatable
         Artisan::call('emergency:reset-all');
     }
 
-    public function canCreateSat(): bool
-    {
-        // Verify if client user has access to create sat
-        $cli_can = false;
-        if ($this->cli) {
-            $cli_can = $this->cli->can_create_sat;
-        }
-
-        // Verify if user has supervisor access
-        $sup_can = false;
-        if ($this->sup) {
-            $sup_can = $this->sup;
-        }
-
-        // If user is a client with access to create sat or is a supervisor, return true
-        return $cli_can || $sup_can;
-    }
     public function cantCreateSatMessage(): string
     {
         return 'Usuário sem permissão para criar SATs.';
+    }
+
+    // Scopes
+    // Get default clients only
+    public function scopeOnlyDefaultClients($query, $client_id)
+    {
+        return $query->whereHas('cli', function ($q) use ($client_id) {
+            $q->where('client_id', $client_id)->whereNull('is_admin');
+        })
+            ->notHemaTeam();
+    }
+
+    public function scopeNotHemaTeam($query)
+    {
+        return $query
+            ->whereDoesntHave('adm')
+            ->whereDoesntHave('sup')
+            ->whereDoesntHave('tec');
+    }
+
+    public function scopeOnlyHemaTeam($query)
+    {
+        return $query
+            ->whereHas('adm')
+            ->orWhereHas('sup')
+            ->orWhereHas('tec');
     }
 }

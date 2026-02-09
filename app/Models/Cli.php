@@ -9,15 +9,8 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 
 class Cli extends Model
 {
-    // For Clients users
-
     use HasFactory;
     use SoftDeletes;
-    public function user(): BelongsTo
-    {
-        return $this->belongsTo(User::class);
-    }
-
     protected $fillable = [
         'client_id',
         'user_id',
@@ -26,19 +19,43 @@ class Cli extends Model
         'can_see_sat',
     ];
 
-    public function isAdmin(): bool
+    public function user(): BelongsTo
     {
-        return $this->is_admin;
+        return $this->belongsTo(User::class);
     }
 
-    public function canCreateSat(): bool
+
+    public function isAdmin(): bool
+    {
+        return $this->is_admin ? true : false;
+    }
+
+    public function canCreateSat(): bool | null
     {
         return $this->isAdmin() ? true : $this->can_create_sat;
     }
 
-    public function canSeeSat(): bool
+    public function canSeeSat(): bool | null
     {
         return $this->isAdmin() ? true : $this->can_see_sat;
+    }
+
+    public function canAccessClient($client_id): bool
+    {
+        // Verify if logged user is a client admin
+        if (!$this->isAdmin()) return false;
+
+        // Verify if client exists
+        $client = Cli::find($client_id);
+        if (!$client) return false;
+
+        // Verify if logged user and user that is being accessed are the same company
+        if ($client->clientId() != $this->clientId()) return false;
+
+        // Verify if user that is being accessed is a client admin and is not the logged user
+        if ($client->isAdmin() && ($client->user_id != $this->user_id)) return false;
+        
+        return true;
     }
 
     public function clientId(): int
