@@ -152,7 +152,7 @@
                         </div>
 
                         <div class="form-floating my-2">
-                            <input type="date" class="form-control" id="date" required name="date" placeholder="Data do Atendimento" value="{{\Carbon\Carbon::now()->format('Y-m-d')}}">
+                            <input type="date" max="{{now()->format('Y-m-d')}}" class="form-control" id="date" required name="date" placeholder="Data do Atendimento" value="{{\Carbon\Carbon::now()->format('Y-m-d')}}">
                             <label for="date">Data do Atendimento</label>
                         </div>
 

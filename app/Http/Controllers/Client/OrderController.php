@@ -11,7 +11,7 @@ use App\Class\TextFormat;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Contracts\Encryption\DecryptException;
 use App\Http\Controllers\Controller;
-use App\Http\Requests\FormOrderApiRequest;
+use App\Http\Requests\Clients\FormOrderRequest;
 use App\Models\User;
 use Carbon\Carbon;
 use Illuminate\Support\Facades\Auth;
@@ -23,7 +23,6 @@ class OrderController extends Controller
     public readonly User $user;
     public $logger; // logger class
     public $text; // text format functions
-    public $client_name;
     public function __construct()
     {
         // Set a nem service order
@@ -55,7 +54,7 @@ class OrderController extends Controller
             ->select('id', 'order_type_id', 'req_descr', 'req_name', 'equipment', 'sector', 'client_id', 'user_id', 'tec_id', 'req_date', 'req_time', 'finished')
             ->whereBetween('req_date', [$start_date, $end_date])
             ->whereNull('deleted_at') // Adicione esta linha explicitamente
-            ->where('client_id', $this->user->clientId()) // Somente os orders do client logado
+            ->where('client_id', $this->user->userClientCompanyId()) // Somente os orders do client logado
             ->orderBy('id', 'desc')
             ->get();
 
@@ -87,7 +86,7 @@ class OrderController extends Controller
         $orders = $this->os
             ->select('id', 'order_type_id', 'req_descr', 'req_name', 'equipment', 'sector', 'client_id', 'user_id', 'tec_id', 'req_date', 'req_time', 'finished')
             ->where('id', $validated['search'])
-            ->where('client_id', $this->user->clientId()) // Somente os orders do client logado
+            ->where('client_id', $this->user->userClientCompanyId()) // Somente os orders do client logado
             ->whereNull('deleted_at') // Adicione esta linha explicitamente
             ->get();
 
@@ -133,32 +132,7 @@ class OrderController extends Controller
             $last_note_select = 'selected';
         }
 
-        // If techician selected is "Não selecionado", get orders where tec_id is 0
-        if ($request->tec_id == '0') {
-            $tec_selected = '0';
-        } elseif ($request->tec_id == null) {
-            $tec_selected = null;
-        } else {
-            $tec_selected = $request->tec_id;
-        }
-
         $orders = $this->os
-            // 1. Verificamos se o campo tec_id existe na requisição e não é uma string vazia/null
-            ->when($request->filled('tec_id') || $request->tec_id === '0', function ($query) use ($request) {
-                $tec = $request->tec_id;
-
-                // 2. Se for '0' ou 0, buscamos os "sem técnico" (null ou 0)
-                if ($tec === '0' || $tec == 0) {
-                    $query->where(function ($q) {
-                        $q->where('tec_id', 0)
-                            ->orWhereNull('tec_id');
-                    });
-                }
-                // 3. Se for um ID normal, filtra por ele
-                else {
-                    $query->where('tec_id', $tec);
-                }
-            })
             ->when($request->date_start, function ($query) use ($request) {
                 if ($request->date_type == 'order_open_date') {
                     $query->where('req_date', '>=', $request->date_start);
@@ -189,24 +163,10 @@ class OrderController extends Controller
                 $query->where('finished', $request->finished);
             })
             ->select('id', 'order_type_id', 'req_descr', 'req_name', 'equipment', 'sector', 'client_id', 'user_id', 'tec_id', 'req_date', 'req_time', 'finished')
-            ->where('client_id', $this->user->clientId()) // Somente as ordens do cliente logado
+            ->where('client_id', $this->user->userClientCompanyId()) // Somente as ordens do cliente logado
             ->whereNull('deleted_at') // Adicione esta linha explicitamente
             ->orderBy('id', 'desc')
             ->get();
-
-        // Last tecnician selected
-        if ($tec_selected == '') {
-            $old_tec = 'Técnico (todos)';
-        } elseif ($tec_selected == '0') {
-            $old_tec = 'Não selecionado - [0]';
-        } else {
-            $old_tec = Tec::with('user:id,name') // Eager load the user relationship
-                ->where('id', $request->tec_id)
-                ->first();
-            if ($old_tec) {
-                $old_tec = $old_tec->user->name . ' - [' . $old_tec->id . ']';
-            }
-        }
 
         $tecs = Tec::all();
 
@@ -242,7 +202,7 @@ class OrderController extends Controller
     }
 
     // Create a new order
-    public function store(FormOrderApiRequest $request)
+    public function store(FormOrderRequest $request)
     {
 
         // If user is not a authorized client, redirect to login
@@ -254,7 +214,7 @@ class OrderController extends Controller
 
         // Create new order
         $created = $this->os->create([
-            'client_id' => $this->user->clientId(),
+            'client_id' => $this->user->userClientCompanyId(),
             'order_type_id' => $request->order_type_id,
             'sector' => $request->sector,
             'req_name' => $this->user->name,
@@ -266,6 +226,9 @@ class OrderController extends Controller
             'is_emergency' => $request->is_emergency ?? false
         ]);
 
+        // Notification management when a Technical Assistance Request is opened by the client.
+        $created->notificationWhenOpenedByClient();
+
         $msg = $created ? 'Solicitação de Assistência Técnica criada com sucesso.' : 'Erro ao criar Solicitação de Assistência Técnica.';
         return redirect()->route('client.orders.index')->with('message', $msg);
     }
@@ -273,7 +236,7 @@ class OrderController extends Controller
     // Shows the the order
     public function show($order)
     {
-        // If user is not a authorized client, redirect to login
+        // If user is not a authorized client, redirect to orders index
         if (!$this->user->clientCanSeeSat()) {
             return redirect()->route('client.orders.index')->with('message', 'Usuário sem permissão para ver solicitações.');
         }

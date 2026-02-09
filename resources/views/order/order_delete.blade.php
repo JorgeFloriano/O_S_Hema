@@ -54,12 +54,12 @@
                         @endif
 
                         <div class="my-2">
-                            @if (!auth()->user()->isCli())
+                            @if (auth()->user()->canDeleteSat($order))
                                 <button id="submitButton" type="submit" class="btn btn-outline-danger me-2" data-bs-dismiss="modal">
                                     Delete
                                 </button>
                             @endif
-                            <a href="{{url()->previous()}}" class="btn btn-outline-primary" ><i class="fa fa-arrow-left"></i> Voltar</a>
+                            <a href="{{route(auth()->user()->isCli() ? 'client.orders.index' : 'orders.index')}}" class="btn btn-outline-primary" ><i class="fa fa-arrow-left"></i> Voltar</a>
                         </div>
                     </form>
                 </main>

@@ -30,7 +30,7 @@
                 <hr>
 
                 <main>
-                    <form action="{{route('users.update', ['user' => $user->id])}}" id="form" method="post" autocomplete="off">
+                    <form action="{{route('client.users.update', ['user' => $user->id])}}" id="form" method="post" autocomplete="off">
                         @csrf
 
                         <input type="hidden" name="_method" id="idNum" value="PUT">
@@ -43,6 +43,11 @@
                         <div class="form-floating my-2">
                             <input type="text" class="form-control" maxlength="20" id="surname" name="surname" value="{{$user->surname}}" placeholder="Sobrenome">
                             <label for="surname">Sobrenome</label>
+                        </div>
+
+                        <div class="form-floating my-2">
+                            <input type="email" class="form-control" maxlength="50" id="email" name="email" placeholder="E-mail" required value="{{$user->email}}">
+                            <label for="email">E-mail</label>
                         </div>
 
                         <div class="form-floating my-2">
@@ -65,66 +70,30 @@
                             <label for="password_confirmation">Confirmar Senha</label>
                         </div>
 
-                        <fieldset><legend>Selecione um ou mais perfis:</legend><br/>
-                            <div id="hema_profiles" style="display: {{$hema_profiles_display}}">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" value="1" name="tec" id="tec" {{$tec_checked}}>
-                                    <label class="form-check-label" for="tec">
-                                        <strong>Técnico (Hema)</strong></strong>
-                                    </label>
-                                </div>
-                                {{-- This option will not be displayed if the main administrator is editing his own registration. --}}
-                                @if (auth()->user()->id !== $user->id)
+                        @if (auth()->user()->id !== $user->id)
+                            <fieldset><legend>Selecione as autorizações de acesso:</legend><br/>
+                                <div id="client_access">
                                     <div class="form-check">
-                                        <input onchange="enableDisable(['cli'], '{{$user_client_checked}}')" class="form-check-input" type="checkbox" value="1" name="adm" id="adm" {{$adm_checked}} >
-                                        <label class="form-check-label" for="adm">
-                                            <strong>Administrador (Hema)</strong>
+                                        <input class="form-check-input" type="checkbox" value="1" name="can_create_sat" id="can_create_sat" {{$can_create_sat_checked}}>
+                                        <label class="form-check-label" for="can_create_sat">
+                                            <strong>Criar solicitações</strong>
                                         </label>
-                                
-                                        <div class="form-check">
-                                            <input {{$cli_disabled}} {{$cli_checked}} class="form-check-input" type="checkbox" value="1" name="cli" id="cli">
-                                            <label class="form-check-label" for="cli">
-                                                Acesso a Clientes e Materiais
-                                            </label>
-                                        </div>
                                     </div>
-                                @endif
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" value="1" name="sup" id="sup" {{$sup_checked}}>
-                                    <label class="form-check-label" for="sup">
-                                        <strong>Supervisor (Hema)</strong>
-                                    </label>
+                                    <div class="form-check">
+                                        <input class="form-check-input" type="checkbox" value="1" name="can_see_sat" id="can_see_sat" {{$can_see_sat_checked}}>
+                                        <label class="form-check-label" for="can_see_sat">
+                                            <strong>Visualizar solicitações</strong>
+                                        </label>
+                                    </div>
                                 </div>
-                            </div>
-                            @if (auth()->user()->id !== $user->id)
-                                <div class="form-check">
-                                    <input 
-                                        disabled
-                                        {{$user_client_checked}} 
-                                        onchange="
-                                        enableDisable(['tec', 'adm', 'sup'], '{{$user_client_checked}}'),
-                                        showAndHideElement('client_select', 'hema_profiles', '{{$user_client_checked}}')" 
-                                        class="form-check-input"
-                                        type="checkbox"
-                                        value="1"
-                                        name="user_client"
-                                        id="user_client">
-                                    <label class="form-check-label" for="user_client">
-                                        <strong>Cliente (Clientes)</strong>
-                                    </label>
-                                </div>
-                            @endif
-
-                            <div id="client_select" style="display: {{$client_select_display}};">
-                                <x-datalist :objs="$clients" obj="client" tit="Cliente" :val="$client_selected" des="name" disabl="disabled"/>
-                            </div>
-                        </fieldset>
+                            </fieldset>
+                        @endif
 
                         <div class="my-2">
                             <button id="submitButton" type="submit" class="btn btn-primary me-2" data-bs-dismiss="modal">
                                 <i class="fa fa-check"></i> Confirma
                             </button>
-                            <a href="{{route(auth()->id() == $user->id ? 'orders.index' : 'users.index')}}" class="btn btn-outline-primary">
+                            <a href="{{route('client.users.index')}}" class="btn btn-outline-primary">
                                 <i class="fa fa-arrow-left"></i> Voltar
                             </a>
                         </div>

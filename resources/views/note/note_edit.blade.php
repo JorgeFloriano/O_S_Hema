@@ -147,7 +147,7 @@
                     </div>
 
                     <div class="form-floating my-2">
-                        <input type="date" class="form-control" id="date" name="date" value="{{$note->date}}" required>
+                        <input type="date" max="{{now()->format('Y-m-d')}}" class="form-control" id="date" name="date" value="{{$note->date}}" required>
                         <label for="date">Data do Atendimento</label>
                     </div>
 

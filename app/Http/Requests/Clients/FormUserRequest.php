@@ -1,22 +1,12 @@
 <?php
 
-namespace App\Http\Requests;
+namespace App\Http\Requests\Clients;
 
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
-class FormApiUserRequest extends FormRequest
+class FormUserRequest extends FormRequest
 {
-
-    /**
-     * Determine if the user is authorized to make this request.
-     */
-    public function authorize(): bool
-    {
-        return true;
-    }
-
-    // Doesn't work yet, is validated in UserController
     public function rules(): array
     {
         $userId = $this->route('user');
@@ -78,16 +68,5 @@ class FormApiUserRequest extends FormRequest
             'password.max' => 'Digite uma senha com no màximo 20 caracteres',
             'password.confirmed' => 'As senhas digitadas devem ser identicas.',
         ];
-    }
-
-    protected function failedValidation(\Illuminate\Contracts\Validation\Validator $validator)
-    {
-        $response = response()->json([
-            'success' => false,
-            'message' => 'Erro de validação',
-            'errors' => $validator->errors()
-        ], 422);
-
-        throw new \Illuminate\Validation\ValidationException($validator, $response);
     }
 }

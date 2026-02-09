@@ -59,7 +59,7 @@
                         </div>
 
                         <div class="form-floating my-2">
-                            <input type="date" class="form-control" {{$disabled}} id="req_date" name="req_date" placeholder="Data do Acionamento" value="{{$order->req_date}}" required>
+                            <input type="date" max="{{now()->format('Y-m-d')}}" class="form-control" {{$disabled}} id="req_date" name="req_date" placeholder="Data do Acionamento" value="{{$order->req_date}}" required>
                             <label for="req_date">Data do Acionamento</label>
                         </div>
 
@@ -121,7 +121,7 @@
                         @endif
 
                         <div class="my-2">
-                            @if (auth()->user()->adm()->first())
+                            @if ($confirm_button ?? false)
                                 <button id="submitButton" type="submit" class="btn btn-primary me-2" data-bs-dismiss="modal">
                                     <i class="fa fa-check"></i> Confirma
                                 </button>
