@@ -315,4 +315,32 @@ class User extends Authenticatable
             ->orWhereHas('sup')
             ->orWhereHas('tec');
     }
+
+    /**
+     * Relacionamento com as Permissões
+     */
+    public function permissions()
+    {
+        return $this->belongsToMany(Permission::class, 'permission_user')
+            ->withPivot('access_level')
+            ->withTimestamps();
+    }
+
+    /**
+     * Método para verificar permissão e nível de acesso
+     * @param string $permissionName O nome da permissão (ex: 'sats')
+     * @param int $level 1 para leitura, 2 para escrita/completo
+     */
+    public function hasPermission($permissionName, $level = 1)
+    {
+        // Busca a permissão dentro da coleção carregada do usuário
+        $permission = $this->permissions->where('name', $permissionName)->first();
+
+        if (!$permission) {
+            return false;
+        }
+
+        // Retorna true se o nível do usuário for maior ou igual ao exigido
+        return $permission->pivot->access_level >= $level;
+    }
 }

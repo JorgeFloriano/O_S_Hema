@@ -21,6 +21,7 @@ use Barryvdh\DomPDF\Facade\Pdf;
 use Carbon\Carbon;
 use Webklex\PDFMerger\Facades\PDFMergerFacade as PDFMerger;
 use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 
 class OrderController extends Controller
 {
@@ -32,6 +33,7 @@ class OrderController extends Controller
     public $o; // technician on call
     public $logger; // logger class
     public $text; // text format functions
+    public $auth; // auth user
     public function __construct()
     {
         // Set a nem service order
@@ -290,10 +292,8 @@ class OrderController extends Controller
     // Show the form for creating a new order
     public function create()
     {
-        // If user is not administrator or on call technician, redirect to login
-        if (!$this->a && !$this->o && !$this->s) {
-            return view('login');
-        }
+        // Bloqueia se o usuário não tiver permissão de escrita (nível 2)
+        Gate::authorize('check-permission', ['sats', 2]);
 
         // Get id and name of all clients order by name
         $clients = Client::select('id', 'name')->orderBy('name')->get();
