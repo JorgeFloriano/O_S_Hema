@@ -65,6 +65,19 @@
                             <label for="password_confirmation">Confirmar Senha</label>
                         </div>
 
+                        @if (auth()->user()->id == $user->id)
+                            <div class="form-check">
+                                <input class="form-check-input" type="checkbox" value="1" name="tec" id="tec" {{$tec_checked}}>
+                                <label class="form-check-label" for="tec">
+                                    <strong>Acesso de Técnico</strong></strong>
+                                </label>
+                            </div>
+                        @endif
+
+
+
+                        
+
                         <fieldset><legend>Selecione um ou mais perfis:</legend><br/>
                             <div id="hema_profiles" style="display: {{$hema_profiles_display}}">
                                 <div class="form-check">
