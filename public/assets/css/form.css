@@ -284,3 +284,33 @@ div.signature {
 .no-spin[type=number] {
   -moz-appearance: textfield;
 }
+
+/* Remove o arredondamento apenas em telas maiores que 768px (Desktop) */
+@media (min-width: 768px) {
+    .first-group-btn {
+        border-top-right-radius: 0 !important;
+        border-bottom-right-radius: 0 !important;
+    }
+
+    .mid-group-btn {
+        border-radius: 0 !important;
+        /* Evita borda dupla no meio */
+        border-left: none !important;
+        border-right: none !important;
+    }
+
+    .last-group-btn {
+        border-top-left-radius: 0 !important;
+        border-bottom-left-radius: 0 !important;
+    }
+}
+
+/* Quando o collapse está ABERTO, o botão NÃO tem a classe .collapsed */
+#permissoes .btn-outline-primary:not(.collapsed) {
+    background-color: #1b0363ff; /* Cor primária do Bootstrap */
+    border-left-color: #fff;
+    border-right-color: #fff;   
+    color: #fff;               /* Texto branco */
+}
+
+/* No celular, mantemos o arredondamento padrão do Bootstrap */
