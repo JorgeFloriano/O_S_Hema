@@ -65,73 +65,86 @@
                             <label for="password_confirmation">Confirmar Senha</label>
                         </div>
 
-                        @if (auth()->user()->id == $user->id)
+                        @if (auth()->id() == $user->id)
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" value="1" name="tec" id="tec" {{$tec_checked}}>
                                 <label class="form-check-label" for="tec">
                                     <strong>Acesso de Técnico</strong></strong>
                                 </label>
                             </div>
-                        @endif
-
-
-
-                        
-
-                        <fieldset><legend>Selecione um ou mais perfis:</legend><br/>
-                            <div id="hema_profiles" style="display: {{$hema_profiles_display}}">
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" value="1" name="tec" id="tec" {{$tec_checked}}>
-                                    <label class="form-check-label" for="tec">
-                                        <strong>Técnico (Hema)</strong></strong>
-                                    </label>
-                                </div>
-                                {{-- This option will not be displayed if the main administrator is editing his own registration. --}}
-                                @if (auth()->user()->id !== $user->id)
-                                    <div class="form-check">
-                                        <input onchange="enableDisable(['cli'], '{{$user_client_checked}}')" class="form-check-input" type="checkbox" value="1" name="adm" id="adm" {{$adm_checked}} >
-                                        <label class="form-check-label" for="adm">
-                                            <strong>Administrador (Hema)</strong>
-                                        </label>
-                                
-                                        <div class="form-check">
-                                            <input {{$cli_disabled}} {{$cli_checked}} class="form-check-input" type="checkbox" value="1" name="cli" id="cli">
-                                            <label class="form-check-label" for="cli">
-                                                Acesso a Clientes e Materiais
-                                            </label>
+                        @else
+                            @if (!$user->isCli())
+                                <div class="mt-4" id="permissoes">
+                                    <h5 class="form-label fw-bold">Gerenciar permissões:</h5>
+                                    
+                                    <div class="row g-0 mb-3">
+                                        <div class="col-md-4">
+                                            <button class="btn btn-outline-primary w-100 my-1 first-group-btn collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdm">
+                                                Administrador
+                                            </button>
+                                            <div class="collapse multi-collapse" id="collapseAdm">
+                                                <div class="card card-body shadow-sm mx-1 my-2">
+                                                    <h6>Módulos Administrativos</h6>
+                                                    <hr>
+                                                    @php $modulos = ['sats' => 'SATs', 'users' => 'Usuários', 'materials' => 'Materiais', 'clients' => 'Clientes', 'codes' => 'Códigos']; @endphp
+                                                    
+                                                    @foreach($modulos as $key => $label)
+                                                        <div class="mb-2 d-flex justify-content-between align-items-center">
+                                                            <label class="small fw-bold mb-0 text-nowrap" for="permission_{{ $key }}">{{ $label }}</label>
+                                                            <select name="permissions[{{ $key }}]" class="form-select form-select-sm ms-2" style="max-width: 160px;" id="permission_{{ $key }}">
+                                                                <option value="0">Sem Acesso</option>
+                                                                <option value="1">Somente Leitura</option>
+                                                                <option value="2">Acesso Completo</option>
+                                                            </select>
+                                                        </div>
+                                                    @endforeach
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <button class="btn btn-outline-primary w-100 my-1 mid-group-btn collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSup">
+                                                Supervisor
+                                            </button>
+                                            <div class="collapse multi-collapse" id="collapseSup">
+                                                <div class="card card-body shadow-sm mx-1 my-2">
+                                                    <h6>Ações de Supervisão</h6>
+                                                    <hr>
+                                                    <div class="form-check form-switch mb-2">
+                                                        <input class="form-check-input" type="checkbox" id="reopen_sat" name="permissions[reopen_sat]" value="2">
+                                                        <label class="form-check-label" for="reopen_sat">Reabrir SAT</label>
+                                                    </div>
+                                                    <div class="form-check form-switch mb-2">
+                                                        <input class="form-check-input" type="checkbox" id="attach_tec" name="permissions[attach_tec]" value="2">
+                                                        <label class="form-check-label" for="attach_tec">Vincular SAT / Técnico</label>
+                                                    </div>
+                                                    <div class="form-check form-switch mb-2">
+                                                        <input class="form-check-input" type="checkbox" id="manager_on_call" name="permissions[manager_on_call]" value="2">
+                                                        <label class="form-check-label" for="manager_on_call">Gerenciar Sobreaviso</label>
+                                                    </div>
+                                                    <small class="text-muted">* Visualizar SATs é padrão para supervisores.</small>
+                                                </div>
+                                            </div>
+                                        </div>
+                                        <div class="col-md-4">
+                                            <button class="btn btn-outline-primary w-100 my-1 last-group-btn collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTec">
+                                                Técnico
+                                            </button>
+                                            <div class="collapse multi-collapse" id="collapseTec">
+                                                <div class="card card-body shadow-sm mx-1 my-2">
+                                                    <h6>Perfil Técnico</h6>
+                                                    <hr>
+                                                    <div class="form-check">
+                                                        <input class="form-check-input" type="checkbox" id="tech_access" name="permissions[tech_access]" value="2">
+                                                        <label class="form-check-label" for="tech_access">Habilitar Acesso Técnico</label>
+                                                    </div>
+                                                    <p class="small text-muted mt-2">O técnico visualiza apenas sua própria programação de serviços.</p>
+                                                </div>
+                                            </div>
                                         </div>
                                     </div>
-                                @endif
-                                <div class="form-check">
-                                    <input class="form-check-input" type="checkbox" value="1" name="sup" id="sup" {{$sup_checked}}>
-                                    <label class="form-check-label" for="sup">
-                                        <strong>Supervisor (Hema)</strong>
-                                    </label>
-                                </div>
-                            </div>
-                            @if (auth()->user()->id !== $user->id)
-                                <div class="form-check">
-                                    <input 
-                                        disabled
-                                        {{$user_client_checked}} 
-                                        onchange="
-                                        enableDisable(['tec', 'adm', 'sup'], '{{$user_client_checked}}'),
-                                        showAndHideElement('client_select', 'hema_profiles', '{{$user_client_checked}}')" 
-                                        class="form-check-input"
-                                        type="checkbox"
-                                        value="1"
-                                        name="user_client"
-                                        id="user_client">
-                                    <label class="form-check-label" for="user_client">
-                                        <strong>Cliente (Clientes)</strong>
-                                    </label>
                                 </div>
                             @endif
-
-                            <div id="client_select" style="display: {{$client_select_display}};">
-                                <x-datalist :objs="$clients" obj="client" tit="Cliente" :val="$client_selected" des="name" disabl="disabled"/>
-                            </div>
-                        </fieldset>
+                        @endif
 
                         <div class="my-2">
                             <button id="submitButton" type="submit" class="btn btn-primary me-2" data-bs-dismiss="modal">
@@ -141,9 +154,51 @@
                                 <i class="fa fa-arrow-left"></i> Voltar
                             </a>
                         </div>
+
+                        <div id="client_select" style="display: {{$client_select_display}};">
+                            <x-datalist :objs="$clients" obj="client" tit="Cliente" :val="$client_selected" des="name" disabl="disabled"/>
+                        </div>
+
                     </form>
                 </main>
             </div>
         </div>
     </div>
 @endsection
+
+
+{{-- <fieldset><legend>Selecione um ou mais perfis:</legend><br/>
+    <div id="hema_profiles" style="display: {{$hema_profiles_display}}">
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" value="1" name="tec" id="tec" {{$tec_checked}}>
+            <label class="form-check-label" for="tec">
+                <strong>Técnico (Hema)</strong></strong>
+            </label>
+        </div>
+
+       
+
+
+        @if (auth()->user()->id !== $user->id)
+            <div class="form-check">
+                <input onchange="enableDisable(['cli'], '{{$user_client_checked}}')" class="form-check-input" type="checkbox" value="1" name="adm" id="adm" {{$adm_checked}} >
+                <label class="form-check-label" for="adm">
+                    <strong>Administrador (Hema)</strong>
+                </label>
+        
+                <div class="form-check">
+                    <input {{$cli_disabled}} {{$cli_checked}} class="form-check-input" type="checkbox" value="1" name="cli" id="cli">
+                    <label class="form-check-label" for="cli">
+                        Acesso a Clientes e Materiais
+                    </label>
+                </div>
+            </div>
+        @endif
+        <div class="form-check">
+            <input class="form-check-input" type="checkbox" value="1" name="sup" id="sup" {{$sup_checked}}>
+            <label class="form-check-label" for="sup">
+                <strong>Supervisor (Hema)</strong>
+            </label>
+        </div>
+    </div>
+</fieldset> --}}
