@@ -408,7 +408,7 @@ function updateOrderTec(index, object_selected_id) {
 }
 
 // Show element and hide others-------------------------------------------------------------------------------------
-function showAndHideElement(hide, show, ini_state = "") {
+function showAndHideElement(hide = "", show, ini_state = "") {
     console.log(ini_state);
     if (ini_state === "checked") {
         if (document.getElementById(show).style.display == "block") {
@@ -431,6 +431,35 @@ function showAndHideElement(hide, show, ini_state = "") {
 
 function showMessage(msg) {
     alert(msg);
+}
+
+/**
+ * Gerencia a lógica de "Selecionar Todos" para grupos de permissões.
+ */
+function setupPermissionGroup(masterId, childClass) {
+    const master = document.getElementById(masterId);
+    const children = document.querySelectorAll(`.${childClass}`);
+
+    if (!master || children.length === 0) return;
+
+    // 1. Evento no Master (Acesso Completo)
+    master.addEventListener('change', function() {
+        children.forEach(child => {
+            child.checked = this.checked;
+        });
+    });
+
+    // 2. Evento em cada Filho (Switches individuais)
+    children.forEach(child => {
+        child.addEventListener('change', function() {
+            if (!this.checked) {
+                master.checked = false;
+            } else {
+                const allChecked = Array.from(children).every(c => c.checked);
+                master.checked = allChecked;
+            }
+        });
+    });
 }
 
 function toggleSelectAll(tecId) {

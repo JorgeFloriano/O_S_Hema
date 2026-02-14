@@ -50,7 +50,7 @@ class StrongPass implements ValidationRule
 
         // If there are errors, fail with all messages
         if (!empty($errors)) {
-            $fail('Para maior segurança, a senha de Administrador Principal deve seguir os seguintes requisitos:');
+            $fail('Para maior segurança, a senha deve seguir os seguintes requisitos:');
             foreach ($errors as $error) {
                 $fail($error);
             }

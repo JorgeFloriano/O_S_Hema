@@ -67,8 +67,8 @@
 
                         @if (auth()->id() == $user->id)
                             <div class="form-check">
-                                <input class="form-check-input" type="checkbox" value="1" name="tec" id="tec" {{$tec_checked}}>
-                                <label class="form-check-label" for="tec">
+                                <input class="form-check-input" type="checkbox" value="1" name="main_adm_tec_access" id="main_adm_tec_access" {{ $user->isTec() ? 'checked' : '' }}>
+                                <label class="form-check-label" for="main_adm_tec_access">
                                     <strong>Acesso de Técnico</strong></strong>
                                 </label>
                             </div>
@@ -80,7 +80,28 @@
                                     <div class="row g-0 mb-3">
                                         <div class="col-md-4">
                                             <button class="btn btn-outline-primary w-100 my-1 first-group-btn collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdm">
-                                                Administrador
+                                                Administrador 
+
+                                                @if ($user->hasPermission('sats'))
+                                                    <i class="fa fa-file-text-o"></i>
+                                                @endif
+
+                                                @if ($user->hasPermission('users'))
+                                                    <i class="fa fa-user-o"></i>
+                                                @endif
+
+                                                @if ($user->hasPermission('clients'))
+                                                    <i class="fa fa-handshake-o"></i>
+                                                @endif
+
+                                                @if ($user->hasPermission('materials'))
+                                                    <i class="fa fa-hdd-o"></i>
+                                                @endif
+
+                                                @if ($user->hasPermission('codes'))
+                                                    <i class="fa fa-bars"></i>
+                                                @endif
+
                                             </button>
                                             <div class="collapse multi-collapse" id="collapseAdm">
                                                 <div class="card card-body shadow-sm mx-1 my-2">
@@ -89,12 +110,17 @@
                                                     @php $modulos = ['sats' => 'SATs', 'users' => 'Usuários', 'materials' => 'Materiais', 'clients' => 'Clientes', 'codes' => 'Códigos']; @endphp
                                                     
                                                     @foreach($modulos as $key => $label)
+                                                        @php
+                                                            // Busca a permissão atual do usuário para este módulo
+                                                            $currentPerm = $user->permissions->where('name', $key)->first();
+                                                            $currentLevel = $currentPerm ? $currentPerm->pivot->access_level : 0;
+                                                        @endphp
                                                         <div class="mb-2 d-flex justify-content-between align-items-center">
                                                             <label class="small fw-bold mb-0 text-nowrap" for="permission_{{ $key }}">{{ $label }}</label>
                                                             <select name="permissions[{{ $key }}]" class="form-select form-select-sm ms-2" style="max-width: 160px;" id="permission_{{ $key }}">
-                                                                <option value="0">Sem Acesso</option>
-                                                                <option value="1">Somente Leitura</option>
-                                                                <option value="2">Acesso Completo</option>
+                                                                <option value="0" {{ $currentLevel == 0 ? 'selected' : '' }}>Sem Acesso</option>
+                                                                <option value="1" {{ $currentLevel == 1 ? 'selected' : '' }}>Somente Leitura</option>
+                                                                <option value="2" {{ $currentLevel == 2 ? 'selected' : '' }}>Acesso Completo</option>
                                                             </select>
                                                         </div>
                                                     @endforeach
@@ -104,38 +130,69 @@
                                         <div class="col-md-4">
                                             <button class="btn btn-outline-primary w-100 my-1 mid-group-btn collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSup">
                                                 Supervisor
+
+                                                @if ($user->hasPermission('attach_tec'))
+                                                    <i class="fa fa-file-text-o"></i>
+                                                @endif
+
+                                                @if ($user->hasPermission('manager_on_call'))
+                                                    <i class="fa fa-bell-o"></i>
+                                                @endif
+
+                                                @if ($user->hasPermission('reopen_sat'))
+                                                    <i class="fa fa-rotate-left"></i>
+                                                @endif
+
                                             </button>
                                             <div class="collapse multi-collapse" id="collapseSup">
                                                 <div class="card card-body shadow-sm mx-1 my-2">
                                                     <h6>Ações de Supervisão</h6>
                                                     <hr>
-                                                    <div class="form-check form-switch mb-2">
-                                                        <input class="form-check-input" type="checkbox" id="reopen_sat" name="permissions[reopen_sat]" value="2">
-                                                        <label class="form-check-label" for="reopen_sat">Reabrir SAT</label>
+
+                                                    <div class="form-check mb-2">
+                                                        <input class="form-check-input" type="checkbox" id="compl_sup_access" name="permissions[compl_sup_access]" value="2">
+                                                        <label class="form-check-label" for="compl_sup_access">Acesso Completo</label>
                                                     </div>
+
                                                     <div class="form-check form-switch mb-2">
-                                                        <input class="form-check-input" type="checkbox" id="attach_tec" name="permissions[attach_tec]" value="2">
+                                                        <input class="form-check-input sup-acess" type="checkbox" id="attach_tec" name="permissions[attach_tec]" value="2"
+                                                        {{ $user->hasPermission('attach_tec', 2) ? 'checked' : '' }}>
                                                         <label class="form-check-label" for="attach_tec">Vincular SAT / Técnico</label>
                                                     </div>
+
                                                     <div class="form-check form-switch mb-2">
-                                                        <input class="form-check-input" type="checkbox" id="manager_on_call" name="permissions[manager_on_call]" value="2">
+                                                        <input class="form-check-input sup-acess" type="checkbox" id="manager_on_call" name="permissions[manager_on_call]" value="2"
+                                                        {{ $user->hasPermission('manager_on_call', 2) ? 'checked' : '' }}>
                                                         <label class="form-check-label" for="manager_on_call">Gerenciar Sobreaviso</label>
                                                     </div>
+
+                                                    <div class="form-check form-switch mb-2">
+                                                        <input class="form-check-input sup-acess" type="checkbox" id="reopen_sat" 
+                                                            name="permissions[reopen_sat]" value="2"
+                                                            {{ $user->hasPermission('reopen_sat', 2) ? 'checked' : '' }}>
+                                                        <label class="form-check-label" for="reopen_sat">Reabrir SAT</label>
+                                                    </div>
+
                                                     <small class="text-muted">* Visualizar SATs é padrão para supervisores.</small>
                                                 </div>
                                             </div>
                                         </div>
                                         <div class="col-md-4">
                                             <button class="btn btn-outline-primary w-100 my-1 last-group-btn collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTec">
-                                                Técnico
+                                                Técnico 
+                                                @if ($user->isTec())
+                                                    <i class="fa fa-check" id='tec-icon'></i>
+                                                @endif
                                             </button>
                                             <div class="collapse multi-collapse" id="collapseTec">
                                                 <div class="card card-body shadow-sm mx-1 my-2">
                                                     <h6>Perfil Técnico</h6>
                                                     <hr>
                                                     <div class="form-check">
-                                                        <input class="form-check-input" type="checkbox" id="tech_access" name="permissions[tech_access]" value="2">
-                                                        <label class="form-check-label" for="tech_access">Habilitar Acesso Técnico</label>
+                                                        <input class="form-check-input" type="checkbox" id="tech_access" 
+                                                            name="permissions[tech_access]" value="2"
+                                                            {{ $user->isTec() ? 'checked' : '' }}>
+                                                        <label class="form-check-label" for="tech_access">Habilitar Acesso</label>
                                                     </div>
                                                     <p class="small text-muted mt-2">O técnico visualiza apenas sua própria programação de serviços.</p>
                                                 </div>
@@ -146,6 +203,13 @@
                             @endif
                         @endif
 
+                        @if ($user->isCli() && !$user->isHemaTeam())
+                            <div class="form-floating my-2">
+                                <input type="text" class="form-control" value="{{$user->clientStringForUnlabeledDList()}}"  disabled>
+                                <label>Cliente</label>
+                            </div>
+                        @endif
+
                         <div class="my-2">
                             <button id="submitButton" type="submit" class="btn btn-primary me-2" data-bs-dismiss="modal">
                                 <i class="fa fa-check"></i> Confirma
@@ -154,11 +218,6 @@
                                 <i class="fa fa-arrow-left"></i> Voltar
                             </a>
                         </div>
-
-                        <div id="client_select" style="display: {{$client_select_display}};">
-                            <x-datalist :objs="$clients" obj="client" tit="Cliente" :val="$client_selected" des="name" disabl="disabled"/>
-                        </div>
-
                     </form>
                 </main>
             </div>
@@ -166,39 +225,13 @@
     </div>
 @endsection
 
-
-{{-- <fieldset><legend>Selecione um ou mais perfis:</legend><br/>
-    <div id="hema_profiles" style="display: {{$hema_profiles_display}}">
-        <div class="form-check">
-            <input class="form-check-input" type="checkbox" value="1" name="tec" id="tec" {{$tec_checked}}>
-            <label class="form-check-label" for="tec">
-                <strong>Técnico (Hema)</strong></strong>
-            </label>
-        </div>
-
-       
-
-
-        @if (auth()->user()->id !== $user->id)
-            <div class="form-check">
-                <input onchange="enableDisable(['cli'], '{{$user_client_checked}}')" class="form-check-input" type="checkbox" value="1" name="adm" id="adm" {{$adm_checked}} >
-                <label class="form-check-label" for="adm">
-                    <strong>Administrador (Hema)</strong>
-                </label>
+<script>
+    // Executa após o carregamento do DOM
+    document.addEventListener('DOMContentLoaded', function() {
+        // Ativa a lógica para o grupo de Supervisor
+        setupPermissionGroup('compl_sup_access', 'sup-acess');
         
-                <div class="form-check">
-                    <input {{$cli_disabled}} {{$cli_checked}} class="form-check-input" type="checkbox" value="1" name="cli" id="cli">
-                    <label class="form-check-label" for="cli">
-                        Acesso a Clientes e Materiais
-                    </label>
-                </div>
-            </div>
-        @endif
-        <div class="form-check">
-            <input class="form-check-input" type="checkbox" value="1" name="sup" id="sup" {{$sup_checked}}>
-            <label class="form-check-label" for="sup">
-                <strong>Supervisor (Hema)</strong>
-            </label>
-        </div>
-    </div>
-</fieldset> --}}
+        // Se no futuro tiver um grupo de Admin, basta adicionar uma linha:
+        // setupPermissionGroup('compl_adm_access', 'adm-acess');
+    });
+</script>

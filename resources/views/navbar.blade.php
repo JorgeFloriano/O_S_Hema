@@ -57,7 +57,7 @@
             'route' => route('tec_on'),
             'icon'  => 'fa-bell-o',
             'active'=> Request::is('*tec_on*'),
-            'show'  => $user->isSup()
+            'show'  => $user->isSup() || $user->isMainAdm()
         ],
     ])->where('show', true);
 
