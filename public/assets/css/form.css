@@ -290,12 +290,11 @@ div.signature {
     .first-group-btn {
         border-top-right-radius: 0 !important;
         border-bottom-right-radius: 0 !important;
+        border-right: none !important;
     }
 
     .mid-group-btn {
         border-radius: 0 !important;
-        /* Evita borda dupla no meio */
-        border-left: none !important;
         border-right: none !important;
     }
 
@@ -305,12 +304,10 @@ div.signature {
     }
 }
 
-/* Quando o collapse está ABERTO, o botão NÃO tem a classe .collapsed */
+/* 1. Estado Ativo (Collapse Aberto) */
 #permissoes .btn-outline-primary:not(.collapsed) {
-    background-color: #1b0363ff; /* Cor primária do Bootstrap */
-    border-left-color: #fff;
-    border-right-color: #fff;   
-    color: #fff;               /* Texto branco */
+    background-color: #1b03634e !important; 
+    border-color: #1b0363 !important;
 }
 
 /* No celular, mantemos o arredondamento padrão do Bootstrap */

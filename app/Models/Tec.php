@@ -23,6 +23,7 @@ class Tec extends Model
         'on_call',
         'emergency_order_id',
         'emergency_notification_pending',
+        'deleted_at',
     ];
 
     public function emergencyClients()
