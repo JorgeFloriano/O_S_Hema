@@ -16,6 +16,7 @@ use App\Models\Solution;
 use App\Models\Tec;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Contracts\Encryption\DecryptException;
+use Illuminate\Support\Facades\Gate;
 
 class NoteController extends Controller
 {
@@ -41,9 +42,7 @@ class NoteController extends Controller
 
     public function index()
     {
-        if (!$this->t) {
-            return view('login');
-        }
+        Gate::authorize('check-permission', ['users', 1]);
 
         session()->put('reference_router_back', 'notes.index');
         $orders = Order::select('id', 'client_id', 'equipment', 'req_descr', 'req_date', 'finished')->where('tec_id', auth()->user()->tec->id)->whereNull('deleted_at')->orderBy('id', 'desc')->simplePaginate(20);

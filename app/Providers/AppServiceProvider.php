@@ -34,8 +34,8 @@ class AppServiceProvider extends ServiceProvider
         });
 
         // 3. Opcional: Gates específicos para facilitar a leitura
-        Gate::define('reopen-sat', function (User $user) {
-            return $user->hasPermission('reopen_sat');
+        Gate::define('is-main-adm', function (User $user) {
+            return $user->isMainAdm();
         });
     }
 }

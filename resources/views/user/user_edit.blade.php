@@ -65,7 +65,7 @@
                             <label for="password_confirmation">Confirmar Senha</label>
                         </div>
 
-                        @if (auth()->id() == $user->id)
+                        @if (auth()->id() == $user->id && auth()->user()->isMainAdm() )
                             <div class="form-check">
                                 <input class="form-check-input" type="checkbox" value="1" name="main_adm_tec_access" id="main_adm_tec_access" {{ $user->isTec() ? 'checked' : '' }}>
                                 <label class="form-check-label" for="main_adm_tec_access">
@@ -107,7 +107,17 @@
                                                 <div class="card card-body shadow-sm mx-1 my-2">
                                                     <h6>Módulos Administrativos</h6>
                                                     <hr>
-                                                    @php $modulos = ['sats' => 'SATs', 'users' => 'Usuários', 'materials' => 'Materiais', 'clients' => 'Clientes', 'codes' => 'Códigos']; @endphp
+                                                    @php
+                                                        $modulos = [
+                                                            'sats' => 'SATs',
+                                                            'materials' => 'Materiais',
+                                                            'clients' => 'Clientes',
+                                                            'codes' => 'Códigos'
+                                                            ];
+                                                        if (auth()->user()->isMainAdm()) {
+                                                            $modulos['users'] = 'Usuários';
+                                                        }
+                                                    @endphp
                                                     
                                                     @foreach($modulos as $key => $label)
                                                         @php
@@ -233,5 +243,8 @@
         
         // Se no futuro tiver um grupo de Admin, basta adicionar uma linha:
         // setupPermissionGroup('compl_adm_access', 'adm-acess');
+
+        // Nova lógica de alternância de tipo de usuário
+        setupUserTypeToggle();
     });
 </script>

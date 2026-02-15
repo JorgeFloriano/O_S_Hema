@@ -50,7 +50,7 @@
             'route' => route('users.index'),
             'icon'  => 'fa-user-o',
             'active'=> Request::is('*users*'),
-            'show'  => $user->isMainAdm()
+            'show'  => $user->isAdm()
         ],
         [
             'label' => 'Sobreaviso',

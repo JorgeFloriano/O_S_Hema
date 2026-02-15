@@ -407,26 +407,54 @@ function updateOrderTec(index, object_selected_id) {
     });
 }
 
-// Show element and hide others-------------------------------------------------------------------------------------
-function showAndHideElement(hide = "", show, ini_state = "") {
-    console.log(ini_state);
-    if (ini_state === "checked") {
-        if (document.getElementById(show).style.display == "block") {
-            document.getElementById(show).style.display = "none";
-            document.getElementById(hide).style.display = "block";
+/**
+ * Alterna a visibilidade e habilita/desabilita campos entre Hema e Cliente
+ */
+function setupUserTypeToggle() {
+    const hemaRadio = document.getElementById("hema_user");
+    const clientRadio = document.getElementById("client_user");
+    const hemaField = document.getElementById("hema_field");
+    const clientField = document.getElementById("client_field");
+
+    function toggle() {
+        if (hemaRadio.checked) {
+            // Mostrar Hema, Esconder Cliente
+            hemaField.style.display = "block";
+            clientField.style.display = "none";
+
+            // Habilitar campos Hema, Desabilitar Cliente
+            toggleInputs(hemaField, false);
+            toggleInputs(clientField, true);
+        } else if (clientRadio.checked) {
+            // Mostrar Cliente, Esconder Hema
+            hemaField.style.display = "none";
+            clientField.style.display = "block";
+
+            // Habilitar campos Cliente, Desabilitar Hema
+            toggleInputs(hemaField, true);
+            toggleInputs(clientField, false);
         } else {
-            document.getElementById(show).style.display = "block";
-            document.getElementById(hide).style.display = "none";
-        }
-    } else {
-        if (this.checked === true) {
-            document.getElementById(show).style.display = "block";
-            document.getElementById(hide).style.display = "none";
-        } else {
-            document.getElementById(show).style.display = "none";
-            document.getElementById(hide).style.display = "block";
+            // Caso nenhum esteja selecionado (estado inicial)
+            hemaField.style.display = "none";
+            clientField.style.display = "none";
         }
     }
+
+    // Função auxiliar para desabilitar/habilitar todos os inputs dentro de um container
+    function toggleInputs(container, isDisabled) {
+        const inputs = container.querySelectorAll(
+            "input, select, textarea, button:not([data-bs-toggle])",
+        );
+        inputs.forEach((input) => {
+            input.disabled = isDisabled;
+        });
+    }
+
+    hemaRadio.addEventListener("change", toggle);
+    clientRadio.addEventListener("change", toggle);
+
+    // Executa uma vez no carregamento para caso haja "old input" do Laravel
+    toggle();
 }
 
 function showMessage(msg) {
@@ -443,19 +471,19 @@ function setupPermissionGroup(masterId, childClass) {
     if (!master || children.length === 0) return;
 
     // 1. Evento no Master (Acesso Completo)
-    master.addEventListener('change', function() {
-        children.forEach(child => {
+    master.addEventListener("change", function () {
+        children.forEach((child) => {
             child.checked = this.checked;
         });
     });
 
     // 2. Evento em cada Filho (Switches individuais)
-    children.forEach(child => {
-        child.addEventListener('change', function() {
+    children.forEach((child) => {
+        child.addEventListener("change", function () {
             if (!this.checked) {
                 master.checked = false;
             } else {
-                const allChecked = Array.from(children).every(c => c.checked);
+                const allChecked = Array.from(children).every((c) => c.checked);
                 master.checked = allChecked;
             }
         });

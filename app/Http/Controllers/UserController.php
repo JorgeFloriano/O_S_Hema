@@ -2,7 +2,7 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\FormCrUserRequest;
+use App\Http\Requests\FormCreateUserRequest;
 use App\Models\Adm;
 use App\Models\Cli;
 use App\Models\Client;
@@ -11,34 +11,26 @@ use App\Models\Tec;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Validation\Rule;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Contracts\Encryption\DecryptException;
 use App\Http\Requests\FormUpdateUserRequest;
 use App\Models\Permission;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Gate;
 
 class UserController extends Controller
 {
     public readonly User $user;
-    public $m; // user is adm main or not
-    public $s; // user is supervisor or not
 
     public function __construct()
     {
-        if (isset(auth()->user()->adm)) {
-            $this->m = auth()->user()->adm()->first()->main;
-        }
-        $this->s = auth()->user()->sup()->first();
-
         $this->user = Auth::user();
     }
 
     public function index()
     {
-        if (!$this->m) {
-            return view('login');
-        }
+        Gate::authorize('check-permission', ['users', 1]);
 
         // Get the main admins
         $admins = Adm::select('user_id')->where('main', 1)->get();
@@ -60,9 +52,7 @@ class UserController extends Controller
     // If logged in user is adm main or supervisor, show technician on call list
     public function tec_on()
     {
-        if (!$this->m && !$this->s) {
-            return view('login');
-        }
+        Gate::authorize('check-permission', ['manager_on_call', 2]);
 
         $tecs = Tec::with(['emergencyClients', 'emergencyOrder:id,finished,tec_id'])
             // Carregamos apenas as colunas id, finished e tec_id da SAT para economizar memória
@@ -96,9 +86,7 @@ class UserController extends Controller
     // If logged in user is adm main or supervisor, Technician on call update
     public function tec_on_update(Request $request)
     {
-        if (!$this->m && !$this->s) {
-            return view('login');
-        }
+        Gate::authorize('check-permission', ['manager_on_call', 2]);
 
         // Buscamos os técnicos novamente para garantir que temos os objetos do Eloquent
         $tecIds = session('tecs')->pluck('id');
@@ -121,20 +109,16 @@ class UserController extends Controller
     // If logged in user is supervisor, reset all emergencies for all technicians
     public function tec_on_stop_all_notifications()
     {
-        if ($this->m) {
-            auth()->user()->resetAllEmergencies();
-            return redirect()->back()->with('message', 'Todas as notificações de emergência foram imterrompidas.');
-        }
+        Gate::authorize('is-main-adm');
 
-        return view('login');
+        auth()->user()->resetAllEmergencies();
+        return redirect()->back()->with('message', 'Todas as notificações de emergência foram imterrompidas.');
     }
 
     // If logged in user is adm main, show create user form
     public function create()
     {
-        if (!$this->m) {
-            return view('login');
-        }
+        Gate::authorize('check-permission', ['users', 2]);
 
         // Get id and name of all clients order by name
         $clients = Client::select('id', 'name')->orderBy('name')->get();
@@ -144,124 +128,124 @@ class UserController extends Controller
         ]);
     }
 
-    // If logged in user is adm main, validate and create a new user
-    public function store(FormCrUserRequest $request)
+    public function store(FormCreateUserRequest $request)
     {
-        if (!$this->m) {
-            return view('login');
+        Gate::authorize('check-permission', ['users', 2]);
+
+        try {
+            return DB::transaction(function () use ($request) {
+                // 1. Criar o Usuário Base
+                $user = User::create([
+                    'name'     => $request->name,
+                    'surname'  => $request->surname,
+                    'function' => $request->function,
+                    'username' => $request->username,
+                    'email'    => $request->username . '@hemasystem.com.br',
+                    'password' => Hash::make($request->password),
+                ]);
+
+                $hasProfile = false;
+
+                // 2. Lógica para Usuário CLIENTE (Exclusiva)
+                if ($request->type_user == 2) {
+                    Cli::create([
+                        'user_id'        => $user->id,
+                        'client_id'      => $request->client_id,
+                        'is_admin'       => true,
+                        'can_create_sat' => true,
+                        'can_see_sat'    => true,
+                    ]);
+                    $hasProfile = true;
+                }
+
+                // 3. Lógica para Usuário HEMA (Permissões e Perfis)
+                if ($request->type_user == 1) {
+                    // Esta função retorna true se algum perfil (adm, sup ou tec) foi criado
+                    $hasProfile = $this->syncHemaPermissions($user, $request->input('permissions', []));
+                }
+
+                // --- TRAVA DE SEGURANÇA FINAL ---
+                if (!$hasProfile) {
+                    throw new \Exception('O usuário deve possuir ao menos um perfil ativo (Cliente, Adm, Sup ou Tec).');
+                }
+
+                return redirect()->route('users.index')
+                    ->with('message', 'Usuário cadastrado com sucesso.');
+            });
+        } catch (\Exception $e) {
+            return redirect()->back()
+                ->withInput()
+                ->with('message', 'Erro ao cadastrar: ' . $e->getMessage());
+        }
+    }
+
+    private function syncHemaPermissions($user, array $perms): bool
+    {
+        Gate::authorize('check-permission', ['users', 2]);
+
+        $syncData = [];
+
+        // 1. Processa permissões do formulário
+        foreach ($perms as $name => $level) {
+            if ($level > 0 && $name !== 'compl_sup_access') {
+                $permission = Permission::where('name', $name)->first();
+                if ($permission) {
+                    $syncData[$permission->id] = ['access_level' => $level];
+                }
+            }
         }
 
-        if ($request->user_client) {
-            $request->validate([
-                'client_id' => [
-                    'required_if:user_client,true',
-                    Rule::exists('clients', 'id'),
-                    'unique:clis,client_id'
-                ],
-                'adm' => 'boolean',
-                'tec' => 'boolean',
-                'sup' => 'boolean',
-                'user_client' => [
-                    'boolean',
-                    function ($attribute, $value, $fail) use ($request) {
-                        if ($value && ($request->adm || $request->tec || $request->sup)) {
-                            $fail('Um usuário cliente não pode ter os acessos de colaboradores Hema');
-                        }
+        $isSupervisor = collect($perms)->only(['reopen_sat', 'attach_tec', 'manager_on_call'])->contains(fn($v) => $v > 0);
+        $isAdm = collect($perms)->only(['sats', 'users', 'materials', 'clients', 'codes'])->contains(fn($v) => $v > 0);
+        $isTec = (isset($perms['tech_access']) && $perms['tech_access'] > 0) || request()->has('main_adm_tec_access');
 
-                        if (!isset($value) && !isset($request->adm) && !isset($request->tec) && !isset($request->sup)) {
-                            $fail('Selecione pelo menos um acesso para o usuário.');
-                        }
-                    }
-                ],
-            ], [
-                'client_id.required_if' => 'Selecione um cliente para o usuário.',
-                'client_id.exists' => 'O cliente selecionado não existe.',
-                'client_id.unique' => 'O cliente selecionado já possui um usuário cadastrado.',
-                '*.boolean' => 'Os campos de perfis de acesso devem ser apenas marcados ou desmarcados.',
-            ]);
+        // 2. Lógica para SUPERVISOR
+        if ($isSupervisor) {
+            // Buscamos incluindo deletados. Se não existir, criamos.
+            $sup = Sup::withTrashed()->firstOrNew(['user_id' => $user->id]);
+            $sup->deleted_at = null; // Garante que saia do lixo
+            $sup->save();
+
+            // Injeta Visualização de SATs
+            $satPerm = Permission::where('name', 'sats')->first();
+            if ($satPerm && (!isset($syncData[$satPerm->id]) || $syncData[$satPerm->id]['access_level'] < 1)) {
+                $syncData[$satPerm->id] = ['access_level' => 1];
+            }
+        } else {
+            $user->sup()?->delete();
         }
 
-        $request->validated();
-        $email = $request->username . '@hemasystem.com.br';
-
-        // Create new user
-        $user_cr = User::create([
-            'name' => $request->input('name'),
-            'surname' => $request->input('surname'),
-            'function' => $request->input('function'),
-            'username' => $request->input('username'),
-            'email' => $email,
-            'password' => Hash::make($request->input('password')),
-        ]);
-
-        // If new user was created
-        if ($user_cr) {
-
-            // If user_client option is selected, makes available client access
-            if ($request->user_client) {
-                $cli_cr = Cli::create([
-                    'user_id' => $user_cr->id,
-                    'is_admin' => true,
-                    'can_create_sat' => true,
-                    'can_see_sat' => true,
-                    'client_id' => $request->client_id
-                ]);
-
-                if (!$cli_cr) {
-                    $user_cr->delete();
-                    return redirect()->route('users.index')->with('message', 'Erro ao cadastrar Usuário Cliente.');
-                }
-            }
-
-
-            // If adm option is selected, makes available admin access
-            if ($request->adm) {
-                $adm_cr = Adm::create([
-                    'user_id' => $user_cr->id,
-                    'main' => 0,
-                    'cli' => $request->cli ? 1 : 0,
-                ]);
-
-                if (!$adm_cr) {
-                    $user_cr->delete();
-                    return redirect()->route('users.index')->with('message', 'Erro ao cadastrar Usuário Administrador.');
-                }
-            }
-
-            // If sup option is selected, makes available supervisor access
-            if ($request->sup) {
-                $sup_cr = Sup::create([
-                    'user_id' => $user_cr->id,
-                ]);
-
-                if (!$sup_cr) {
-                    $user_cr->delete();
-                    return redirect()->route('users.index')->with('message', 'Erro ao cadastrar Usuário Supervisor.');
-                }
-            }
-
-            // If tec option is selected, makes available technician access
-            if ($request->tec) {
-                $tec_cr = Tec::create([
-                    'user_id' => $user_cr->id,
-                    'on_call' => 0,
-                ]);
-
-                if (!$tec_cr) {
-                    $user_cr->delete();
-                    return redirect()->route('users.index')->with('message', 'Erro ao cadastrar Usuário Técnico.');
-                }
-            }
-
-            return redirect()->route('users.index')->with('message', 'Usuário adm cadastrado com sucesso.');
+        // 3. Lógica para ADMINISTRADOR
+        if ($isAdm) {
+            $adm = Adm::withTrashed()->firstOrNew(['user_id' => $user->id]);
+            $adm->deleted_at = null;
+            $adm->main = $adm->main ?? 0; // Mantém se já for main, senão 0
+            $adm->save();
+        } elseif (!$user->isMainAdm()) {
+            $user->adm()?->delete();
         }
 
-        return redirect()->route('users.index')->with('message', 'Erro ao cadastrar usuário.');
+        // 4. Lógica para TÉCNICO
+        if ($isTec) {
+            $tec = Tec::withTrashed()->firstOrNew(['user_id' => $user->id]);
+            $tec->deleted_at = null;
+            $tec->on_call = $tec->on_call ?? 0;
+            $tec->save();
+        } else {
+            $user->tec()?->delete();
+        }
+
+        // 5. Sincronização Final
+        $user->permissions()->sync($syncData);
+
+        return $isSupervisor || $isAdm || $isTec;
     }
 
     // Shows the form to delete the user registration
     public function show($user)
     {
+        Gate::authorize('check-permission', ['users', 1]);
+
         // Decrypt the user id
         try {
             $user = User::find(Crypt::decryptString($user));
@@ -281,6 +265,7 @@ class UserController extends Controller
     // Shows the form to edit the user registration
     public function edit(string $user)
     {
+        Gate::authorize('is-main-adm');
 
         // Decrypt the user id
         try {
@@ -290,10 +275,7 @@ class UserController extends Controller
             die;
         }
 
-        // If user main try to edit another user main return false
-        if (!$this->user->editUserPermission($user->id)) {
-            return redirect()->back()->with('message', 'Sem permissão para editar este usuário.');
-        }
+        Gate::authorize('check-permission', ['users', 2]);
 
         // Carrega o usuário com suas permissões já vinculadas
         $user = User::with('permissions')->findOrFail($user->id);
@@ -305,67 +287,25 @@ class UserController extends Controller
         return view('user.user_edit', compact('user', 'clients'));
     }
 
-    // If logged in user is adm main, validate and update the user registration
     public function update(FormUpdateUserRequest $request, string $id)
     {
+        Gate::authorize('is-main-adm');
+
         $user = User::findOrFail($id);
 
-        // Atualiza os dados básicos
-        $user->update($request->except([
-            '_token',
-            '_method',
-            'password',
-            'password_confirmation',
-            'permissions',
-        ]));
+        // 1. Atualiza dados básicos
+        $user->update($request->except(['_token', '_method', 'password', 'password_confirmation', 'permissions']));
 
-        // Agora $user é o objeto, você pode atualizar a senha
+        // 2. Atualiza senha
         if ($request->filled('password')) {
             $user->password = Hash::make($request->password);
             $user->save();
         }
 
-        if (!$user) {
-            return redirect()->back()->with('message', 'Erro ao atualizar cadastro de usuário.');
-        }
-
-        // 3. Sincronização de Permissões e Perfis (Adm, Sup, Tec)
-        $perms = $request->input('permissions', []);
-
-        // Lógica para sincronizar a tabela pivô (permission_user)
-        $syncData = [];
-        foreach ($perms as $name => $level) {
-            if ($level > 0 && $name !== 'compl_sup_access') {
-                $permission = Permission::where('name', $name)->first();
-                if ($permission) {
-                    $syncData[$permission->id] = ['access_level' => $level];
-                }
-            }
-        }
-        $user->permissions()->sync($syncData);
-
-        // 4. Ativação automática dos Models de Perfil
-        // Adm
-        $hasAdm = collect($perms)->only(['sats', 'users', 'materials', 'clients', 'codes'])->contains(fn($v) => $v > 0);
-        if ($hasAdm) {
-            Adm::withTrashed()->updateOrCreate(['user_id' => $user->id], ['deleted_at' => null, 'main' => 0]);
-        } elseif (!$user->isMainAdm()) {
-            $user->adm()?->delete();
-        }
-
-        // Sup
-        $hasSup = collect($perms)->only(['reopen_sat', 'attach_tec', 'manager_on_call'])->contains(fn($v) => $v > 0);
-        if ($hasSup) {
-            Sup::withTrashed()->updateOrCreate(['user_id' => $user->id], ['deleted_at' => null]);
-        } else {
-            $user->sup()?->delete();
-        }
-
-        // Tec
-        if ((isset($perms['tech_access']) && $perms['tech_access'] > 0) || isset($request->main_adm_tec_access)) {
-            Tec::withTrashed()->updateOrCreate(['user_id' => $user->id], ['deleted_at' => null, 'on_call' => 0]);
-        } else {
-            $user->tec()?->delete();
+        // 3. Sincroniza Permissões e Perfis (Centralizado)
+        // Se for um usuário cliente, a lógica de permissões Hema nem roda
+        if (!$user->isCli()) {
+            $this->syncHemaPermissions($user, $request->input('permissions', []));
         }
 
         return redirect()->back()->with('message', 'Cadastro atualizado com sucesso.');
@@ -374,10 +314,7 @@ class UserController extends Controller
     // If logged in user is adm main, delete the selected user
     public function destroy(string $id)
     {
-        // If user main try to edit another user main return false
-        if (!auth()->user()->editUserPermission($id)) {
-            return view('login');
-        }
+        Gate::authorize('check-permission', ['users', 2]);
 
         // Delete the selected user and all of his accesses
         $deleted = User::find($id)->CompletelyDelete();
