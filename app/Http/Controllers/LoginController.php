@@ -6,6 +6,7 @@ use App\Http\Requests\FormLoginRequest;
 use App\Models\User;
 use App\Class\Logger;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\Crypt;
 
 class LoginController extends Controller
 {
@@ -111,7 +112,6 @@ class LoginController extends Controller
         }
 
         $cli = auth()->user()->cli()->first();
-
         if ($cli) {
             // Cli log
             $this->logger->log('info', 'Client logged in');
@@ -121,26 +121,11 @@ class LoginController extends Controller
             ]);
         }
 
-        $adm = auth()->user()->adm()->first();
+        $sup = auth()->user()->sup()->first();
+        if ($sup) {
 
-        if ($adm) {
-            if ($adm->main) {
-                session()->put('main', auth()->user()->id);
-
-                // Main adm log
-                $this->logger->log('info', 'Main Administrator logged in');
-
-                return redirect()->route('orders.index')->with([
-                    'success' => 'Olá',
-                ]);
-            }
-
-            if ($adm->cli) {
-                session()->put('cli', auth()->user()->id);
-            }
-
-            // Adm log
-            $this->logger->log('info', 'Administrator logged in');
+            // Sup log
+            $this->logger->log('info', 'Supervisor logged in');
 
             return redirect()->route('orders.index')->with([
                 'success' => 'Olá',
@@ -148,7 +133,6 @@ class LoginController extends Controller
         }
 
         $tec = auth()->user()->tec()->first();
-
         if ($tec) {
 
             // Tec log
@@ -159,14 +143,12 @@ class LoginController extends Controller
             ]);
         }
 
-        $sup = auth()->user()->sup()->first();
+        $adm = auth()->user()->adm()->first();
+        if ($adm) {
+            // Adm log
+            $this->logger->log('info', 'Administrator logged in');
 
-        if ($sup) {
-
-            // Sup log
-            $this->logger->log('info', 'Supervisor logged in');
-
-            return redirect()->route('orders.index')->with([
+            return redirect()->route('users.show', ['user' => Crypt::encryptString($adm->user_id)])->with([
                 'success' => 'Olá',
             ]);
         }

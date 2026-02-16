@@ -254,6 +254,10 @@ class UserController extends Controller
             die;
         }
 
+        if ($user->id == $this->auth->id) {
+            return view('user.user_show', ['user' => $user]);
+        }
+
         return view('user.user_delete', ['user' => $user]);
     }
 
@@ -308,6 +312,11 @@ class UserController extends Controller
     public function destroy(string $id)
     {
         Gate::authorize('check-permission', ['users', 2]);
+
+        // Prevent users from deleting their own account
+        if ($id === Auth::id()) {
+            return redirect()->route('users.index')->with('message', ' Vocé não pode excluir sua própria conta.');
+        }
 
         // Delete the selected user and all of his accesses
         $deleted = User::find($id)->CompletelyDelete();
