@@ -9,12 +9,6 @@ use Illuminate\Validation\Rule;
 
 class FormUpdateUserRequest extends FormRequest
 {
-    public function authorize(): bool
-    {
-        // A lógica de autorização que você já tinha no controller
-        return auth()->user()->editUserPermission($this->route('user'));
-    }
-
     public function rules(): array
     {
         $userId = $this->route('user');

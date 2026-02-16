@@ -6,6 +6,7 @@ use App\Http\Requests\FormCodeRequest;
 use App\Models\Solution;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Contracts\Encryption\DecryptException;
+use Illuminate\Support\Facades\Gate;
 
 class SolutionController extends Controller
 {
@@ -18,9 +19,7 @@ class SolutionController extends Controller
     }
     public function index()
     {
-        if (session('main') !== auth()->user()->id) {
-            return view('login');
-        }
+        Gate::authorize('check-permission', ['codes', 1]);
 
         session()->put('table', 'solutions');
 
@@ -29,10 +28,7 @@ class SolutionController extends Controller
 
     public function list(bool $opt)
     {
-
-        if (session('main') !== auth()->user()->id) {
-            return view('login');
-        }
+        Gate::authorize('check-permission', ['codes', 1]);
 
         if ($opt == 0) {
             $solutions = $this->solution->select('id', 'description')->onlyTrashed()->simplePaginate(20);
@@ -65,18 +61,14 @@ class SolutionController extends Controller
 
     public function create()
     {
-        if (session('main') !== auth()->user()->id) {
-            return view('login');
-        }
+        Gate::authorize('check-permission', ['codes', 2]);
 
         return view('codes.solution.solution_create');
     }
 
     public function store(FormCodeRequest $request)
     {
-        if (session('main') !== auth()->user()->id) {
-            return view('login');
-        }
+        Gate::authorize('check-permission', ['codes', 2]);
 
         $request->validated();
 
@@ -92,18 +84,14 @@ class SolutionController extends Controller
 
     public function show(Solution $solution)
     {
-        if (session('main') !== auth()->user()->id) {
-            return view('login');
-        }
+        Gate::authorize('check-permission', ['codes', 1]);
 
         return view('codes.solution.solution_delete', ['solution' => $solution]);
     }
 
     public function edit($solution)
     {
-        if (session('main') !== auth()->user()->id) {
-            return view('login');
-        }
+        Gate::authorize('is-main-adm');
 
         try {
             $solution = $this->solution->find(Crypt::decryptString($solution));
@@ -117,9 +105,7 @@ class SolutionController extends Controller
 
     public function update(FormCodeRequest $request, string $id)
     {
-        if (session('main') !== auth()->user()->id) {
-            return view('login');
-        }
+        Gate::authorize('is-main-adm');
 
         $request->validated();
 
@@ -133,9 +119,7 @@ class SolutionController extends Controller
 
     public function destroy(string $id)
     {
-        if (session('main') !== auth()->user()->id) {
-            return view('login');
-        }
+        Gate::authorize('check-permission', ['codes', 2]);
 
         $deleted = $this->solution->where('id', $id)->delete();
 
@@ -147,9 +131,7 @@ class SolutionController extends Controller
 
     public function restore(string $id)
     {
-        if (session('main') !== auth()->user()->id) {
-            return view('login');
-        }
+        Gate::authorize('check-permission', ['codes', 2]);
 
         try {
             $id = Crypt::decryptString($id);
@@ -168,9 +150,7 @@ class SolutionController extends Controller
 
     public function desativate(string $id)
     {
-        if (session('main') !== auth()->user()->id) {
-            return view('login');
-        }
+        Gate::authorize('check-permission', ['codes', 2]);
 
         try {
             $id = Crypt::decryptString($id);

@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Http\Requests\FormCodeRequest;
 use App\Models\Cause;
 use App\Class\CryptMsg;
+use Illuminate\Support\Facades\Gate;
 
 class CauseController extends Controller
 {
@@ -19,9 +20,7 @@ class CauseController extends Controller
     }
     public function index()
     {
-        if (session('main') !== auth()->user()->id) {
-            return view('login');
-        }
+        Gate::authorize('check-permission', ['codes', 1]);
 
         session()->put('table', 'causes');
 
@@ -31,9 +30,7 @@ class CauseController extends Controller
     public function list(bool $opt)
     {
 
-        if (session('main') !== auth()->user()->id) {
-            return view('login');
-        }
+        Gate::authorize('check-permission', ['codes', 1]);
 
         if ($opt == 0) {
             $causes = $this->cause->select('id', 'description')->onlyTrashed()->simplePaginate(20);
@@ -65,17 +62,13 @@ class CauseController extends Controller
     }
     public function create()
     {
-        if (session('main') !== auth()->user()->id) {
-            return view('login');
-        }
+        Gate::authorize('check-permission', ['codes', 2]);
 
         return view('codes.cause.cause_create');
     }
     public function store(FormCodeRequest $request)
     {
-        if (session('main') !== auth()->user()->id) {
-            return view('login');
-        }
+        Gate::authorize('check-permission', ['codes', 2]);
 
         $request->validated();
 
@@ -91,18 +84,14 @@ class CauseController extends Controller
 
     public function show(Cause $cause)
     {
-        if (session('main') !== auth()->user()->id) {
-            return view('login');
-        }
+        Gate::authorize('check-permission', ['codes', 1]);
 
         return view('codes.cause.cause_delete', ['cause' => $cause]);
     }
 
     public function edit($cause)
     {
-        if (session('main') !== auth()->user()->id) {
-            return view('login');
-        }
+        Gate::authorize('is-main-adm');
 
         $decrypt_id = $this->crypt->tryDecrypt($cause);
         if ($decrypt_id) {
@@ -113,9 +102,7 @@ class CauseController extends Controller
 
     public function update(FormCodeRequest $request, string $id)
     {
-        if (session('main') !== auth()->user()->id) {
-            return view('login');
-        }
+        Gate::authorize('is-main-adm');
 
         $request->validated();
 
@@ -129,9 +116,7 @@ class CauseController extends Controller
 
     public function destroy(string $id)
     {
-        if (session('main') !== auth()->user()->id) {
-            return view('login');
-        }
+        Gate::authorize('check-permission', ['codes', 2]);
 
         $deleted = $this->cause->where('id', $id)->delete();
 
@@ -143,9 +128,7 @@ class CauseController extends Controller
 
     public function restore(string $id)
     {
-        if (session('main') !== auth()->user()->id) {
-            return view('login');
-        }
+        Gate::authorize('check-permission', ['codes', 2]);
 
         $decrypt_id = $this->crypt->tryDecrypt($id);
         if (!$decrypt_id) {
@@ -162,9 +145,7 @@ class CauseController extends Controller
 
     public function desativate(string $id)
     {
-        if (session('main') !== auth()->user()->id) {
-            return view('login');
-        }
+        Gate::authorize('check-permission', ['codes', 2]);
 
         $decrypt_id = $this->crypt->tryDecrypt($id);
         if (!$decrypt_id) {

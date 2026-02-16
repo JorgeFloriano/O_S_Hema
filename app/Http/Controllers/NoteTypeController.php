@@ -6,6 +6,7 @@ use App\Http\Requests\FormCodeRequest;
 use App\Models\NoteType;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Contracts\Encryption\DecryptException;
+use Illuminate\Support\Facades\Gate;
 
 class NoteTypeController extends Controller
 {
@@ -18,9 +19,7 @@ class NoteTypeController extends Controller
     }
     public function index()
     {
-        if (session('main') !== auth()->user()->id) {
-            return view('login');
-        }
+        Gate::authorize('check-permission', ['codes', 1]);
 
         session()->put('table', 'note_types');
 
@@ -29,10 +28,7 @@ class NoteTypeController extends Controller
 
     public function list(bool $opt)
     {
-
-        if (session('main') !== auth()->user()->id) {
-            return view('login');
-        }
+        Gate::authorize('check-permission', ['codes', 1]);
 
         if ($opt == 0) {
             $note_types = $this->note_type->select('id', 'description')->onlyTrashed()->simplePaginate(20);
@@ -65,18 +61,14 @@ class NoteTypeController extends Controller
 
     public function create()
     {
-        if (session('main') !== auth()->user()->id) {
-            return view('login');
-        }
+        Gate::authorize('check-permission', ['codes', 2]);
 
         return view('codes.note_type.note_type_create');
     }
 
     public function store(FormCodeRequest $request)
     {
-        if (session('main') !== auth()->user()->id) {
-            return view('login');
-        }
+        Gate::authorize('check-permission', ['codes', 2]);
 
         $request->validated();
 
@@ -92,18 +84,14 @@ class NoteTypeController extends Controller
 
     public function show(NoteType $note_type)
     {
-        if (session('main') !== auth()->user()->id) {
-            return view('login');
-        }
+        Gate::authorize('check-permission', ['codes', 1]);
 
         return view('codes.note_type.note_type_delete', ['note_type' => $note_type]);
     }
 
     public function edit($note_type)
     {
-        if (session('main') !== auth()->user()->id) {
-            return view('login');
-        }
+        Gate::authorize('is-main-adm');
 
         try {
             $note_type = $this->note_type->find(Crypt::decryptString($note_type));
@@ -117,9 +105,7 @@ class NoteTypeController extends Controller
 
     public function update(FormCodeRequest $request, string $id)
     {
-        if (session('main') !== auth()->user()->id) {
-            return view('login');
-        }
+        Gate::authorize('is-main-adm');
 
         $request->validated();
 
@@ -133,9 +119,7 @@ class NoteTypeController extends Controller
 
     public function destroy(string $id)
     {
-        if (session('main') !== auth()->user()->id) {
-            return view('login');
-        }
+        Gate::authorize('check-permission', ['codes', 2]);
 
         $deleted = $this->note_type->where('id', $id)->delete();
 
@@ -147,9 +131,7 @@ class NoteTypeController extends Controller
 
     public function restore(string $id)
     {
-        if (session('main') !== auth()->user()->id) {
-            return view('login');
-        }
+        Gate::authorize('check-permission', ['codes', 2]);
 
         try {
             $id = Crypt::decryptString($id);
@@ -168,9 +150,7 @@ class NoteTypeController extends Controller
 
     public function desativate(string $id)
     {
-        if (session('main') !== auth()->user()->id) {
-            return view('login');
-        }
+        Gate::authorize('check-permission', ['codes', 2]);
 
         try {
             $id = Crypt::decryptString($id);

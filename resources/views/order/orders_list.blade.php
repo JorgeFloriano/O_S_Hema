@@ -54,14 +54,14 @@
                         </div>
                     </form>
 
-                    @if ($auth->canCreateSat())
+                    @can('check-permission', ['sats', 2])
                         <a href="{{route($auth->isCli() ? 'client.orders.create' : 'orders.create')}}"
                             class="btn btn-primary ms-2"
                             data-bs-toggle="tooltip"
                             title="Criar nova Solicitação de Assistência Técnica">
                             <i class="fa fa-plus"></i> Nova
                         </a>
-                    @endif
+                    @endcan
                 </div>
             </div>
 
@@ -112,13 +112,14 @@
             </form>
             {{-- Alterado: justify-content-end para alinhar tudo à direita --}}
             <div class="my-3 d-flex flex-wrap justify-content-end align-items-center" id="buttons">
-                @if ($auth->isAdm())
-                    {{-- Removido float-end (desnecessário com flexbox) e adicionado d-flex --}}
-                    <div class="d-flex align-items-center">
-                        <button onclick="formSubmit('filter_form')" data-bs-toggle="tooltip" title="Filtrar..." id="submitButton" type="submit" class="btn btn-outline-primary">
-                            <i class="fa fa-filter"></i> Filtrar
-                        </button>
 
+                {{-- Removido float-end (desnecessário com flexbox) e adicionado d-flex --}}
+                <div class="d-flex align-items-center">
+                    <button onclick="formSubmit('filter_form')" data-bs-toggle="tooltip" title="Filtrar..." id="submitButton" type="submit" class="btn btn-outline-primary">
+                        <i class="fa fa-filter"></i> Filtrar
+                    </button>
+
+                    @can('check-permission', ['sats', 2])
                         <button type="button" data-bs-toggle="modal" data-bs-target="#reportTitle" class="btn btn-outline-primary mx-2">
                             <div data-bs-toggle="tooltip" title="Gerar relatório PDF">
                                 <i class="fa fa-file-pdf-o"></i> PDF
@@ -130,16 +131,8 @@
                             class="btn btn-outline-primary">
                             <i class="fa fa-file-excel-o"></i> CSV
                         </button>
-                    </div>
-                @endif
-
-                @if ((!$auth->isAdm() && $auth->isSup()) || $auth->isCli())
-                    <div>
-                        <button onclick="formSubmit('filter_form')" data-bs-toggle="tooltip" title="Filtrar..." id="submitButton" type="submit" class="btn btn-outline-primary">
-                            <i class="fa fa-filter"></i> Filtrar
-                        </button>
-                    </div>
-                @endif
+                    @endcan
+                </div>
                 
                 {{-- Forms invisíveis (não afetam o alinhamento visual) --}}
                 <form action="{{route('orders.orders_csv')}}" id="csv_form" method="post">
@@ -202,7 +195,7 @@
                                     <td>{{$order->equipment ?? 'Não informado'}}</td>
                                     <td>{{$p->spaceAfterPunctuation($order->req_descr) ?? ''}}</td>
                                     <td>
-                                        @if ($order->finished || (!$auth->isMainAdm() && !$auth->isSup()))
+                                        @if ($order->finished || (!$auth->hasPermission('attach_tec')))
                                             <input class="form-control" disabled id="ord_{{$order->id}}" value="{{$order->tec->user->name ?? 'Indefinido'}} - [{{$order->tec->id ?? ''}}]">
                                         @else
                                             <x-unlabeled-dlist :objs="$tecs" obj="tec" des="user" place="Não selecionado" val="{{$order->tec->user->name ?? ''}} - [{{$order->tec->id ?? ''}}]" ind="{{$order->id}}" subdes="name" onfoc="clearInputs('{{$order->id}}tec', '{{$order->id}}tec_id' ,'0'), updateOrderTec('{{$order->id}}', 0)"/>
@@ -240,7 +233,7 @@
                                                                     $icon = 'edit';
                                                                     $text = 'Editar';
                                                                     $ord_creator_is_cli = Cli::where('user_id', $order->user_id)->first();
-                                                                    if ($ord_creator_is_cli || !$auth->isMainAdm() || $auth->isCli()) {
+                                                                    if ($ord_creator_is_cli || !$auth->hasPermission('sats', 2) || $auth->isCli()) {
                                                                         $icon = 'file-text-o';
                                                                         $text = 'Visualizar';
                                                                     }
@@ -251,7 +244,7 @@
                                                         @endif
                                                     </li>
 
-                                                    @if ($auth->isSup() && $order->finished) 
+                                                    @if ($auth->hasPermission('reopen_sat') && $order->finished) 
                                                         <li>
                                                             <a href="{{route('orders.reopen', ['order' => $order->id])}}" class="dropdown-item">
                                                                 <i class="fa fa-file-text-o"></i>
@@ -260,7 +253,7 @@
                                                         </li>
                                                     @endif
 
-                                                    @if ($auth->isMainAdm() || ($auth->isSup() && !$order->finished)) 
+                                                    @if ($auth->hasPermission('sats', 2) && !$order->finished)
                                                         <li><hr class="dropdown-divider"></li>
 
                                                         <li>

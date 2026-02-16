@@ -4,6 +4,7 @@
 
 @php
     use Illuminate\Support\Facades\Crypt;
+    $auth = auth()->user();
 @endphp
      <div class="container box">
         <div class="row">
@@ -13,7 +14,8 @@
                     :msg="$msg"
                     object="materials"
                     :title="$title"
-                    :opt="$opt">
+                    :opt="$opt"
+                    permission="materials">
                 </x-code-index-header>
 
                 @if ($materials->count() === 0)
@@ -24,11 +26,15 @@
                             <tr>
                                 <th>Nº</th>
                                 <th>Descrição</th>
-                                <th>Unidade de Medida</th>
-                                @if ($opt === 0)
+                                <th>Unidade</th>
+
+                                @if ($opt === 0 && $auth->isMainAdm())
                                     <th>Editar</th>
                                 @endif
-                                <th>{{$cond}}</th>
+
+                                @can('check-permission', ['materials', 2])
+                                    <th>{{$cond}}</th>
+                                @endcan
                             </tr>
                         </thead>
 
@@ -41,7 +47,7 @@
 
                                     <td>{{$material->unit}}</td>
 
-                                    @if ($opt === 0)
+                                    @if ($opt === 0 && $auth->isMainAdm())
                                         <td>
                                             <a href="{{route('materials.edit', ['material' => Crypt::encryptString($material->id)])}}" class="btn btn-outline-primary btn-sm">
                                                 <i class="fa fa-edit"></i>
@@ -49,11 +55,13 @@
                                         </td>
                                     @endif
 
-                                    <td>
-                                        <a href="{{route($route, ['material' => Crypt::encryptString($material->id)])}}" class="btn btn-sm btn-outline-primary">
-                                            <i class="fa fa-exchange"></i>
-                                        </a>
-                                    </td>
+                                    @can('check-permission', ['materials', 2])
+                                        <td>
+                                            <a href="{{route($route, ['material' => Crypt::encryptString($material->id)])}}" class="btn btn-sm btn-outline-primary">
+                                                <i class="fa fa-exchange"></i>
+                                            </a>
+                                        </td>
+                                    @endcan
                                 </tr>
                             @endforeach
                         </tbody> 

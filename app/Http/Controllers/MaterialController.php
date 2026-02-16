@@ -6,6 +6,7 @@ use App\Http\Requests\FormMaterialRequest;
 use App\Models\Material;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Contracts\Encryption\DecryptException;
+use Illuminate\Support\Facades\Gate;
 
 class MaterialController extends Controller
 {
@@ -20,9 +21,7 @@ class MaterialController extends Controller
     }
     public function index()
     {
-        if (session('main') !== auth()->user()->id && session('cli') !== auth()->user()->id) {
-            return view('login');
-        }
+        Gate::authorize('check-permission', ['materials', 1, 'materials.index function']);
 
         session()->put('table', 'materials');
 
@@ -31,10 +30,7 @@ class MaterialController extends Controller
 
     public function list(bool $opt)
     {
-
-        if (session('main') !== auth()->user()->id && session('cli') !== auth()->user()->id) {
-            return view('login');
-        }
+        Gate::authorize('check-permission', ['materials', 1, 'materials.list function']);
 
         if ($opt == 0) {
             $materials = $this->material->onlyTrashed()->orderBy('description')->simplePaginate(20);
@@ -67,18 +63,14 @@ class MaterialController extends Controller
 
     public function create()
     {
-        if (session('main') !== auth()->user()->id && session('cli') !== auth()->user()->id) {
-            return view('login');
-        }
+        Gate::authorize('check-permission', ['materials', 2]);
 
         return view('material.material_create', ['units' => $this->units]);
     }
 
     public function store(FormMaterialRequest $request)
     {
-        if (session('main') !== auth()->user()->id && session('cli') !== auth()->user()->id) {
-            return view('login');
-        }
+        Gate::authorize('check-permission', ['materials', 2]);
 
         $request->validated();
 
@@ -95,18 +87,14 @@ class MaterialController extends Controller
 
     public function show(Material $material)
     {
-        if (session('main') !== auth()->user()->id && session('cli') !== auth()->user()->id) {
-            return view('login');
-        }
+        Gate::authorize('check-permission', ['materials', 1]);
 
         return view('material.material_delete', ['material' => $material]);
     }
 
     public function edit($material)
     {
-        if (session('main') !== auth()->user()->id && session('cli') !== auth()->user()->id) {
-            return view('login');
-        }
+        Gate::authorize('is-main-adm');
 
         try {
             $material = $this->material->find(Crypt::decryptString($material));
@@ -123,9 +111,7 @@ class MaterialController extends Controller
 
     public function update(FormMaterialRequest $request, string $id)
     {
-        if (session('main') !== auth()->user()->id && session('cli') !== auth()->user()->id) {
-            return view('login');
-        }
+        Gate::authorize('is-main-adm');
 
         $request->validated();
 
@@ -139,9 +125,7 @@ class MaterialController extends Controller
 
     public function destroy(string $id)
     {
-        if (session('main') !== auth()->user()->id && session('cli') !== auth()->user()->id) {
-            return view('login');
-        }
+        Gate::authorize('authorize', ['materials', 2]);
 
         $deleted = $this->material->where('id', $id)->delete();
 
@@ -153,9 +137,7 @@ class MaterialController extends Controller
 
     public function restore(string $id)
     {
-        if (session('main') !== auth()->user()->id && session('cli') !== auth()->user()->id) {
-            return view('login');
-        }
+        Gate::authorize('check-permission', ['materials', 2]);
 
         try {
             $id = Crypt::decryptString($id);
@@ -174,9 +156,7 @@ class MaterialController extends Controller
 
     public function desativate(string $id)
     {
-        if (session('main') !== auth()->user()->id && session('cli') !== auth()->user()->id) {
-            return view('login');
-        }
+        Gate::authorize('check-permission', ['materials', 2]);
 
         try {
             $id = Crypt::decryptString($id);

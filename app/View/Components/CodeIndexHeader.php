@@ -14,10 +14,11 @@ class CodeIndexHeader extends Component
     public $title;
     public $object;
     public $objects;
+    public $permission;
     /**
      * Create a new component instance.
      */
-    public function __construct($opt, $msg, $text, $title, $object, $objects = null)
+    public function __construct($opt, $msg, $text, $title, $object, $objects = null, $permission = 'codes')
     {
         $this->opt = $opt;
         $this->msg = $msg;
@@ -25,6 +26,7 @@ class CodeIndexHeader extends Component
         $this->title = $title;
         $this->object = $object;
         $this->objects = $objects;
+        $this->permission = $permission;
     }
 
     /**
