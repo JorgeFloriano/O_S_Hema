@@ -75,141 +75,123 @@
                         @else
                             @if (!$user->isCli())
                                 <div class="mt-4" id="permissoes">
-                                    <h5 class="form-label fw-bold">Gerenciar permissões:</h5>
-                                    
-                                    <div class="row g-0 mb-3">
-                                        <div class="col-md-4">
-                                            <button class="btn btn-outline-primary w-100 my-1 first-group-btn collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdm">
-                                                Administrador 
+    <h5 class="form-label fw-bold">Gerenciar permissões:</h5>
+    
+    <div class="row g-0 mb-3">
+        <div class="col-md-5">
+            <button class="btn btn-outline-primary w-100 my-1 first-group-btn collapsed d-flex justify-content-between align-items-center" type="button" data-bs-toggle="collapse" data-bs-target="#collapseAdm">
+                <span><i class="fa fa-cogs me-1"></i> Adm.:</span>
+                <span class="small text-muted">
+                    @if ($user->hasPermission('sats')) <i class="fa fa-file-text-o ms-1"></i> @endif
+                    @if ($user->hasPermission('users')) <i class="fa fa-user-o ms-1"></i> @endif
+                    @if ($user->hasPermission('clients')) <i class="fa fa-handshake-o ms-1"></i> @endif
+                    @if ($user->hasPermission('materials')) <i class="fa fa-hdd-o ms-1"></i> @endif
+                    @if ($user->hasPermission('codes')) <i class="fa fa-bars ms-1"></i> @endif
+                </span>
+            </button>
+            <div class="collapse multi-collapse" id="collapseAdm">
+                <div class="card card-body shadow-sm mx-1 my-2">
+                    <h6>Módulos Administrativos</h6>
+                    <hr>
+                    @php
+                        $modulos = [
+                            'sats' => ['label' => 'SATs', 'icon' => 'fa-file-text-o'],
+                            'materials' => ['label' => 'Materiais', 'icon' => 'fa-hdd-o'],
+                            'clients' => ['label' => 'Clientes', 'icon' => 'fa-handshake-o'],
+                            'codes' => ['label' => 'Códigos', 'icon' => 'fa-bars'],
+                            'users' => ['label' => 'Usuários', 'icon' => 'fa-user-o']
+                        ];
+                    @endphp
+                    
+                    @foreach($modulos as $key => $data)
+                        @php
+                            $currentPerm = $user->permissions->where('name', $key)->first();
+                            $currentLevel = $currentPerm ? $currentPerm->pivot->access_level : 0;
+                        @endphp
+                        <div class="mb-2 d-flex justify-content-between align-items-center">
+                            <label class="small fw-bold mb-0 text-nowrap" for="permission_{{ $key }}">
+                                <i class="fa {{ $data['icon'] }} me-1 text-muted"></i> {{ $data['label'] }}
+                            </label>
+                            <select name="permissions[{{ $key }}]" class="form-select form-select-sm ms-2" style="max-width: 120px;" id="permission_{{ $key }}">
+                                <option value="0" {{ $currentLevel == 0 ? 'selected' : '' }}>Nenhum</option>
+                                <option value="1" {{ $currentLevel == 1 ? 'selected' : '' }}>Leitura</option>
+                                <option value="2" {{ $currentLevel == 2 ? 'selected' : '' }}>Completo</option>
+                            </select>
+                        </div>
+                    @endforeach
+                </div>
+            </div>
+        </div>
 
-                                                @if ($user->hasPermission('sats'))
-                                                    <i class="fa fa-file-text-o"></i>
-                                                @endif
+        <div class="col-md-4">
+            <button class="btn btn-outline-primary w-100 my-1 mid-group-btn collapsed d-flex justify-content-between align-items-center" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSup">
+                <span><i class="fa fa-eye me-1"></i> Sup.:</span>
+                <span class="small text-muted">
+                    @if ($user->hasPermission('attach_tec')) <i class="fa fa-file-text-o ms-1"></i> @endif
+                    @if ($user->hasPermission('manager_on_call')) <i class="fa fa-bell-o ms-1"></i> @endif
+                    @if ($user->hasPermission('reopen_sat')) <i class="fa fa-rotate-left ms-1"></i> @endif
+                </span>
+            </button>
+            <div class="collapse multi-collapse" id="collapseSup">
+                <div class="card card-body shadow-sm mx-1 my-2">
+                    <h6>Ações de Supervisão</h6>
+                    <hr>
 
-                                                @if ($user->hasPermission('users'))
-                                                    <i class="fa fa-user-o"></i>
-                                                @endif
+                    <div class="form-check mb-2">
+                        <input class="form-check-input" type="checkbox" id="compl_sup_access" name="permissions[compl_sup_access]" value="2">
+                        <label class="form-check-label small fw-bold" for="compl_sup_access">Acesso Completo</label>
+                    </div>
 
-                                                @if ($user->hasPermission('clients'))
-                                                    <i class="fa fa-handshake-o"></i>
-                                                @endif
+                    @php
+                        $acoesSup = [
+                            'attach_tec' => ['label' => 'Vincular SAT', 'icon' => 'fa-file-text-o'],
+                            'manager_on_call' => ['label' => 'Sobreaviso', 'icon' => 'fa-bell-o'],
+                            'reopen_sat' => ['label' => 'Reabrir SAT', 'icon' => 'fa-rotate-left']
+                        ];
+                    @endphp
 
-                                                @if ($user->hasPermission('materials'))
-                                                    <i class="fa fa-hdd-o"></i>
-                                                @endif
+                    @foreach($acoesSup as $key => $data)
+                        <div class="form-check form-switch mb-2 d-flex justify-content-between align-items-center ps-0">
+                            <label class="small fw-bold mb-0" for="{{ $key }}">
+                                <i class="fa {{ $data['icon'] }} me-1 text-muted"></i> {{ $data['label'] }}
+                            </label>
+                            <input class="form-check-input sup-acess ms-0" type="checkbox" id="{{ $key }}" name="permissions[{{ $key }}]" value="2"
+                            {{ $user->hasPermission($key, 2) ? 'checked' : '' }}>
+                        </div>
+                    @endforeach
 
-                                                @if ($user->hasPermission('codes'))
-                                                    <i class="fa fa-bars"></i>
-                                                @endif
+                    <small class="text-muted">* Visualizar SATs é padrão para supervisores.</small>
+                </div>
+            </div>
+        </div>
 
-                                            </button>
-                                            <div class="collapse multi-collapse" id="collapseAdm">
-                                                <div class="card card-body shadow-sm mx-1 my-2">
-                                                    <h6>Módulos Administrativos</h6>
-                                                    <hr>
-                                                    @php
-                                                        $modulos = [
-                                                            'sats' => 'SATs',
-                                                            'materials' => 'Materiais',
-                                                            'clients' => 'Clientes',
-                                                            'codes' => 'Códigos'
-                                                            ];
-                                                        //if (auth()->user()->isMainAdm()) {
-                                                            $modulos['users'] = 'Usuários';
-                                                        //}
-                                                    @endphp
-                                                    
-                                                    @foreach($modulos as $key => $label)
-                                                        @php
-                                                            // Busca a permissão atual do usuário para este módulo
-                                                            $currentPerm = $user->permissions->where('name', $key)->first();
-                                                            $currentLevel = $currentPerm ? $currentPerm->pivot->access_level : 0;
-                                                        @endphp
-                                                        <div class="mb-2 d-flex justify-content-between align-items-center">
-                                                            <label class="small fw-bold mb-0 text-nowrap" for="permission_{{ $key }}">{{ $label }}</label>
-                                                            <select name="permissions[{{ $key }}]" class="form-select form-select-sm ms-2" style="max-width: 160px;" id="permission_{{ $key }}">
-                                                                <option value="0" {{ $currentLevel == 0 ? 'selected' : '' }}>Sem Acesso</option>
-                                                                <option value="1" {{ $currentLevel == 1 ? 'selected' : '' }}>Somente Leitura</option>
-                                                                <option value="2" {{ $currentLevel == 2 ? 'selected' : '' }}>Acesso Completo</option>
-                                                            </select>
-                                                        </div>
-                                                    @endforeach
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <button class="btn btn-outline-primary w-100 my-1 mid-group-btn collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseSup">
-                                                Supervisor
-
-                                                @if ($user->hasPermission('attach_tec'))
-                                                    <i class="fa fa-file-text-o"></i>
-                                                @endif
-
-                                                @if ($user->hasPermission('manager_on_call'))
-                                                    <i class="fa fa-bell-o"></i>
-                                                @endif
-
-                                                @if ($user->hasPermission('reopen_sat'))
-                                                    <i class="fa fa-rotate-left"></i>
-                                                @endif
-
-                                            </button>
-                                            <div class="collapse multi-collapse" id="collapseSup">
-                                                <div class="card card-body shadow-sm mx-1 my-2">
-                                                    <h6>Ações de Supervisão</h6>
-                                                    <hr>
-
-                                                    <div class="form-check mb-2">
-                                                        <input class="form-check-input" type="checkbox" id="compl_sup_access" name="permissions[compl_sup_access]" value="2">
-                                                        <label class="form-check-label" for="compl_sup_access">Acesso Completo</label>
-                                                    </div>
-
-                                                    <div class="form-check form-switch mb-2">
-                                                        <input class="form-check-input sup-acess" type="checkbox" id="attach_tec" name="permissions[attach_tec]" value="2"
-                                                        {{ $user->hasPermission('attach_tec', 2) ? 'checked' : '' }}>
-                                                        <label class="form-check-label" for="attach_tec">Vincular SAT / Técnico</label>
-                                                    </div>
-
-                                                    <div class="form-check form-switch mb-2">
-                                                        <input class="form-check-input sup-acess" type="checkbox" id="manager_on_call" name="permissions[manager_on_call]" value="2"
-                                                        {{ $user->hasPermission('manager_on_call', 2) ? 'checked' : '' }}>
-                                                        <label class="form-check-label" for="manager_on_call">Gerenciar Sobreaviso</label>
-                                                    </div>
-
-                                                    <div class="form-check form-switch mb-2">
-                                                        <input class="form-check-input sup-acess" type="checkbox" id="reopen_sat" 
-                                                            name="permissions[reopen_sat]" value="2"
-                                                            {{ $user->hasPermission('reopen_sat', 2) ? 'checked' : '' }}>
-                                                        <label class="form-check-label" for="reopen_sat">Reabrir SAT</label>
-                                                    </div>
-
-                                                    <small class="text-muted">* Visualizar SATs é padrão para supervisores.</small>
-                                                </div>
-                                            </div>
-                                        </div>
-                                        <div class="col-md-4">
-                                            <button class="btn btn-outline-primary w-100 my-1 last-group-btn collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTec">
-                                                Técnico 
-                                                @if ($user->isTec())
-                                                    <i class="fa fa-check" id='tec-icon'></i>
-                                                @endif
-                                            </button>
-                                            <div class="collapse multi-collapse" id="collapseTec">
-                                                <div class="card card-body shadow-sm mx-1 my-2">
-                                                    <h6>Perfil Técnico</h6>
-                                                    <hr>
-                                                    <div class="form-check">
-                                                        <input class="form-check-input" type="checkbox" id="tech_access" 
-                                                            name="permissions[tech_access]" value="2"
-                                                            {{ $user->isTec() ? 'checked' : '' }}>
-                                                        <label class="form-check-label" for="tech_access">Habilitar Acesso</label>
-                                                    </div>
-                                                    <p class="small text-muted mt-2">O técnico visualiza apenas sua própria programação de serviços.</p>
-                                                </div>
-                                            </div>
-                                        </div>
-                                    </div>
-                                </div>
+        <div class="col-md-3">
+            <button class="btn btn-outline-primary w-100 my-1 last-group-btn collapsed d-flex justify-content-between align-items-center" type="button" data-bs-toggle="collapse" data-bs-target="#collapseTec">
+                <span><i class="fa fa-wrench me-1"></i> Téc.:</span>
+                @if ($user->isTec())
+                    <span class="small text-muted">
+                        <i class="fa fa-check" id='tec-icon'></i>
+                    </span>
+                @endif
+            </button>
+            <div class="collapse multi-collapse" id="collapseTec">
+                <div class="card card-body shadow-sm mx-1 my-2">
+                    <h6>Perfil Técnico</h6>
+                    <hr>
+                    <div class="form-check d-flex justify-content-between align-items-center ps-0">
+                        <label class="small fw-bold mb-0" for="tech_access">
+                            <i class="fa fa-check me-1 text-muted"></i> Habilitar Acesso
+                        </label>
+                        <input class="form-check-input ms-0" type="checkbox" id="tech_access" 
+                            name="permissions[tech_access]" value="2"
+                            {{ $user->isTec() ? 'checked' : '' }}>
+                    </div>
+                    <p class="small text-muted mt-2">O técnico visualiza apenas sua própria programação de serviços.</p>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
                             @endif
                         @endif
 
