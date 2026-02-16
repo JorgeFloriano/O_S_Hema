@@ -6,32 +6,27 @@ use App\Http\Requests\FormCliRequest;
 use App\Models\Client;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Contracts\Encryption\DecryptException;
+use Illuminate\Support\Facades\Gate;
 
 class ClientController extends Controller
 {
     public readonly Client $client;
-    public $m; // user is adm main or not
 
     public function __construct()
     {
         $this->client = new Client();
-        if (isset(auth()->user()->adm)) {   
-            $this->m = auth()->user()->adm()->first()->main;
-        }
     }
     
     public function index()
     {
-        // If the user isn't main and isn't client, redirect to login page
-        if (!$this->m && session('cli') !== auth()->user()->id) {
-            return view('login');
-        }
+        Gate::authorize('check-permission', ['clients', 1]);
 
         return redirect()->route('clients.list' , 1);
     }
 
     public function list(bool $opt)
     {
+        Gate::authorize('check-permission', ['clients', 1]);
 
         if ($opt == 0) {
             $clients = $this->client->select('id', 'name','unit')->orderBy('name')->onlyTrashed()->simplePaginate(20);
@@ -64,20 +59,14 @@ class ClientController extends Controller
 
     public function create()
     {
-        // If the user isn't main and isn't client, redirect to login page
-        if (!$this->m && session('cli') !== auth()->user()->id) {
-            return view('login');
-        }
+        Gate::authorize('check-permission', ['clients', 2]);
         
         return view('client.client_create');
     }
 
     public function store(FormCliRequest $request)
     {
-        // If the user isn't main and isn't client, redirect to login page
-        if (!$this->m && session('cli') !== auth()->user()->id) {
-            return view('login');
-        }
+        Gate::authorize('check-permission', ['clients', 2]);
         
         $request->validated();
 
@@ -99,14 +88,11 @@ class ClientController extends Controller
 
     public function show($client)
     {
-        // If the user isn't main and isn't client, redirect to login page
-        if (!$this->m && session('cli') !== auth()->user()->id) {
-            return view('login');
-        }
+        Gate::authorize('check-permission', ['clients', 1]);
 
         // Decrypt the client id
         try {
-            $client = $this->client->find(Crypt::decryptString($client));
+            $client = $this->client->withTrashed()->find(Crypt::decryptString($client));
         } catch (DecryptException $e) {
             echo 'Erro de desencriptação.';
             die;
@@ -117,10 +103,7 @@ class ClientController extends Controller
 
     public function edit($client)
     {
-        // If the user isn't main and isn't client, redirect to login page
-        if (!$this->m && session('cli') !== auth()->user()->id) {
-            return view('login');
-        }
+        Gate::authorize('is-main-adm');
 
         // Decrypt the client id
         try {
@@ -135,10 +118,7 @@ class ClientController extends Controller
 
     public function update(FormCliRequest $request, string $id)
     {
-        // If the user isn't main and isn't client, redirect to login page
-        if (!$this->m && session('cli') !== auth()->user()->id) {
-            return view('login');
-        }
+        Gate::authorize('is-main-adm');
 
         $request->validated();
         
@@ -152,10 +132,7 @@ class ClientController extends Controller
 
     public function destroy(string $id)
     {
-        // If the user isn't main and isn't client, redirect to login page
-        if (!$this->m && session('cli') !== auth()->user()->id) {
-            return view('login');
-        }
+        Gate::authorize('check-permission', ['clients', 2]);
         
         $deleted = $this->client->where('id', $id)->delete();
 
@@ -167,10 +144,7 @@ class ClientController extends Controller
 
     public function restore(string $id)
     {
-        // If the user isn't main and isn't client, redirect to login page
-        if (!$this->m && session('cli') !== auth()->user()->id) {
-            return view('login');
-        }
+        Gate::authorize('check-permission', ['clients', 2]);
 
         try {
             $id = Crypt::decryptString($id);
@@ -189,10 +163,7 @@ class ClientController extends Controller
 
     public function desativate(string $id)
     {
-        // If the user isn't main and isn't client, redirect to login page
-        if (!$this->m && session('cli') !== auth()->user()->id) {
-            return view('login');
-        }
+        Gate::authorize('check-permission', ['clients', 2]);
 
         try {
             $id = Crypt::decryptString($id);

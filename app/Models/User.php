@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Foundation\Auth\User as Authenticatable;
 use Illuminate\Notifications\Notifiable;
 use Illuminate\Support\Facades\Artisan;
+use Illuminate\Support\Facades\Gate;
 use Laravel\Sanctum\HasApiTokens;
 
 class User extends Authenticatable
@@ -148,13 +149,13 @@ class User extends Authenticatable
 
     public function canSeeSat(): bool
     {
-        return $this->isHemaTeam() || $this->clientCanSeeSat();
+        return $this->hasPermission('sats', 1) || $this->clientCanSeeSat();
     }
 
     public function canCreateSat(): bool
     {
         // If user is a client with access to create sat or is a supervisor, return true
-        return $this->clientCanCreateSat() || $this->isSup() || $this->isAdm();
+        return $this->clientCanCreateSat() || $this->hasPermission('sats', 2);
     }
 
     public function canDeleteSat($order): bool
@@ -279,6 +280,16 @@ class User extends Authenticatable
         return $this->name . ' ' . $this->surname;
     }
 
+    public function reopenOrder($order_id)
+    {
+        Gate::authorize('check-permission', ['reopen_sat', 1, 'reopenOrder function']);
+
+        $order = Order::find($order_id);
+        $order_reopened = $order->finished = 0;
+        $order_reopened = $order->save();
+        return $order_reopened;
+    }
+
     public function resetAllEmergencies()
     {
         // Chama o comando que criamos internamente
@@ -333,6 +344,10 @@ class User extends Authenticatable
      */
     public function hasPermission($permissionName, $level = 1)
     {
+        if ($this->isMainAdm()) {
+            return true;
+        }
+
         // Busca a permissão dentro da coleção carregada do usuário
         $permission = $this->permissions->where('name', $permissionName)->first();
 

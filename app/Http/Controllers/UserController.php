@@ -21,11 +21,11 @@ use Illuminate\Support\Facades\Gate;
 
 class UserController extends Controller
 {
-    public readonly User $user;
+    public readonly User $auth;
 
     public function __construct()
     {
-        $this->user = Auth::user();
+        $this->auth = Auth::user();
     }
 
     public function index()
@@ -111,7 +111,7 @@ class UserController extends Controller
     {
         Gate::authorize('is-main-adm');
 
-        auth()->user()->resetAllEmergencies();
+        $this->auth->resetAllEmergencies();
         return redirect()->back()->with('message', 'Todas as notificações de emergência foram imterrompidas.');
     }
 
@@ -254,18 +254,13 @@ class UserController extends Controller
             die;
         }
 
-        // If user main try to edit another user main return false
-        if (!auth()->user()->editUserPermission($user->id)) {
-            return view('login');
-        }
-
         return view('user.user_delete', ['user' => $user]);
     }
 
     // Shows the form to edit the user registration
     public function edit(string $user)
     {
-        Gate::authorize('is-main-adm');
+        Gate::authorize('check-permission', ['users', 2]);
 
         // Decrypt the user id
         try {
@@ -274,8 +269,6 @@ class UserController extends Controller
             echo 'Erro de desencriptação.';
             die;
         }
-
-        Gate::authorize('check-permission', ['users', 2]);
 
         // Carrega o usuário com suas permissões já vinculadas
         $user = User::with('permissions')->findOrFail($user->id);
@@ -289,7 +282,7 @@ class UserController extends Controller
 
     public function update(FormUpdateUserRequest $request, string $id)
     {
-        Gate::authorize('is-main-adm');
+        Gate::authorize('check-permission', ['users', 2]);
 
         $user = User::findOrFail($id);
 

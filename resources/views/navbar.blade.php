@@ -36,14 +36,14 @@
             'route' => route('clients.index'),
             'icon'  => 'fa-handshake-o',
             'active'=> Request::is('*clients*'),
-            'show'  => $user->canAcessClientsAndMaterials()
+            'show'  => $user->isAdm()
         ],
         [
             'label' => 'Materiais',
             'route' => route('materials.index'),
             'icon'  => 'fa-hdd-o',
             'active'=> Request::is('*material*'),
-            'show'  => $user->canAcessClientsAndMaterials()
+            'show'  => $user->isTec()
         ],
         [
             'label' => 'Usuários',
@@ -123,7 +123,7 @@
                 @endforeach
 
                 {{-- Dropdown de Códigos (Lógica especial) --}}
-                @if ($user->isMainAdm())
+                {{-- @if ($user->isMainAdm()) --}}
                     <li class="nav-item dropdown">
                         <a class="nav-link me-2 dropdown-toggle {{ Request::is('*order_types*', '*note_types*', '*defects*', '*causes*', '*solutions*') ? 'fw-bold active border-bottom border-white pb-1' : '' }}" 
                         href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -139,7 +139,7 @@
                             @endforeach
                         </ul>
                     </li>
-                @endif
+                {{-- @endif --}}
             </ul>
         </div>
     </div>

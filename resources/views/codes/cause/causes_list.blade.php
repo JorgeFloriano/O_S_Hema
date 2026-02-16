@@ -4,6 +4,7 @@
 
 @php
     use Illuminate\Support\Facades\Crypt;
+    $auth = auth()->user();
 @endphp
      <div class="container box">
         <div class="row">
@@ -24,10 +25,14 @@
                             <tr>
                                 <th>Nº</th>
                                 <th>Descrição</th>
-                                @if ($opt === 0)
+
+                                @if ($opt === 0 && $auth->isMainAdm())
                                     <th>Editar</th>
                                 @endif
-                                <th>{{$cond}}</th>
+
+                                @can('check-permission', ['codes', 2])
+                                    <th>{{$cond}}</th>
+                                @endcan
                             </tr>
                         </thead>
 
@@ -35,9 +40,9 @@
                             @foreach ($causes as $cause)
                                 <tr>
                                     <td>{{$cause->id}}</td>
-
                                     <td>{{$cause->description}}</td>
-                                    @if ($opt === 0)
+                                    
+                                    @if ($opt === 0 && $auth->isMainAdm())
                                         <td>
                                             <a href="{{route('causes.edit', ['cause' => Crypt::encryptString($cause->id)])}}" class="btn btn-outline-primary btn-sm">
                                                 <i class="fa fa-edit"></i>
@@ -45,11 +50,13 @@
                                         </td>
                                     @endif
 
-                                    <td>
-                                        <a href="{{route($route, ['cause' => Crypt::encryptString($cause->id)])}}" class="btn btn-sm btn-outline-primary">
-                                            <i class="fa fa-exchange"></i>
-                                        </a>
-                                    </td>
+                                    @can('check-permission', ['codes', 2])
+                                        <td>
+                                            <a href="{{route($route, ['cause' => Crypt::encryptString($cause->id)])}}" class="btn btn-sm btn-outline-primary">
+                                                <i class="fa fa-exchange"></i>
+                                            </a>
+                                        </td>
+                                    @endcan
                                 </tr>
                             @endforeach
                         </tbody> 

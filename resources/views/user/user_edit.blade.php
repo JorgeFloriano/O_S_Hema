@@ -114,9 +114,9 @@
                                                             'clients' => 'Clientes',
                                                             'codes' => 'Códigos'
                                                             ];
-                                                        if (auth()->user()->isMainAdm()) {
+                                                        //if (auth()->user()->isMainAdm()) {
                                                             $modulos['users'] = 'Usuários';
-                                                        }
+                                                        //}
                                                     @endphp
                                                     
                                                     @foreach($modulos as $key => $label)
@@ -221,7 +221,7 @@
                         @endif
 
                         <div class="my-2">
-                            <button id="submitButton" type="submit" class="btn btn-primary me-2" data-bs-dismiss="modal">
+                            <button type="submit" class="btn btn-primary me-2">
                                 <i class="fa fa-check"></i> Confirma
                             </button>
                             <a href="{{route(auth()->id() == $user->id ? 'orders.index' : 'users.index')}}" class="btn btn-outline-primary">

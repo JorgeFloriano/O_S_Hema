@@ -13,7 +13,9 @@ use App\Models\Cli;
 use App\Models\User;
 use App\Class\Logger;
 use App\Class\TextFormat;
+use App\Models\Adm;
 use App\Models\Material;
+use App\Models\Sup;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Contracts\Encryption\DecryptException;
@@ -22,18 +24,14 @@ use Carbon\Carbon;
 use Webklex\PDFMerger\Facades\PDFMergerFacade as PDFMerger;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Support\Facades\Auth;
 
 class OrderController extends Controller
 {
     public readonly Order $os;
-    public $m; // main administrator
-    public $s; // supervisor
-    public $a; // administrator
-    public $t; // technician
-    public $o; // technician on call
+    public readonly User $auth;
     public $logger; // logger class
     public $text; // text format functions
-    public $auth; // auth user
     public function __construct()
     {
         // Set a nem service order
@@ -45,32 +43,12 @@ class OrderController extends Controller
         // Class with text format functions
         $this->text = new TextFormat;
 
-        // user is admin main or not
-        if (isset(auth()->user()->adm)) {
-            $this->m = auth()->user()->adm()->first()->main;
-        }
-
-        // user is technician on call or not
-        if (isset(auth()->user()->tec)) {
-            $this->o = auth()->user()->tec()->first()->on_call;
-        }
-
-        // user is supervisor or not
-        $this->s = auth()->user()->sup()->first();
-
-        // user is administrator or not
-        $this->a = auth()->user()->adm()->first();
-
-        // user is technician or not
-        $this->t = auth()->user()->tec()->first();
+        $this->auth = Auth::user();
     }
 
     public function index()
     {
-        // If user is not suprevisor or administrator, redirect to login
-        if (!$this->s && !$this->a) {
-            return view('login');
-        }
+        Gate::authorize('check-permission', ['sats', 1]);
 
         $clients = Client::select('id', 'name')->orderBy('name')->get();
 
@@ -111,9 +89,9 @@ class OrderController extends Controller
             'able_btn' => $able_btn ?? '',
             'tecs' => $tecs->sortBy('user.name'),
             'clients' => $clients,
-            'main' => $this->m ?? null,
-            'sup' => $this->s ?? null,
-            'adm' => $this->a ?? null,
+            'main' => $this->auth->isMainAdm() ?? null,
+            'sup' => $this->auth->isSup() ?? null,
+            'adm' => $this->auth->isAdm() ?? null,
             'old_client' => 'Cliente (todos)',
             'old_tec' => 'Técnico (todos)',
             'old_finished' => 2,
@@ -124,6 +102,8 @@ class OrderController extends Controller
 
     public function search(Request $request)
     {
+        Gate::authorize('check-permission', ['sats', 1]);
+
         $validated = $request->validate([
             'search' => 'required|numeric|max:999999999|min:1',
         ]);
@@ -143,9 +123,9 @@ class OrderController extends Controller
             'able_btn' => $able_btn ?? '',
             'tecs' => $tecs->sortBy('user.name'),
             'clients' => Client::select('id', 'name')->orderBy('name')->get(),
-            'main' => $this->m ?? null,
-            'sup' => $this->s ?? null,
-            'adm' => $this->a ?? null,
+            'main' => $this->auth->isMainAdm() ?? null,
+            'sup' => $this->auth->isSup() ?? null,
+            'adm' => $this->auth->isAdm() ?? null,
             'old_client' => 'Cliente (todos)',
             'old_tec' => 'Técnico (todos)',
             'old_finished' => 2,
@@ -157,10 +137,7 @@ class OrderController extends Controller
     // Show the form for filtering orders
     public function filter(FormFilterRequest  $request)
     {
-        // If user is not suprevisor or administrator, redirect to login
-        if (!$this->s && !$this->a) {
-            return view('login');
-        }
+        Gate::authorize('check-permission', ['sats', 1]);
 
         $request->validated();
 
@@ -275,9 +252,9 @@ class OrderController extends Controller
             'able_btn' => $able_btn ?? '',
             'tecs' => $tecs->sortBy('user.name'),
             'clients' => Client::select('id', 'name')->orderBy('name')->get(),
-            'main' => $this->m ?? null,
-            'sup' => $this->s ?? null,
-            'adm' => $this->a ?? null,
+            'main' => $this->auth->isMainAdm() ?? null,
+            'sup' => $this->auth->isSup() ?? null,
+            'adm' => $this->auth->isAdm() ?? null,
             'date_s' => $request->date_start,
             'date_e' => $request->date_end,
             'old_client' => $old_client ?? 'Cliente (todos)',
@@ -316,15 +293,10 @@ class OrderController extends Controller
     // Create a new order
     public function store(FormOrderRequest $request)
     {
-
-        // If user is not administrator or on call technician, redirect to login
-        if (!$this->a && !$this->o && !$this->s) {
-            return view('login');
-        }
+        // Bloqueia se o usuário não tiver permissão de escrita (nível 2)
+        Gate::authorize('check-permission', ['sats', 2]);
 
         $request->validated();
-
-        $auth = auth()->user();
 
         // If there is no contact name, then use the name of the client that was selected
         $cont_name_client = $request->req_name;
@@ -338,7 +310,7 @@ class OrderController extends Controller
             'order_type_id' => $request->order_type_id,
             'sector' => $request->sector,
             'req_name' => $cont_name_client,
-            'user_id' => $auth->id,
+            'user_id' => $this->auth->id,
             'equipment' => $request->equipment,
             'req_date' => $request->req_date,
             'req_time' => $request->req_time,
@@ -350,7 +322,7 @@ class OrderController extends Controller
         // $created->notificationWhenOpenedByClient();
 
         $msg = $created ? 'Solicitação de Assistência Técnica criada com sucesso.' : 'Erro ao criar Solicitação de Assistência Técnica.';
-        $route = $this->o && !$this->a ? 'notes.index' : 'orders.index';
+        $route = $this->auth->isTec() && !$this->auth->isAdm() ? 'notes.index' : 'orders.index';
         $route = session('reference_router_back') ?? 'orders.index';
         return redirect()->route($route)->with('message', $msg);
     }
@@ -358,11 +330,7 @@ class OrderController extends Controller
     // Shows the form to delete the order
     public function show($order)
     {
-        // Only administrators, main administrators or supervisors can delete orders
-        if (!$this->a && !$this->s) {
-            return view('login');
-        }
-
+        Gate::authorize('check-permission', ['sats', 1]);
 
         // Decrypt the order id
         try {
@@ -379,10 +347,7 @@ class OrderController extends Controller
     // Shows the form to edit the order
     public function edit($order)
     {
-        // Only administrators can edit orders, supervisors can just see them
-        if (!$this->a && !$this->s) {
-            return view('login');
-        }
+        Gate::authorize('check-permission', ['sats', 1]);
 
         // Decrypt the order id
         try {
@@ -416,7 +381,7 @@ class OrderController extends Controller
         $disabled = '';
         $title = 'Editar ';
         $confirm_button = true;
-        if (isset($ord_creator_is_cli) || !$this->a || (session('reference_router_back') == 'tec_on')) {
+        if (isset($ord_creator_is_cli) || !$this->auth->hasPermission('sats', 2) || (session('reference_router_back') == 'tec_on')) {
             $disabled = 'disabled';
             $title = 'Informações da ';
             $confirm_button = false;
@@ -438,9 +403,7 @@ class OrderController extends Controller
     // Only administrators can update orders.
     public function update(FormOrderRequest $request, string $id)
     {
-        if (!$this->a) {
-            return view('login');
-        }
+        Gate::authorize('check-permission', ['sats', 2]);
 
         $request->validated();
 
@@ -451,7 +414,7 @@ class OrderController extends Controller
         $updated = $this->os->where('id', $id)->update($request->except(['_token', '_method', 'adm_id', 'tec_id', 'client', 'req_descr']));
 
         $os = Order::find($id);
-        $os->user_id = auth()->user()->id;
+        $os->user_id = $this->auth->id;
         $os->req_descr = $this->text->spaceAfterPunctuation($request->req_descr);
         $updated_adm = $os->save();
 
@@ -462,9 +425,7 @@ class OrderController extends Controller
     // Only administrators can delete orders
     public function destroy(string $id)
     {
-        if (!$this->a && !$this->m && !$this->s) {
-            return view('login');
-        }
+        Gate::authorize('check-permission', ['sats', 2]);
 
         $order = $this->os->find($id);
         // Limpa o estado de emergência dos técnicos
@@ -490,8 +451,8 @@ class OrderController extends Controller
 
     public function finish($order)
     {
-        if (!$this->t) {
-            return view('login');
+        if (!$this->auth->isTec()) {
+            return redirect()->route('orders.index')->with('message', 'Usuário sem acesso para finalizar SAT.');
         }
 
         // Decrypt the order id
@@ -509,20 +470,20 @@ class OrderController extends Controller
 
     public function reopen($id)
     {
-        if (!$this->s) {
-            return redirect()->route(session('reference_router_back') ?? 'notes.index')->with('message', 'Somente supervisores tem permissão para reabrir Solicitações de Assistência Técnica.');
+        Gate::authorize('check-permission', ['reopen_sat', 2, 'reopen function']);
+
+        if ($this->auth->reopenOrder($id)) {
+            return redirect()->route(session('reference_router_back') ?? 'orders.index')->with('message', 'Solicitação de Assistência Técnica reaberta com sucesso.');
         }
 
-        if ($this->s->reopenOrder($id)) {
-            return redirect()->route(session('reference_router_back') ?? 'notes.index')->with('message', 'Solicitação de Assistência Técnica reaberta com sucesso.');
-        }
-
-        return redirect()->route(session('reference_router_back') ?? 'notes.index')->with('message', 'Erro ao reabrir Solicitação de Assistência Técnica.');
+        return redirect()->route(session('reference_router_back') ?? 'orders.index')->with('message', 'Erro ao reabrir Solicitação de Assistência Técnica.');
     }
 
     // Shows the PDF for the order
     public function show_pdf($order)
     {
+        Gate::authorize('check-permission', ['sats', 1, 'show_pdf function']);
+
         // Decrypt the order id
         try {
             $order = $this->os->find(Crypt::decryptString($order));
@@ -541,10 +502,7 @@ class OrderController extends Controller
     // Starts the process of generating the report (generate front page)-----------------------------------------
     public function orders_pdf(Request $request)
     {
-        if (!$this->a) {
-            $this->logger->log('error', 'Error, access denied (order/orders_pdf), user is not an administrator.');
-            return view('login');
-        }
+        Gate::authorize('check-permission', ['sats', 2, 'orders_pdf function']);
 
         if ($request->ids == 0 || $request->ids == '0') {
             $this->logger->log('error', 'Error, access denied (order/orders_pdf), no orders selected.');
@@ -664,6 +622,7 @@ class OrderController extends Controller
     // Function to loop for each client continuing the report (pages and resume)----------------------------------   
     public function generate_pdf($msg)
     {
+        Gate::authorize('check-permission', ['sats', 2, 'generate_pdf function']);
 
         if ($msg == 'continue') {
             if (session()->has('order_client_ids') || session()->has('order_count_client_ids')) {
@@ -762,7 +721,7 @@ class OrderController extends Controller
                 $file = public_path('relatório.pdf');
 
                 // Get the total number of pages of the "relatório.pdf"
-                $totalPages = $this->a->fileCountPages($file);
+                $totalPages = $this->auth->adm->fileCountPages($file);
 
                 // If dont exists $totalPages, if $totalPages < 4, if $totalPages != $expected_pages or any session variable doesnt exists return error
                 if (
@@ -789,9 +748,7 @@ class OrderController extends Controller
     // Only main administrators or supervisors can change the on call technician
     public function ord_tec_update(Request $request, $id)
     {
-        if (!$this->s && !$this->m) {
-            return view('login');
-        }
+        Gate::authorize('check-permission', ['attach_tec', 1, 'orders_pdf function']);
 
         $order = session('ords')->where('id', $id)->first();
 
@@ -801,11 +758,7 @@ class OrderController extends Controller
     // Add orders for testing
     public function add($qtd)
     {
-
-        // If user is not administrator or on call technician, redirect to login
-        if (!$this->a && !$this->o) {
-            return view('login');
-        }
+        Gate::authorize('is-main-adm');
 
         for ($i = 0; $i < $qtd; $i++) {
             //Create new orders
@@ -814,8 +767,8 @@ class OrderController extends Controller
                 'order_type_id' => 1,
                 'sector' => 'Sector' . $i,
                 'req_name' => 'Solicitante' . $i,
-                'user_id' => auth()->user()->id,
-                'tec_id' => auth()->user()->tec()->first()->id,
+                'user_id' => $this->auth->id,
+                'tec_id' => $this->auth->tec()->first()->id,
                 'equipment' => 'Equipamento' . $i,
                 'req_date' => date('Y-m-d'),
                 'req_time' => date('H:i'),
@@ -824,17 +777,14 @@ class OrderController extends Controller
         }
 
         $msg = $created ? 'Solicitações de Assistência Técnica para testes criadas com sucesso.' : 'Erro ao criar Solicitações de Assistência Técnica para testes.';
-        $route = $this->o && !$this->a ? 'notes.index' : 'orders.index';
+        $route = $this->auth->isTec() && !$this->auth->isAdm() ? 'notes.index' : 'orders.index';
         return redirect()->route($route)->with('message', $msg);
     }
 
     // Funcion to generate csv file of the selected orders
     public function orders_csv(Request $request)
     {
-        if (!$this->a) {
-            $this->logger->log('error', 'Error, access denied (order/orders_csv), user is not an administrator.');
-            return view('login');
-        }
+        Gate::authorize('check-permission', ['sats', 2, 'order.orders_csv function']);
 
         if ($request->csv_ids == 0 || $request->csv_ids == '0') {
             $this->logger->log('error', 'Error, access denied (order/orders_csv), no orders selected.');
@@ -1041,10 +991,7 @@ class OrderController extends Controller
     // Update business hours
     public function updateBusinessHours(Request $request)
     {
-
-        if (!$this->m) {
-            return view('login');
-        }
+        Gate::authorize('is-main-adm');
 
         foreach ($request->hours as $dayIndex => $data) {
             DB::table('business_hours')->updateOrInsert(

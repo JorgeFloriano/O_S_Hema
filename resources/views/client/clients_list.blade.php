@@ -4,6 +4,7 @@
 
 @php
     use Illuminate\Support\Facades\Crypt;
+    $auth = auth()->user();
 @endphp
      <div class="container box">
         <div class="row">
@@ -18,9 +19,11 @@
 
                     {{-- Botões à direita (quando couber) --}}
                     <div class="mb-2">
-                        <a href="{{route('clients.create')}}" class="btn btn-primary me-2">
-                            <i class="fa fa-plus"></i> Cadastrar Novo
-                        </a>
+                        @can('check-permission', ['clients', 2])
+                            <a href="{{route('clients.create')}}" class="btn btn-primary me-2">
+                                <i class="fa fa-plus"></i> Cadastrar Novo
+                            </a>
+                        @endcan
                         <a href="{{route('clients.list', ['opt' => $opt])}}" class="btn btn-outline-primary"> 
                             <i class="fa fa-{{$icon}}" aria-hidden="true"></i> {{$title}}
                         </a>
@@ -40,10 +43,18 @@
                                 <th>Nº</th>
                                 <th>Nome</th>
                                 <th>Unidade</th>
-                                @if ($opt === 0)
+
+                                @if ($opt === 0 && $auth->isMainAdm())
                                     <th>Editar</th>
+                                @else
+                                    @can('check-permission', ['clients', 1])
+                                        <th>Visualizar</th>
+                                    @endcan
                                 @endif
-                                <th>{{$cond}}</th>
+
+                                @can('check-permission', ['clients', 2])
+                                    <th>{{$cond}}</th>
+                                @endcan
                             </tr>
                         </thead>
 
@@ -53,19 +64,30 @@
                                     <td>{{$client->id}}</td>
                                     <td>{{$client->name}}</td>
                                     <td>{{$client->unit}}</td>
-                                    @if ($opt === 0)
+
+                                    @if ($opt === 0 && $auth->isMainAdm())
                                         <td>
                                             <a href="{{route('clients.edit', ['client' => Crypt::encryptString($client->id)])}}" class="btn btn-outline-primary btn-sm">
                                                 <i class="fa fa-edit"></i>
                                             </a>
                                         </td>
+                                    @else
+                                        @can('check-permission', ['clients', 1])
+                                            <td>
+                                                <a href="{{route('clients.show', ['client' => Crypt::encryptString($client->id)])}}" class="btn btn-outline-primary btn-sm">
+                                                    <i class="fa fa-eye"></i>
+                                                </a>
+                                            </td>
+                                        @endcan
                                     @endif
                                     
-                                    <td>
-                                        <a href="{{route($route, ['client' => Crypt::encryptString($client->id)])}}" class="btn btn-outline-primary btn-sm">
-                                            <i class="fa fa-{{$icon}}" aria-hidden="true"></i>
-                                        </a>
-                                    </td>
+                                    @can('check-permission', ['clients', 2])
+                                        <td>
+                                            <a href="{{route($route, ['client' => Crypt::encryptString($client->id)])}}" class="btn btn-outline-primary btn-sm">
+                                                <i class="fa fa-{{$icon}}" aria-hidden="true"></i>
+                                            </a>
+                                        </td>
+                                    @endcan
                                 </tr>
                             @endforeach
                         </tbody> 

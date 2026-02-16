@@ -14,7 +14,7 @@
 
                     {{-- Botões à direita (quando couber) --}}
                     <div class="mb-2">
-                        {{-- @if (session('main') == auth()->user()->id) --}}
+                        @if (auth()->user()->isMainAdm())
                             <button type="button" class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#modalStopAlerts">
                                     <i class="fa fa-stop-circle me-3"></i>Parar Alertas
                             </button>
@@ -123,10 +123,9 @@
                                     </form>
                                 </div>
                             </div>
-                        {{-- @endif --}}
+                        @endif
                     </div>
                 </div>
-
 
                 <p>Solicitações de Assistência Técnica abertas fora do horário comercial serão consideredas emergenciais e o sistema iniciará o ciclo de notificações de alerta atravéz do aplicativo. Para que a informação chegue ao técnico desejado este dever estar com a opção de <strong>Ativo</strong> habilitado, estar vinculado ao <strong>Cliente</strong> que solicitou o serviço e sua <strong>Condição</strong> estar como disponível ( não está ocupado em outra SAT emergencial no momento ).</p>
 
