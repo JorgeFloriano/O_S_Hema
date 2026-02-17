@@ -1,6 +1,6 @@
 
 @php
-    $user = auth()->user();
+    $auth = Auth::user();
 
     $navLinks = collect([
         [
@@ -8,56 +8,56 @@
             'route' => route('client.orders.index'),
             'icon'  => 'fa-file-text-o',
             'active'=> Request::is('*orders*'),
-            'show'  => $user->isCli()
+            'show'  => $auth->isCli()
         ],
         [
             'label' => 'Usuários',
             'route' => route('client.users.index'),
             'icon'  => 'fa-user-o',
             'active'=> Request::is('*users*'),
-            'show'  => $user->isCliAdmin()
+            'show'  => $auth->isCliAdmin()
         ],
         [
             'label' => 'SATs',
             'route' => route('orders.index'),
             'icon'  => 'fa-file-text-o',
             'active'=> Request::is('*orders*'),
-            'show'  => $user->isSup() || $user->isAdm()
+            'show'  => $auth->isSup() || $auth->isAdm()
         ],
         [
             'label' => 'Programação',
             'route' => route('notes.index'),
             'icon'  => 'fa-exclamation-circle',
             'active'=> Request::is('*notes*'),
-            'show'  => $user->isTec()
+            'show'  => $auth->isTec()
         ],
         [
             'label' => 'Clientes',
             'route' => route('clients.index'),
             'icon'  => 'fa-handshake-o',
             'active'=> Request::is('*clients*'),
-            'show'  => $user->isAdm()
+            'show'  => $auth->isAdm()
         ],
         [
             'label' => 'Materiais',
             'route' => route('materials.index'),
             'icon'  => 'fa-hdd-o',
             'active'=> Request::is('*material*'),
-            'show'  => $user->isTec()
+            'show'  => $auth->isTec()
         ],
         [
             'label' => 'Usuários',
             'route' => route('users.index'),
             'icon'  => 'fa-user-o',
             'active'=> Request::is('*users*'),
-            'show'  => $user->isAdm()
+            'show'  => $auth->isAdm()
         ],
         [
             'label' => 'Sobreaviso',
             'route' => route('tec_on'),
             'icon'  => 'fa-bell-o',
             'active'=> Request::is('*tec_on*'),
-            'show'  => $user->isSup() || $user->isMainAdm()
+            'show'  => $auth->isSup() || $auth->isMainAdm()
         ],
     ])->where('show', true);
 
@@ -85,14 +85,14 @@
                 @endif
 
                 @if (auth()->check())
-                    {{auth()->user()->name}}
+                    {{$auth->name}}
                 @endif
             </a>
           
             <ul class="dropdown-menu" aria-labelledby="dropdownMenuLink">
-                @if (auth()->user()->isMainAdm() || auth()->user()->isCliAdmin())
+                @if ($auth->isHemaTeam() || $auth->isCliAdmin())
                     <li>
-                        <a class="dropdown-item" href="{{route(auth()->user()->isCli() ? 'client.users.edit' : 'users.edit', ['user' => Crypt::encryptString(auth()->user()->id)])}}">
+                        <a class="dropdown-item" href="{{$auth->profileRoute()}}">
                             <i class="fa fa-user" aria-hidden="true"></i>
                             Perfil
                         </a>
@@ -123,7 +123,7 @@
                 @endforeach
 
                 {{-- Dropdown de Códigos (Lógica especial) --}}
-                {{-- @if ($user->isMainAdm()) --}}
+                {{-- @if ($auth->isMainAdm()) --}}
                     <li class="nav-item dropdown">
                         <a class="nav-link me-2 dropdown-toggle {{ Request::is('*order_types*', '*note_types*', '*defects*', '*causes*', '*solutions*') ? 'fw-bold active border-bottom border-white pb-1' : '' }}" 
                         href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
