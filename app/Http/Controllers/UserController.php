@@ -43,6 +43,7 @@ class UserController extends Controller
             ->select('id', 'name', 'function')
             ->whereNotIn('id', $admins)
             ->whereNotIn('id', $users_cli_default)
+            //->whereNot('id', $this->auth->id)
             ->orderBy('name') // Order by the 'name' column
             ->simplePaginate(20);
 

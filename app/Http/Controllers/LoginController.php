@@ -11,6 +11,7 @@ use Illuminate\Support\Facades\Crypt;
 class LoginController extends Controller
 {
     private $logger;
+    public readonly User $auth;
 
     public function __construct()
     {
@@ -54,44 +55,35 @@ class LoginController extends Controller
 
     public function index()
     {
+        $auth = Auth::user();
+
         // Check if the user is logged out
-        if (auth()->user()) {
-
-            $cli = auth()->user()->cli()->first();
-
-            if ($cli) {
-                return redirect()->route('client.orders.index');
-            }
-
-            $adm = auth()->user()->adm()->first();
-
-            if ($adm) {
-                if ($adm->main) {
-                    return redirect()->route('orders.index');
-                }
-                return redirect()->route('orders.index');
-            }
-
-            $tec = auth()->user()->tec()->first();
-
-            if ($tec) {
-                return redirect()->route('notes.index');
-            }
-
-            $sup = auth()->user()->sup()->first();
-
-            if ($sup) {
-                return redirect()->route('orders.index');
-            }
+        if (!$auth) {
+            return view("login");
         }
-        return view("login");
+
+        if ($auth->isCli()) {
+            return redirect()->route('client.orders.index');
+        }
+
+        if ($auth->isSup() || $auth->isMainAdm()) {
+            return redirect()->route('orders.index');
+        }
+
+        if ($auth->isTec()) {
+            return redirect()->route('notes.index');
+        }
+
+        if ($auth->isAdm()) {
+            return redirect()->route('users.show', ['user' => Crypt::encryptString($auth->id)]);
+        }
     }
 
     public function store(FormLoginRequest $request)
     {
         $request->validated();
 
-        $man_user = User::where('username', 'man.system')->first();
+        //$man_user = User::where('username', 'man.system')->first();
 
         // Verify if man.system user exists--------------------------------------------
         // if (!$man_user) {
@@ -105,50 +97,37 @@ class LoginController extends Controller
         $authenticated = Auth::attempt($credentials);
 
         if (!$authenticated) {
-
             // User credentials not found log
             $this->logger->log('error', 'Credentials for user' . $request->username . ' not found');
             return redirect()->route('login.index')->withErrors(['error' => 'Credenciais inválidas']);
         }
 
-        $cli = auth()->user()->cli()->first();
-        if ($cli) {
-            // Cli log
-            $this->logger->log('info', 'Client logged in');
+        $auth = Auth::user();
 
+        if ($auth->isCli()) {
+            $this->logger->log('info', 'Client logged in');
             return redirect()->route('client.orders.index')->with([
                 'success' => 'Olá',
             ]);
         }
 
-        $sup = auth()->user()->sup()->first();
-        if ($sup) {
-
-            // Sup log
-            $this->logger->log('info', 'Supervisor logged in');
-
+        if ($auth->isSup() || $auth->isMainAdm()) {
+            $this->logger->log('info', 'Supervisor or Main Adm logged in');
             return redirect()->route('orders.index')->with([
                 'success' => 'Olá',
             ]);
         }
 
-        $tec = auth()->user()->tec()->first();
-        if ($tec) {
-
-            // Tec log
+        if ($auth->isTec()) {
             $this->logger->log('info', 'Technician logged in');
-
             return redirect()->route('notes.index')->with([
                 'success' => 'Olá',
             ]);
         }
 
-        $adm = auth()->user()->adm()->first();
-        if ($adm) {
-            // Adm log
+        if ($auth->isAdm()) {
             $this->logger->log('info', 'Administrator logged in');
-
-            return redirect()->route('users.show', ['user' => Crypt::encryptString($adm->user_id)])->with([
+            return redirect()->route('users.show', ['user' => Crypt::encryptString($auth->id)])->with([
                 'success' => 'Olá',
             ]);
         }
