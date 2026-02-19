@@ -275,6 +275,20 @@ class UserController extends Controller
             die;
         }
 
+        $adm_modules = [
+            'sats' => ['label' => 'SATs', 'icon' => 'fa-file-text'],
+            'materials' => ['label' => 'Materiais', 'icon' => 'fa-hdd-o'],
+            'clients' => ['label' => 'Clientes', 'icon' => 'fa-handshake-o'],
+            'codes' => ['label' => 'Códigos', 'icon' => 'fa-bars'],
+            'users' => ['label' => 'Usuários', 'icon' => 'fa-user']
+        ];
+
+        $sup_actions = [
+            'attach_tec' => ['label' => 'Vincular SAT', 'icon' => 'fa-file-text-o'],
+            'manager_on_call' => ['label' => 'Sobreaviso', 'icon' => 'fa-bell-o'],
+            'reopen_sat' => ['label' => 'Reabrir SAT', 'icon' => 'fa-rotate-left']
+        ];
+
         // Carrega o usuário com suas permissões já vinculadas
         $user = User::with('permissions')->findOrFail($user->id);
 
@@ -282,7 +296,7 @@ class UserController extends Controller
         // Mas para os colaboradores Hema, precisamos preparar os dados
         $clients = Client::select('id', 'name')->orderBy('name')->get();
 
-        return view('user.user_edit', compact('user', 'clients'));
+        return view('user.user_edit', compact('user', 'clients', 'adm_modules', 'sup_actions'));
     }
 
     public function update(FormUpdateUserRequest $request, string $id)
