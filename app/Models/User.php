@@ -343,7 +343,7 @@ class User extends Authenticatable
      * @param string $permissionName O nome da permissão (ex: 'sats')
      * @param int $level 1 para leitura, 2 para escrita/completo
      */
-    public function hasPermission($permissionName, $level = 1)
+    public function hasPermission(string $permissionName, int $level = 1): bool
     {
         if ($this->isMainAdm()) {
             return true;
@@ -360,16 +360,38 @@ class User extends Authenticatable
         return $permission->pivot->access_level >= $level;
     }
 
-    public function profileRoute()
+    public function permissionStyle(string $permission): array
     {
-        
-    if ($this->isCliAdmin()) {
-        return route('client.users.edit', ['user' => Crypt::encryptString($this->id)]);
-    }
-    if ($this->isMainAdm()) {
-        return route('users.edit', ['user' => Crypt::encryptString($this->id)]);
+        if (!$this->hasPermission($permission)) {
+            return [
+                'bg' => 'white',
+                'text' => 'black',
+            ];
+        }
+
+        if ($this->hasPermission($permission, 2)) {
+            return [
+                'bg' => '#d1e7dd',
+                'text' => '#0f5132',
+            ];
+        }
+
+        return [
+                'bg' => '#e2e3e5',
+                'text' => '#6c757d',
+            ];
     }
 
-    return route('users.show', ['user' => Crypt::encryptString($this->id)]);
+    public function profileRoute(): string
+    {
+
+        if ($this->isCliAdmin()) {
+            return route('client.users.edit', ['user' => Crypt::encryptString($this->id)]);
+        }
+        if ($this->isMainAdm()) {
+            return route('users.edit', ['user' => Crypt::encryptString($this->id)]);
+        }
+
+        return route('users.show', ['user' => Crypt::encryptString($this->id)]);
     }
 }
