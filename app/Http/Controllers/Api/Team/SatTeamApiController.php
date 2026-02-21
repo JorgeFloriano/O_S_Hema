@@ -6,15 +6,15 @@ use App\Class\TextFormat;
 use App\Class\ResponseJson;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
-use App\Models\Tec;
 use App\Models\User;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Auth;
 
 class SatTeamApiController extends Controller
 {
     public $can;
     public $text;
+    public readonly User $auth;
 
     public function __construct()
     {
@@ -22,6 +22,8 @@ class SatTeamApiController extends Controller
 
         // Class with text format functions
         $this->text = new TextFormat;
+
+        $this->auth = Auth::user();
     }
     /**
      * Display a listing of the resource.
@@ -36,20 +38,6 @@ class SatTeamApiController extends Controller
         if ($this->can->AuthIsSup()) {
             return $this->can->AuthIsSup();
         }
-
-        // $orders = Order::with([
-        //     'type:id,description',
-        //     'client:id,name',
-        //     'tec:id,user_id',
-        //     'tec.user:id,name,surname',
-        // ])
-        //     ->where('created_at', '>', now()->subDays(30))
-        //     ->orderBy('id', 'desc')
-        //     ->get(['id', 'order_type_id', 'client_id', 'tec_id', 'req_descr', 'req_name', 'sector', 'req_date', 'req_time', 'equipment', 'finished']);
-
-        // return response()->json([
-        //     'orders' => $orders,
-        // ]);
 
         // Tratamento do tec_id
         if ($request->tec_id === '0') {
@@ -111,9 +99,9 @@ class SatTeamApiController extends Controller
 
     public function update_tec(Request $request, $id)
     {
-        // Check if user is a supervisor
-        if ($this->can->AuthIsSup()) {
-            return $this->can->AuthIsSup();
+        // Check if user is a supervisor that can attach a technician
+        if (!$this->auth->hasPermission('attach_tec')) {
+            return $this->can->array(false, 'Usuário sem permissão para anexar técnico.', 403);
         }
 
         // Get the order

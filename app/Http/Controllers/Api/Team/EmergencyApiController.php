@@ -7,21 +7,26 @@ use App\Models\Tec;
 use App\Models\Client;
 use Illuminate\Http\Request;
 use App\Http\Controllers\Controller;
+use App\Models\User;
+use Illuminate\Support\Facades\Auth;
 
 class EmergencyApiController extends Controller
 {
     private $can;
+    private readonly User $auth;
     public function __construct()
     {
         $this->can = new ResponseJson();
+
+        $this->auth = Auth::user();
     }
 
     // Listar todos os técnicos com seus usuários e contagem de clientes
     public function index()
     {
-        // Check if user is a supervisor (Mantendo sua validação original)
-        if ($this->can->AuthIsSup()) {
-            return $this->can->AuthIsSup();
+        // Check if user is a supervisor that has 'manager_on_call' permission
+        if (!$this->auth->hasPermission('manager_on_call')) {
+            return $this->can->array(false, 'Usuário sem permissão para gerenciar sobreaviso.', 403);
         }
 
         $tecs = Tec::with([
@@ -66,9 +71,9 @@ class EmergencyApiController extends Controller
     // Ativar/Desativar o sobreaviso (O Switch do Card)
     public function toggleActive(Request $request, $id)
     {
-        // Check if user is a supervisor
-        if ($this->can->AuthIsSup()) {
-            return $this->can->AuthIsSup();
+        // Check if user is a supervisor that has 'manager_on_call' permission
+        if (!$this->auth->hasPermission('manager_on_call')) {
+            return $this->can->array(false, 'Usuário sem permissão para gerenciar condição de sobreaviso dos técnicos.', 403);
         }
 
         $tec = Tec::findOrFail($id);
@@ -82,9 +87,9 @@ class EmergencyApiController extends Controller
     // Sincronizar Clientes (O "Salvar Todos" do Modal)
     public function syncClients(Request $request, $id)
     {
-        // Check if user is a supervisor
-        if ($this->can->AuthIsSup()) {
-            return $this->can->AuthIsSup();
+        // Check if user is a supervisor that has 'manager_on_call' permission
+        if (!$this->auth->hasPermission('manager_on_call')) {
+            return $this->can->array(false, 'Usuário sem permissão para atribuir clientes aos técnicos de sobreaviso.', 403);
         }
 
         $request->validate([

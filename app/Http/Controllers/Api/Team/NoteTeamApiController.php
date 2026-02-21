@@ -65,6 +65,7 @@ class NoteTeamApiController extends Controller
         ]);
     }
 
+    // Para as notificações de emergência e atribui a SAT ao primeiro técnico que abriu a SAT
     public function clearEmergency(Request $request)
     {
         $user = Auth::user();
@@ -181,6 +182,12 @@ class NoteTeamApiController extends Controller
      */
     public function store(FormApiNoteRequest $request): JsonResponse
     {
+        // Check if user is a technician
+        if ($this->can->AuthIsTec()) {
+            return $this->can->AuthIsTec();
+        }
+
+        // Start transaction
         DB::beginTransaction();
 
         try {
@@ -307,7 +314,6 @@ class NoteTeamApiController extends Controller
         }
     }
 
-
     /**
      * Display the specified resource.
      */
@@ -326,29 +332,5 @@ class NoteTeamApiController extends Controller
         return response()->json([
             'order' => $order
         ]);
-    }
-
-    /**
-     * Show the form for editing the specified resource.
-     */
-    public function edit(string $id)
-    {
-        //
-    }
-
-    /**
-     * Update the specified resource in storage.
-     */
-    public function update(Request $request, string $id)
-    {
-        //
-    }
-
-    /**
-     * Remove the specified resource from storage.
-     */
-    public function destroy(string $id)
-    {
-        //
     }
 }

@@ -14,7 +14,7 @@ use App\Http\Controllers\Api\ExpoTokenController;
 use App\Http\Controllers\Api\Team\NoteTeamApiController;
 use App\Http\Controllers\Api\Team\SatTeamApiController;
 use App\Http\Controllers\Api\Team\EmergencyApiController;
-
+use Illuminate\Http\Request;
 
 // Hema app client routes
 Route::post('/auth/login', [LoginController::class, 'login']);
@@ -80,7 +80,29 @@ Route::middleware('auth:sanctum')->group(function () {
         Route::put('/tecs/{id}/clients', [EmergencyApiController::class, 'syncClients']);
     });
 
-    // Route::resource('/users', UserTeamApiController::class);
-    // Your other protected API routes
+    Route::get('/user-permissions', function (Request $request) {
+        // Pegamos os nomes (pode vir como array names[]=perm1&names[]=perm2 ou string separada por vírgula)
+        $names = $request->query('names');
+        $level = (int) $request->query('level', 1);
+
+        if (!$names) {
+            return response()->json(['error' => 'Nomes não fornecidos'], 400);
+        }
+
+        // Se vier como string separada por vírgula, transformamos em array
+        if (is_string($names)) {
+            $names = explode(',', $names);
+        }
+
+        $results = [];
+        $user = $request->user();
+
+        foreach ($names as $name) {
+            $results[$name] = $user->hasPermission($name, $level);
+        }
+
+        return response()->json($results);
+    });
 });
+
 Route::post('/expo-tokens/register', [ExpoTokenController::class, 'register']);

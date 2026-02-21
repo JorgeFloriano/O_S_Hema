@@ -54,14 +54,14 @@
                         </div>
                     </form>
 
-                    @can('check-permission', ['sats', 2])
+                    @if ($auth->canCreateSat())
                         <a href="{{route($auth->isCli() ? 'client.orders.create' : 'orders.create')}}"
                             class="btn btn-primary ms-2"
                             data-bs-toggle="tooltip"
                             title="Criar nova Solicitação de Assistência Técnica">
                             <i class="fa fa-plus"></i> Nova
                         </a>
-                    @endcan
+                    @endif
                 </div>
             </div>
 

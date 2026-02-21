@@ -7,7 +7,7 @@ use Illuminate\Support\Facades\Auth;
 
 class ResponseJson
 {
-    private $auth;
+    private readonly User $auth;
     public function __construct()
     {
         $this->auth = Auth::user();
@@ -102,7 +102,7 @@ class ResponseJson
 
     public function canCreateSat()
     {
-        if ($this->cliCanCreateSat() && $this->AuthIsSup())
+        if ($this->cliCanCreateSat() && !$this->auth->hasPermission('sats', 2))
             return $this->array(false, 'Usuário sem permissão para criar Solicitações de Assistência Técnica.', 403);
     }
 }

@@ -22,7 +22,7 @@
             'route' => route('orders.index'),
             'icon'  => 'fa-file-text-o',
             'active'=> Request::is('*orders*'),
-            'show'  => $auth->isSup() || $auth->isAdm()
+            'show'  => $auth->hasPermission('sats')
         ],
         [
             'label' => 'Programação',
@@ -36,28 +36,28 @@
             'route' => route('clients.index'),
             'icon'  => 'fa-handshake-o',
             'active'=> Request::is('*clients*'),
-            'show'  => $auth->isAdm()
+            'show'  => $auth->hasPermission('clients')
         ],
         [
             'label' => 'Materiais',
             'route' => route('materials.index'),
             'icon'  => 'fa-hdd-o',
             'active'=> Request::is('*material*'),
-            'show'  => $auth->isTec()
+            'show'  => $auth->hasPermission('materials')
         ],
         [
             'label' => 'Usuários',
             'route' => route('users.index'),
             'icon'  => 'fa-user-o',
             'active'=> Request::is('*users*'),
-            'show'  => $auth->isAdm()
+            'show'  => $auth->hasPermission('users')
         ],
         [
             'label' => 'Sobreaviso',
             'route' => route('tec_on'),
             'icon'  => 'fa-bell-o',
             'active'=> Request::is('*tec_on*'),
-            'show'  => $auth->isSup() || $auth->isMainAdm()
+            'show'  => $auth->hasPermission('manager_on_call')
         ],
     ])->where('show', true);
 
@@ -123,7 +123,7 @@
                 @endforeach
 
                 {{-- Dropdown de Códigos (Lógica especial) --}}
-                {{-- @if ($auth->isMainAdm()) --}}
+                @can('check-permission', ['codes', 1])
                     <li class="nav-item dropdown">
                         <a class="nav-link me-2 dropdown-toggle {{ Request::is('*order_types*', '*note_types*', '*defects*', '*causes*', '*solutions*') ? 'fw-bold active border-bottom border-white pb-1' : '' }}" 
                         href="#" id="navbarDropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
@@ -139,7 +139,7 @@
                             @endforeach
                         </ul>
                     </li>
-                {{-- @endif --}}
+                @endcan
             </ul>
         </div>
     </div>
