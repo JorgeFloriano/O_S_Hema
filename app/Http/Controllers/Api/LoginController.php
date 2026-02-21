@@ -6,7 +6,6 @@ use App\Http\Controllers\Controller;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Hash;
-use Illuminate\Support\Facades\Auth;
 use Illuminate\Validation\ValidationException;
 
 class LoginController extends Controller
@@ -20,8 +19,8 @@ class LoginController extends Controller
 
         // Find user by username or email
         $user = User::where('username', $request->username)
-                    ->orWhere('email', $request->username)
-                    ->first();
+            ->orWhere('email', $request->username)
+            ->first();
 
         if (!$user || !Hash::check($request->password, $user->password)) {
             throw ValidationException::withMessages([
@@ -63,8 +62,8 @@ class LoginController extends Controller
 
         // Find user by username
         $user = User::where('username', $request->username)
-                    //->orWhere('email', $request->username)
-                    ->first();
+            //->orWhere('email', $request->username)
+            ->first();
 
         if (!$user || !Hash::check($request->password, $user->password)) {
             throw ValidationException::withMessages([
@@ -83,20 +82,44 @@ class LoginController extends Controller
                 'name' => $user->name,
                 'email' => $user->email ?? null,
                 'tecId' => $user->tec ? $user->tec->id : null,
-                'supId' => $user->sup ? $user->sup->id : null
+                'supId' => $user->sup ? $user->sup->id : null,
+                'onCallPermission' => $user->hasPermission('manager_on_call') ? true : false
             ]
         ]);
     }
 
     public function user(Request $request)
     {
-        return response()->json($request->user());
+        $user = $request->user();
+
+        // Se for usuário de Equipe (Hema Team)
+        if ($user->tec || $user->sup) {
+            return response()->json([
+                'id' => $user->id,
+                'username' => $user->username,
+                'name' => $user->name,
+                'email' => $user->email,
+                'tecId' => $user->tec ? $user->tec->id : null,
+                'supId' => $user->sup ? $user->sup->id : null,
+                'onCallPermission' => $user->hasPermission('manager_on_call')
+            ]);
+        }
+
+        // Se for usuário Cliente
+        return response()->json([
+            'id' => $user->id,
+            'username' => $user->username,
+            'name' => $user->name,
+            'isClient' => true,
+            'clientId' => $user->cli ? $user->cli->client_id : null,
+            'isAdmin' => $user->cli ? $user->cli->is_admin : null,
+        ]);
     }
 
     public function logout(Request $request)
     {
         $request->user()->currentAccessToken()->delete();
-        
+
         return response()->json(['message' => 'Logout realizado com sucesso.']);
     }
 }

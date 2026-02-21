@@ -43,7 +43,7 @@ class UserController extends Controller
             ->select('id', 'name', 'function')
             ->whereNotIn('id', $admins)
             ->whereNotIn('id', $users_cli_default)
-            //->whereNot('id', $this->auth->id)
+            ->whereNot('id', $this->auth->id)
             ->orderBy('name') // Order by the 'name' column
             ->simplePaginate(20);
 
@@ -186,18 +186,31 @@ class UserController extends Controller
 
         $syncData = [];
 
+        if (!isset($perms['users'])) {
+            $perms['users'] = 0;
+        }
+
         // 1. Processa permissões do formulário
         foreach ($perms as $name => $level) {
-            if ($level > 0 && $name !== 'compl_sup_access') {
+            $levelToSync = $level;
+
+            // PROTEÇÃO: Se não for MainAdm e estiver mexendo em 'users'
+            if (!$this->auth->isMainAdm() && $name === 'users') {
+                // Pegamos o nível que o usuário JÁ TINHA no banco
+                $currentPerm = $user->permissions->where('name', 'users')->first();
+                $levelToSync = $currentPerm ? $currentPerm->pivot->access_level : 0;
+            }
+
+            if ($levelToSync > 0 && $name !== 'compl_sup_access') {
                 $permission = Permission::where('name', $name)->first();
                 if ($permission) {
-                    $syncData[$permission->id] = ['access_level' => $level];
+                    $syncData[$permission->id] = ['access_level' => $levelToSync];
                 }
             }
         }
 
         $isSupervisor = collect($perms)->only(['reopen_sat', 'attach_tec', 'manager_on_call'])->contains(fn($v) => $v > 0);
-        $isAdm = collect($perms)->only(['sats', 'users', 'materials', 'clients', 'codes'])->contains(fn($v) => $v > 0);
+        $isAdm = collect($perms)->only(['sats', 'materials', 'clients', 'codes', 'users'])->contains(fn($v) => $v > 0);
         $isTec = (isset($perms['tech_access']) && $perms['tech_access'] > 0) || request()->has('main_adm_tec_access');
 
         // 2. Lógica para SUPERVISOR
@@ -280,8 +293,11 @@ class UserController extends Controller
             'materials' => ['label' => 'Materiais', 'icon' => 'fa-hdd-o'],
             'clients' => ['label' => 'Clientes', 'icon' => 'fa-handshake-o'],
             'codes' => ['label' => 'Códigos', 'icon' => 'fa-bars'],
-            'users' => ['label' => 'Usuários', 'icon' => 'fa-user']
         ];
+
+        if ($this->auth->isMainAdm()) {
+            $adm_modules['users'] = ['label' => 'Usuários', 'icon' => 'fa-user'];
+        }
 
         $sup_actions = [
             'attach_tec' => ['label' => 'Vincular SAT', 'icon' => 'fa-file-text-o'],
