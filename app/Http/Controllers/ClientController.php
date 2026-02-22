@@ -83,6 +83,7 @@ class ClientController extends Controller
         if ($created) {
             return redirect()->route('clients.index')->with('message', 'Cliente cadastrado com sucesso.');
         }
+        logger_main('error', 'Client not created');
         return redirect()->route('clients.index')->with('message', 'Erro ao cadastrar cliente.');
     }
 
@@ -94,6 +95,7 @@ class ClientController extends Controller
         try {
             $client = $this->client->withTrashed()->find(Crypt::decryptString($client));
         } catch (DecryptException $e) {
+            logger_main('error', 'Decryption error (client/show).');
             echo 'Erro de desencriptação.';
             die;
         }
@@ -109,6 +111,7 @@ class ClientController extends Controller
         try {
             $client = $this->client->find(Crypt::decryptString($client));
         } catch (DecryptException $e) {
+            logger_main('error', 'Decryption error (client/edit).');
             echo 'Erro de desencriptação.';
             die;
         }
@@ -127,6 +130,7 @@ class ClientController extends Controller
         if ($updated) {
             return redirect()->back()->with('message', 'Cadastro atualizado com sucesso.');
         }
+        logger_main('error', 'Client not updated');
         return redirect()->back()->with('message', 'Erro ao atualizar cadastro.');
     }
 
@@ -139,6 +143,7 @@ class ClientController extends Controller
         if ($deleted) {
             return redirect()->route('clients.index')->with('message', 'Cadastro deletado com sucesso.');
         }
+        logger_main('error', 'Client not deleted');
         return redirect()->route('clients.index')->with('message', 'Erro ao deletar cadastro.');
     }
 
@@ -158,6 +163,7 @@ class ClientController extends Controller
         if ($restored) {
             return redirect()->route('clients.list', 0)->with('message', 'Cadastro restaurado com sucesso.');
         }
+        logger_main('error', 'Client not restored');
         return redirect()->route('clients.list', 0)->with('message', 'Erro ao restaurar cadastro.');
     }
 
@@ -177,6 +183,7 @@ class ClientController extends Controller
         if ($deleted) {
             return redirect()->route('clients.list', 1)->with('message', 'Cadastro desativado com sucesso.');
         }
+        logger_main('error', 'Client not deleted');
         return redirect()->route('clients.list', 1)->with('message', 'Erro ao desativar cadastro.');
     }
 }

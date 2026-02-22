@@ -32,6 +32,7 @@ class UserController extends Controller
     {
         // If user is not suprevisor or administrator, redirect to login
         if (!$this->auth->isCliAdmin()) {
+            logger_main('error', "Acesso Negado");
             return redirect()->route('client.orders.index')->with('message', $this->not_acess_msg);
         }
 
@@ -48,6 +49,7 @@ class UserController extends Controller
     {
         // If user is not administrator client, redirect to orders index
         if (!$this->auth->isCliAdmin()) {
+            logger_main('error', "Acesso Negado");
             return redirect()->route('client.orders.index')->with('message', $this->not_acess_msg);
         }
 
@@ -64,6 +66,7 @@ class UserController extends Controller
     {
         // If user is not administrator client, redirect to orders index
         if (!$this->auth->isCliAdmin()) {
+            logger_main('error', "Acesso Negado");
             return redirect()->route('client.orders.index')->with('message', $this->not_acess_msg);
         }
 
@@ -115,17 +118,20 @@ class UserController extends Controller
         try {
             $user = $this->auth->find(Crypt::decryptString($user));
         } catch (DecryptException $e) {
+            logger_main('error', 'Decryption error (user/show).');
             echo 'Erro de desencriptação.';
             die;
         }
 
         // Verify if logged user has permission to access user
         if (!$this->auth->clientCanAccessClient($user->id)) {
+            logger_main('error', "Acesso Negado");
             return redirect()->route('client.orders.index')->with('message', $this->not_acess_msg);
         }
 
         // Client can't delete itself
         if ($this->auth->id == $user->id) {
+            logger_main('error', "Acesso Negado");
             return redirect()->route('client.users.index')->with('message', 'Usuário não pode ser excluído.');
         }
 
@@ -135,17 +141,18 @@ class UserController extends Controller
     // Shows the form to edit the user registration
     public function edit($user)
     {
-
         // Decrypt the user id
         try {
             $user = $this->auth->find(Crypt::decryptString($user));
         } catch (DecryptException $e) {
+            logger_main('error', 'Decryption error (user/edit).');
             echo 'Erro de desencriptação.';
             die;
         }
 
         // Verify if logged user has permission to access user
         if (!$this->auth->clientCanAccessClient($user->id)) {
+            logger_main('error', "Acesso Negado");
             return redirect()->route('client.orders.index')->with('message', $this->not_acess_msg);
         }
 
@@ -164,6 +171,7 @@ class UserController extends Controller
     {
         // Verify if logged user has permission to access user
         if (!$this->auth->clientCanAccessClient($id)) {
+            logger_main('error', "Acesso Negado");
             return redirect()->route('client.orders.index')->with('message', $this->not_acess_msg);
         }
 
@@ -207,6 +215,7 @@ class UserController extends Controller
     {
         // If user main try to edit another user main return false
         if (!$this->auth->clientCanAccessClient($id)) {
+            logger_main('error', "Acesso Negado");
             return redirect()->route('client.orders.index')->with('message', $this->not_acess_msg);
         }
 
@@ -215,11 +224,13 @@ class UserController extends Controller
 
             // Check if user exists
             if (!$user) {
+                logger_main('error', 'User not found.');
                 return redirect()->route('client.users.index')->with('message', 'Usuário nao encontrado.');
             }
 
             // Prevent users from deleting their own account
             if ($user->id === Auth::id()) {
+                logger_main('error', 'User cannot delete their own account.');
                 return redirect()->route('client.users.index')->with('message', ' Vocé não pode excluir sua própria conta.');
             }
 

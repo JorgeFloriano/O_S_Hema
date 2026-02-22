@@ -21,7 +21,7 @@ class MaterialController extends Controller
     }
     public function index()
     {
-        Gate::authorize('check-permission', ['materials', 1, 'materials.index function']);
+        Gate::authorize('check-permission', ['materials', 1]);
 
         session()->put('table', 'materials');
 
@@ -30,7 +30,7 @@ class MaterialController extends Controller
 
     public function list(bool $opt)
     {
-        Gate::authorize('check-permission', ['materials', 1, 'materials.list function']);
+        Gate::authorize('check-permission', ['materials', 1]);
 
         if ($opt == 0) {
             $materials = $this->material->onlyTrashed()->orderBy('description')->simplePaginate(20);
@@ -82,6 +82,7 @@ class MaterialController extends Controller
         if ($created) {
             return redirect()->route('materials.index')->with('message', 'Código cadastrado com sucesso.');
         }
+        logger_main('error', 'Material not created');
         return redirect()->route('materials.index')->with('message', 'Erro ao cadastrar código.');
     }
 
@@ -99,6 +100,7 @@ class MaterialController extends Controller
         try {
             $material = $this->material->find(Crypt::decryptString($material));
         } catch (DecryptException $e) {
+            logger_main('error', 'Decryption error (material/edit).');
             echo 'Erro de desencriptação.';
             die;
         }
@@ -120,6 +122,7 @@ class MaterialController extends Controller
         if ($updated) {
             return redirect()->route('materials.index')->with('message', 'Cadastro atualizado com sucesso.');
         }
+        logger_main('error', 'Material not updated');
         return redirect()->route('materials.index')->with('message', 'Erro ao atualizar cadastro.');
     }
 
@@ -132,6 +135,7 @@ class MaterialController extends Controller
         if ($deleted) {
             return redirect()->route('materials.index')->with('message', 'Cadastro deletado com sucesso.');
         }
+        logger_main('error', 'Material not deleted');
         return redirect()->route('materials.index')->with('message', 'Erro ao deletar cadastro.');
     }
 
@@ -142,6 +146,7 @@ class MaterialController extends Controller
         try {
             $id = Crypt::decryptString($id);
         } catch (DecryptException $e) {
+            logger_main('error', 'Decryption error (material/restore).');
             echo 'Erro de desencriptação.';
             die;
         }
@@ -161,6 +166,7 @@ class MaterialController extends Controller
         try {
             $id = Crypt::decryptString($id);
         } catch (DecryptException $e) {
+            logger_main('error', 'Decryption error (material/desativate).');
             echo 'Erro de desencriptação.';
             die;
         }
@@ -170,6 +176,7 @@ class MaterialController extends Controller
         if ($deleted) {
             return redirect()->route('materials.list', 1)->with('message', 'Cadastro desativado com sucesso.');
         }
+        logger_main('error', 'Material not desativated');
         return redirect()->route('materials.list', 1)->with('message', 'Erro ao desativar cadastro.');
     }
 }

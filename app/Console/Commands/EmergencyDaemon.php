@@ -20,6 +20,7 @@ class EmergencyDaemon extends Command
         $lock = Cache::lock('emergency-daemon-running', 840); // Trava por 14 min
 
         if (!$lock->get()) {
+            logger_main('error', 'Já existe um Daemon rodando. Encerrando para evitar duplicidade.');
             $this->info('Já existe um Daemon rodando. Encerrando para evitar duplicidade.');
             return;
         }

@@ -31,6 +31,7 @@ class ResponseJson
         $message = 'Você já cadastrou ' . $client_users_count - 1 . ' usuários, limite atingido!';
 
         if ($client_users_count > 3) {
+            logger_main('error', $message);
             return response()->json([
                 'success' => false,
                 'error' => $message,
@@ -43,6 +44,7 @@ class ResponseJson
     public function AuthIsTec()
     {
         if (!$this->auth->tec) {
+            logger_main('error', 'Usuário sem cadastro de técnico.');
             return response()->json([
                 'success' => false,
                 'error' => 'Usuário sem cadastro de técnico.',
@@ -53,7 +55,8 @@ class ResponseJson
 
     public function AuthIsSup()
     {
-        if (!$this->auth->sup) {
+        if (!$this->auth->isSup() && !$this->auth->isMainAdm()) {
+            logger_main('error', 'Usuário sem cadastro de supervisor.');
             return response()->json([
                 'isSup' => false,
                 'success' => false,
@@ -66,6 +69,7 @@ class ResponseJson
     public function isAuth()
     {
         if (!$this->auth) {
+            logger_main('error', 'Usuário sem cadastro.');
             return $this->array(false, 'Usuário sem cadastro.', 403);
         }
     }
@@ -76,6 +80,7 @@ class ResponseJson
             return $this->isAuth();
 
         if (!$this->auth->cli) {
+            logger_main('error', 'Usuário sem cadastro de cliente.');
             return $this->array(false, 'Usuário sem cadastro de cliente.', 403);
         }
     }
@@ -86,6 +91,7 @@ class ResponseJson
             return $this->isAuthCli();
 
         if (!$this->auth->cli->can_see_sat) {
+            logger_main('error', 'Usuário sem permissão para ver Solicitações de Assistência Técnica.');
             return $this->array(false, 'Usuário sem permissão para ver Solicitações de Assistência Técnica.', 403);
         }
     }
@@ -96,6 +102,7 @@ class ResponseJson
             return $this->isAuthCli();
 
         if (!$this->auth->cli->can_create_sat) {
+            logger_main('error', 'Usuário sem permissão para criar Solicitações de Assistência Técnica.');
             return $this->array(false, 'Usuário sem permissão para criar Solicitações de Assistência Técnica.', 403);
         }
     }
@@ -103,6 +110,7 @@ class ResponseJson
     public function canCreateSat()
     {
         if ($this->cliCanCreateSat() && !$this->auth->hasPermission('sats', 2))
+            logger_main('error', 'Usuário sem permissão para criar Solicitações de Assistência Técnica.');
             return $this->array(false, 'Usuário sem permissão para criar Solicitações de Assistência Técnica.', 403);
     }
 }

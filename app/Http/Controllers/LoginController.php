@@ -59,6 +59,7 @@ class LoginController extends Controller
 
         // Check if the user is logged out
         if (!$auth) {
+            logger_main('error', 'User logged out');
             return view("login");
         }
 
@@ -77,6 +78,9 @@ class LoginController extends Controller
         if ($auth->isAdm()) {
             return redirect()->route('users.show', ['user' => Crypt::encryptString($auth->id)]);
         }
+
+        logger_main('error', 'User dont have any access');
+        return $this->destroy();
     }
 
     public function store(FormLoginRequest $request)

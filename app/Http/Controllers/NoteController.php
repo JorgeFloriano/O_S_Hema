@@ -45,6 +45,7 @@ class NoteController extends Controller
     public function index()
     {
         if (!$this->auth->tec) {
+            logger_main('error', 'Access denied (note/index).');
             return redirect()->route('orders.index')->with('message', 'Usuário sem permissão de Técnico.');
         }
 
@@ -58,6 +59,7 @@ class NoteController extends Controller
     public function create($order)
     {
         if (!$this->auth->tec) {
+            logger_main('error', 'Access denied (note/create).');
             return redirect()->route('orders.index')->with('message', 'Usuário sem permissão para preencher SAT.');
         }
 
@@ -65,6 +67,7 @@ class NoteController extends Controller
         try {
             $order = Order::find(Crypt::decryptString($order));
         } catch (DecryptException $e) {
+            logger_main('error', 'Decryption error (note/create).');
             echo 'Erro de desencriptação.';
             die;
         }
@@ -104,6 +107,7 @@ class NoteController extends Controller
     public function store(FormNoteRequest $request)
     {
         if (!$this->auth->tec) {
+            logger_main('error', 'Access denied (note/store).');
             return redirect()->route('orders.index')->with('message', 'Usuário sem permissão para salvar anotações na SAT.');
         }
 
@@ -111,6 +115,7 @@ class NoteController extends Controller
 
         // Form info can't be saved without first technician signature
         if (!isset($request->sign_t_1) || $request->sign_t_1 == $this->empit_sign) {
+            logger_main('error', 'Form info can\'t be saved without first technician signature (note/store).');
             return redirect()->back()->with('message', 'Informações não podem ser salvas sem assinatura de um Técnico.');
         }
 
@@ -157,6 +162,7 @@ class NoteController extends Controller
                     'signature' => $request->input('sign_t_2') ?? null,
                 ]);
                 if (!$cr_note_tec2) {
+                    logger_main('error', 'Erro ao salvar assinatura do Técnico 02.');
                     return redirect()->back()->with('message', 'Erro ao salvar assinatura do Técnico 02.');
                 }
             }
@@ -186,6 +192,7 @@ class NoteController extends Controller
                     'quantity' => $request->input('material_id_' . $material_id . '_qtd'),
                 ]);
                 if (!$note_material) {
+                    logger_main('error', 'Erro ao salvar materiais.');
                     return redirect()->back()->with('message', 'Erro ao salvar materiais.');
                 }
             }
@@ -198,6 +205,8 @@ class NoteController extends Controller
             }
             return redirect()->back()->with('message', 'Informações salvas com sucesso.');
         }
+
+        logger_main('error', 'Erro ao salvar informações.');
         return redirect()->back()->with('message', 'Erro ao salvar informações.');
     }
 
@@ -205,6 +214,7 @@ class NoteController extends Controller
     public function show($note)
     {
         if (!$this->auth->tec) {
+            logger_main('error', 'Access denied (note/show).');
             return redirect()->route('orders.index')->with('message', 'Usuário sem permissão para visualizar SAT.');
         }
 
@@ -245,6 +255,7 @@ class NoteController extends Controller
     public function edit($note)
     {
         if (!$this->auth->tec) {
+            logger_main('error', 'Access denied (note/edit).');
             return redirect()->route('orders.index')->with('message', 'Usuário sem permissão para editar anotações.');
         }
 
@@ -252,12 +263,14 @@ class NoteController extends Controller
         try {
             $note = $this->note->find(Crypt::decryptString($note));
         } catch (DecryptException $e) {
+            logger_main('error', 'Decryption error (note/edit).');
             echo 'Erro de desencriptação.';
             die;
         }
 
         $note->first_tec = Note::find($note->id)->tecs[0] ?? ' Não Informado';
         if ($this->auth->tec->id != $note->first_tec->id) {
+            logger_main('error', 'Access denied (note/edit).');
             return redirect()->back()->withErrors(['error' => 'Acesso não autorizado para editar anotacões de outro técnico.']);
         }
 
@@ -323,12 +336,14 @@ class NoteController extends Controller
     public function update(FormNoteRequest $request, string $id)
     {
         if (!$this->auth->tec) {
+            logger_main('error', 'Access denied (note/update).');
             return redirect()->route('orders.index')->with('message', 'Usuário sem permissão para salvar alterações em anotações.');
         }
 
         $note_first_tec = Note::find($id)->tecs[0];
 
         if ($this->auth->tec->id != $note_first_tec->id) {
+            logger_main('error', 'Access denied to update note by another technician (note/update).');
             return redirect()->back()->withErrors(['error' => 'Acesso não autorizado para editar anotacões de outro técnico.']);
         }
 
@@ -338,6 +353,7 @@ class NoteController extends Controller
         $note_tec1->signature = $request->sign_t_1;
         $s_t1_save = $note_tec1->save();
         if (!$s_t1_save) {
+            logger_main('error', 'Error updating first technician signature (note/update).');
             return redirect()->back()->with('message', 'Erro ao atualizar assinatura do Técnico 01.');
         }
 
@@ -348,6 +364,7 @@ class NoteController extends Controller
                 $note_tec2->signature = $request->sign_t_2;
                 $n_t2_save = $note_tec2->save();
                 if (!$n_t2_save) {
+                    logger_main('error', 'Error updating second technician signature (note/update).');
                     return redirect()->back()->with('message', 'Erro ao atualizar registro do Técnico 02.');
                 }
             } else {
@@ -357,6 +374,7 @@ class NoteController extends Controller
                     'signature' => $request->sign_t_2,
                 ]);
                 if (!$note_tec2) {
+                    logger_main('error', 'Error creating second technician register (note/update).');
                     return redirect()->back()->with('message', 'Erro ao criar registro do Técnico 02.');
                 }
             }
@@ -364,6 +382,7 @@ class NoteController extends Controller
 
         if ($this->auth->tec->id == $request->first_tec) {
             if (!isset($request->sign_t_1) || $request->sign_t_1 == $this->empit_sign) {
+                logger_main('error', 'Form info can\'t be saved without first technician signature (note/update).');
                 return redirect()->back()->with('message', 'Informações não podem ser salvas sem assinatura de um Técnico.');
             }
 
@@ -404,6 +423,7 @@ class NoteController extends Controller
                         'quantity' => $request->input('material_id_' . $material_id . '_qtd'),
                     ]);
                     if (!$note_material) {
+                        logger_main('error', 'Error saving materials in note (note/update).');
                         return redirect()->back()->with('message', 'Erro ao salvar materiais.');
                     }
                 }
@@ -412,14 +432,17 @@ class NoteController extends Controller
             if ($updated) {
                 return redirect()->back()->with('message', 'Registro de serviço atualizado com sucesso.');
             }
+            logger_main('error', 'Note not updated (note/update).');
             return redirect()->back()->with('message', 'Erro ao atualizar registro de serviço.');
         }
+        logger_main('error', 'Access denied to update note by another technician (note/update).');
         return redirect()->back()->with('message', 'Registro pode ser editado apenas pelo técnico executante.');
     }
 
     public function destroy(Note $note)
     {
         if (!$this->auth->tec) {
+            logger_main('error', 'Access denied (note/destroy).');
             return redirect()->route('orders.index')->with('message', 'Usuário sem permissão para deletar anotações.');
         }
 
@@ -444,10 +467,12 @@ class NoteController extends Controller
                     ->with('message', 'Registro deletado com sucesso.');
             }
 
+            logger_main('error', 'Error deleting note (note/destroy).');
             return redirect()->route('notes.create', ['order' => Crypt::encryptString($note->order_id)])
                 ->with('message', 'Erro ao deletar registro.');
         }
 
+        logger_main('error', 'Access denied to delete note by another technician (note/destroy).');
         return redirect()->back()->with('message', 'Registro pode ser deletado apenas pelo técnico executante.');
     }
 

@@ -79,6 +79,7 @@ class NoteTypeController extends Controller
         if ($created) {
             return redirect()->route('note_types.index')->with('message', 'Código cadastrado com sucesso.');
         }
+        logger_main('error', 'Note type not created');
         return redirect()->route('note_types.index')->with('message', 'Erro ao cadastrar código.');
     }
 
@@ -96,6 +97,7 @@ class NoteTypeController extends Controller
         try {
             $note_type = $this->note_type->find(Crypt::decryptString($note_type));
         } catch (DecryptException $e) {
+            logger_main('error', 'Decryption error (note_type/edit).');
             echo 'Erro de desencriptação.';
             die;
         }
@@ -114,6 +116,7 @@ class NoteTypeController extends Controller
         if ($updated) {
             return redirect()->route('note_types.index')->with('message', 'Cadastro de causa atualizado com sucesso.');
         }
+        logger_main('error', 'Note type not updated');
         return redirect()->route('note_types.index')->with('message', 'Erro ao atualizar cadastro.');
     }
 
@@ -126,6 +129,7 @@ class NoteTypeController extends Controller
         if ($deleted) {
             return redirect()->route('note_types.index')->with('message', 'Cadastro deletado com sucesso.');
         }
+        logger_main('error', 'Note type not deleted');
         return redirect()->route('note_types.index')->with('message', 'Erro ao deletar cadastro.');
     }
 
@@ -136,6 +140,7 @@ class NoteTypeController extends Controller
         try {
             $id = Crypt::decryptString($id);
         } catch (DecryptException $e) {
+            logger_main('error', 'Decryption error (note_type/restore).');
             echo 'Erro de desencriptação.';
             die;
         }
@@ -145,6 +150,7 @@ class NoteTypeController extends Controller
         if ($restored) {
             return redirect()->route('note_types.list', 0)->with('message', 'Cadastro restaurado com sucesso.');
         }
+        logger_main('error', 'Note type not restored');
         return redirect()->route('note_types.list', 0)->with('message', 'Erro ao restaurar cadastro.');
     }
 
@@ -155,6 +161,7 @@ class NoteTypeController extends Controller
         try {
             $id = Crypt::decryptString($id);
         } catch (DecryptException $e) {
+            logger_main('error', 'Decryption error (note_type/desativate).');
             echo 'Erro de desencriptação.';
             die;
         }
@@ -164,6 +171,7 @@ class NoteTypeController extends Controller
         if ($deleted) {
             return redirect()->route('note_types.list', 1)->with('message', 'Cadastro desativado com sucesso.');
         }
+        logger_main('error', 'Note type not deleted');
         return redirect()->route('note_types.list', 1)->with('message', 'Erro ao desativar cadastro.');
     }
 }

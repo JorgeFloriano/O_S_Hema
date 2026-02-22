@@ -79,6 +79,7 @@ class CauseController extends Controller
         if ($created) {
             return redirect()->route('causes.index')->with('message', 'Código cadastrado com sucesso.');
         }
+        logger_main('error', 'Cause not created');
         return redirect()->route('causes.index')->with('message', 'Erro ao cadastrar código.');
     }
 
@@ -97,6 +98,7 @@ class CauseController extends Controller
         if ($decrypt_id) {
             return view('codes.cause.cause_edit', ['cause' => $this->cause->where('id', $decrypt_id)->first()]);
         }
+        logger_main('error', 'Decryption error (cause/edit).');
         return redirect()->back()->withErrors('Erro de desencriptação.');
     }
 
@@ -111,6 +113,7 @@ class CauseController extends Controller
         if ($updated) {
             return redirect()->route('causes.index')->with('message', 'Cadastro de causa atualizado com sucesso.');
         }
+        logger_main('error', 'Cause not updated');
         return redirect()->route('causes.index')->with('message', 'Erro ao atualizar cadastro.');
     }
 
@@ -123,6 +126,7 @@ class CauseController extends Controller
         if ($deleted) {
             return redirect()->route('causes.index')->with('message', 'Cadastro deletado com sucesso.');
         }
+        logger_main('error', 'Cause not deleted');
         return redirect()->route('causes.index')->with('message', 'Erro ao deletar cadastro.');
     }
 
@@ -132,6 +136,7 @@ class CauseController extends Controller
 
         $decrypt_id = $this->crypt->tryDecrypt($id);
         if (!$decrypt_id) {
+            logger_main('error', 'Decryption error (cause/restore).');
             return redirect()->back()->withErrors('Erro de desencriptação.');
         }
 
@@ -157,6 +162,7 @@ class CauseController extends Controller
         if ($deleted) {
             return redirect()->route('causes.list', 1)->with('message', 'Cadastro desativado com sucesso.');
         }
+        logger_main('error', 'Cause not deleted');
         return redirect()->route('causes.list', 1)->with('message', 'Erro ao desativar cadastro.');
     }
 }
