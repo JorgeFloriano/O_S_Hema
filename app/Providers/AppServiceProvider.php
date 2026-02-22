@@ -30,20 +30,20 @@ class AppServiceProvider extends ServiceProvider
         });
 
         // 2. Definir gates personalizados para as permissoes 
-        Gate::define('check-permission', function (User $user, $permissionName, $level = 1, $msg = '') {
+        Gate::define('check-permission', function (User $user, $permissionName, $level = 1) {
+            // Convertemos para int pois via URL/Middleware pode vir como string
+            $level = (int) $level;
+
             if (!$user->hasPermission($permissionName, $level)) {
-                $logger = new Logger();
-                $logger->log('error', 'Error, Access denied in check-permission Gate, user '.$user->id.' - '. $user->name .' does not has '. $permissionName .' permission level ' . $level . '. Mensagem: ' . $msg);
+                // Usando o seu novo helper global logger_main para ficar mais limpo!
+                return false;
             }
-            return $user->hasPermission($permissionName, $level);
+
+            return true;
         });
 
         // 3. Opcional: Gates específicos para facilitar a leitura
         Gate::define('is-main-adm', function (User $user, $msg = '') {
-            if (!$user->isMainAdm()) {
-                $logger = new Logger();
-                $logger->log('error', 'Error, Access denied in is-main-adm Gate, user '.$user->id.' - '. $user->username .' is not adm main. Mensagem: ' . $msg);
-            }
             return $user->isMainAdm();
         });
     }

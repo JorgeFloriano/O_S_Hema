@@ -23,12 +23,14 @@ class LoginController extends Controller
             ->first();
 
         if (!$user || !Hash::check($request->password, $user->password)) {
+            logger_main('error', 'As credenciais fornecidas estao incorretas.');
             throw ValidationException::withMessages([
                 'username' => ['As credenciais fornecidas estão incorretas.'],
             ]);
         }
 
         if (!$user->cli) {
+            logger_main('error', 'Esta versão do app requer uma conta de cliente.');
             throw ValidationException::withMessages([
                 'username' => ['Esta versão do app requer uma conta de cliente.'],
             ]);
@@ -66,6 +68,7 @@ class LoginController extends Controller
             ->first();
 
         if (!$user || !Hash::check($request->password, $user->password)) {
+            logger_main('error', 'As credenciais fornecidas estao incorretas.');
             throw ValidationException::withMessages([
                 'username' => ['As credenciais fornecidas estão incorretas.'],
             ]);
@@ -82,7 +85,7 @@ class LoginController extends Controller
                 'name' => $user->name,
                 'email' => $user->email ?? null,
                 'tecId' => $user->tec ? $user->tec->id : null,
-                'supId' => $user->sup ? $user->sup->id : null,
+                'isSup' => $user->isSup() ?? false,
                 'onCallPermission' => $user->hasPermission('manager_on_call') ? true : false
             ]
         ]);
@@ -93,14 +96,14 @@ class LoginController extends Controller
         $user = $request->user();
 
         // Se for usuário de Equipe (Hema Team)
-        if ($user->tec || $user->sup) {
+        if ($user->isTec() || $user->isSup()) {
             return response()->json([
                 'id' => $user->id,
                 'username' => $user->username,
                 'name' => $user->name,
                 'email' => $user->email,
                 'tecId' => $user->tec ? $user->tec->id : null,
-                'supId' => $user->sup ? $user->sup->id : null,
+                'isSup' => $user->isSup() ?? false,
                 'onCallPermission' => $user->hasPermission('manager_on_call')
             ]);
         }
@@ -114,6 +117,7 @@ class LoginController extends Controller
             'clientId' => $user->cli ? $user->cli->client_id : null,
             'isAdmin' => $user->cli ? $user->cli->is_admin : null,
         ]);
+        logger_main('error', 'Usuário nao encontrado');
     }
 
     public function logout(Request $request)

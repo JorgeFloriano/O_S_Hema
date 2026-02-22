@@ -40,8 +40,9 @@ class OrderController extends Controller
 
     public function index()
     {
-        // If user is not suprevisor or administrator, redirect to login
+        // If user is not a authorized client, redirect to login
         if (!$this->user->isCli()) {
+            logger_main('error', "Acesso Negado");
             return redirect()->route('login.destroy')->withErrors(['error' => 'Acesso negado']);
         }
 
@@ -75,6 +76,7 @@ class OrderController extends Controller
 
         // If user is not suprevisor or administrator, redirect to login
         if (!$this->user->isCli()) {
+            logger_main('error', "Acesso Negado");
             return redirect()->route('login.destroy')->withErrors(['error' => 'Acesso negado']);
         }
 
@@ -110,6 +112,7 @@ class OrderController extends Controller
     {
         // If user is not suprevisor or administrator, redirect to login
         if (!$this->user->isCli()) {
+            logger_main('error', "Acesso Negado");
             return redirect()->route('login.destroy')->withErrors(['error' => 'Acesso negado']);
         }
 
@@ -189,6 +192,7 @@ class OrderController extends Controller
     {
         // If user is not a authorized client, redirect to login
         if (!$this->user->clientCanCreateSat()) {
+            logger_main('error', "Acesso Negado");
             return redirect()->route('client.orders.index')->with('message', 'Usuário sem permissão para abrir solicitações.');
         }
 
@@ -207,6 +211,7 @@ class OrderController extends Controller
 
         // If user is not a authorized client, redirect to login
         if (!$this->user->clientCanCreateSat()) {
+            logger_main('error', "Acesso Negado");
             return redirect()->route('client.orders.index')->with('message', 'Usuário sem permissão para abrir solicitações.');
         }
 
@@ -238,6 +243,7 @@ class OrderController extends Controller
     {
         // If user is not a authorized client, redirect to orders index
         if (!$this->user->clientCanSeeSat()) {
+            logger_main('error', "Acesso Negado");
             return redirect()->route('client.orders.index')->with('message', 'Usuário sem permissão para ver solicitações.');
         }
 
@@ -256,9 +262,9 @@ class OrderController extends Controller
     // Shows the PDF for the order
     public function show_pdf($order)
     {
-
         // If user is not a authorized client, redirect to login
         if (!$this->user->clientCanSeeSat()) {
+            logger_main('error', "Acesso Negado");
             return redirect()->route('client.orders.index')->with('message', 'Usuário sem permissão para ver solicitações.');
         }
 

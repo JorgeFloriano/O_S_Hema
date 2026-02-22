@@ -43,6 +43,9 @@ Route::middleware('auth:sanctum')->group(function () {
     // Routes for SATs / orders
     Route::get('/sat/orders', [SatTeamApiController::class, 'apiIndex'])->name('sat-orders');
 
+    // Routes for SATs / orders
+    Route::post('/sat/orders/search', [SatTeamApiController::class, 'search'])->name('sat-search');
+
     // Token push - versão simplificada
     Route::post('/expo-tokens/associate', [ExpoTokenController::class, 'associate']);
 
@@ -68,6 +71,9 @@ Route::middleware('auth:sanctum')->group(function () {
 
     // Atualizar o tecnico da SAT
     Route::post('/sat/orders/{id}/update-tec', [SatTeamApiController::class, 'update_tec'])->name('sat-update-tec');
+
+    // Reabrir SAT
+    Route::put('/sat/orders/{id}/reopen', [SatTeamApiController::class, 'reopen'])->name('sat-reopen');
 
     // Rotas para a tela de controle de técnicos de sobreaviso (emergência)
     Route::prefix('emergency')->group(function () {

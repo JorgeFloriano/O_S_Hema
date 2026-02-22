@@ -15,6 +15,7 @@ class Signature
             $imageData = base64_decode($image);
 
             if (!$imageData) {
+                logger_main('error', 'Invalid base64 data');
                 throw new \Exception('Invalid base64 data');
             }
 
@@ -22,6 +23,7 @@ class Signature
             $sourceImage = imagecreatefromstring($imageData);
 
             if (!$sourceImage) {
+                logger_main('error', 'Could not create image from string');
                 throw new \Exception('Could not create image from string');
             }
 
@@ -67,6 +69,7 @@ class Signature
             $optimizedImage = null;
 
             if (!$optimizedData) {
+                logger_main('error', 'Could not generate optimized image');
                 throw new \Exception('Could not generate optimized image');
             }
 

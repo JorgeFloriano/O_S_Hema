@@ -79,6 +79,8 @@ class SolutionController extends Controller
         if ($created) {
             return redirect()->route('solutions.index')->with('message', 'Código cadastrado com sucesso.');
         }
+
+        logger_main('error', 'Solution not created');
         return redirect()->route('solutions.index')->with('message', 'Erro ao cadastrar código.');
     }
 
@@ -96,6 +98,7 @@ class SolutionController extends Controller
         try {
             $solution = $this->solution->find(Crypt::decryptString($solution));
         } catch (DecryptException $e) {
+            logger_main('error', 'Decryption error (solution/edit).');
             echo 'Erro de desencriptação.';
             die;
         }
@@ -114,6 +117,8 @@ class SolutionController extends Controller
         if ($updated) {
             return redirect()->route('solutions.index')->with('message', 'Cadastro de causa atualizado com sucesso.');
         }
+
+        logger_main('error', 'Solution not updated');
         return redirect()->route('solutions.index')->with('message', 'Erro ao atualizar cadastro.');
     }
 
@@ -126,6 +131,8 @@ class SolutionController extends Controller
         if ($deleted) {
             return redirect()->route('solutions.index')->with('message', 'Cadastro deletado com sucesso.');
         }
+
+        logger_main('error', 'Solution not deleted');
         return redirect()->route('solutions.index')->with('message', 'Erro ao deletar cadastro.');
     }
 
@@ -136,6 +143,7 @@ class SolutionController extends Controller
         try {
             $id = Crypt::decryptString($id);
         } catch (DecryptException $e) {
+            logger_main('error', 'Decryption error (solution/restore).');
             echo 'Erro de desencriptação.';
             die;
         }
@@ -145,6 +153,8 @@ class SolutionController extends Controller
         if ($restored) {
             return redirect()->route('solutions.list', 0)->with('message', 'Cadastro restaurado com sucesso.');
         }
+
+        logger_main('error', 'Solution not restored');
         return redirect()->route('solutions.list', 0)->with('message', 'Erro ao restaurar cadastro.');
     }
 
@@ -155,6 +165,7 @@ class SolutionController extends Controller
         try {
             $id = Crypt::decryptString($id);
         } catch (DecryptException $e) {
+            logger_main('error', 'Decryption error (solution/desativate).');
             echo 'Erro de desencriptação.';
             die;
         }
@@ -164,6 +175,8 @@ class SolutionController extends Controller
         if ($deleted) {
             return redirect()->route('solutions.list', 1)->with('message', 'Cadastro desativado com sucesso.');
         }
+
+        logger_main('error', 'Solution not deleted');
         return redirect()->route('solutions.list', 1)->with('message', 'Erro ao desativar cadastro.');
     }
 }

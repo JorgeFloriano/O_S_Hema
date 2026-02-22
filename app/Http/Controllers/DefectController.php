@@ -79,6 +79,7 @@ class DefectController extends Controller
         if ($created) {
             return redirect()->route('defects.index')->with('message', 'Código cadastrado com sucesso.');
         }
+        logger_main('error', 'Defect not created');
         return redirect()->route('defects.index')->with('message', 'Erro ao cadastrar código.');
     }
 
@@ -96,6 +97,7 @@ class DefectController extends Controller
         try {
             $defect = $this->defect->find(Crypt::decryptString($defect));
         } catch (DecryptException $e) {
+            logger_main('error', 'Decryption error (defect/edit).');
             echo 'Erro de desencriptação.';
             die;
         }
@@ -114,6 +116,7 @@ class DefectController extends Controller
         if ($updated) {
             return redirect()->route('defects.index')->with('message', 'Cadastro atualizado com sucesso.');
         }
+        logger_main('error', 'Defect not updated');
         return redirect()->route('defects.index')->with('message', 'Erro ao atualizar cadastro.');
     }
 
@@ -126,6 +129,7 @@ class DefectController extends Controller
         if ($deleted) {
             return redirect()->route('defects.index')->with('message', 'Cadastro deletado com sucesso.');
         }
+        logger_main('error', 'Defect not deleted');
         return redirect()->route('defects.index')->with('message', 'Erro ao deletar cadastro.');
     }
 
@@ -136,6 +140,7 @@ class DefectController extends Controller
         try {
             $id = Crypt::decryptString($id);
         } catch (DecryptException $e) {
+            logger_main('error', 'Decryption error (defect/restore).');
             echo 'Erro de desencriptação.';
             die;
         }
@@ -145,6 +150,7 @@ class DefectController extends Controller
         if ($restored) {
             return redirect()->route('defects.list', 0)->with('message', 'Cadastro restaurado com sucesso.');
         }
+        logger_main('error', 'Defect not restored');
         return redirect()->route('defects.list', 0)->with('message', 'Erro ao restaurar cadastro.');
     }
 
@@ -155,6 +161,7 @@ class DefectController extends Controller
         try {
             $id = Crypt::decryptString($id);
         } catch (DecryptException $e) {
+            logger_main('error', 'Decryption error (defect/desativate).');
             echo 'Erro de desencriptação.';
             die;
         }
@@ -164,6 +171,7 @@ class DefectController extends Controller
         if ($deleted) {
             return redirect()->route('defects.list', 1)->with('message', 'Cadastro desativado com sucesso.');
         }
+        logger_main('error', 'Defect not desativated');
         return redirect()->route('defects.list', 1)->with('message', 'Erro ao desativar cadastro.');
     }
 }

@@ -44,6 +44,7 @@ class NoteTeamApiController extends Controller
 
         // Check if user is a technician
         if ($this->can->AuthIsTec()) {
+            logger_main('error', 'Usuário sem permissão para acessar anotações em sats.');
             return $this->can->AuthIsTec();
         }
 
@@ -56,6 +57,7 @@ class NoteTeamApiController extends Controller
             'tec.user:id,name,surname',
         ])
             ->where('tec_id', $tec->id)
+            ->whereNull('deleted_at') // Adicione esta linha explicitamente
             ->orderBy('id', 'desc')
             ->get(['id', 'order_type_id', 'client_id', 'tec_id', 'req_descr', 'req_name', 'sector', 'req_date', 'req_time', 'equipment', 'finished']);
 
@@ -75,12 +77,14 @@ class NoteTeamApiController extends Controller
         // 1. Verificamos se a SAT existe
         $order = Order::find($orderId);
         if (!$order) {
+            logger_main('error', 'SAT nao encontrada');
             return response()->json(['error' => 'SAT não encontrada'], 404);
         }
 
         // 2. TRAVA DE SEGURANÇA: 
         // Se a SAT já tem um técnico e não é o logado, ele não pode assumir/limpar
         if ($order->tec_id && $order->tec_id != $currentTec->id) {
+            logger_main('error', 'SAT ja atribuida a outro técnico');
             return response()->json([
                 'error' => 'SAT já atribuída a outro técnico.',
                 'already_taken' => true
@@ -136,6 +140,7 @@ class NoteTeamApiController extends Controller
     {
         // Check if user is a technician
         if ($this->can->AuthIsTec()) {
+            logger_main('error', 'Usuário sem cadastro de técnico.');
             return $this->can->AuthIsTec();
         }
 
@@ -151,6 +156,7 @@ class NoteTeamApiController extends Controller
         // Se a SAT já foi atribuida a outro técnico, bloqueia a tela do formulário
         $tec = Auth::user()->tec;
         if (!is_null($order->tec_id) && $order->tec_id != $tec->id) {
+            logger_main('error', 'Acesso negado. Esta SAT está vinculada a outro técnico.');
             return response()->json(['error' => 'Acesso negado. Esta SAT está vinculada a outro técnico.'], 403);
         }
 
@@ -184,6 +190,7 @@ class NoteTeamApiController extends Controller
     {
         // Check if user is a technician
         if ($this->can->AuthIsTec()) {
+            logger_main('error', 'Usuário sem cadastro de técnico.');
             return $this->can->AuthIsTec();
         }
 
@@ -200,6 +207,7 @@ class NoteTeamApiController extends Controller
             // Não pode salvar anotação na SAT / Order de outro técnico
             $tec = Auth::user()->tec;
             if (!is_null($order->tec_id) && $order->tec_id != $tec->id) {
+                logger_main('error', 'Acesso negado. Esta SAT está vinculada a outro técnico.');
                 return response()->json(['error' => 'Acesso negado. Esta SAT está vinculada a outro técnico.'], 403);
             }
 
@@ -306,6 +314,7 @@ class NoteTeamApiController extends Controller
                 'request_data' => $request->except(['sign_t_1', 'sign_t_2', 'sign_cl']), // Exclude signature data from logs
             ]);
 
+            logger_main('error', 'Erro ao registrar atendimento. Tente novamente.');
             return response()->json([
                 'success' => false,
                 'message' => 'Erro ao registrar atendimento. Tente novamente.',
@@ -319,9 +328,9 @@ class NoteTeamApiController extends Controller
      */
     public function show($id)
     {
-
         // Check if user is a technician
         if ($this->can->isAuth()) {
+            logger_main('error', 'Usuário sem permissão para acessar anotações em sats.');
             return $this->can->isAuth();
         }
 

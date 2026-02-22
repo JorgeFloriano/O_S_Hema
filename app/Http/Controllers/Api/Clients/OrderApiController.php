@@ -14,12 +14,12 @@ use Illuminate\Support\Facades\Auth;
 class OrderApiController extends Controller
 {
     private $resp_json;
-    public readonly User $user;
+    public readonly User $auth;
 
     public function __construct()
     {
         $this->resp_json = new ResponseJson();
-        $this->user = Auth::user();
+        $this->auth = Auth::user();
     }
     /**
      * Display a listing of the resource.
@@ -30,10 +30,12 @@ class OrderApiController extends Controller
         // The user data (id, name, surname) is now automatically loaded
         //$order->tec->user will contain only id, name, surname
 
-        if ($this->resp_json->isAuth()) 
-            return $this->resp_json->isAuth();
+        if (!$this->auth) {
+            logger_main('error', 'Usuário sem cadastro.');
+            return $this->resp_json->array(false, 'Usuário sem cadastro.', 403);
+        }
 
-        $client_id = $this->user->cli->client_id;
+        $client_id = $this->auth->cli->client_id;
 
         $orders = Order::with([
             'type:id,description',
@@ -41,6 +43,7 @@ class OrderApiController extends Controller
             'tec.user:id,name,surname',
         ])
             ->where('client_id', $client_id)
+            ->whereNull('deleted_at')
             ->orderBy('id', 'desc')
             ->get(['id', 'order_type_id', 'tec_id', 'req_descr', 'req_name', 'sector', 'req_date', 'req_time', 'finished']);
 
@@ -52,8 +55,10 @@ class OrderApiController extends Controller
      */
     public function create()
     {
-        if ($this->resp_json->canCreateSat()) 
-           return $this->resp_json->canCreateSat();
+        if (!$this->auth->canCreateSat()) {
+            logger_main('error', 'Usuário sem permissão para criar SAT.');
+            return $this->resp_json->array(false, 'Usuário sem permissão para criar SAT.', 403);
+        }
 
         // Get all order types
         $types = OrderType::select('id', 'description')->get();
@@ -68,17 +73,19 @@ class OrderApiController extends Controller
      */
     public function store(FormOrderApiRequest $request)
     {
-
-        if ($this->resp_json->canCreateSat()) 
-            return $this->resp_json->canCreateSat();
+        if (!$this->auth->canCreateSat()) {
+            logger_main('error', 'Usuário sem permissão para salvar SAT.');
+            return $this->resp_json->array(false, 'Usuário sem permissão para salvar SAT.', 403);
+        }
 
         // Check if 'client_id' is fillable ou SAT was created by specific user client
-        if (!$this->user->userClientCompanyId() && !$request->client_id) {
+        if (!$this->auth->userClientCompanyId() && !$request->client_id) {
+            logger_main('error', 'ID do cliente não encontrado');
             return $this->resp_json->array(false, 'ID do cliente não encontrado', 400);
         }
 
         // Get client_id
-        $client_id = $this->user->userClientCompanyId() ? $this->user->userClientCompanyId() : $request->client_id;
+        $client_id = $this->auth->userClientCompanyId() ? $this->auth->userClientCompanyId() : $request->client_id;
 
         try {
             $text = new TextFormat;
@@ -88,8 +95,8 @@ class OrderApiController extends Controller
                 'client_id' => $client_id,
                 'order_type_id' => $request->order_type_id,
                 'sector' => $request->sector,
-                'req_name' => $this->user->getFullName(), // Fixed variable name
-                'user_id' => $this->user->id, // Use auth()->id() instead of auth()->user()->id
+                'req_name' => $this->auth->getFullName(), // Fixed variable name
+                'user_id' => $this->auth->id, // Use auth()->id() instead of auth()->user()->id
                 'tec_id' => null,
                 'equipment' => $request->equipment,
                 'is_emergency' => $request->is_emergency ? true : false,
@@ -107,6 +114,7 @@ class OrderApiController extends Controller
                 'order' => $order
             ], 201);
         } catch (\Exception $e) {
+            logger_main('error', 'Erro ao criar Solicitação de Assistência Técnica.' . $e->getMessage());
             return response()->json([
                 'success' => false,
                 'message' => 'Erro ao criar Solicitação de Assistência Técnica.' . $e->getMessage(),
@@ -120,8 +128,10 @@ class OrderApiController extends Controller
      */
     public function show(Order $order)
     {
-        if ($this->resp_json->cliCanSeeSat()) 
-            return $this->resp_json->cliCanSeeSat();
+        if (!$this->auth->canSeeSat()) {
+            logger_main('error', 'Usuário sem permissão para ver SATs.');
+            return $this->resp_json->array(false, 'Usuário sem permissão para ver SATs.', 403);
+        }
 
         $order = $order->load(['type:id,description', 'tec:id,user_id', 'notes.materials', 'notes.tecs.user:id,name,surname,function']);
         return response()->json([

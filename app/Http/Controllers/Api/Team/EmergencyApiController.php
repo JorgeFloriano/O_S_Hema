@@ -17,7 +17,6 @@ class EmergencyApiController extends Controller
     public function __construct()
     {
         $this->can = new ResponseJson();
-
         $this->auth = Auth::user();
     }
 
@@ -26,6 +25,7 @@ class EmergencyApiController extends Controller
     {
         // Check if user is a supervisor that has 'manager_on_call' permission
         if (!$this->auth->hasPermission('manager_on_call')) {
+            logger_main('error', 'Acesso Negado: Usuário sem permissão para gerenciar sobreaviso.');
             return $this->can->array(false, 'Usuário sem permissão para gerenciar sobreaviso.', 403);
         }
 
@@ -62,6 +62,7 @@ class EmergencyApiController extends Controller
     {
         // Check if user is a supervisor
         if ($this->can->AuthIsSup()) {
+            logger_main('error', 'Acesso Negado: Usuário sem permissão para gerenciar clientes.');
             return $this->can->AuthIsSup();
         }
 
@@ -73,6 +74,7 @@ class EmergencyApiController extends Controller
     {
         // Check if user is a supervisor that has 'manager_on_call' permission
         if (!$this->auth->hasPermission('manager_on_call')) {
+            logger_main('error', 'Acesso Negado: Usuário sem permissão para gerenciar condição de sobreaviso dos técnicos.');
             return $this->can->array(false, 'Usuário sem permissão para gerenciar condição de sobreaviso dos técnicos.', 403);
         }
 
@@ -89,6 +91,7 @@ class EmergencyApiController extends Controller
     {
         // Check if user is a supervisor that has 'manager_on_call' permission
         if (!$this->auth->hasPermission('manager_on_call')) {
+            logger_main('error', 'Acesso Negado: Usuário sem permissão para atribuir clientes aos técnicos de sobreaviso.');
             return $this->can->array(false, 'Usuário sem permissão para atribuir clientes aos técnicos de sobreaviso.', 403);
         }
 

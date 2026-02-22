@@ -28,6 +28,7 @@ class UserApiController extends Controller
 
             // Check if user has cli relationship and get client_id
             if (!$auth->cli) {
+                logger_main('error', 'Usuário client não encontrado');
                 return response()->json([
                     'error' => 'Usuário client não encontrado',
                     'users' => []
@@ -49,6 +50,7 @@ class UserApiController extends Controller
                 'users' => $users
             ]);
         } catch (\Exception $e) {
+            logger_main('error', 'Failed to load users: ' . $e->getMessage());
             return response()->json([
                 'success' => false,
                 'error' => 'Failed to load users: ' . $e->getMessage(),
@@ -71,6 +73,7 @@ class UserApiController extends Controller
 
         // Check if user has cli relationship and get client_id
         if (!$auth->cli) {
+            logger_main('error', 'Usuário client não encontrado');
             return response()->json([
                 'error' => 'Usuário client não encontrado',
             ], 200);
@@ -78,12 +81,14 @@ class UserApiController extends Controller
 
         // Verify if user has access to create users
         if (!isset($auth->cli->is_admin)) {
+            logger_main('error', 'Usuário sem permissão para criar usuários.');
             return response()->json([
                 'error' => 'Usuário sem permissão para criar usuários.',
             ], 200);
         }
 
         if (!$auth->cli->is_admin) {
+            logger_main('error', 'Usuário sem permissão para criar usuários.');
             return response()->json([
                 'error' => 'Usuário sem permissão para criar usuários.',
             ], 200);
@@ -108,6 +113,7 @@ class UserApiController extends Controller
 
         // Check if user has cli relationship and get client_id
         if (!$auth->cli) {
+            logger_main('error', 'Usuário client não encontrado');
             return response()->json([
                 'success' => false,
                 'message' => 'Usuário client não encontrado',
@@ -116,6 +122,7 @@ class UserApiController extends Controller
 
         // Verify if user has access to create users
         if (!$auth->cli->is_admin) {
+            logger_main('error', 'Usuário sem permissão para criar usuários.');
             return response()->json([
                 'success' => false,
                 'message' => 'Usuário sem permissão para criar usuários.',
@@ -146,6 +153,7 @@ class UserApiController extends Controller
                 ]);
 
                 if (!$user_cli) {
+                    logger_main('error', 'Erro ao liberar acesso de cliente para o usuário.');
                     return response()->json([
                         'success' => false,
                         'message' => 'Erro ao liberar acesso de cliente para o usuário.'
@@ -153,6 +161,7 @@ class UserApiController extends Controller
                 }
             } else {
                 return response()->json([
+                    logger_main('error', 'Erro ao criar cadastro de usuário.'),
                     'success' => false,
                     'message' => 'Erro ao criar cadastro de usuário.'
                 ], 500);
@@ -164,6 +173,7 @@ class UserApiController extends Controller
                 'user' => $user
             ], 201);
         } catch (\Exception $e) {
+            logger_main('error', 'Erro ao criar cadastro de usuário. ' . $e->getMessage());
             return response()->json([
                 'success' => false,
                 'message' => 'Erro ao criar cadastro de usuário.' . $e->getMessage(),
@@ -181,6 +191,7 @@ class UserApiController extends Controller
 
         // Check if user has cli relationship and get client_id
         if (!$auth->cli) {
+            logger_main('error', 'Usuário client não encontrado');
             return response()->json([
                 'success' => false,
                 'error' => 'Usuário client não encontrado',
@@ -189,6 +200,7 @@ class UserApiController extends Controller
 
         // Verify if user has access to edit users
         if (!$auth->cli->is_admin && $auth->id != $id) {
+            logger_main('error', 'Usuário sem permissão para editar outros usuários .');
             return response()->json([
                 'success' => false,
                 'error' => 'Usuário sem permissão para editar outros usuários .'
@@ -218,6 +230,7 @@ class UserApiController extends Controller
                 'user' => $userData
             ]);
         } catch (\Exception $e) {
+            logger_main('error', 'Usuário não encontrado. ' . $e->getMessage());
             return response()->json([
                 'success' => false,
                 'error' => 'Usuário não encontrado',
@@ -235,6 +248,7 @@ class UserApiController extends Controller
 
         // Check if user has cli relationship and get client_id
         if (!$auth->cli) {
+            logger_main('error', 'Usuário client não encontrado');
             return response()->json([
                 'success' => false,
                 'message' => 'Usuário client não encontrado',
@@ -243,6 +257,7 @@ class UserApiController extends Controller
 
         // Verify if user has access to edit users
         if (!$auth->cli->is_admin && $auth->id != $id) {
+            logger_main('error', 'Usuário sem permissão para editar outros usuários.');
             return response()->json([
                 'success' => false,
                 'message' => 'Usuário sem permissão para editar outros usuários.',
@@ -265,6 +280,7 @@ class UserApiController extends Controller
 
             // Update cli data (user cant updated yourself permissions)
             if ($auth->id != $id && $auth->cli->is_admin) {
+                logger_main('error', 'Update cli data (user cant updated yourself permissions).');
                 $user->cli()->update([
                     'can_create_sat' => $validated['can_create_sat'] ?? false,
                     'can_see_sat' => $validated['can_see_sat'] ?? false,
@@ -285,6 +301,7 @@ class UserApiController extends Controller
                 'user' => $user
             ]);
         } catch (\Exception $e) {
+            logger_main('error', 'Falha ao atualizar usuário. ' . $e->getMessage());
             return response()->json([
                 'success' => false,
                 'error' => 'Falha ao atualizar usuário',
@@ -303,6 +320,7 @@ class UserApiController extends Controller
 
             // Check if user exists
             if (!$user) {
+                logger_main('error', 'Usuário não encontrado.');
                 return response()->json([
                     'success' => false,
                     'message' => 'Usuário não encontrado.'
@@ -311,6 +329,7 @@ class UserApiController extends Controller
 
             // Prevent users from deleting their own account
             if ($user->id === Auth::id()) {
+                logger_main('error', ' Vocé não pode excluir sua própria conta.');
                 return response()->json([
                     'success' => false,
                     'message' => 'Você não pode excluir sua própria conta.'
@@ -319,6 +338,7 @@ class UserApiController extends Controller
 
             // Verify if user has access to delete users
             if (!Auth::user()->cli->is_admin) {
+                logger_main('error', 'Voce não tem permissão para excluir usuários.');
                 return response()->json([
                     'success' => false,
                     'message' => 'Voce não tem permissão para excluir usuários.'

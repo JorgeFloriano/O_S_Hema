@@ -91,12 +91,14 @@ class User extends Authenticatable
 
     public function isSup(): bool
     {
+        if ($this->isMainAdm()) return true;
+
         return $this->sup ? true : false;
     }
 
     public function isHemaTeam(): bool
     {
-        return $this->adm || $this->sup || $this->tec;
+        return $this->isAdm() || $this->isSup() || $this->isTec();
     }
 
     public function isCli(): bool
@@ -283,7 +285,7 @@ class User extends Authenticatable
 
     public function reopenOrder($order_id)
     {
-        Gate::authorize('check-permission', ['reopen_sat', 1, 'reopenOrder function']);
+        Gate::authorize('check-permission', ['reopen_sat', 1]);
 
         $order = Order::find($order_id);
         $order_reopened = $order->finished = 0;
