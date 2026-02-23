@@ -41,7 +41,7 @@ class UserController extends Controller
             ->orderBy('name')
             ->simplePaginate(20);
 
-        return view('user.users_list', ['users' => $users]);
+        return view('user.client.list', ['users' => $users]);
     }
 
     // If logged in user is adm main, show create user form

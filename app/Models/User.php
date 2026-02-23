@@ -354,6 +354,8 @@ class User extends Authenticatable
         // Busca a permissão dentro da coleção carregada do usuário
         $permission = $this->permissions->where('name', $permissionName)->first();
 
+        //return true;
+
         if (!$permission) {
             return false;
         }

@@ -19,11 +19,13 @@
                     </div>
 
                     {{-- Botões à direita (quando couber) --}}
-                    <div class="mb-2">
-                        <a href="{{route(auth()->user()->isCli() ? 'client.users.create' : 'users.create')}}" class="btn btn-primary" data-bs-toggle="tooltip" title="Criar novo Usuário">
-                            <i class="fa fa-plus"></i> Cadastrar
-                        </a>
-                    </div>
+                    @can('manage-users')
+                        <div class="mb-2">
+                            <a href="{{route('users.create')}}" class="btn btn-primary" data-bs-toggle="tooltip" title="Criar novo Usuário">
+                                <i class="fa fa-plus"></i> Cadastrar
+                            </a>
+                        </div>
+                    @endcan
                 </div>
 
                 <hr>
@@ -40,11 +42,13 @@
                                     <th>Nº</th>
                                     <th>Nome</th>
                                     <th>Função</th>
-                                    @if (!auth()->user()->isCli())
-                                        <th>Empresa</i></th>
+                                    <th>Empresa</i></th>
+                                    @if(auth()->user()->hasPermission('users', 2))
+                                        <th>Edit</th>
+                                        <th>Del.</th>
+                                    @else
+                                        <th>Ver</th>
                                     @endif
-                                    <th>Edit</th>
-                                    <th>Del.</th>
                                 </tr>
                             </thead>
 
@@ -54,29 +58,33 @@
                                         <td>{{$user->id}}</td>
                                         <td>{{$user->name}}</td>
                                         <td>{{$user->function}}</td>
-                                        @if (!auth()->user()->isCli())
-                                            <td>
-                                                @if ($user->isCli())
-                                                    <div class="text-primary" 
-                                                        style="font-size: 0.8rem; font-weight: bold;">
-                                                        {{$user->userClientCompanyName()}}
-                                                    </div>
-                                                @else
-                                                    <div class="text-danger" 
-                                                        style="font-size: 0.8rem; font-weight: bold;">
-                                                        HEMA
-                                                    </div>
-                                                @endif
-                                            </td>
-                                        @endif
                                         <td>
-                                            <a href="{{route(auth()->user()->isCli() ? 'client.users.edit' : 'users.edit', ['user' => Crypt::encryptString($user->id)])}}" class="btn btn-outline-primary btn-sm">
-                                                <i class="fa fa-edit"></i>
-                                            </a>
+                                            @if ($user->isCli())
+                                                <div class="text-primary" 
+                                                    style="font-size: 0.8rem; font-weight: bold;">
+                                                    {{$user->userClientCompanyName()}}
+                                                </div>
+                                            @else
+                                                <div class="text-danger" 
+                                                    style="font-size: 0.8rem; font-weight: bold;">
+                                                    HEMA
+                                                </div>
+                                            @endif
                                         </td>
+                                            @can('manage-users')
+                                                <td>
+                                                    <a href="{{route('users.edit', ['user' => Crypt::encryptString($user->id)])}}" class="btn btn-outline-primary btn-sm">
+                                                        <i class="fa fa-edit"></i>
+                                                    </a>
+                                                </td>
+                                            @endcan
                                         <td>
-                                            <a href="{{route(auth()->user()->isCli() ? 'client.users.show' : 'users.show', ['user' => Crypt::encryptString($user->id)])}}" class="btn btn-outline-primary btn-sm">
-                                                <i class="fa fa-trash"></i>
+                                            <a href="{{route('users.show', ['user' => Crypt::encryptString($user->id)])}}" class="btn btn-outline-primary btn-sm">
+                                                @if(auth()->user()->hasPermission('users', 2))
+                                                    <i class="fa fa-trash"></i>
+                                                @else
+                                                    <i class="fa fa-eye"></i>
+                                                @endif
                                             </a>
                                         </td>
                                     </tr>

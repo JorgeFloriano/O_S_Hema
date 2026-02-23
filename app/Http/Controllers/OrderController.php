@@ -36,8 +36,16 @@ class OrderController extends Controller implements HasMiddleware
     public static function middleware(): array
     {
         return [
-            // Aplica o gate apenas para index e show
-            new Middleware('can:check-permission,orders,1', only: ['index', 'show', 'search', 'filter', 'edit', 'show_pdf']),
+            // Usando o gate específico que não precisa de parâmetros extras na string
+            new Middleware('can:view-sats', only: ['index', 'show', 'search', 'filter', 'show_pdf', 'edit']),
+
+            new Middleware('can:manage-sats', only: ['create', 'store', 'update', 'destroy', 'reopen', 'orders_pdf', 'generate_pdf', 'orders_csv']),
+
+            new Middleware('can:manage-attach-tec', only: ['ord_tec_update']),
+
+            new Middleware('can:is-tec', only: ['finish']),
+
+            new Middleware('can:is-main-adm', only: ['add', 'updateBusinessHours']),
         ];
     }
 
@@ -484,6 +492,9 @@ class OrderController extends Controller implements HasMiddleware
 
     public function finish($order)
     {
+
+        Gate::authorize('is-tec');
+
         if (!$this->auth->isTec()) {
             logger_main('error', 'Access denied (order/finish).');
             return redirect()->route('orders.index')->with('message', 'Usuário sem acesso para finalizar SAT.');

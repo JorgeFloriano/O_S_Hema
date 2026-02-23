@@ -7,10 +7,26 @@ use App\Models\OrderType;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 
-class OrderTypeController extends Controller
+class OrderTypeController extends Controller implements HasMiddleware
 {
     public readonly OrderType $order_type;
+
+    public static function middleware(): array
+    {
+        return [
+            // Visualização de códigos (Nível 1)
+            new Middleware('can:view-codes', only: ['index', 'list', 'show']),
+
+            // Gerenciamento básico (Nível 2) - Criar, Deletar, Restaurar
+            new Middleware('can:manage-codes', only: ['create', 'store', 'destroy', 'restore', 'desativate']),
+
+            // Edição de códigos existentes - Restrito ao Administrador Principal
+            new Middleware('can:is-main-adm', only: ['edit', 'update']),
+        ];
+    }
 
     public function __construct()
     {

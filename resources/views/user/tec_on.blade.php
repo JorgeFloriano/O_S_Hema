@@ -14,7 +14,7 @@
 
                     {{-- Botões à direita (quando couber) --}}
                     <div class="mb-2">
-                        @if (auth()->user()->isMainAdm())
+                        @can('is-main-adm')
                             <button type="button" class="btn btn-primary me-2" data-bs-toggle="modal" data-bs-target="#modalStopAlerts">
                                     <i class="fa fa-stop-circle me-3"></i>Parar Alertas
                             </button>
@@ -123,7 +123,7 @@
                                     </form>
                                 </div>
                             </div>
-                        @endif
+                        @endcan
                     </div>
                 </div>
 
