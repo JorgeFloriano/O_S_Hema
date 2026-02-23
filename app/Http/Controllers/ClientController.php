@@ -4,24 +4,40 @@ namespace App\Http\Controllers;
 
 use App\Http\Requests\FormCliRequest;
 use App\Models\Client;
-use Illuminate\Support\Facades\Crypt;
 use Illuminate\Contracts\Encryption\DecryptException;
+use Illuminate\Support\Facades\Crypt;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Facades\Gate;
 
-class ClientController extends Controller
+class ClientController extends Controller implements HasMiddleware
 {
     public readonly Client $client;
 
+    // 2. Definição centralizada de Middlewares
+    public static function middleware(): array
+    {
+        return [
+            // Visualização de clientes (Nível 1)
+            new Middleware('can:view-clients', only: ['index', 'list', 'show']),
+
+            // Gerenciamento básico (Nível 2) - Criar, Deletar, Restaurar, Desativar
+            new Middleware('can:manage-clients', only: ['create', 'store', 'destroy', 'restore', 'desativate']),
+
+            // Edição de dados sensíveis - Restrito ao Administrador Principal
+            new Middleware('can:is-main-adm', only: ['edit', 'update']),
+        ];
+    }
     public function __construct()
     {
         $this->client = new Client();
     }
-    
+
     public function index()
     {
         Gate::authorize('check-permission', ['clients', 1]);
 
-        return redirect()->route('clients.list' , 1);
+        return redirect()->route('clients.list', 1);
     }
 
     public function list(bool $opt)
@@ -29,7 +45,7 @@ class ClientController extends Controller
         Gate::authorize('check-permission', ['clients', 1]);
 
         if ($opt == 0) {
-            $clients = $this->client->select('id', 'name','unit')->orderBy('name')->onlyTrashed()->simplePaginate(20);
+            $clients = $this->client->select('id', 'name', 'unit')->orderBy('name')->onlyTrashed()->simplePaginate(20);
             $opt = 1;
             $icon = 'undo';
             $msg = 'Desativados';
@@ -37,7 +53,7 @@ class ClientController extends Controller
             $title = 'Ativos';
             $route = 'clients.restore';
         } else {
-            $clients = $this->client->select('id', 'name','unit')->orderBy('name')->simplePaginate(20);
+            $clients = $this->client->select('id', 'name', 'unit')->orderBy('name')->simplePaginate(20);
             $opt = 0;
             $icon = 'archive';
             $msg = 'Cadastrados';
@@ -60,14 +76,14 @@ class ClientController extends Controller
     public function create()
     {
         Gate::authorize('check-permission', ['clients', 2]);
-        
+
         return view('client.client_create');
     }
 
     public function store(FormCliRequest $request)
     {
         Gate::authorize('check-permission', ['clients', 2]);
-        
+
         $request->validated();
 
         $created = $this->client->create([
@@ -99,7 +115,7 @@ class ClientController extends Controller
             echo 'Erro de desencriptação.';
             die;
         }
-        
+
         return view('client.client_delete', ['client' => $client]);
     }
 
@@ -115,7 +131,7 @@ class ClientController extends Controller
             echo 'Erro de desencriptação.';
             die;
         }
-        
+
         return view('client.client_edit', ['client' => $client]);
     }
 
@@ -124,7 +140,7 @@ class ClientController extends Controller
         Gate::authorize('is-main-adm');
 
         $request->validated();
-        
+
         $updated = $this->client->where('id', $id)->update($request->except(['_token', '_method']));
 
         if ($updated) {
@@ -137,7 +153,7 @@ class ClientController extends Controller
     public function destroy(string $id)
     {
         Gate::authorize('check-permission', ['clients', 2]);
-        
+
         $deleted = $this->client->where('id', $id)->delete();
 
         if ($deleted) {
@@ -177,7 +193,7 @@ class ClientController extends Controller
             echo 'Erro de desencriptação.';
             die;
         }
-        
+
         $deleted = $this->client->where('id', $id)->delete();
 
         if ($deleted) {

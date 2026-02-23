@@ -19,14 +19,25 @@ use Illuminate\Support\Facades\Crypt;
 use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 
-class NoteController extends Controller
+class NoteController extends Controller implements HasMiddleware
 {
     public readonly Note $note;
     public readonly User $auth;
     private $empit_sign;
     public $t; // user is tec or not
     public $text; // text format
+
+    // 2. Implementar o método middleware estático
+    public static function middleware(): array
+    {
+        return [
+            // Ações exclusivas de técnicos (nível técnico)
+            new Middleware('can:is-tec', only: ['index', 'create', 'store', 'edit', 'update', 'destroy', 'add']),
+        ];
+    }
 
     public function __construct()
     {
@@ -44,10 +55,7 @@ class NoteController extends Controller
 
     public function index()
     {
-        if (!$this->auth->tec) {
-            logger_main('error', 'Access denied (note/index).');
-            return redirect()->route('orders.index')->with('message', 'Usuário sem permissão de Técnico.');
-        }
+        Gate::authorize('is-tec');
 
         session()->put('reference_router_back', 'notes.index');
         $orders = Order::select('id', 'client_id', 'equipment', 'req_descr', 'req_date', 'finished')->where('tec_id', $this->auth->tec->id)->whereNull('deleted_at')->orderBy('id', 'desc')->simplePaginate(20);
@@ -58,10 +66,7 @@ class NoteController extends Controller
     // Only technicians can access the service order filling form
     public function create($order)
     {
-        if (!$this->auth->tec) {
-            logger_main('error', 'Access denied (note/create).');
-            return redirect()->route('orders.index')->with('message', 'Usuário sem permissão para preencher SAT.');
-        }
+        Gate::authorize('is-tec');
 
         // Decrypt the order id
         try {
@@ -106,10 +111,7 @@ class NoteController extends Controller
     // Only technicians can save notes on the service orders
     public function store(FormNoteRequest $request)
     {
-        if (!$this->auth->tec) {
-            logger_main('error', 'Access denied (note/store).');
-            return redirect()->route('orders.index')->with('message', 'Usuário sem permissão para salvar anotações na SAT.');
-        }
+        Gate::authorize('is-tec');
 
         $request->validated();
 
@@ -213,7 +215,7 @@ class NoteController extends Controller
     // Show the form for deleting a note on the service orders
     public function show($note)
     {
-        if (!$this->auth->tec) {
+        if (!$this->auth->hasPermission('sats', 1) && !$this->auth->isTec()) {
             logger_main('error', 'Access denied (note/show).');
             return redirect()->route('orders.index')->with('message', 'Usuário sem permissão para visualizar SAT.');
         }
@@ -254,10 +256,7 @@ class NoteController extends Controller
 
     public function edit($note)
     {
-        if (!$this->auth->tec) {
-            logger_main('error', 'Access denied (note/edit).');
-            return redirect()->route('orders.index')->with('message', 'Usuário sem permissão para editar anotações.');
-        }
+        Gate::authorize('is-tec');
 
         // Decrypt the note id
         try {
@@ -335,10 +334,7 @@ class NoteController extends Controller
 
     public function update(FormNoteRequest $request, string $id)
     {
-        if (!$this->auth->tec) {
-            logger_main('error', 'Access denied (note/update).');
-            return redirect()->route('orders.index')->with('message', 'Usuário sem permissão para salvar alterações em anotações.');
-        }
+        Gate::authorize('is-tec');
 
         $note_first_tec = Note::find($id)->tecs[0];
 
@@ -441,10 +437,7 @@ class NoteController extends Controller
 
     public function destroy(Note $note)
     {
-        if (!$this->auth->tec) {
-            logger_main('error', 'Access denied (note/destroy).');
-            return redirect()->route('orders.index')->with('message', 'Usuário sem permissão para deletar anotações.');
-        }
+        Gate::authorize('is-tec');
 
         $firstTec = $note->tecs->first();
 
@@ -479,9 +472,7 @@ class NoteController extends Controller
     // Add 30 notes for testing 
     public function add($qtd)
     {
-        if (!$this->auth->tec) {
-            return redirect()->route('orders.index')->with('message', 'Usuário sem permissão para executar public function add($qtd) .');
-        }
+        Gate::authorize('is-tec');
 
         for ($j = 0; $j < $qtd; $j++) {
             for ($i = 0; $i < 30; $i++) {

@@ -18,11 +18,30 @@ use App\Models\Permission;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 
-class UserController extends Controller
+class UserController extends Controller implements HasMiddleware
 {
     public readonly User $auth;
 
+    // 2. Definição centralizada de Middlewares
+    public static function middleware(): array
+    {
+        return [
+            // Visualização de usuários (Nível 1)
+            new Middleware('can:view-users', only: ['index', 'show']),
+
+            // Gerenciamento de usuários (Nível 2)
+            new Middleware('can:manage-users', only: ['create', 'store', 'edit', 'update', 'destroy']),
+
+            // Gerenciamento de Sobreaviso (manager_on_call nível 2)
+            new Middleware('can:manage-on-call', only: ['tec_on', 'tec_on_update']),
+
+            // Ações exclusivas de Admin Principal
+            new Middleware('can:is-main-adm', only: ['tec_on_stop_all_notifications']),
+        ];
+    }
     public function __construct()
     {
         $this->auth = Auth::user();
@@ -272,7 +291,7 @@ class UserController extends Controller
             return view('user.user_show', ['user' => $user]);
         }
 
-        return view('user.user_delete', ['user' => $user]);
+        return view($this->auth->hasPermission('users', 2) ? 'user.user_delete' : 'user.user_show', ['user' => $user]);
     }
 
     // Shows the form to edit the user registration

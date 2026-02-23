@@ -3,6 +3,7 @@
     $auth = Auth::user();
 
     $navLinks = collect([
+        // For client users -------------------------------------------
         [
             'label' => 'Solicitações',
             'route' => route('client.orders.index'),
@@ -17,6 +18,7 @@
             'active'=> Request::is('*users*'),
             'show'  => $auth->isCliAdmin()
         ],
+        // ---------------------------------------------------------------
         [
             'label' => 'SATs',
             'route' => route('orders.index'),

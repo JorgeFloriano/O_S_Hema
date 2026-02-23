@@ -7,13 +7,29 @@ use App\Models\Material;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 
-class MaterialController extends Controller
+class MaterialController extends Controller implements HasMiddleware
 {
-
     public readonly Material $material;
     public readonly array $units;
 
+    // 2. Definição centralizada de Middlewares
+    public static function middleware(): array
+    {
+        return [
+            // Visualização de materiais (Nível 1)
+            new Middleware('can:view-materials', only: ['index', 'list', 'show']),
+
+            // Gerenciamento básico (Nível 2) - Criar, Desativar, Restaurar
+            new Middleware('can:manage-materials', only: ['create', 'store', 'destroy', 'restore', 'desativate']),
+
+            // Edição técnica/descrição - Restrito ao Administrador Principal
+            new Middleware('can:is-main-adm', only: ['edit', 'update']),
+        ];
+    }
+    
     public function __construct()
     {
         $this->material = new Material();

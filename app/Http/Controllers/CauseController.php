@@ -6,12 +6,28 @@ use App\Http\Requests\FormCodeRequest;
 use App\Models\Cause;
 use App\Class\CryptMsg;
 use Illuminate\Support\Facades\Gate;
+use Illuminate\Routing\Controllers\HasMiddleware;
+use Illuminate\Routing\Controllers\Middleware;
 
-class CauseController extends Controller
+class CauseController extends Controller implements HasMiddleware
 {
-
     public readonly Cause $cause;
     public $crypt;
+
+    // 2. Definição centralizada de Middlewares
+    public static function middleware(): array
+    {
+        return [
+            // Visualização de códigos (Nível 1)
+            new Middleware('can:view-codes', only: ['index', 'list', 'show']),
+
+            // Gerenciamento básico (Nível 2) - Criar, Deletar, Restaurar
+            new Middleware('can:manage-codes', only: ['create', 'store', 'destroy', 'restore', 'desativate']),
+
+            // Edição de códigos existentes - Restrito ao Administrador Principal
+            new Middleware('can:is-main-adm', only: ['edit', 'update']),
+        ];
+    }
 
     public function __construct()
     {
