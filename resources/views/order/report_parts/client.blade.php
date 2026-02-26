@@ -33,6 +33,12 @@
 
             @include('order/o_s_dompdf_parts/client_sign_dompdf')
 
+            @if($note->files->count() > 0)
+            <div class="page-number">página {{session('page')}}</div>
+                @php session()->put('page', session('page') + 1); @endphp
+                @include('order/o_s_dompdf_parts/note_files_dompdf')
+            @endif
+
             @if (!$loop->last)
                 <div class="page-number">página {{session('page')}}</div>
                 @php session()->put('page', session('page') + 1); @endphp

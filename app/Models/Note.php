@@ -6,7 +6,7 @@ use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\BelongsToMany;
-use Illuminate\Database\Eloquent\Relations\HasMany;
+use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
 
@@ -41,6 +41,15 @@ class Note extends Model
 
     protected $table = "notes";
     protected $primaryKey = "id";
+
+    protected static function booted()
+    {
+        static::deleting(function ($note) {
+            // Isso garante que se você der um $note->delete(), 
+            // a lógica de limpeza de arquivos seja disparada.
+            app(\App\Services\FileService::class)->deleteAllFiles($note);
+        });
+    }
 
     public function order(): BelongsTo
     {
@@ -91,5 +100,14 @@ class Note extends Model
     public function materials(): BelongsToMany
     {
         return $this->belongsToMany(Material::class)->withPivot('quantity', 'id')->withTimestamps()->withTrashed()->orderBy('pivot_id');
+    }
+
+    /**
+     * Obtém todos os arquivos da anotação.
+     */
+    public function files(): MorphMany
+    {
+        // O segundo parâmetro 'fileable' deve coincidir com o nome usado na migration
+        return $this->morphMany(File::class, 'fileable');
     }
 }

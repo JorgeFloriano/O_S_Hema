@@ -261,6 +261,65 @@
                 font-size: 16px;
                 color: #3b3939;
             }
+            
+            /* Container da grade */
+            .photo-grid {
+                width: 100%;
+                display: block;
+                clear: both;
+            }
+
+            /* Cada item da grade */
+            .photo-item {
+                width: 33%; 
+                height: 330px; /* Altura total do quadrado */
+                border: 0.5px solid #ccc;
+                float: left; /* Garante o alinhamento horizontal */
+                box-sizing: border-box;
+                position: relative;
+            }
+
+            /* Centralização Vertical e Horizontal (Tabela de apoio) */
+            .image-wrapper {
+                display: table; /* Simula uma tabela para centralizar o conteúdo */
+                width: 100%;
+                height: 300px; /* Espaço reservado para a imagem (descontando o subtítulo) */
+            }
+
+            .image-cell {
+                display: table-cell;
+                vertical-align: middle; /* Centraliza verticalmente */
+                text-align: center;    /* Centraliza horizontalmente */
+                width: 100%;
+                height: 300px;
+            }
+
+            .image-cell img {
+                max-width: 90%;
+                max-height: 280px; /* Limite para não sobrepor o texto */
+                display: inline-block;
+            }
+
+            /* Subtítulo na base */
+            .file-subtitle {
+                position: absolute;
+                bottom: 5px;
+                left: 0;
+                width: 100%;
+                text-align: center;
+                font-size: 11px;
+                color: #666;
+                height: 30px;
+                line-height: 1.2;
+                word-wrap: break-word;
+            }
+
+            /* Limpeza do float para não quebrar o restante do PDF */
+            .clearfix::after {
+                content: "";
+                display: table;
+                clear: both;
+            }
         </style>
         <title>Sistema de Gerenciamento Hema</title>
     </head>

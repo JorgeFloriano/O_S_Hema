@@ -106,7 +106,7 @@
                         </div>
                     @endif
 
-                    <form action="{{route('notes.store')}}" id="form" method="post">
+                    <form action="{{route('notes.store')}}" id="form" method="post" enctype="multipart/form-data">
                         @csrf
                         
                         <input type="hidden" name="order_id" id="order_id" value="{{$order->id}}">
@@ -145,6 +145,19 @@
 
                         <input hidden name="material_ids_array" id="material_ids_array">
                         <div id="material_id_list"></div>
+
+                        {{-- inserir arquivos --}}
+                        <div class="my-3">
+                            <label for="files" class="form-label text-muted mb-1">
+                                <i class="fa fa-paperclip"></i> Anexar Fotos ou PDFs
+                            </label>
+
+                            <div class="form-control" style="padding: 0">
+                                <input class="form-control" type="file" name="files[]" id="files" multiple accept="image/*,.pdf">
+                            </div>
+
+                            <div id="preview-container" class="mt-2 d-flex flex-wrap gap-2"></div>
+                        </div>
 
                         <div id="serv" class="form-floating my-2">
                             <textarea id="services" name="services" placeholder="Serviços executados" maxlength="1290" class='autoExpand form-control' rows='1' data-min-rows='1' required>{{old('services')}}</textarea>
@@ -340,6 +353,7 @@
                     <script src="{{asset('assets/js/signature.js')}}"></script>
                     <script src="{{asset('assets/js/signature2.js')}}"></script>
                     <script src="{{asset('assets/js/signature3.js')}}"></script>
+                    <script src="{{asset('assets/js/preview_atach.js')}}"></script>
                 </main>
             </div>
         </div>
