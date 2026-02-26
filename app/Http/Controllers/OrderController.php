@@ -906,11 +906,11 @@ class OrderController extends Controller implements HasMiddleware
             ];
 
             // IDs of all registered materials
-            $materials = Material::withTrashed()->orderBy('description')->select('id', 'description')->get();
+            $materials = Material::withTrashed()->orderBy('description')->select('id', 'description', 'code')->get();
 
             // Add materials headers
             foreach ($materials as $key => $material) {
-                array_push($csv_headers, $material->id . ' - ' . $material->description);
+                array_push($csv_headers, $material->id . ' - ' . $material->completeDescription());
             }
 
             // Finish headers array

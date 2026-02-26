@@ -21,51 +21,57 @@
                 @if ($materials->count() === 0)
                     <p>Nenhum registro encontrado !</p>
                 @else
-                    <table class="table table-striped table-hover">
-                        <thead class="table-primary">
-                            <tr>
-                                <th>Nº</th>
-                                <th>Descrição</th>
-                                <th>Unidade</th>
 
-                                @if ($opt === 0 && $auth->isMainAdm())
-                                    <th>Editar</th>
-                                @endif
-
-                                @can('check-permission', ['materials', 2])
-                                    <th>{{$cond}}</th>
-                                @endcan
-                            </tr>
-                        </thead>
-
-                        <tbody>
-                            @foreach ($materials as $material)
+                    <div class="table-responsive">
+                        <table class="table table-striped table-hover">
+                            <thead class="table-primary">
                                 <tr>
-                                    <td>{{$material->id}}</td>
-
-                                    <td>{{$material->description}}</td>
-
-                                    <td>{{$material->unit}}</td>
+                                    <th>Nº</th>
+                                    <th>Descrição</th>
+                                    <th>Código</th>
+                                    <th>Unidade</th>
 
                                     @if ($opt === 0 && $auth->isMainAdm())
-                                        <td>
-                                            <a href="{{route('materials.edit', ['material' => Crypt::encryptString($material->id)])}}" class="btn btn-outline-primary btn-sm">
-                                                <i class="fa fa-edit"></i>
-                                            </a>
-                                        </td>
+                                        <th>Editar</th>
                                     @endif
 
                                     @can('check-permission', ['materials', 2])
-                                        <td>
-                                            <a href="{{route($route, ['material' => Crypt::encryptString($material->id)])}}" class="btn btn-sm btn-outline-primary">
-                                                <i class="fa fa-exchange"></i>
-                                            </a>
-                                        </td>
+                                        <th>{{$cond}}</th>
                                     @endcan
                                 </tr>
-                            @endforeach
-                        </tbody> 
-                    </table>
+                            </thead>
+
+                            <tbody>
+                                @foreach ($materials as $material)
+                                    <tr>
+                                        <td>{{$material->id}}</td>
+
+                                        <td>{{$material->description}}</td>
+
+                                        <td>{{$material->code}}</td>
+
+                                        <td>{{$material->unit}}</td>
+
+                                        @if ($opt === 0 && $auth->isMainAdm())
+                                            <td>
+                                                <a href="{{route('materials.edit', ['material' => Crypt::encryptString($material->id)])}}" class="btn btn-outline-primary btn-sm">
+                                                    <i class="fa fa-edit"></i>
+                                                </a>
+                                            </td>
+                                        @endif
+
+                                        @can('check-permission', ['materials', 2])
+                                            <td>
+                                                <a href="{{route($route, ['material' => Crypt::encryptString($material->id)])}}" class="btn btn-sm btn-outline-primary">
+                                                    <i class="fa fa-exchange"></i>
+                                                </a>
+                                            </td>
+                                        @endcan
+                                    </tr>
+                                @endforeach
+                            </tbody> 
+                        </table>
+                    </div>
                 @endif
                 <div>
                     {{$materials->links()}}

@@ -93,13 +93,15 @@ class MaterialController extends Controller implements HasMiddleware
         $created = $this->material->create([
             'id' => $request->id,
             'description' => $request->description,
+            'code' => $request->code,
             'unit' => $request->unit
         ]);
+
         if ($created) {
-            return redirect()->route('materials.index')->with('message', 'Código cadastrado com sucesso.');
+            return redirect()->route('materials.list', 1)->with('message', 'Código cadastrado com sucesso.');
         }
         logger_main('error', 'Material not created');
-        return redirect()->route('materials.index')->with('message', 'Erro ao cadastrar código.');
+        return redirect()->route('materials.list', 1)->with('message', 'Erro ao cadastrar código.');
     }
 
     public function show(Material $material)
@@ -136,10 +138,10 @@ class MaterialController extends Controller implements HasMiddleware
         $updated = $this->material->where('id', $id)->update($request->except(['_token', '_method']));
 
         if ($updated) {
-            return redirect()->route('materials.index')->with('message', 'Cadastro atualizado com sucesso.');
+            return redirect()->route('materials.list', 1)->with('message', 'Cadastro atualizado com sucesso.');
         }
         logger_main('error', 'Material not updated');
-        return redirect()->route('materials.index')->with('message', 'Erro ao atualizar cadastro.');
+        return redirect()->route('materials.list', 1)->with('message', 'Erro ao atualizar cadastro.');
     }
 
     public function destroy(string $id)
@@ -149,10 +151,10 @@ class MaterialController extends Controller implements HasMiddleware
         $deleted = $this->material->where('id', $id)->delete();
 
         if ($deleted) {
-            return redirect()->route('materials.index')->with('message', 'Cadastro deletado com sucesso.');
+            return redirect()->route('materials.list', 1)->with('message', 'Cadastro deletado com sucesso.');
         }
         logger_main('error', 'Material not deleted');
-        return redirect()->route('materials.index')->with('message', 'Erro ao deletar cadastro.');
+        return redirect()->route('materials.list', 1)->with('message', 'Erro ao deletar cadastro.');
     }
 
     public function restore(string $id)

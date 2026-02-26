@@ -132,7 +132,7 @@
                     <select class="form-select" onchange="manageList('material_id')" name="material_id" id="material_id" aria-label="Default select example">
                         <option selected>Registrar Materiais utilizados</option>
                         @foreach ($materials as $material)
-                            <option value="{{$material->id}}" data-unit="{{$material->unit}}">{{$material->description}}</option>
+                            <option value="{{$material->id}}" data-unit="{{$material->unit}}">{{$material->completeDescription()}}</option>
                         @endforeach
                     </select>
 

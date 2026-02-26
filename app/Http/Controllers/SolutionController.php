@@ -92,11 +92,11 @@ class SolutionController extends Controller implements HasMiddleware
             'description' => $request->description,
         ]);
         if ($created) {
-            return redirect()->route('solutions.index')->with('message', 'Código cadastrado com sucesso.');
+            return redirect()->route('solutions.list', 1)->with('message', 'Código cadastrado com sucesso.');
         }
 
         logger_main('error', 'Solution not created');
-        return redirect()->route('solutions.index')->with('message', 'Erro ao cadastrar código.');
+        return redirect()->route('solutions.list', 1)->with('message', 'Erro ao cadastrar código.');
     }
 
     public function show(Solution $solution)
@@ -130,11 +130,11 @@ class SolutionController extends Controller implements HasMiddleware
         $updated = $this->solution->where('id', $id)->update($request->except(['_token', '_method']));
 
         if ($updated) {
-            return redirect()->route('solutions.index')->with('message', 'Cadastro de causa atualizado com sucesso.');
+            return redirect()->route('solutions.list', 1)->with('message', 'Cadastro atualizado com sucesso.');
         }
 
         logger_main('error', 'Solution not updated');
-        return redirect()->route('solutions.index')->with('message', 'Erro ao atualizar cadastro.');
+        return redirect()->route('solutions.list', 1)->with('message', 'Erro ao atualizar cadastro.');
     }
 
     public function destroy(string $id)

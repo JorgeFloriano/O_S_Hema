@@ -92,11 +92,11 @@ class OrderTypeController extends Controller implements HasMiddleware
             'description' => $request->description,
         ]);
         if ($created) {
-            return redirect()->route('order_types.index')->with('message', 'Código cadastrado com sucesso.');
+            return redirect()->route('order_types.list', 1)->with('message', 'Código cadastrado com sucesso.');
         }
 
         logger_main('error', 'Order type not created');
-        return redirect()->route('order_types.index')->with('message', 'Erro ao cadastrar código.');
+        return redirect()->route('order_types.list', 1)->with('message', 'Erro ao cadastrar código.');
     }
 
     public function show(OrderType $order_type)
@@ -130,11 +130,11 @@ class OrderTypeController extends Controller implements HasMiddleware
         $updated = $this->order_type->where('id', $id)->update($request->except(['_token', '_method']));
 
         if ($updated) {
-            return redirect()->route('order_types.index')->with('message', 'Cadastro de causa atualizado com sucesso.');
+            return redirect()->route('order_types.list', 1)->with('message', 'Cadastro atualizado com sucesso.');
         }
 
         logger_main('error', 'Order type not updated');
-        return redirect()->route('order_types.index')->with('message', 'Erro ao atualizar cadastro.');
+        return redirect()->route('order_types.list', 1)->with('message', 'Erro ao atualizar cadastro.');
     }
 
     public function destroy(string $id)
