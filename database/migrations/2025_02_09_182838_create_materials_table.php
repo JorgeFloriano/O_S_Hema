@@ -14,6 +14,7 @@ return new class extends Migration
         Schema::create('materials', function (Blueprint $table) {
             $table->id();
             $table->string('description', 100);
+            $table->string('code', 8)->nullable();
             $table->string('unit', 5)->default('Un');
             $table->timestamps();
             $table->softDeletes();

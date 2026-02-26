@@ -34,9 +34,9 @@
                     <strong>Descrição dos Materiais Utilizados: </strong><br>
                     @foreach ($note->materials as $material)
                         @if ($loop->last)
-                            {{$material->description.' ('.$material->pivot->quantity.' '.$material->unit.'). '}}
+                            {{$material->completeDescription().' - ('.$material->pivot->quantity.' '.$material->unit.'). '}}
                         @else
-                            {{$material->description.' ('.$material->pivot->quantity.' '.$material->unit.'), '}}
+                            {{$material->completeDescription().' - ('.$material->pivot->quantity.' '.$material->unit.'), '}}
                         @endif
                     @endforeach
                     <br>

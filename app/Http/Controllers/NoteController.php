@@ -309,7 +309,7 @@ class NoteController extends Controller implements HasMiddleware
             $materials_json = json_encode($note->materials->map(function ($material) {
                 return [
                     'id' => $material->id,
-                    'description' => $material->description,
+                    'description' => $material->completeDescription(),
                     'quantity' => $material->pivot->quantity,
                     'unit' => $material->unit
                 ];

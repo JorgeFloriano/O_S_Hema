@@ -2,6 +2,7 @@
 
 namespace App\Http\Requests;
 
+use App\Models\Material;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 
@@ -98,7 +99,12 @@ class FormNoteRequest extends FormRequest
             foreach ($materialIds as $index => $materialId) {
                 $messages["material_id_{$materialId}.required"] = "O sistema não identificou o material ID {$materialId}.";
                 $messages["material_id_{$materialId}.numeric"] = "O ID do material {$materialId} encontrado não é numérico.";
-                $messages["material_id_{$materialId}.in"] = "O ID do material {$materialId} não encontrado no sistema.";
+
+                if (!in_array($materialId, session('materials_ids'))) {
+                    $material = Material::withTrashed()->find($materialId);
+                    $messages["material_id_{$materialId}.in"] = "Material {$material->completeDescription()} não encontrado no sistema,  verifique se não foi desabilitado pela adminstração.";
+                }
+               
                 $messages["material_id_{$materialId}_qtd.required"] = "Quantidade para o material ID {$materialId} não encontrada.";
                 $messages["material_id_{$materialId}_qtd.numeric"] = "Quantidade encontrada para o material ID {$materialId} não é numérica.";
                 $messages["material_id_{$materialId}_qtd.min"] = "Quantidade para o material ID {$materialId} não pode ser menor que 1.";

@@ -93,10 +93,10 @@ class CauseController extends Controller implements HasMiddleware
             'description' => $request->description,
         ]);
         if ($created) {
-            return redirect()->route('causes.index')->with('message', 'Código cadastrado com sucesso.');
+            return redirect()->route('causes.list', 1)->with('message', 'Código cadastrado com sucesso.');
         }
         logger_main('error', 'Cause not created');
-        return redirect()->route('causes.index')->with('message', 'Erro ao cadastrar código.');
+        return redirect()->route('causes.list', 1)->with('message', 'Erro ao cadastrar código.');
     }
 
     public function show(Cause $cause)
@@ -127,10 +127,10 @@ class CauseController extends Controller implements HasMiddleware
         $updated = $this->cause->where('id', $id)->update($request->except(['_token', '_method']));
 
         if ($updated) {
-            return redirect()->route('causes.index')->with('message', 'Cadastro de causa atualizado com sucesso.');
+            return redirect()->route('causes.list', 1)->with('message', 'Cadastro atualizado com sucesso.');
         }
         logger_main('error', 'Cause not updated');
-        return redirect()->route('causes.index')->with('message', 'Erro ao atualizar cadastro.');
+        return redirect()->route('causes.list', 1)->with('message', 'Erro ao atualizar cadastro.');
     }
 
     public function destroy(string $id)

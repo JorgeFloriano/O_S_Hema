@@ -26,6 +26,11 @@
                             <label for="description">Descrição</label>
                         </div>
 
+                        <div class="form-floating my-2">
+                            <input type="text" class="form-control" id="code" name="code" maxlength="8" placeholder="Código" value="{{$material->code}}" disabled>
+                            <label for="code">Código</label>
+                        </div>
+
                         <div class="my-2">
                             <button type="submit" class="btn btn-outline-danger me-2"><i class="fa fa-trash"></i> Deletar</button>
                             <a href="{{url()->previous()}}" class="btn btn-outline-primary ms-2" ><i class="fa fa-arrow-left"></i> Voltar</a>

@@ -93,10 +93,10 @@ class DefectController extends Controller implements HasMiddleware
             'description' => $request->description,
         ]);
         if ($created) {
-            return redirect()->route('defects.index')->with('message', 'Código cadastrado com sucesso.');
+            return redirect()->route('defects.list', 1)->with('message', 'Código cadastrado com sucesso.');
         }
         logger_main('error', 'Defect not created');
-        return redirect()->route('defects.index')->with('message', 'Erro ao cadastrar código.');
+        return redirect()->route('defects.list', 1)->with('message', 'Erro ao cadastrar código.');
     }
 
     public function show(Defect $defect)
@@ -130,10 +130,10 @@ class DefectController extends Controller implements HasMiddleware
         $updated = $this->defect->where('id', $id)->update($request->except(['_token', '_method']));
 
         if ($updated) {
-            return redirect()->route('defects.index')->with('message', 'Cadastro atualizado com sucesso.');
+            return redirect()->route('defects.list', 1)->with('message', 'Cadastro atualizado com sucesso.');
         }
         logger_main('error', 'Defect not updated');
-        return redirect()->route('defects.index')->with('message', 'Erro ao atualizar cadastro.');
+        return redirect()->route('defects.list', 1)->with('message', 'Erro ao atualizar cadastro.');
     }
 
     public function destroy(string $id)

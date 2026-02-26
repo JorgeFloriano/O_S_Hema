@@ -12,6 +12,7 @@ class FormMaterialRequest extends FormRequest
         return [
             'id' => ['numeric','nullable','min:0', Rule::unique(session('table'))],
             'description' => 'required|max:25',
+            'code' => 'nullable|max:8',
             'unit' => 'required|max:5'
         ];
     }
@@ -23,6 +24,8 @@ class FormMaterialRequest extends FormRequest
             'id.numeric' => 'O código deve ser numérico.',
             'id.min' => 'O número do código deve ser maior que zero.',
             'description.required' => 'O campo descrição deve ser preenchido.',
+            'description.max' => 'O campo descrição deve ter no máximo 25 caracteres.',
+            'code.max' => 'O campo código deve ter no máximo 8 caracteres.',
             'unit.required' => 'O campo unidade de medida deve ser preenchido.',
         ];
     }

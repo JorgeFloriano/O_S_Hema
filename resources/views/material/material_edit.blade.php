@@ -34,6 +34,11 @@
                         </div>
 
                         <div class="form-floating my-2">
+                            <input type="text" class="form-control" id="code" name="code" maxlength="8" placeholder="Código" value="{{$material->code}}">
+                            <label for="code">Código</label>
+                        </div>
+
+                        <div class="form-floating my-2">
                             <select class="form-select" id="unit" name="unit" aria-label="Floating label select example" required >
                                 @foreach ($units as $unit)
                                     @if ($unit == $material->unit)
