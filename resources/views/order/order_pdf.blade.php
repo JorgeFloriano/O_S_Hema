@@ -28,6 +28,10 @@
 
         @include('order/o_s_parts/client_sign')
 
+        @if($note->files->count() > 0)
+            @include('order/o_s_parts/note_files')
+        @endif
+
         @if (!$loop->last)
             <div class="page-break"></div>
         @endif

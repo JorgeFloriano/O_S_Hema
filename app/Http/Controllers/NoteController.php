@@ -15,6 +15,7 @@ use App\Models\Order;
 use App\Models\Solution;
 use App\Models\Tec;
 use App\Models\User;
+use App\Services\FileService;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Contracts\Encryption\DecryptException;
 use Illuminate\Support\Facades\Auth;
@@ -109,7 +110,7 @@ class NoteController extends Controller implements HasMiddleware
     }
 
     // Only technicians can save notes on the service orders
-    public function store(FormNoteRequest $request)
+    public function store(FormNoteRequest $request, FileService $fileService)
     {
         Gate::authorize('is-tec');
 
@@ -198,6 +199,11 @@ class NoteController extends Controller implements HasMiddleware
                     return redirect()->back()->with('message', 'Erro ao salvar materiais.');
                 }
             }
+        }
+
+        if ($request->hasFile('files')) {
+            // Passamos o array de arquivos para o Service
+            $fileService->storeMultipleFiles($created_note, $request->file('files'), 'notes');
         }
 
 
@@ -435,13 +441,17 @@ class NoteController extends Controller implements HasMiddleware
         return redirect()->back()->with('message', 'Registro pode ser editado apenas pelo técnico executante.');
     }
 
-    public function destroy(Note $note)
+    public function destroy(Note $note, FileService $fileService)
     {
         Gate::authorize('is-tec');
 
         $firstTec = $note->tecs->first();
 
         if ($this->auth->tec->id === $firstTec->id) {
+
+            // Primeiro apaga os arquivos (físico + banco)
+            $fileService->deleteAllFiles($note);
+
             $noteTecs = NoteTec::where('note_id', $note->id)->get();
             foreach ($noteTecs as $noteTec) {
                 $noteTec->delete();

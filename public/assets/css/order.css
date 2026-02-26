@@ -19,8 +19,17 @@ gelo #EFEEEC
 }
 
 * {
-    font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-        Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue",
+    font-family:
+        system-ui,
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Roboto,
+        Oxygen,
+        Ubuntu,
+        Cantarell,
+        "Open Sans",
+        "Helvetica Neue",
         sans-serif;
     padding: 0px;
     margin: 0px;
@@ -225,4 +234,49 @@ tr {
     float: right;
     font-size: 16px;
     color: #3b3939;
+}
+
+.photo-grid {
+    display: flex;
+    flex-wrap: wrap;
+    width: 100%;
+    border: 0.5px solid #ccc;
+}
+
+.photo-item {
+    width: 33.33%;
+    height: 360px; /* Sua altura definida */
+    border: 0.5px solid #ccc;
+    box-sizing: border-box;
+    /* Transformando em flex para alinhar o conteúdo verticalmente */
+    display: flex;
+    flex-direction: column;
+    padding: 5px;
+}
+
+.image-wrapper {
+    flex: 1; /* Ocupa todo o espaço disponível no topo */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    overflow: hidden;
+}
+
+.image-wrapper img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+.file-subtitle {
+    text-align: center;
+    font-size: 14px;
+    color: #666;
+    padding-top: 5px;
+    border-top: 0.1px solid #eee; /* Opcional: uma linha sutil para separar */
+    width: 100%;
+
+    /* Garante que fique na base */
+    margin-top: auto;
+    word-break: break-all; /* Evita que nomes longos quebrem o layout */
 }

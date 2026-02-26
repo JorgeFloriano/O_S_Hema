@@ -14,6 +14,8 @@ use App\Models\User;
 use App\Class\Logger;
 use App\Class\TextFormat;
 use App\Models\Material;
+use App\Models\MaterialNote;
+use App\Services\FileService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
 use Illuminate\Contracts\Encryption\DecryptException;
@@ -464,7 +466,7 @@ class OrderController extends Controller implements HasMiddleware
     }
 
     // Only administrators can delete orders
-    public function destroy(string $id)
+    public function destroy(string $id, FileService $fileService)
     {
         Gate::authorize('check-permission', ['sats', 2]);
 
@@ -477,10 +479,23 @@ class OrderController extends Controller implements HasMiddleware
 
         // Delete all notes of this order
         foreach ($order->notes as $key => $note) {
+            // Primeiro apaga os arquivos (físico + banco)
+            $fileService->deleteAllFiles($note);
+
+            // Delete all tecs in note
             foreach ($note->tecs as $key => $tec) {
                 $note_tec = NoteTec::where('note_id', $note->id)->where('tec_id', $tec->id)->first();
                 $note_tec->delete();
             }
+
+            // Delete all materials in note
+            $material_notes = MaterialNote::where('note_id', $note->id)->get();
+            if (count($material_notes) > 0 || $material_notes != null) {
+                foreach ($material_notes as $material_note) {
+                    $material_note->delete();
+                }
+            }
+
             $note->delete();
         }
 
@@ -623,6 +638,15 @@ class OrderController extends Controller implements HasMiddleware
 
             foreach ($orders as $order) {
                 $pages = $pages + count($order->notes);
+                foreach ($order->notes as $note) {
+                    if ($note->files->count() > 0) {
+                        $pages++;
+                    }
+
+                    if ($note->files->count() > 9) {
+                        $pages++;
+                    }
+                }
             }
         }
 

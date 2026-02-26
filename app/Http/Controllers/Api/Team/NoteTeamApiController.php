@@ -15,6 +15,7 @@ use App\Models\NoteType;
 use App\Models\Order;
 use App\Models\Solution;
 use App\Models\Tec;
+use App\Services\FileService;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
@@ -186,7 +187,7 @@ class NoteTeamApiController extends Controller
     /**
      * Store a newly created resource in storage.
      */
-    public function store(FormApiNoteRequest $request): JsonResponse
+    public function store(FormApiNoteRequest $request, FileService $fileService): JsonResponse
     {
         // Check if user is a technician
         if ($this->can->AuthIsTec()) {
@@ -259,6 +260,11 @@ class NoteTeamApiController extends Controller
                 }
 
                 $note->materials()->sync($materialsData);
+            }
+
+            if ($request->has('files')) {
+                // O Laravel trata múltiplos arquivos enviados com o mesmo nome como um array
+                $fileService->storeMultipleFiles($note, $request->file('files'), 'notes');
             }
 
             // Prepare technicians data
