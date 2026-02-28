@@ -45,6 +45,8 @@ body {
 div#buttonGroup {
     width: 770px;
     margin: auto;
+    flex-direction: row;
+    display: flex;
 }
 
 section#print {

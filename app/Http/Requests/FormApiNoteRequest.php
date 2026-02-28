@@ -5,9 +5,19 @@ namespace App\Http\Requests;
 use Illuminate\Foundation\Http\FormRequest;
 use Illuminate\Validation\Rule;
 use Carbon\Carbon;
+use Illuminate\Support\Facades\Log;
 
 class FormApiNoteRequest extends FormRequest
 {
+
+    // Dentro da classe FormApiNoteRequest
+    protected function failedValidation(\Illuminate\Contracts\Validation\Validator $validator)
+    {
+        // Isso vai escrever exatamente o que falhou no log do Laravel
+        Log::error('Falha de validação na API:', $validator->errors()->toArray());
+
+        parent::failedValidation($validator);
+    }
     /**
      * Determine if the user is authorized to make this request.
      */
@@ -38,23 +48,23 @@ class FormApiNoteRequest extends FormRequest
             'first_tec' => 'required|exists:tecs,id',
             'sign_t_1' => 'required|string', // base64 signature
             'finished' => 'required|boolean',
-            
+
             // Optional time fields
             'go_start' => 'nullable|date_format:H:i',
             'go_end' => 'nullable|date_format:H:i',
             'back_start' => 'nullable|date_format:H:i',
             'back_end' => 'nullable|date_format:H:i',
-            
+
             // Optional fields
             'second_tec' => 'nullable|exists:tecs,id|different:first_tec',
             'sign_t_2' => 'nullable|string', // base64 signature
             'sign_cl' => 'nullable|string', // base64 signature
-            
+
             // Client information
             'cl_name' => 'nullable|string|max:40',
             'cl_function' => 'nullable|string|max:40',
             'cl_contact' => 'nullable|string|max:40',
-            
+
             // Time validations
             'go_start' => [
                 'nullable',
@@ -83,7 +93,7 @@ class FormApiNoteRequest extends FormRequest
                     }
                 },
             ],
-            
+
             // Materials validation
             'materials' => 'sometimes|array',
             'materials.*.material_id' => [
@@ -93,7 +103,7 @@ class FormApiNoteRequest extends FormRequest
                 // Rule::in(session('materials_ids', []))
             ],
             'materials.*.quantity' => 'required_with:materials.*.material_id|numeric|min:1|max:9999',
-            
+
             // Kilometer validations
             // 'km_start' => 'nullable|numeric|min:0|max:999999',
             // 'km_end' => [
@@ -148,30 +158,30 @@ class FormApiNoteRequest extends FormRequest
             // Required fields
             'required' => 'O campo :attribute é obrigatório.',
             'required_with' => 'O campo :attribute é obrigatório quando :values está presente.',
-            
+
             // Date and time formats
             'date_format' => 'O campo :attribute deve estar no formato :format.',
-            
+
             // String length
             'max' => 'O campo :attribute não deve ter mais de :max caracteres.',
-            
+
             // Numeric validations
             'numeric' => 'O campo :attribute deve ser um número.',
             'min' => 'O campo :attribute deve ser pelo menos :min.',
             'max.numeric' => 'O campo :attribute não deve ser maior que :max.',
-            
+
             // Existence validations
             'exists' => 'O :attribute selecionado é inválido.',
-            
+
             // Boolean
             'boolean' => 'O campo :attribute deve ser verdadeiro ou falso.',
-            
+
             // Relations
             'different' => 'O segundo técnico deve ser diferente do primeiro técnico.',
-            
+
             // Array validation
             'array' => 'O campo :attribute deve ser um array.',
-            
+
             // Custom messages for specific fields
             'date.date_format' => 'Data inválida. Use o formato DD/MM/YYYY.',
             'go_start.date_format' => 'Horário de saída inválido (Ida). Use o formato HH:MM.',
@@ -180,7 +190,7 @@ class FormApiNoteRequest extends FormRequest
             'end.date_format' => 'Horário de término inválido. Use o formato HH:MM.',
             'back_start.date_format' => 'Horário de saída inválido (Retorno). Use o formato HH:MM.',
             'back_end.date_format' => 'Horário de chegada inválido (Retorno). Use o formato HH:MM.',
-            
+
             // Materials validation messages
             'materials.*.material_id.required_with' => 'O ID do material é obrigatório.',
             'materials.*.material_id.exists' => 'O material selecionado é inválido.',
@@ -195,6 +205,13 @@ class FormApiNoteRequest extends FormRequest
      */
     protected function prepareForValidation(): void
     {
+        $materials = $this->materials;
+
+        // Se o materials vier como String (JSON do React Native), decodificamos
+        if (is_string($materials)) {
+            $materials = json_decode($materials, true);
+        }
+
         // Convert empty strings to null for nullable fields
         $this->merge([
             'go_start' => $this->go_start ?: null,
@@ -210,10 +227,10 @@ class FormApiNoteRequest extends FormRequest
             'km_start' => $this->km_start ?: null,
             'km_end' => $this->km_end ?: null,
             'finished' => filter_var($this->finished, FILTER_VALIDATE_BOOLEAN),
-            
-            // Validate materials array structure
-            'materials' => $this->has('materials') && is_array($this->materials) 
-                ? array_filter($this->materials, function($material) {
+
+            // Limpeza do array de materiais
+            'materials' => is_array($materials)
+                ? array_filter($materials, function ($material) {
                     return !empty($material['material_id']) && isset($material['quantity']);
                 })
                 : null,
@@ -226,12 +243,12 @@ class FormApiNoteRequest extends FormRequest
     public function validated($key = null, $default = null)
     {
         $validated = parent::validated($key, $default);
-        
+
         // Parse date from d/m/Y to Y-m-d format for database
         if (isset($validated['date'])) {
             $validated['date'] = Carbon::createFromFormat('d/m/Y', $validated['date'])->format('Y-m-d');
         }
-        
+
         return $validated;
     }
 }

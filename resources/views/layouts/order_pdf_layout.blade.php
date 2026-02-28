@@ -20,12 +20,26 @@
 
     <body>
         <div id="buttonGroup">
-            <button id="btnPdf" class="btn btn-primary me-2">Baixar PDF</button>
-            @if (auth()->user()->adm()->first())
-                <a href="{{route('orders.reopen', ['order' => $order->id])}}" class="btn btn-primary me-2">
-                    Reabrir
+            @if (auth()->user()->hasPermission('sats', 1) && $order->attachments)
+                <a href="{{route('orders.complete_pdf', ['order' => $order->id])}}" class="btn btn-primary me-2">
+                    <i class="fa fa-download"></i> SAT + Anexos
                 </a>
             @endif
+            
+            <button id="btnPdf" class="btn btn-primary me-2"><i class="fa fa-download"></i> SAT</button>
+
+            @if (auth()->user()->hasPermission('sats', 1) && $order->attachments)
+                <a href="{{route('orders.attachments', ['order' => $order->id])}}" class="btn btn-primary me-2">
+                    <i class="fa fa-download"></i> Anexos
+                </a>
+            @endif
+
+            @if (auth()->user()->hasPermission('reopen_sat'))
+                <a href="{{route('orders.reopen', ['order' => $order->id])}}" class="btn btn-primary me-2">
+                    <i class="fa fa-refresh"></i> Reabrir
+                </a>
+            @endif
+
             @if (auth()->user()->isAdm() || auth()->user()->isSup())
                 <a href="{{route(session('reference_router_back') ?? 'orders.index')}}" class="btn btn-outline-primary me-2">
                     <i class="fa fa-arrow-left"></i> Voltar
@@ -34,6 +48,7 @@
                 <a href="{{route(auth()->user()->isCli() ? 'client.orders.index' : 'notes.index')}}" class="btn btn-outline-primary me-2" ><i class="fa fa-arrow-left"></i> Voltar</a>
             @endif
         </div>
+
         <section id="print">
             @yield('content')
         </section>

@@ -40,6 +40,11 @@ class FileService
     {
         $validator = Validator::make(['file' => $file], [
             'file' => 'required|file|mimes:pdf,jpg,jpeg,png|max:5120', // 5MB
+        ], [
+            'file.required' => 'O arquivo é obrigatório.',
+            'file.file' => 'O arquivo deve ser um arquivo.',
+            'file.mimes' => 'O arquivo deve ser um PDF, JPG, JPEG ou PNG.',
+            'file.max' => 'O arquivo deve ter no máximo 5MB.',
         ]);
 
         if ($validator->fails()) {

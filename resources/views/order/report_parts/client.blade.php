@@ -33,19 +33,27 @@
 
             @include('order/o_s_dompdf_parts/client_sign_dompdf')
 
-            @if($note->files->count() > 0)
-            <div class="page-number">página {{session('page')}}</div>
-                @php session()->put('page', session('page') + 1); @endphp
+            {{-- Verifica se houver ao menos uma imagem para exibir (PDFs nao serao exibidos agora) --}}
+            @if($note->files->count() > 0 && $note->files->contains(fn($file) => !Str::endsWith(strtolower($file->path), '.pdf')))
+                @if (session('page'))
+                    <div class="page-number">página {{session('page')}}</div>
+                    @php session()->put('page', session('page') + 1); @endphp
+                @endif
+
                 @include('order/o_s_dompdf_parts/note_files_dompdf')
             @endif
 
             @if (!$loop->last)
-                <div class="page-number">página {{session('page')}}</div>
-                @php session()->put('page', session('page') + 1); @endphp
+                @if (session('page'))
+                    <div class="page-number">página {{session('page')}}</div>
+                    @php session()->put('page', session('page') + 1); @endphp
+                @endif
 
                 <div class="page-break"></div>
             @endif
         @endforeach
-    <div class="page-number">página {{session('page')}}</div>
-    @php session()->put('page', session('page') + 1); @endphp
+    @if (session('page'))
+        <div class="page-number">página {{session('page')}}</div>
+        @php session()->put('page', session('page') + 1); @endphp
+    @endif
 @endsection

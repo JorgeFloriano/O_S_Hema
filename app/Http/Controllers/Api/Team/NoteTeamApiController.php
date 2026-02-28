@@ -170,7 +170,11 @@ class NoteTeamApiController extends Controller
         $defects = Defect::select('id', 'description')->orderBy('description')->get();
         $causes = Cause::select('id', 'description')->orderBy('description')->get();
         $solutions = Solution::select('id', 'description')->orderBy('description')->get();
-        $materials = Material::select('id', 'description', 'unit')->orderBy('description')->get();
+        $materials = Material::select('id', 'description', 'code', 'unit')->orderBy('description')->get();
+
+        foreach ($materials as $key => $material) {
+            $material->description = $material->completeDescription();
+        }
 
         return response()->json([
             'success' => true,
@@ -199,7 +203,6 @@ class NoteTeamApiController extends Controller
         DB::beginTransaction();
 
         try {
-
             $validated = $request->validated();
 
             // SAT / Order
@@ -247,6 +250,12 @@ class NoteTeamApiController extends Controller
                 'km_end' => $validated['km_end'] ?? null,
             ]);
 
+            if (!$note) {
+                DB::rollBack();
+                logger_main('error', 'Erro ao criar anotação.');
+                return response()->json(['error' => 'Erro ao criar anotação.'], 500);
+            }
+
             // Attach materials
             if ($request->has('materials') && is_array($request->materials)) {
                 $materialsData = [];
@@ -259,12 +268,24 @@ class NoteTeamApiController extends Controller
                     }
                 }
 
-                $note->materials()->sync($materialsData);
+                $sync_materials = $note->materials()->sync($materialsData);
+
+                if (!$sync_materials) {
+                    DB::rollBack();
+                    logger_main('error', 'Erro ao salvar materiais.');
+                    return response()->json(['error' => 'Erro ao salvar materiais.'], 500);
+                }
             }
 
             if ($request->has('files')) {
                 // O Laravel trata múltiplos arquivos enviados com o mesmo nome como um array
-                $fileService->storeMultipleFiles($note, $request->file('files'), 'notes');
+                $files = $fileService->storeMultipleFiles($note, $request->file('files'), 'notes');
+
+                if (!$files) {
+                    DB::rollBack();
+                    logger_main('error', 'Erro ao salvar arquivos.');
+                    return response()->json(['error' => 'Erro ao salvar arquivos.'], 500);
+                }
             }
 
             // Prepare technicians data
@@ -289,9 +310,15 @@ class NoteTeamApiController extends Controller
             }
 
             // Attach technicians
-            $note->tecs()->sync($technicians);
+            $note_tecs = $note->tecs()->sync($technicians);
 
-            $order->update([
+            if (!$note_tecs) {
+                DB::rollBack();
+                logger_main('error', 'Erro ao vincular técnicos.');
+                return response()->json(['error' => 'Erro ao vincular técnicos.'], 500);
+            }
+
+            $order_updated = $order->update([
                 'cl_name' => $validated['cl_name'] ?? null,
                 'cl_function' => $validated['cl_function'] ?? null,
                 'cl_contact' => $validated['cl_contact'] ?? null,
@@ -299,6 +326,12 @@ class NoteTeamApiController extends Controller
                 'cl_sign_path' => $signClientPath,
                 'finished' => $validated['finished'],
             ]);
+
+            if (!$order_updated) {
+                DB::rollBack();
+                logger_main('error', 'Erro ao atualizar SAT.');
+                return response()->json(['error' => 'Erro ao atualizar SAT.'], 500);
+            }
 
             if ($order->finished) {
                 $order->finish();

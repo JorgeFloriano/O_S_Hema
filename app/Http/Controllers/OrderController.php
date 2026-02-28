@@ -27,6 +27,9 @@ use Illuminate\Support\Facades\Gate;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
+use Illuminate\Support\Str;
+use Illuminate\Support\Facades\File;
+use ZipArchive;
 
 class OrderController extends Controller implements HasMiddleware
 {
@@ -39,7 +42,7 @@ class OrderController extends Controller implements HasMiddleware
     {
         return [
             // Usando o gate específico que não precisa de parâmetros extras na string
-            new Middleware('can:view-sats', only: ['index', 'show', 'search', 'filter', 'show_pdf', 'edit']),
+            new Middleware('can:view-sats', only: ['index', 'show', 'search', 'filter', 'show_pdf', 'complete_pdf', 'attachments', 'edit']),
 
             new Middleware('can:manage-sats', only: ['create', 'store', 'update', 'destroy', 'reopen', 'orders_pdf', 'generate_pdf', 'orders_csv']),
 
@@ -554,10 +557,146 @@ class OrderController extends Controller implements HasMiddleware
             die;
         }
 
+        // Verifica se existe pelo menos um arquivo em qualquer uma das notas vinculadas a esta SAT
+        // Usamos whereHas para navegar no relacionamento Order -> Notes -> Files
+        $order->attachments = $order->notes()->whereHas('files')->exists();
+
         // Null values will be replaced by - - : - - and the time will be formatted without seconds
         $order->notes_time_format();
 
         return view('order.order_pdf', ['order' => $order]);
+    }
+
+    public function complete_pdf(Order $order)
+    {
+        Gate::authorize('check-permission', ['sats', 1]);
+
+        if (!$order->finished) {
+            logger_main('error', 'Error order is not finished.');
+            return redirect()->route('orders.index')->withErrors('Não é possível gerar um relatório com Solicitações de Assistência Técnica não finalizadas!');
+        }
+
+        // Clear session variables from the previous report-----------------------------------------------
+        session()->forget('order_count_client_ids');
+        session()->forget('order_client_ids');
+        session()->forget('page');
+        session()->forget('order_index');
+        session()->forget('expected_pages');
+
+        // Delete all pdf files in storage folder----------------------------------------------------
+        $files = glob(public_path('storage/*.pdf'));
+        foreach ($files as $file) {
+            unlink($file);
+        }
+
+        // Generate the PDF for the order of the current client
+        $pdf = Pdf::loadView('order.report_parts.client', [
+            'order' => $order,
+        ])->setPaper('A4', 'portrait');
+
+        // 2. Limpa qualquer lixo que o PHP tenha colocado no buffer de saída
+        if (ob_get_length()) {
+            ob_clean();
+        }
+
+        if (!$pdf) {
+            logger_main('error', 'Error generating order number ' . $order->id . '.');
+            return redirect()->route('orders.index')->withErrors('Erro ao gerar Solicitação de Assistência Técnica número ' . $order->id . '!');
+        }
+
+        // 1. Definição do nome e caminho do arquivo
+        $filename = 'sat_' . $order->id . '_' . date('d_m_Y') . '.pdf';
+        $path = public_path('storage/' . $filename);
+
+        // Saves current client orders with name organized numerically
+        $save = $pdf->save($path);
+
+        if (!$save) {
+            logger_main('error', 'Error saving order number ' . $order->id . '.');
+            return redirect()->route('orders.index')->withErrors('Erro ao salvar a Solicitação de Assistência Técnica número ' . $order->id . '!');
+        }
+
+        // 2. Inicia o Merger
+        $oMerger = PDFMerger::init();
+        $oMerger->addPDF($path, 'all');
+
+        // 3. Busca todos os arquivos PDF anexados nas notas desta SAT
+        $hasExtraPdfs = false;
+        foreach ($order->notes as $note) {
+            foreach ($note->files as $file) {
+                if (Str::endsWith(strtolower($file->path), '.pdf')) {
+                    $filePath = public_path('storage/' . $file->path);
+                    if (file_exists($filePath)) {
+                        $oMerger->addPDF($filePath, 'all');
+                        $hasExtraPdfs = true;
+                    }
+                }
+            }
+        }
+
+        // 4. Finalização
+        $finalFilename = 'sat_' . $order->id . '_' . date('d_m_Y') . '.pdf';
+        $finalPath = public_path('storage/' . $finalFilename);
+
+        if ($hasExtraPdfs) {
+            $oMerger->merge();
+            $oMerger->save($finalPath);
+        } else {
+            // Se não tem PDFs extras, o arquivo final é o próprio mainPath
+            rename($path, $finalPath);
+        }
+
+        // 3. Forma comum do Laravel de entregar o arquivo para download
+        if (file_exists($finalPath)) {
+            return response()->download($finalPath, $finalFilename, [
+                'Content-Type' => 'application/pdf',
+            ])->deleteFileAfterSend(true);
+        }
+
+        logger_main('error', 'Error finding path ' . $path . '.');
+        return redirect()->route('orders.index')->withErrors('Erro ao encontrar o caminho ' . $path . '!');
+    }
+
+    public function attachments(Order $order)
+    {
+        Gate::authorize('check-permission', ['sats', 1]);
+
+        // 1. Coleta todos os arquivos de todas as notas dessa SAT
+        $files = [];
+        foreach ($order->notes as $note) {
+            foreach ($note->files as $file) {
+                $path = public_path('storage/' . $file->path);
+                if (file_exists($path)) {
+                    $files[] = [
+                        'full_path' => $path,
+                        'name' => $file->original_name
+                    ];
+                }
+            }
+        }
+
+        if (empty($files)) {
+            return redirect()->back()->with('message', 'Esta SAT não possui anexos para baixar.');
+        }
+
+        // 2. Prepara o arquivo ZIP temporário
+        $zipFileName = 'anexos_sat_' . $order->id . '.zip';
+        $zipPath = public_path('storage/' . $zipFileName);
+        $zip = new ZipArchive;
+
+        if ($zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === TRUE) {
+            foreach ($files as $index => $fileData) {
+                // Evita arquivos com nomes duplicados no ZIP adicionando um índice
+                $nameInZip = $index . '_' . $fileData['name'];
+                $zip->addFile($fileData['full_path'], $nameInZip);
+            }
+            $zip->close();
+        } else {
+            return redirect()->back()->with('message', 'Não foi possível criar o arquivo compactado.');
+        }
+
+        // 3. Entrega o ZIP para download e apaga do servidor após o envio
+        return response()->download($zipPath)->deleteFileAfterSend(true);
     }
 
     // Starts the process of generating the report (generate front page)-----------------------------------------
@@ -639,7 +778,7 @@ class OrderController extends Controller implements HasMiddleware
             foreach ($orders as $order) {
                 $pages = $pages + count($order->notes);
                 foreach ($order->notes as $note) {
-                    if ($note->files->count() > 0) {
+                    if ($note->files->count() > 0 && $note->files->contains(fn($file) => !Str::endsWith(strtolower($file->path), '.pdf'))) {
                         $pages++;
                     }
 

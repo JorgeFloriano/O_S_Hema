@@ -31,6 +31,8 @@ Route::middleware(CheckSession::class)->group(function () {
     Route::post('/orders/filter', [OrderController::class, 'filter'])->name('orders.filter');
     Route::post('/orders/search', [OrderController::class, 'search'])->name('orders.search');
     Route::post('/orders/orders_pdf', [OrderController::class, 'orders_pdf'])->name('orders.orders_pdf');
+    Route::get('/orders/{order}/complete_pdf', [OrderController::class, 'complete_pdf'])->name('orders.complete_pdf');
+    Route::get('/orders/{order}/attachments', [OrderController::class, 'attachments'])->name('orders.attachments');
     Route::get('/orders/{order}/finish', [OrderController::class, 'finish'])->name('orders.finish');
     Route::get('/orders/{order}/reopen', [OrderController::class, 'reopen'])->name('orders.reopen');
     Route::get('/orders/{order}/show_pdf', [OrderController::class, 'show_pdf'])->name('orders.show_pdf');
@@ -78,9 +80,10 @@ Route::middleware(CheckSession::class)->group(function () {
 
     Route::get('/tec_on', [UserController::class, 'tec_on'])->name('tec_on');
     Route::put('/tec_on_update', [UserController::class, 'tec_on_update'])->name('tec_on_update');
-    
+
     Route::get('/tec_on_stop_all_notifications', [
-        UserController::class, 'tec_on_stop_all_notifications'
+        UserController::class,
+        'tec_on_stop_all_notifications'
     ])->name('tec_on_stop_all_notifications');
 
     Route::get('/notes', [NoteController::class, 'index'])->name('notes.index');
