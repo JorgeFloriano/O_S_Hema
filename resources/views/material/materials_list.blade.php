@@ -31,7 +31,7 @@
                                     <th>Código</th>
                                     <th>Unidade</th>
 
-                                    @if ($opt === 0 && $auth->isMainAdm())
+                                    @if ($opt === 0 && $auth->hasPermission('materials', 2))
                                         <th>Editar</th>
                                     @endif
 
@@ -52,7 +52,7 @@
 
                                         <td>{{$material->unit}}</td>
 
-                                        @if ($opt === 0 && $auth->isMainAdm())
+                                        @if ($opt === 0 && $auth->hasPermission('materials', 2))
                                             <td>
                                                 <a href="{{route('materials.edit', ['material' => Crypt::encryptString($material->id)])}}" class="btn btn-outline-primary btn-sm">
                                                     <i class="fa fa-edit"></i>

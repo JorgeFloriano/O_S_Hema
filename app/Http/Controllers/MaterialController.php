@@ -23,10 +23,10 @@ class MaterialController extends Controller implements HasMiddleware
             new Middleware('can:view-materials', only: ['index', 'list', 'show']),
 
             // Gerenciamento básico (Nível 2) - Criar, Desativar, Restaurar
-            new Middleware('can:manage-materials', only: ['create', 'store', 'destroy', 'restore', 'desativate']),
+            new Middleware('can:manage-materials', only: ['create', 'store', 'destroy', 'restore', 'desativate', 'edit', 'update']),
 
             // Edição técnica/descrição - Restrito ao Administrador Principal
-            new Middleware('can:is-main-adm', only: ['edit', 'update']),
+            //new Middleware('can:is-main-adm', only: ['edit', 'update']),
         ];
     }
     
@@ -113,7 +113,7 @@ class MaterialController extends Controller implements HasMiddleware
 
     public function edit($material)
     {
-        Gate::authorize('is-main-adm');
+        Gate::authorize('check-permission', ['materials', 2]);
 
         try {
             $material = $this->material->find(Crypt::decryptString($material));
@@ -131,7 +131,7 @@ class MaterialController extends Controller implements HasMiddleware
 
     public function update(FormMaterialRequest $request, string $id)
     {
-        Gate::authorize('is-main-adm');
+        Gate::authorize('check-permission', ['materials', 2]);
 
         $request->validated();
 

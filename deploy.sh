@@ -17,7 +17,7 @@ composer install --no-dev --optimize-autoloader
 php artisan optimize:clear
 
 # 6. Garantir que o link do storage existe
-php artisan storage:link
+php artisan storage:link || true
 
 # 7. Sair do modo de manutenção
 php artisan up
