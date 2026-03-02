@@ -30,7 +30,7 @@ class UserController extends Controller implements HasMiddleware
     {
         return [
             // Visualização de usuários (Nível 1)
-            new Middleware('can:view-users', only: ['index', 'show']),
+            new Middleware('can:view-users', only: ['index']),
 
             // Gerenciamento de usuários (Nível 2)
             new Middleware('can:manage-users', only: ['create', 'store', 'edit', 'update', 'destroy']),
@@ -277,14 +277,16 @@ class UserController extends Controller implements HasMiddleware
     // Shows the form to delete the user registration
     public function show($user)
     {
-        Gate::authorize('check-permission', ['users', 1]);
-
         // Decrypt the user id
         try {
             $user = User::find(Crypt::decryptString($user));
         } catch (DecryptException $e) {
             echo 'Erro de desencriptação.';
             die;
+        }
+
+        if (!$this->auth->hasPermission('users', 1) && $user->id != $this->auth->id) {
+            return view('login', ['message' => 'Acesso Negado']);
         }
 
         if ($user->id == $this->auth->id) {
