@@ -20,14 +20,12 @@
 
     <body>
         <div id="buttonGroup">
-            @if (auth()->user()->hasPermission('sats', 1) && $order->attachments)
+            @if (auth()->user()->canSeeSat($order)) 
                 <a href="{{route('orders.complete_pdf', ['order' => $order->id])}}" class="btn btn-primary me-2">
-                    <i class="fa fa-download"></i> SAT + Anexos
+                    <i class="fa fa-download"></i> SAT
                 </a>
             @endif
             
-            <button id="btnPdf" class="btn btn-primary me-2"><i class="fa fa-download"></i> SAT</button>
-
             @if (auth()->user()->hasPermission('sats', 1) && $order->attachments)
                 <a href="{{route('orders.attachments', ['order' => $order->id])}}" class="btn btn-primary me-2">
                     <i class="fa fa-download"></i> Anexos
@@ -48,6 +46,21 @@
                 <a href="{{route(auth()->user()->isCli() ? 'client.orders.index' : 'notes.index')}}" class="btn btn-outline-primary me-2" ><i class="fa fa-arrow-left"></i> Voltar</a>
             @endif
         </div>
+
+        @if (auth()->user()->hasPermission('sats') && $order->files()->count() > 0)
+            <div id='files'>
+                <h5>Anexo(s)</h5>
+                <x-live-toast-message></x-live-toast-message>
+                @foreach ($order->files() as $file)
+                    <div class="mb-2">
+                        <a href="{{route('file.download', ['file' => $file->id])}}" class="text-decoration-none">
+                            <i class="fa fa-{{$file->isPdf() ? 'file-pdf-o text-danger' : 'file-image-o text-primary'}} me-2" title="{{$file->type()}}"></i>
+                            <span class="text-primary">{{$file->original_name}}</span>
+                        </a>
+                    </div>
+                @endforeach
+            </div>
+        @endif
 
         <section id="print">
             @yield('content')

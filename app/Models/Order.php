@@ -4,6 +4,7 @@ namespace App\Models;
 
 use App\Class\Hours;
 use App\Notifications\NewSampleNotification;
+use App\Services\FileService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -11,6 +12,10 @@ use Illuminate\Database\Eloquent\Relations\HasMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Str;
+use Webklex\PDFMerger\Facades\PDFMergerFacade as PDFMerger;
+use Illuminate\Support\Facades\DB;
+use Illuminate\Support\Facades\Storage;
 
 class Order extends Model
 {
@@ -328,5 +333,154 @@ class Order extends Model
             'success' => true,
             'message' => "SAT {$this->id} atribuida ao técnico {$tec->user->name} e notificação enviada com sucesso!"
         ];
+    }
+    /**
+     * Coleta todos os arquivos vinculados a todas as intervenções (notes) desta SAT.
+     */
+    public function files()
+    {
+        $order = Order::with('notes.files')->find($this->id);
+
+        // Usamos o collapse() para transformar uma coleção de coleções em uma única lista plana
+        return $order->notes->flatMap(function ($note) {
+            return $note->files;
+        });
+    }
+
+    /**
+     * Filtra apenas o que é imagem de todas as notas da SAT.
+     * Útil para a grade de fotos principal do relatório.
+     */
+    public function images()
+    {
+        return $this->files()->filter(function ($file) {
+            return !Str::endsWith(strtolower($file->path), '.pdf');
+        });
+    }
+
+    /**
+     * Filtra apenas os PDFs de todas as notas da SAT.
+     * Útil para a lógica de Merge no seu Controller.
+     */
+    public function pdfs()
+    {
+        return $this->files()->filter(function ($file) {
+            return Str::endsWith(strtolower($file->path), '.pdf');
+        });
+    }
+
+    public function mergePdfAttachment($path)
+    {
+        try {
+            // 2. Inicia o Merger
+            $oMerger = PDFMerger::init();
+            $oMerger->addPDF($path, 'all');
+
+            // 3. Busca todos os arquivos PDF anexados nas notas desta SAT
+            $hasExtraPdfs = false;
+            foreach ($this->notes as $note) {
+                foreach ($note->files as $file) {
+                    if (Str::endsWith(strtolower($file->path), '.pdf')) {
+                        $filePath = public_path('storage/' . $file->path);
+                        if (file_exists($filePath)) {
+                            $oMerger->addPDF($filePath, 'all');
+                            $hasExtraPdfs = true;
+                        }
+                    }
+                }
+            }
+
+            // 4. Finalização
+            $finalFilename = 'sat_' . $this->id . '_' . date('d_m_Y') . '.pdf';
+            $finalPath = public_path('storage/' . $finalFilename);
+
+            if ($hasExtraPdfs) {
+                $oMerger->merge();
+                $oMerger->save($finalPath);
+            } else {
+                // Se não tem PDFs extras, o arquivo final é o próprio mainPath
+                rename($path, $finalPath);
+            }
+        } catch (\Exception $e) {
+            Log::error('Error merging PDFs: ' . $e->getMessage());
+            return [
+                'success' => false,
+                'message' => 'Error merging PDFs: ' . $e->getMessage()
+            ];
+        }
+
+        return [
+            'success' => true,
+            'finalFilename' => $finalFilename,
+            'finalPath' => $finalPath
+        ];
+    }
+
+    public function clearPreviousReportSessionVariables()
+    {
+        session()->forget('order_count_client_ids');
+        session()->forget('order_client_ids');
+        session()->forget('page');
+        session()->forget('order_index');
+        session()->forget('expected_pages');
+    }
+
+    public function deleteAllPdfsInStorageFolder()
+    {
+        // Delete all pdf files in storage folder----------------------------------------------------
+        $files = glob(public_path('storage/*.pdf'));
+        foreach ($files as $file) {
+            unlink($file);
+        }
+    }
+
+    public function completlyDelete(FileService $fileService): array
+    {
+        return DB::transaction(function () use ($fileService) {
+            try {
+                // 1. Limpa estado de emergência dos técnicos
+                Tec::where('emergency_order_id', $this->id)->update([
+                    'emergency_order_id' => null,
+                    'emergency_notification_pending' => false
+                ]);
+
+                // 2. Apagar assinatura do CLIENTE (se existir na Order)
+                if ($this->cl_sign_path && Storage::disk('public')->exists($this->cl_sign_path)) {
+                    Storage::disk('public')->delete($this->cl_sign_path);
+                }
+
+                // 3. Itera sobre as notas
+                foreach ($this->notes as $note) {
+                    // Apaga fotos/PDFs anexados às notas (via FileService)
+                    $fileService->deleteAllFiles($note);
+
+                    // 4. Apagar assinaturas dos TÉCNICOS (estão na tabela pivô note_tec)
+                    foreach ($note->tecs as $tec) {
+                        if ($tec->pivot->signature_path && Storage::disk('public')->exists($tec->pivot->signature_path)) {
+                            Storage::disk('public')->delete($tec->pivot->signature_path);
+                        }
+                    }
+
+                    // Remove relações e notas
+                    $note->tecs()->detach();
+                    $note->materials()->detach();
+                    $note->forceDelete();
+                }
+
+                // 5. Deleta a ordem principal
+                $this->forceDelete();
+
+                return [
+                    'success' => true,
+                    'message' => 'Solicitação de Assistência Técnica deletada com sucesso.'
+                ];
+            } catch (\Exception $e) {
+                logger_main('error', 'Erro ao deletar SAT ' . $this->id . ': ' . $e->getMessage());
+                return [
+                    'success' => false,
+                    'message' => 'Erro ao deletar SAT: ' . $e->getMessage()
+                ];
+            }
+        });
     }
 }

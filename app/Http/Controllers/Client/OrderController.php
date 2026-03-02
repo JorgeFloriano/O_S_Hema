@@ -241,12 +241,6 @@ class OrderController extends Controller
     // Shows the the order
     public function show($order)
     {
-        // If user is not a authorized client, redirect to orders index
-        if (!$this->user->clientCanSeeSat()) {
-            logger_main('error', "Acesso Negado");
-            return redirect()->route('client.orders.index')->with('message', 'Usuário sem permissão para ver solicitações.');
-        }
-
         // Decrypt the order id
         try {
             $order = $this->os->find(Crypt::decryptString($order));
@@ -256,18 +250,18 @@ class OrderController extends Controller
             die;
         }
 
+        // If user is not a authorized client, redirect to orders index
+        if (!$this->user->clientCanSeeSat($order)) {
+            logger_main('error', "Acesso Negado");
+            return redirect()->route('client.orders.index')->with('message', 'Usuário sem permissão para ver solicitações.');
+        }
+
         return view('order.order_delete', ['order' => $order]);
     }
 
     // Shows the PDF for the order
     public function show_pdf($order)
     {
-        // If user is not a authorized client, redirect to login
-        if (!$this->user->clientCanSeeSat()) {
-            logger_main('error', "Acesso Negado");
-            return redirect()->route('client.orders.index')->with('message', 'Usuário sem permissão para ver solicitações.');
-        }
-
         // Decrypt the order id
         try {
             $order = $this->os->find(Crypt::decryptString($order));
@@ -275,6 +269,12 @@ class OrderController extends Controller
             $this->logger->log('error', 'Decryption error (order/show_pdf).');
             return redirect()->back()->with('error', 'Erro de desencriptação (order/show_pdf).');
             die;
+        }
+
+        // If user is not a authorized client, redirect to login
+        if (!$this->user->clientCanSeeSat($order)) {
+            logger_main('error', "Acesso Negado");
+            return redirect()->route('client.orders.index')->with('message', 'Usuário sem permissão para ver solicitações.');
         }
 
         // Null values will be replaced by - - : - - and the time will be formatted without seconds

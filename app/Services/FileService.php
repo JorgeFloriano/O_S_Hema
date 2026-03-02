@@ -2,6 +2,7 @@
 
 namespace App\Services;
 
+use App\Models\File;
 use Illuminate\Http\UploadedFile;
 use Illuminate\Support\Facades\Validator;
 use Illuminate\Validation\ValidationException;
@@ -79,7 +80,7 @@ class FileService
      */
     public function deleteSingleFile(int $fileId)
     {
-        $file = \App\Models\File::findOrFail($fileId);
+        $file = File::findOrFail($fileId);
 
         if (Storage::disk('public')->exists($file->path)) {
             Storage::disk('public')->delete($file->path);

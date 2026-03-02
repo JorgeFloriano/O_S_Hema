@@ -12,6 +12,7 @@ use App\Http\Controllers\DefectController;
 use App\Http\Controllers\CauseController;
 use App\Http\Controllers\SolutionController;
 use App\Http\Controllers\MaterialController;
+use App\Models\File;
 use Illuminate\Support\Facades\Route;
 use App\Notifications\NewSampleNotification;
 
@@ -40,6 +41,17 @@ Route::middleware(CheckSession::class)->group(function () {
     Route::get('/orders/{qtd}/add', [OrderController::class, 'add'])->name('orders.add');
     Route::post('/orders/orders_csv', [OrderController::class, 'orders_csv'])->name('orders.orders_csv');
     Route::post('/orders/{id}/ord_tec_update', [OrderController::class, 'ord_tec_update'])->name('orders.ord_tec_update');
+
+    Route::get('/file/{file}/download', function (File $file) {
+        // O Laravel já faz o "Route Model Binding" e encontra o arquivo pelo ID automaticamente
+        $path = public_path('storage/' . $file->path);
+
+        if (file_exists($path)) {
+            return response()->download($path, $file->original_name);
+        }
+
+        return redirect()->back()->withErrors('Arquivo não encontrado no servidor.');
+    })->name('file.download');
 
     Route::resource('clients', ClientController::class);
     Route::get('clients/{opt}/list', [ClientController::class, 'list'])->name('clients.list');

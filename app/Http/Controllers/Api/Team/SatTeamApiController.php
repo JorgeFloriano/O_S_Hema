@@ -7,8 +7,10 @@ use App\Class\ResponseJson;
 use App\Http\Controllers\Controller;
 use App\Models\Order;
 use App\Models\User;
+use App\Services\FileService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Barryvdh\DomPDF\Facade\Pdf;
 
 class SatTeamApiController extends Controller
 {
@@ -84,12 +86,12 @@ class SatTeamApiController extends Controller
                 }
             })
             ->when($request->has('finished') && $request->finished != 2, function ($q) use ($request) {
-                $q->where('finished', $request->finished)
-                ->whereNull('deleted_at'); // Adicione esta linha explicitamente;
+                $q->where('finished', $request->finished);
             });
 
         // Executa a busca
         $orders = $query->select('id', 'order_type_id', 'req_descr', 'req_name', 'equipment', 'sector', 'client_id', 'user_id', 'tec_id', 'req_date', 'req_time', 'finished')
+            ->whereNull('deleted_at') // Adicione esta linha explicitamente;
             ->orderBy('id', 'desc')
             ->limit(30)
             ->get();
@@ -112,8 +114,7 @@ class SatTeamApiController extends Controller
         ]);
 
         // get orders
-        $orders = Order::
-            with(['client:id,name', 'tec.user:id,name', 'type:id,description'])
+        $orders = Order::with(['client:id,name', 'tec.user:id,name', 'type:id,description'])
             ->select('id', 'order_type_id', 'req_descr', 'req_name', 'equipment', 'sector', 'client_id', 'user_id', 'tec_id', 'req_date', 'req_time', 'finished')
             ->where('id', $validated['search'])
             ->whereNull('deleted_at') // Adicione esta linha explicitamente
@@ -153,5 +154,93 @@ class SatTeamApiController extends Controller
 
         logger_main('error', 'Erro ao reabrir Solicitação de Assistência Técnica.');
         return $this->can->array(false, 'Erro ao reabrir Solicitação de Assistência Técnica.', 500);
+    }
+
+    public function download_pdf($id)
+    {
+        // Check if user is a supervisor that can attach a technician
+        if (!$this->auth->hasPermission('sats', 1)) {
+            logger_main('error', 'Usuário sem permissão para fazer download da SAT.');
+            return $this->can->array(false, 'Usuário sem permissão para fazer download da SAT.', 403);
+        }
+
+        // Get the order
+        $order = Order::findOrFail($id);
+
+        if (!$order->finished) {
+            logger_main('error', 'Error order is not finished.');
+            return $this->can->array(false, 'Não é possível gerar um relatório com SAT não finalizada!', 403);
+        }
+
+        $order->clearPreviousReportSessionVariables();
+
+        $order->deleteAllPdfsInStorageFolder();
+
+        try {
+            // Generate the PDF for the order of the current client
+            $pdf = Pdf::loadView('order.report_parts.client', [
+                'order' => $order,
+            ])->setPaper('A4', 'portrait');
+
+            // 2. Limpa qualquer lixo que o PHP tenha colocado no buffer de saída
+            if (ob_get_length()) ob_clean();
+
+            $filename = 'sat_' . $order->id . '_' . date('d_m_Y') . '.pdf';
+            $path = public_path('storage/' . $filename);
+
+            $pdf->save($path);
+
+            // 2. Tenta fazer o merge com anexos PDF (usando seu método do Model)
+            $merge = $order->mergePdfAttachment($path);
+
+            if (!$merge['success']) {
+                if (file_exists($path)) unlink($path);
+                logger_main('error', $merge['message']);
+                return $this->can->array(false, $merge['message'], 403);
+            }
+
+            $finalPath = $merge['finalPath'];
+            $finalFilename = $merge['finalFilename'];
+
+            if (file_exists($finalPath)) {
+                // Retorna o download e deleta após o envio
+                return response()->download($finalPath, $finalFilename, [
+                    'Content-Type' => 'application/pdf',
+                ])->deleteFileAfterSend(false);
+            }
+
+            return $this->can->array(false, 'Arquivo não encontrado no servidor.', 404);
+        } catch (\Exception $e) {
+            logger_main('error', 'Falha crítica no PDF: ' . $e->getMessage());
+            return $this->can->array(false, 'Erro interno ao gerar PDF.', 500);
+        }
+    }
+
+    // Only administrators can delete orders
+    public function destroy(string $id)
+    {
+        // Check if user is a supervisor that can attach a technician
+        if (!$this->auth->hasPermission('sats', 2)) {
+            logger_main('error', 'Usuário sem permissão para deletar Solicitação de Assistência Técnica.');
+            return $this->can->array(false, 'Usuário sem permissão para deletar Solicitação de Assistência Técnica.', 403);
+        }
+
+        $order = Order::findOrFail($id);
+
+        if (!$order) {
+            return $this->can->array(false, 'Solicitação de Assistência Técnica não encontrada.', 404);
+        }
+
+        // Instanciamos o FileService para passar para o método de deleção
+        $fileService = app(FileService::class);
+
+        // Chamamos o método passando o serviço necessário
+        $deleted = $order->completlyDelete($fileService);
+
+        if (!$deleted['success']) {
+            logger_main('error', $deleted['message']);
+            return $this->can->array(false, $deleted['message'], 500);
+        }
+        return $this->can->array(true, $deleted['message'], 200);
     }
 }

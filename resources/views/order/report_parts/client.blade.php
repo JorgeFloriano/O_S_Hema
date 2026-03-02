@@ -34,12 +34,13 @@
             @include('order/o_s_dompdf_parts/client_sign_dompdf')
 
             {{-- Verifica se houver ao menos uma imagem para exibir (PDFs nao serao exibidos agora) --}}
-            @if($note->files->count() > 0 && $note->files->contains(fn($file) => !Str::endsWith(strtolower($file->path), '.pdf')))
+            @if($note->images()->count() > 0)
                 @if (session('page'))
                     <div class="page-number">página {{session('page')}}</div>
                     @php session()->put('page', session('page') + 1); @endphp
                 @endif
 
+                <div class="page-break"></div>
                 @include('order/o_s_dompdf_parts/note_files_dompdf')
             @endif
 

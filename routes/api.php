@@ -75,6 +75,12 @@ Route::middleware('auth:sanctum')->group(function () {
     // Reabrir SAT
     Route::put('/sat/orders/{id}/reopen', [SatTeamApiController::class, 'reopen'])->name('sat-reopen');
 
+    // Deletar SAT
+    Route::delete('/sat/orders/{id}/delete', [SatTeamApiController::class, 'destroy'])->name('sat-delete');
+
+    // Download SAT
+    Route::get('/sat/orders/{id}/download', [SatTeamApiController::class, 'download_pdf'])->name('sat-download-pdf');
+
     // Rotas para a tela de controle de técnicos de sobreaviso (emergência)
     Route::prefix('emergency')->group(function () {
         // Listagem de técnicos e clientes

@@ -1,10 +1,10 @@
-<div class="note-files-container" style="margin-top: 60px; width: 100%;">
+<div class="note-files-container" style="width: 100%;">
     <div style="margin-bottom: 10px;">
         <strong>Anexos SAT {{ $order->id }}, Intervenção {{ $loop->iteration }} (Fotos/Imagens):</strong>
     </div>
 
     {{-- Dividimos a coleção em grupos de 3 --}}
-    @foreach ($note->files->take(9)->chunk(3) as $chunk)
+    @foreach ($note->images()->take(9)->chunk(3) as $chunk)
         <div class="photo-row" style="clear: both; width: 100%; display: block; height: 345px;">
             @foreach ($chunk as $file)
                 <div class="photo-item">
