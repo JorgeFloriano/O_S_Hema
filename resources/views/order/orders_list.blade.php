@@ -253,7 +253,7 @@
                                                         </li>
                                                     @endif
 
-                                                    @if ($auth->hasPermission('sats', 2) && !$order->finished)
+                                                    @if (($auth->hasPermission('sats', 2) && !$order->finished && $order->notes->count() == 0) || ($auth->hasPermission('is-main-adm') && !$order->finished))
                                                         <li><hr class="dropdown-divider"></li>
 
                                                         <li>

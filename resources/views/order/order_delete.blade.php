@@ -49,7 +49,16 @@
 
                         @if (!auth()->user()->isCli())
                             <div class="alert alert-warning">
-                                Atenção, as informações desta Solicitação de Assistência Técnica serão perdidas após a mesma ser deletada!
+                                <p>
+                                    Atenção!!
+                                    Todas as informações desta SAT serão perdidas após a mesma ser deletada!
+                                </p>
+
+                                @if($order->notes->count() > 0)
+                                    <p>
+                                        Os serviços referentes a esta SAT já foram iniciados, todas as informações registradas e arquivos anexados serão perdidos!!!
+                                    </p>
+                                @endif
                             </div>
                         @endif
 

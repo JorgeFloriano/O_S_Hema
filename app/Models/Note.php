@@ -9,6 +9,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsToMany;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\SoftDeletes;
 use Illuminate\Support\Facades\Storage;
+use Illuminate\Support\Str;
 
 class Note extends Model
 {
@@ -109,5 +110,35 @@ class Note extends Model
     {
         // O segundo parâmetro 'fileable' deve coincidir com o nome usado na migration
         return $this->morphMany(File::class, 'fileable');
+    }
+
+    /**
+     * Retorna apenas os arquivos que são imagens (filtros PDFs).
+     * Ideal para usar no Blade do Relatório.
+     */
+    public function images()
+    {
+        // Usamos a propriedade dinâmica $this->files, que já traz a Collection
+        // Verificamos se a coleção está vazia de forma segura
+        if ($this->files->isEmpty()) {
+            return collect(); // Retorna uma coleção vazia em vez de array para manter consistência
+        }
+
+        return $this->files->filter(function ($file) {
+            // Usamos Str::endsWith de forma case-insensitive para segurança no Linux
+            return !Str::endsWith(strtolower($file->path), '.pdf');
+        });
+    }
+
+    public function pdfs()
+    {
+        // Verificamos se a coleção está vazia de forma segura
+        if ($this->files->isEmpty()) {
+            return collect(); // Retorna uma coleção vazia em vez de array para manter consistência
+        }
+
+        return $this->files->filter(function ($file) {
+            return Str::endsWith(strtolower($file->path), '.pdf');
+        });
     }
 }

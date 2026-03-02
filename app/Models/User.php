@@ -116,9 +116,13 @@ class User extends Authenticatable
         return $this->cli ? $this->cli->canCreateSat() : false;
     }
 
-    public function clientCanSeeSat(): bool | null
+    public function clientCanSeeSat(?Order $order = null): bool
     {
-        return $this->cli ? $this->cli->canSeeSat() : false;
+        if ($order == null || $order->client_id == $this->userClientCompanyId()) {
+            return $this->cli ? $this->cli->canSeeSat() : false;
+        }
+
+        return false;
     }
 
     public function clientCanAccessClient($user_id): bool | null
@@ -150,9 +154,19 @@ class User extends Authenticatable
         return $this->adm->cli ? true : false;
     }
 
-    public function canSeeSat(): bool
+    public function canSeeSat(?Order $order = null): bool
     {
-        return $this->hasPermission('sats', 1) || $this->clientCanSeeSat();
+        if ($order == null) {
+            return $this->hasPermission('sats', 1) || $this->clientCanSeeSat();
+        }
+        
+        if ($this->isTec()) {
+            if ($order->tec_id == $this->tec->id) {
+                return true;
+            }
+        }
+
+        return $this->hasPermission('sats', 1) || $this->clientCanSeeSat($order);
     }
 
     public function canCreateSat(): bool
@@ -280,7 +294,7 @@ class User extends Authenticatable
 
     public function getFullName(): string
     {
-        return $this->name . ' ' . $this->surname;
+        return $this->name . ' ' . ($this->surname ?? '');
     }
 
     public function reopenOrder($order_id)

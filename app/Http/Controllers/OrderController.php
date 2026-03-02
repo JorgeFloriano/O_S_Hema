@@ -14,7 +14,6 @@ use App\Models\User;
 use App\Class\Logger;
 use App\Class\TextFormat;
 use App\Models\Material;
-use App\Models\MaterialNote;
 use App\Services\FileService;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Crypt;
@@ -28,7 +27,6 @@ use Illuminate\Support\Facades\Auth;
 use Illuminate\Routing\Controllers\HasMiddleware;
 use Illuminate\Routing\Controllers\Middleware;
 use Illuminate\Support\Str;
-use Illuminate\Support\Facades\File;
 use ZipArchive;
 
 class OrderController extends Controller implements HasMiddleware
@@ -42,7 +40,7 @@ class OrderController extends Controller implements HasMiddleware
     {
         return [
             // Usando o gate específico que não precisa de parâmetros extras na string
-            new Middleware('can:view-sats', only: ['index', 'show', 'search', 'filter', 'show_pdf', 'complete_pdf', 'attachments', 'edit']),
+            new Middleware('can:view-sats', only: ['index', 'search', 'filter', 'attachments', 'edit']),
 
             new Middleware('can:manage-sats', only: ['create', 'store', 'update', 'destroy', 'reopen', 'orders_pdf', 'generate_pdf', 'orders_csv']),
 
@@ -373,8 +371,6 @@ class OrderController extends Controller implements HasMiddleware
     public function show($order)
     {
         try {
-            Gate::authorize('check-permission', ['sats', 1]);
-
             // Decrypt the order id
             try {
                 $order = $this->os->find(Crypt::decryptString($order));
@@ -382,6 +378,10 @@ class OrderController extends Controller implements HasMiddleware
                 $this->logger->log('error', 'Decryption error (order/show).');
                 return redirect()->back()->with('error', 'Erro de desencriptação (order/show).');
                 die;
+            }
+
+            if (!$this->auth->canSeeSat($order)) {
+                return redirect()->route('orders.index')->with('message', 'Usuário sem permissão para ver solicitações.');
             }
 
             return view('order.order_delete', ['order' => $order]);
@@ -469,43 +469,23 @@ class OrderController extends Controller implements HasMiddleware
     }
 
     // Only administrators can delete orders
-    public function destroy(string $id, FileService $fileService)
+    public function destroy(string $id)
     {
         Gate::authorize('check-permission', ['sats', 2]);
 
         $order = $this->os->find($id);
-        // Limpa o estado de emergência dos técnicos
-        Tec::where('emergency_order_id', $order->id)->update([
-            'emergency_order_id' => null,
-            'emergency_notification_pending' => false
-        ]);
 
-        // Delete all notes of this order
-        foreach ($order->notes as $key => $note) {
-            // Primeiro apaga os arquivos (físico + banco)
-            $fileService->deleteAllFiles($note);
-
-            // Delete all tecs in note
-            foreach ($note->tecs as $key => $tec) {
-                $note_tec = NoteTec::where('note_id', $note->id)->where('tec_id', $tec->id)->first();
-                $note_tec->delete();
-            }
-
-            // Delete all materials in note
-            $material_notes = MaterialNote::where('note_id', $note->id)->get();
-            if (count($material_notes) > 0 || $material_notes != null) {
-                foreach ($material_notes as $material_note) {
-                    $material_note->delete();
-                }
-            }
-
-            $note->delete();
+        if (!$order) {
+            return redirect()->route('orders.index')->with('error', 'SAT não encontrada.');
         }
 
-        $deleted = $order->delete();
+        // Instanciamos o FileService para passar para o método de deleção
+        $fileService = app(FileService::class);
 
-        $msg = $deleted ? 'Solicitação de Assistência Técnica deletada com sucesso.' : 'Erro ao deletar Solicitação de Assistência Técnica.';
-        return redirect()->route('orders.index')->with('message', $msg);
+        // Chamamos o método passando o serviço necessário
+        $deleted = $order->completlyDelete($fileService);
+
+        return redirect()->route('orders.index')->with('message', $deleted['message']);
     }
 
     public function finish($order)
@@ -546,8 +526,6 @@ class OrderController extends Controller implements HasMiddleware
     // Shows the PDF for the order
     public function show_pdf($order)
     {
-        Gate::authorize('check-permission', ['sats', 1]);
-
         // Decrypt the order id
         try {
             $order = $this->os->find(Crypt::decryptString($order));
@@ -555,6 +533,10 @@ class OrderController extends Controller implements HasMiddleware
             $this->logger->log('error', 'Decryption error (order/show_pdf).');
             return redirect()->back()->with('error', 'Erro de desencriptação (order/show_pdf).');
             die;
+        }
+
+        if (!$this->auth->canSeeSat($order)) {
+            return redirect()->route('orders.index')->with('message', 'Usuário sem permissão para ver solicitações.');
         }
 
         // Verifica se existe pelo menos um arquivo em qualquer uma das notas vinculadas a esta SAT
@@ -569,25 +551,19 @@ class OrderController extends Controller implements HasMiddleware
 
     public function complete_pdf(Order $order)
     {
-        Gate::authorize('check-permission', ['sats', 1]);
+        if (!$this->auth->canSeeSat($order)) {
+            logger_main('error', 'Access denied (order/complete_pdf).');
+            return redirect()->back()->with('message', 'Usuário sem acesso fazer download da SAT.');
+        };
 
         if (!$order->finished) {
             logger_main('error', 'Error order is not finished.');
-            return redirect()->route('orders.index')->withErrors('Não é possível gerar um relatório com Solicitações de Assistência Técnica não finalizadas!');
+            return redirect()->back()->with('message', 'Não é possível gerar relatórios de SATs não finalizadas!');
         }
 
-        // Clear session variables from the previous report-----------------------------------------------
-        session()->forget('order_count_client_ids');
-        session()->forget('order_client_ids');
-        session()->forget('page');
-        session()->forget('order_index');
-        session()->forget('expected_pages');
+        $order->clearPreviousReportSessionVariables();
 
-        // Delete all pdf files in storage folder----------------------------------------------------
-        $files = glob(public_path('storage/*.pdf'));
-        foreach ($files as $file) {
-            unlink($file);
-        }
+        $order->deleteAllPdfsInStorageFolder();
 
         // Generate the PDF for the order of the current client
         $pdf = Pdf::loadView('order.report_parts.client', [
@@ -595,9 +571,7 @@ class OrderController extends Controller implements HasMiddleware
         ])->setPaper('A4', 'portrait');
 
         // 2. Limpa qualquer lixo que o PHP tenha colocado no buffer de saída
-        if (ob_get_length()) {
-            ob_clean();
-        }
+        if (ob_get_length()) ob_clean();
 
         if (!$pdf) {
             logger_main('error', 'Error generating order number ' . $order->id . '.');
@@ -616,39 +590,16 @@ class OrderController extends Controller implements HasMiddleware
             return redirect()->route('orders.index')->withErrors('Erro ao salvar a Solicitação de Assistência Técnica número ' . $order->id . '!');
         }
 
-        // 2. Inicia o Merger
-        $oMerger = PDFMerger::init();
-        $oMerger->addPDF($path, 'all');
+        $merge = $order->mergePdfAttachment($path);
 
-        // 3. Busca todos os arquivos PDF anexados nas notas desta SAT
-        $hasExtraPdfs = false;
-        foreach ($order->notes as $note) {
-            foreach ($note->files as $file) {
-                if (Str::endsWith(strtolower($file->path), '.pdf')) {
-                    $filePath = public_path('storage/' . $file->path);
-                    if (file_exists($filePath)) {
-                        $oMerger->addPDF($filePath, 'all');
-                        $hasExtraPdfs = true;
-                    }
-                }
-            }
-        }
-
-        // 4. Finalização
-        $finalFilename = 'sat_' . $order->id . '_' . date('d_m_Y') . '.pdf';
-        $finalPath = public_path('storage/' . $finalFilename);
-
-        if ($hasExtraPdfs) {
-            $oMerger->merge();
-            $oMerger->save($finalPath);
-        } else {
-            // Se não tem PDFs extras, o arquivo final é o próprio mainPath
-            rename($path, $finalPath);
+        if (!$merge['success']) {
+            logger_main('error', $merge['message']);
+            return redirect()->back()->with('message', $merge['message']);
         }
 
         // 3. Forma comum do Laravel de entregar o arquivo para download
-        if (file_exists($finalPath)) {
-            return response()->download($finalPath, $finalFilename, [
+        if (file_exists($merge['finalPath'])) {
+            return response()->download($merge['finalPath'], $merge['finalFilename'], [
                 'Content-Type' => 'application/pdf',
             ])->deleteFileAfterSend(true);
         }
@@ -661,41 +612,37 @@ class OrderController extends Controller implements HasMiddleware
     {
         Gate::authorize('check-permission', ['sats', 1]);
 
-        // 1. Coleta todos os arquivos de todas as notas dessa SAT
-        $files = [];
-        foreach ($order->notes as $note) {
-            foreach ($note->files as $file) {
-                $path = public_path('storage/' . $file->path);
-                if (file_exists($path)) {
-                    $files[] = [
-                        'full_path' => $path,
-                        'name' => $file->original_name
-                    ];
-                }
-            }
-        }
+        // 1. Pegamos a coleção de arquivos
+        $allFiles = $order->files();
 
-        if (empty($files)) {
+        // Em Collections, usamos isEmpty() em vez de empty()
+        if ($allFiles->isEmpty()) {
             return redirect()->back()->with('message', 'Esta SAT não possui anexos para baixar.');
         }
 
-        // 2. Prepara o arquivo ZIP temporário
         $zipFileName = 'anexos_sat_' . $order->id . '.zip';
         $zipPath = public_path('storage/' . $zipFileName);
         $zip = new ZipArchive;
 
         if ($zip->open($zipPath, ZipArchive::CREATE | ZipArchive::OVERWRITE) === TRUE) {
-            foreach ($files as $index => $fileData) {
-                // Evita arquivos com nomes duplicados no ZIP adicionando um índice
-                $nameInZip = $index . '_' . $fileData['name'];
-                $zip->addFile($fileData['full_path'], $nameInZip);
+            foreach ($allFiles as $index => $fileData) {
+                // AJUSTE CRUCIAL: Precisamos do public_path para o ZipArchive achar o arquivo no Linux
+                $fullPath = public_path('storage/' . $fileData->path);
+
+                if (file_exists($fullPath)) {
+                    $nameInZip = $index . '_' . $fileData->original_name;
+                    $zip->addFile($fullPath, $nameInZip);
+                }
             }
             $zip->close();
         } else {
             return redirect()->back()->with('message', 'Não foi possível criar o arquivo compactado.');
         }
 
-        // 3. Entrega o ZIP para download e apaga do servidor após o envio
+        if (!file_exists($zipPath)) {
+            return redirect()->back()->with('message', 'O arquivo ZIP não pôde ser gerado.');
+        }
+
         return response()->download($zipPath)->deleteFileAfterSend(true);
     }
 
@@ -757,12 +704,7 @@ class OrderController extends Controller implements HasMiddleware
             }
         }
 
-        // Delete all pdf files in storage folder----------------------------------------------------
-        $files = glob(public_path('storage/*.pdf'));
-        foreach ($files as $file) {
-            unlink($file);
-        }
-
+        $order->DeleteAllPdfsInStorageFolder();
 
         // Group the orders by client---------------------------------------------------------------
         $ordersByClient = $orders->groupBy('client_id');

@@ -47,6 +47,12 @@ div#buttonGroup {
     margin: auto;
     flex-direction: row;
     display: flex;
+    margin-bottom: 20px;
+}
+
+div#files {
+    width: 770px;
+    margin: auto;
 }
 
 section#print {
