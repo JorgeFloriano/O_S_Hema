@@ -268,19 +268,7 @@
                                         </td>
                                     @endif
                                     <td class="text-center align-middle">
-                                        @if ($order->finished)
-                                            <div class="rounded-circle bg-success text-white d-flex align-items-center justify-content-center" 
-                                                style="width: 20px; height: 20px; font-size: 0.8rem; font-weight: bold;" 
-                                                title="Finalizada">
-                                                F
-                                            </div>
-                                        @else
-                                            <div class="rounded-circle text-white d-flex align-items-center justify-content-center" 
-                                                style="width: 20px; height: 20px; font-size: 0.8rem; font-weight: bold;background-color: #fd7e14;" 
-                                                title="Pendente">
-                                                P
-                                            </div>
-                                        @endif
+                                        <x-status-badge :status="$order->finished ? 'F' : 'P'" />
                                     </td>
                                 </tr>
                             @endforeach

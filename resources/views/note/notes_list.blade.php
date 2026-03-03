@@ -47,7 +47,8 @@
                                     <th>Problema relatado</th>
                                     <th>Data</th>
                                     <th>Exec.</th>
-                                    <th>Encerr.</th>
+                                    <th>Finl.</th>
+                                    <th><i style="font-size: 20px;" class="fa fa-exclamation-circle"></i></th>
                                 </tr>
                             </thead>
                             <tbody>
@@ -90,6 +91,9 @@
                                                 </td>
                                             @endif
                                         @endif
+                                        <td class="text-center align-middle">
+                                            <x-status-badge :status="$order->finished ? 'F' : 'P'" />
+                                        </td>
                                     </tr>
                                 @endforeach
                             </tbody>
