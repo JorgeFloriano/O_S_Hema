@@ -37,8 +37,7 @@ class SendOrderWebhookJob implements ShouldQueue
 
         Log::info("--- Executando Job de Webhook: SAT #{$this->order->id} ---");
 
-        //$url = 'https://n8n.hema.com.br/webhook/sat-digital-hema-eng';
-        $url = 'https://webhook.site/4df17dee-f66a-41b3-9f85-7574752ed5ba';
+        $url = env('WEBHOOK_URL_TEST');
 
         // Montamos o texto exatamente como o João Paulo pediu
         $payload = [

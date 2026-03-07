@@ -32,7 +32,7 @@ class EmergencyDaemon extends Command
         // Verificação de Horário de Emergência
         $hours = new Hours();
 
-        Log::info("Daemon de Emergência iniciado.");
+        Log::debug("Daemon de Emergência iniciado.");
 
         while (((time() - $inicio) < $limiteDeTempo) && $hours->isEmergency()) {
 
@@ -64,6 +64,6 @@ class EmergencyDaemon extends Command
         }
 
         $lock->release();
-        Log::info("Daemon de Emergência encerrando para renovação do Cron.");
+        Log::debug("Daemon de Emergência encerrando para renovação do Cron.");
     }
 }
