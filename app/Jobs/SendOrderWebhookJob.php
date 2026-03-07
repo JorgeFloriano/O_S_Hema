@@ -17,8 +17,9 @@ class SendOrderWebhookJob implements ShouldQueue
 
     public $order;
 
-    // Tenta retransmitir 3 vezes em caso de falha no n8n
-    public $tries = 3;
+    // Tenta 5 vezes antes de mandar para a tabela de falhas
+    public $tries = 15; 
+    public $backoff = 60; // Espera 60 segundos entre cada tentativa
 
     public function __construct(Order $order)
     {
