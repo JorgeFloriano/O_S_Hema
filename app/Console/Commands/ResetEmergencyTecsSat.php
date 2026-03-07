@@ -42,7 +42,7 @@ class ResetEmergencyTecsSat extends Command
 
         $message = "Sucesso: {$count} técnicos (ativos e deletados) foram retirados do modo de emergência.";
 
-        Log::emergency("RESET GERAL DE ALERTAS COMPLETO: Executado. {$count} técnicos afetados (incluindo registros com SoftDelete).");
+        Log::info("RESET GERAL DE ALERTAS COMPLETO: Executado. {$count} técnicos afetados (incluindo registros com SoftDelete).");
 
         $this->info($message);
 
