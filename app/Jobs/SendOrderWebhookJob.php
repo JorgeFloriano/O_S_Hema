@@ -38,7 +38,7 @@ class SendOrderWebhookJob implements ShouldQueue
 
         Log::info("--- Executando Job de Webhook: SAT #{$this->order->id} ---");
 
-        $url = env('WEBHOOK_URL_TEST');
+        $url = config('services.url.webhook');
 
         // Montamos o texto exatamente como o João Paulo pediu
         $payload = [
