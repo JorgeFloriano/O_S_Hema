@@ -36,7 +36,7 @@ class SendOrderWebhookJob implements ShouldQueue
     public function handle()
     {
 
-        Log::info("--- Executando Job de Webhook, informações da SAT #{$this->order->id} enviadas para #{config('services.url.webhook')} ---");
+        Log::info("--- Executando Job de Webhook, informações da SAT #{$this->order->id} enviadas para - ".config('services.url.webhook')." - ---");
 
         $url = config('services.url.webhook');
 
