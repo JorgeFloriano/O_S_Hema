@@ -2,6 +2,8 @@
 
 namespace App\Providers;
 
+use App\Models\Order;
+use App\Observers\OrderObserver;
 use Illuminate\Support\ServiceProvider;
 use Illuminate\Support\Facades\Gate;
 use App\Models\User;
@@ -21,6 +23,8 @@ class AppServiceProvider extends ServiceProvider
      */
     public function boot(): void
     {
+        Order::observe(new OrderObserver());
+
         // 1. Definir gates globais, se for administrador principal, permitir acesso
         Gate::before(function (User $user, string $ability) {
             if ($user->isMainAdm()) {
