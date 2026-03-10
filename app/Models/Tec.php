@@ -18,6 +18,11 @@ class Tec extends Model
         return $this->belongsTo(User::class, 'user_id');
     }
 
+    public function getFullName(): string
+    {
+        return $this->user->name . ' ' . ($this->user->surname ?? '');
+    }
+
     protected $fillable = [
         'user_id',
         'on_call',

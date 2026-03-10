@@ -90,7 +90,7 @@ class SatTeamApiController extends Controller
             });
 
         // Executa a busca
-        $orders = $query->select('id', 'order_type_id', 'req_descr', 'req_name', 'equipment', 'sector', 'client_id', 'user_id', 'tec_id', 'req_date', 'req_time', 'finished')
+        $orders = $query->select('id', 'order_type_id', 'req_descr', 'req_name', 'equipment', 'sector', 'client_id', 'user_id', 'tec_id', 'req_date', 'req_time', 'finished', 'is_emergency')
             ->whereNull('deleted_at') // Adicione esta linha explicitamente;
             ->orderBy('id', 'desc')
             ->limit(30)
@@ -115,7 +115,7 @@ class SatTeamApiController extends Controller
 
         // get orders
         $orders = Order::with(['client:id,name', 'tec.user:id,name', 'type:id,description'])
-            ->select('id', 'order_type_id', 'req_descr', 'req_name', 'equipment', 'sector', 'client_id', 'user_id', 'tec_id', 'req_date', 'req_time', 'finished')
+            ->select('id', 'order_type_id', 'req_descr', 'req_name', 'equipment', 'sector', 'client_id', 'user_id', 'tec_id', 'req_date', 'req_time', 'finished', 'is_emergency')
             ->where('id', $validated['search'])
             ->whereNull('deleted_at') // Adicione esta linha explicitamente
             ->get();

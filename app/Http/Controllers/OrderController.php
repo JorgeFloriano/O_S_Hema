@@ -135,7 +135,7 @@ class OrderController extends Controller implements HasMiddleware
 
             // get orders
             $orders = $this->os
-                ->select('id', 'order_type_id', 'req_descr', 'req_name', 'equipment', 'sector', 'client_id', 'user_id', 'tec_id', 'req_date', 'req_time', 'finished')
+                ->select('id', 'order_type_id', 'req_descr', 'req_name', 'equipment', 'sector', 'client_id', 'user_id', 'tec_id', 'req_date', 'req_time', 'finished', 'is_emergency')
                 ->where('id', $validated['search'])
                 ->whereNull('deleted_at') // Adicione esta linha explicitamente
                 ->get();
@@ -236,7 +236,7 @@ class OrderController extends Controller implements HasMiddleware
                 ->when($request->finished != 2, function ($query) use ($request) {
                     $query->where('finished', $request->finished);
                 })
-                ->select('id', 'order_type_id', 'req_descr', 'req_name', 'equipment', 'sector', 'client_id', 'user_id', 'tec_id', 'req_date', 'req_time', 'finished')
+                ->select('id', 'order_type_id', 'req_descr', 'req_name', 'equipment', 'sector', 'client_id', 'user_id', 'tec_id', 'req_date', 'req_time', 'finished', 'is_emergency')
                 ->whereNull('deleted_at') // Adicione esta linha explicitamente
                 ->orderBy('id', 'desc')
                 ->get();

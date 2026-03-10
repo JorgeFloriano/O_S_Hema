@@ -52,7 +52,7 @@ class OrderController extends Controller
 
         // get orders
         $orders = $this->os
-            ->select('id', 'order_type_id', 'req_descr', 'req_name', 'equipment', 'sector', 'client_id', 'user_id', 'tec_id', 'req_date', 'req_time', 'finished')
+            ->select('id', 'order_type_id', 'req_descr', 'req_name', 'equipment', 'sector', 'client_id', 'user_id', 'tec_id', 'req_date', 'req_time', 'finished', 'is_emergency')
             ->whereBetween('req_date', [$start_date, $end_date])
             ->whereNull('deleted_at') // Adicione esta linha explicitamente
             ->where('client_id', $this->user->userClientCompanyId()) // Somente os orders do client logado
@@ -86,7 +86,7 @@ class OrderController extends Controller
 
         // get orders
         $orders = $this->os
-            ->select('id', 'order_type_id', 'req_descr', 'req_name', 'equipment', 'sector', 'client_id', 'user_id', 'tec_id', 'req_date', 'req_time', 'finished')
+            ->select('id', 'order_type_id', 'req_descr', 'req_name', 'equipment', 'sector', 'client_id', 'user_id', 'tec_id', 'req_date', 'req_time', 'finished', 'is_emergency')
             ->where('id', $validated['search'])
             ->where('client_id', $this->user->userClientCompanyId()) // Somente os orders do client logado
             ->whereNull('deleted_at') // Adicione esta linha explicitamente
@@ -165,7 +165,7 @@ class OrderController extends Controller
             ->when($request->finished != 2, function ($query) use ($request) {
                 $query->where('finished', $request->finished);
             })
-            ->select('id', 'order_type_id', 'req_descr', 'req_name', 'equipment', 'sector', 'client_id', 'user_id', 'tec_id', 'req_date', 'req_time', 'finished')
+            ->select('id', 'order_type_id', 'req_descr', 'req_name', 'equipment', 'sector', 'client_id', 'user_id', 'tec_id', 'req_date', 'req_time', 'finished', 'is_emergency')
             ->where('client_id', $this->user->userClientCompanyId()) // Somente as ordens do cliente logado
             ->whereNull('deleted_at') // Adicione esta linha explicitamente
             ->orderBy('id', 'desc')

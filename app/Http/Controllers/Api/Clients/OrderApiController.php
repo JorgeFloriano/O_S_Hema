@@ -45,7 +45,7 @@ class OrderApiController extends Controller
             ->where('client_id', $client_id)
             ->whereNull('deleted_at')
             ->orderBy('id', 'desc')
-            ->get(['id', 'order_type_id', 'tec_id', 'req_descr', 'req_name', 'sector', 'req_date', 'req_time', 'finished']);
+            ->get(['id', 'order_type_id', 'tec_id', 'req_descr', 'req_name', 'sector', 'req_date', 'req_time', 'finished', 'is_emergency']);
 
         return response()->json(['orders' => $orders]);
     }
