@@ -85,7 +85,7 @@ class OrderController extends Controller implements HasMiddleware
 
             // get orders
             $orders = $this->os
-                ->select('id', 'order_type_id', 'req_descr', 'req_name', 'equipment', 'sector', 'client_id', 'user_id', 'tec_id', 'req_date', 'req_time', 'finished')
+                ->select('id', 'order_type_id', 'req_descr', 'req_name', 'equipment', 'sector', 'client_id', 'user_id', 'tec_id', 'req_date', 'req_time', 'finished', 'is_emergency')
                 ->whereNull('deleted_at') // Adicione esta linha explicitamente
                 ->whereBetween('req_date', [$start_date, $end_date])
                 ->orderBy('id', 'desc')

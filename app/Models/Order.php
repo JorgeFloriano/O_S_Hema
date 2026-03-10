@@ -266,20 +266,20 @@ class Order extends Model
             $order_finished = $this->save();
 
             // 3. CORREÇÃO AQUI: Busca o usuário através do Model Tec
-            $tec = Tec::with('user')->find($this->tec_id);
-            $order_tec_name = ($tec && $tec->user) ? $tec->user->name : 'Técnico Desconhecido';
+            //$tec = Tec::with('user')->find($this->tec_id);
+            //$order_tec_name = ($tec && $tec->user) ? $tec->user->name : 'Técnico Desconhecido';
 
             // 4. Notifica os supervisores
-            $supervisors = User::whereHas('sup')->get();
+            // $supervisors = User::whereHas('sup')->get();
 
-            foreach ($supervisors as $sup) {
-                $sup->title = "SAT {$this->id} - " . $this->client->name . " - finalizada por {$order_tec_name}!";
-                $sup->order_id = $this->id;
-                $sup->type = 'sat_finished';
-                $sup->message = $this->req_descr ?? 'Atendimento concluído.';
+            // foreach ($supervisors as $sup) {
+            //     $sup->title = "SAT {$this->id} - " . $this->client->name . " - finalizada por {$order_tec_name}!";
+            //     $sup->order_id = $this->id;
+            //     $sup->type = 'sat_finished';
+            //     $sup->message = $this->req_descr ?? 'Atendimento concluído.';
 
-                $sup->notify(new NewSampleNotification());
-            }
+            //     $sup->notify(new NewSampleNotification());
+            // }
 
             return $order_finished;
         } catch (\Exception $e) {
