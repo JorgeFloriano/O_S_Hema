@@ -50,7 +50,11 @@ class SendOrderWebhookJob implements ShouldQueue
                     "Setor" => $this->order->sector ?? 'Não relatado',
                     "Data do acionamento" => $this->order->req_date ? date('d/m/y', strtotime($this->order->req_date)) : '',
                     "Hora do acionamento" => $this->order->req_time ? date('H:i', strtotime($this->order->req_time)) : '',
-                    "Problema relatado" => $this->order->req_descr ?? 'Não especificado'
+                    "Problema relatado" => $this->order->req_descr ?? 'Não especificado',
+                    "Técnico" => [
+                        "ID" => $this->order->tec_id ?? '',
+                        "Nome completo" => $this->order->getTecFullName()
+                    ]
                 ]
             ]
         ];

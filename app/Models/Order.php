@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use App\Class\Hours;
+use App\Jobs\SendOrderWebhookJob;
 use App\Notifications\NewSampleNotification;
 use App\Services\FileService;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
@@ -65,6 +66,14 @@ class Order extends Model
     public function tec(): BelongsTo
     {
         return $this->belongsTo(Tec::class)->withTrashed();
+    }
+
+    public function getTecFullName(): string
+    {
+        if (!$this->tec) {
+            return 'Não atribuido';
+        }
+        return $this->tec->getFullName();
     }
 
     public function notes(): HasMany
@@ -320,6 +329,9 @@ class Order extends Model
             if ($notifiable = User::find($tec->user_id)) {
                 $notified = $this->tecSatNotification($notifiable);
             }
+
+            // Enviamos um webhook para endereço configurado no n8n Hema
+            SendOrderWebhookJob::dispatch($this);
         }
 
         if (!$notified) {

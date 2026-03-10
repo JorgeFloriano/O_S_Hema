@@ -60,7 +60,7 @@ class NoteTeamApiController extends Controller
             ->where('tec_id', $tec->id)
             ->whereNull('deleted_at') // Adicione esta linha explicitamente
             ->orderBy('id', 'desc')
-            ->get(['id', 'order_type_id', 'client_id', 'tec_id', 'req_descr', 'req_name', 'sector', 'req_date', 'req_time', 'equipment', 'finished']);
+            ->get(['id', 'order_type_id', 'client_id', 'tec_id', 'req_descr', 'req_name', 'sector', 'req_date', 'req_time', 'equipment', 'finished', 'is_emergency']);
 
         return response()->json([
             'orders' => $orders,
