@@ -92,7 +92,10 @@
                                             @endif
                                         @endif
                                         <td class="text-center align-middle">
-                                            <x-status-badge :status="$order->finished ? 'F' : 'P'" />
+                                            <x-status-badge 
+                                                :status="$order->finished ? 'F' : 'P'" 
+                                                :urgent="$order->is_emergency" 
+                                            />
                                         </td>
                                     </tr>
                                 @endforeach

@@ -59,7 +59,7 @@ class NoteController extends Controller implements HasMiddleware
         Gate::authorize('is-tec');
 
         session()->put('reference_router_back', 'notes.index');
-        $orders = Order::select('id', 'client_id', 'equipment', 'req_descr', 'req_date', 'finished')->where('tec_id', $this->auth->tec->id)->whereNull('deleted_at')->orderBy('id', 'desc')->simplePaginate(20);
+        $orders = Order::select('id', 'client_id', 'equipment', 'req_descr', 'req_date', 'finished', 'is_emergency')->where('tec_id', $this->auth->tec->id)->whereNull('deleted_at')->orderBy('id', 'desc')->simplePaginate(20);
 
         return view('note.notes_list', ['orders' => $orders]);
     }
