@@ -374,7 +374,7 @@ class NoteTeamApiController extends Controller
         }
 
         $order = Order::with(['type:id,description', 'client:id,name', 'tec:id,user_id', 'notes.materials', 'notes.tecs.user:id,name,surname,function'])
-            ->select('id', 'client_id', 'equipment', 'finished', 'order_type_id', 'req_date', 'req_descr', 'req_name', 'req_time', 'sector', 'tec_id', 'user_id')
+            ->select('id', 'client_id', 'equipment', 'finished', 'is_emergency', 'order_type_id', 'req_date', 'req_descr', 'req_name', 'req_time', 'sector', 'tec_id', 'user_id')
             ->find($id);
 
         return response()->json([

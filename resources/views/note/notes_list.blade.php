@@ -91,7 +91,7 @@
                                                 </td>
                                             @endif
                                         @endif
-                                        <td class="text-center align-middle">
+                                        <td>
                                             <x-status-badge 
                                                 :status="$order->finished ? 'F' : 'P'" 
                                                 :urgent="$order->is_emergency" 
