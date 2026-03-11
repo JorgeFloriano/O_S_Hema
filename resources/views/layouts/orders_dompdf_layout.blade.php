@@ -45,7 +45,6 @@
             }
 
             .header3 {
-                padding: 20px;
                 float: right;
                 font-size: 17px;
                 font-weight: bold;
@@ -54,6 +53,13 @@
             #osId {
                 text-align: center;
                 font-size: 25px;
+                color: rgb(211, 21, 21);
+            }
+
+            div#emergency {
+                margin: 5px 0px;
+                text-align: center;
+                font-size: 16px;
                 color: rgb(211, 21, 21);
             }
 
