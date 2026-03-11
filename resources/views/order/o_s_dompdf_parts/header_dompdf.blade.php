@@ -12,7 +12,12 @@
     </span>
 
     <span class="header3">
-        SAT - Solicitação de Assistência Técnica
+        <div>SAT - Solicitação de Assistência Técnica</div>
+
+        @if ($order->is_emergency)
+            <div id='emergency'>EMERGENCIAL</div>
+        @endif
+
         <div id="osId">{{number_format($order->id, 0, ',', '.')}}</div>
     </span>
 </div>
