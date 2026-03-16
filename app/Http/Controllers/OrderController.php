@@ -421,18 +421,32 @@ class OrderController extends Controller implements HasMiddleware
         // Remove seconds from requests time format
         $order->req_time = date_format(date_create($order->req_time), 'H:i');
 
-        // If order is created by client or the user is not administrator can't edit it
+        // Variable to verify if order creator is a client user
         $ord_creator_is_cli = Cli::where('user_id', $order->user_id)->first();
 
-        $disabled = '';
-        $title = 'Editar ';
-        $confirm_button = true;
+        // User can edit the SAT
+        if ($this->auth->hasPermission('sats', 2)) {
+            $inputs_prop = '';
+            $equipment_prop = '';
+            $title = 'Editar ';
+            $confirm_button = true;
+        }
+
+        // Only show SAT info
         if (isset($ord_creator_is_cli) || !$this->auth->hasPermission('sats', 2) || (session('reference_router_back') == 'tec_on')) {
-            $disabled = 'disabled';
+            $inputs_prop = 'disabled';
+            $equipment_prop = 'disabled';
             $title = 'Informações da ';
             $confirm_button = false;
         }
 
+        // When client user create SAT, hema user just can edit equipment field
+        if ($ord_creator_is_cli && $this->auth->hasPermission('sats', 2)) {
+            $inputs_prop = 'readonly';
+            $equipment_prop = '';
+            $title = 'Editar ';
+            $confirm_button = true;
+        }
 
         return view('order.order_edit', [
             'order' => $order,
@@ -440,7 +454,8 @@ class OrderController extends Controller implements HasMiddleware
             'clients' => $clients,
             'tecs' => $tecs,
             'user' => $user,
-            'disabled' => $disabled,
+            'inputs_prop' => $inputs_prop,
+            'equipment_prop' => $equipment_prop,
             'title' => $title,
             'confirm_button' => $confirm_button
         ]);
@@ -454,12 +469,27 @@ class OrderController extends Controller implements HasMiddleware
         $request->validated();
 
         if ($request->client_id == '0') {
+            logger_main('error', 'Any client selected');
             return redirect()->back()->with('message', 'Selecione um cliente para prosseguir.');
         }
 
+        $os = Order::findOrFail($id);
+
+        // Variable to verify if order creator is a client user
+        $ord_creator_is_cli = Cli::where('user_id', $os->user_id)->first();
+
+        // When client user create SAT and hema user need edit equipment
+        if ($ord_creator_is_cli && $this->auth->hasPermission('sats', 2)) {
+            $os->equipment = $request->equipment;
+            $update_equipment = $os->save();
+
+            $msg = $update_equipment ? 'Equipamento da SAT atualizado com sucesso.' : 'Erro ao atualizar equipamento da SAT.';
+            return redirect()->back()->with('message', $msg);
+        }
+
+
         $updated = $this->os->where('id', $id)->update($request->except(['_token', '_method', 'adm_id', 'tec_id', 'client', 'req_descr']));
 
-        $os = Order::find($id);
         $os->user_id = $this->auth->id;
         $os->req_descr = $this->text->spaceAfterPunctuation($request->req_descr);
         $updated_adm = $os->save();

@@ -26,7 +26,7 @@ class FormOrderRequest extends FormRequest
     {
         return [
             'client_id.required' => 'Selecione um Cliente',
-            'client_id.in' => 'Selecione um Cliente disponível',
+            'client_id.in' => 'Selecione um Cliente disponível (alguns podem ter sido arquivados no sistema)',
             'client_id.numeric' => 'Selecione um Cliente válido',
             'order_type_id.required' => 'Selecione um tipo de Serviço',
             'order_type_id.numeric' => 'Selecione um tipo de Serviço',

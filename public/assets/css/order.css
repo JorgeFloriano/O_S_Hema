@@ -81,10 +81,16 @@ div#header2 {
 }
 
 div#header3 {
-    text-align: center;
     float: right;
+    height: 100%; /* Importante: o pai precisa ter altura definida */
+    /* Configurações de Flexbox */
+    display: flex;
+    flex-direction: column; /* Mantém um embaixo do outro */
+    justify-content: center; /* Centraliza verticalmente o grupo todo */
+    align-items: center; /* Centraliza horizontalmente o conteúdo */
     font-size: 17px;
     font-weight: bold;
+    margin-right: 30px;
 }
 
 div#osId {
@@ -96,7 +102,7 @@ div#osId {
 div#emergency {
     margin: 5px 0px;
     text-align: center;
-    font-size: 16px;
+    font-size: 14px;
     color: rgb(211, 21, 21);
 }
 

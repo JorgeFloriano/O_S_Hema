@@ -233,7 +233,7 @@
                                                                     $icon = 'edit';
                                                                     $text = 'Editar';
                                                                     $ord_creator_is_cli = Cli::where('user_id', $order->user_id)->first();
-                                                                    if ($ord_creator_is_cli || !$auth->hasPermission('sats', 2) || $auth->isCli()) {
+                                                                    if (!$auth->hasPermission('sats', 2) || $auth->isCli()) {
                                                                         $icon = 'file-text-o';
                                                                         $text = 'Visualizar';
                                                                     }

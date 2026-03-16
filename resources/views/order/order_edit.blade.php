@@ -19,7 +19,8 @@
                 @endif
 
                 <div id="header" class="my-2">
-                    <h2>{{$title}} Solicitação de Assistência Técnica Nº {{number_format($order->id, 0, ',', '.')}}</h2> 
+                    <h2>{{$title}} SAT 
+                        @if ($order->is_emergency) Emergencial @endif (OS) Nº {{number_format($order->id, 0, ',', '.')}}</h2> 
                 </div>
                 <hr>
                 <main>
@@ -33,48 +34,60 @@
                             <label for="adm_id">Editada por</label>
                         </div>
 
-                        <x-datalist :objs="$clients" obj="client" tit="Cliente" :val="$order->client->name.' - ['.$order->client->id.']'" des="name" req='required' :disabl="$disabled"/>
+                        <x-datalist :objs="$clients" obj="client" tit="Cliente" :val="$order->client->name.' - ['.$order->client->id.']'" des="name" req='required' :disabl="$inputs_prop"/>
 
                         <div class="form-floating my-2">
-                            <select class="form-select" {{$disabled}} id="type_id" name="order_type_id" aria-label="Floating label select example">
-                                @foreach ($types as $type)
-                                    @if ($type->id == $order->order_type_id)
-                                        <option selected value="{{$type->id}}">{{$type->id.' - '.$type->description}}</option>
-                                    @else
-                                        <option value="{{$type->id}}">{{$type->id.' - '.$type->description}}</option>
-                                    @endif
-                                @endforeach
-                            </select>
+                            @if ($inputs_prop == 'readonly')
+                                <input type="text" class="form-control" disabled value="{{$order->type->id.' - '.$order->type->description}}">
+                                <input hidden type="text" class="form-control" id="type_id" name="order_type_id" value="{{$order->type->id}}">
+                            @else
+                                <select class="form-select" {{$inputs_prop}} id="type_id" name="order_type_id" aria-label="Floating label select example">
+                                    @foreach ($types as $type)
+                                        @if ($type->id == $order->order_type_id)
+                                            <option selected value="{{$type->id}}">{{$type->id.' - '.$type->description}}</option>
+                                        @else
+                                            <option value="{{$type->id}}">{{$type->id.' - '.$type->description}}</option>
+                                        @endif
+                                    @endforeach
+                                </select>
+                            @endif
                             <label for="type_id">Tipo</label>
                         </div>
 
                         <div class="form-floating my-2">
-                            <input type="text" class="form-control" {{$disabled}} id="sector" name="sector" maxlength="30" placeholder="Setor" value="{{$order->sector ?? ''}}" required>
+                            <input type="text" class="form-control" {{$inputs_prop}} id="sector" name="sector" maxlength="30" placeholder="Setor" value="{{$order->sector ?? ''}}" required>
                             <label for="sector">Setor</label>
                         </div>
 
                         <div class="form-floating my-2">
-                            <input type="text" class="form-control" {{$disabled}} id="req_name" name="req_name" maxlength="20" placeholder="Solicitante do Solicitante" value="{{$order->req_name ?? ''}}">
+                            <input type="text" class="form-control" {{$inputs_prop}} id="req_name" name="req_name" maxlength="20" placeholder="Solicitante do Solicitante" value="{{$order->req_name ?? ''}}">
                             <label for="req_name">Nome do Solicitante</label>
                         </div>
 
                         <div class="form-floating my-2">
-                            <input type="date" max="{{now()->format('Y-m-d')}}" class="form-control" {{$disabled}} id="req_date" name="req_date" placeholder="Data do Acionamento" value="{{$order->req_date}}" required>
+                            <input type="date" max="{{now()->format('Y-m-d')}}" class="form-control" {{$inputs_prop}} id="req_date" name="req_date" placeholder="Data do Acionamento" value="{{$order->req_date}}" required>
                             <label for="req_date">Data do Acionamento</label>
                         </div>
 
                         <div class="form-floating my-2">
-                            <input type="time" class="form-control" {{$disabled}} id="req_time" name="req_time" placeholder="Hora do Acionamento" value="{{$order->req_time}}" required>
+                            <input type="time" class="form-control" {{$inputs_prop}} id="req_time" name="req_time" placeholder="Hora do Acionamento" value="{{$order->req_time}}" required>
                             <label for="req_time">Hora do Acionamento</label>
                         </div>
 
                         <div class="form-floating my-2">
-                            <textarea id="req_descr" name="req_descr" {{$disabled}} maxlength="470" placeholder="Problema Relatado" class='autoExpand form-control' rows='1' data-min-rows='1' required>{{$order->req_descr}}</textarea>
+                            @if ($inputs_prop == 'readonly')
+                                <textarea id="req_descr" name="req_descr" hidden maxlength="470" placeholder="Problema Relatado" class='autoExpand form-control' rows='1' data-min-rows='1'>{{$order->req_descr}}</textarea>
+
+                                <textarea disabled maxlength="470" placeholder="Problema Relatado" class='autoExpand form-control' rows='1' data-min-rows='1'>{{$order->req_descr}}</textarea>
+                            @else
+                                <textarea id="req_descr" name="req_descr" {{$inputs_prop}} maxlength="470" placeholder="Problema Relatado" class='autoExpand form-control' rows='1' data-min-rows='1' required>{{$order->req_descr}}</textarea>
+                            @endif
+
                             <label for="req_descr">Problema Relatado</label>
                         </div>
 
                         <div class="form-floating my-2">
-                            <input type="text" class="form-control" {{$disabled}} id="equipment" name="equipment" maxlength="70" placeholder="Equipamento" value="{{$order->equipment}}">
+                            <input type="text" class="form-control" {{$equipment_prop}} id="equipment" name="equipment" maxlength="70" placeholder="Equipamento" value="{{$order->equipment}}">
                             <label for="equipment">Equipamento</label>
                         </div>
 
