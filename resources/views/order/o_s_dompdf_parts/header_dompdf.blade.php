@@ -11,13 +11,15 @@
         e-mail: atendimento@hema.com.br
     </span>
 
-    <span class="header3">
-        <div>SAT - Solicitação de Assistência Técnica</div>
+    <div id="header3">
+        <div class="header-content-wrapper">
+            <div>SAT - Solicitação de Assistência Técnica</div>
 
-        @if ($order->is_emergency)
-            <div id='emergency'>EMERGENCIAL</div>
-        @endif
-
-        <div id="osId">{{number_format($order->id, 0, ',', '.')}}</div>
-    </span>
+            @if ($order->is_emergency)
+                <div id='emergency'>EMERGENCIAL</div>
+            @endif
+        
+            <div id="osId">{{ number_format($order->id, 0, ',', '.') }}</div>
+        </div>
+    </div>
 </div>

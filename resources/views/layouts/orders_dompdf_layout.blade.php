@@ -44,8 +44,24 @@
                 width: 302px;
             }
 
-            .header3 {
+            div#header3 {
                 float: right;
+                height: 80px; /* Você PRECISA definir uma altura fixa aqui */
+                width: 400px; /* Defina uma largura adequada */
+                position: relative; /* Referência para o conteúdo interno */
+            }
+
+            .header-content-wrapper {
+                position: absolute;
+                top: 60%; /* Joga o topo do elemento no meio da div pai */
+                left: 0;
+                right: 0;
+                /* O segredo do dompdf: transformar o elemento para compensar a própria altura */
+                /* Como o dompdf às vezes ignora 'transform', usamos uma margem negativa se a altura for conhecida */
+                /* Mas tentaremos o transform primeiro: */
+                transform: translateY(-50%); 
+                
+                text-align: center;
                 font-size: 17px;
                 font-weight: bold;
             }
@@ -56,11 +72,10 @@
                 color: rgb(211, 21, 21);
             }
 
-            div#emergency {
-                margin: 5px 0px;
-                text-align: center;
-                font-size: 16px;
+            #emergency {
+                font-size: 14px;
                 color: rgb(211, 21, 21);
+                margin: 0;
             }
 
             div.Info {
