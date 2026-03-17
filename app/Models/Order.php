@@ -331,7 +331,7 @@ class Order extends Model
             }
 
             // Enviamos um webhook para endereço configurado no n8n Hema
-            SendOrderWebhookJob::dispatch($this);
+            SendOrderWebhookJob::dispatch($this, "Atribuição de Técnico");
         }
 
         if (!$notified) {
