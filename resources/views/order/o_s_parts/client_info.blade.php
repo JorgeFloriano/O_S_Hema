@@ -25,11 +25,14 @@
     </div>
 
     <div class="InfoLine">
-        <div class="InfoFirstCollum" style="width: 310px"><strong>Tipo de Serviço: </strong>{{$order->type->description}}</div>
-        <div class="InfoCollum" style="width: 455px;"><strong>Equipamento : </strong>{{$order->equipment ?? ''}}</div>
+        <div class="InfoFirstCollum"><strong>Tipo de Serviço: </strong>{{$order->type->description}}</div>
     </div>
 
-    <div class="LastInfoLine" style="height: 113px">
+    <div class="InfoLine">
+        <div class="InfoFirstCollum"><strong>Equipamento : </strong>{{$order->equipment ?? ''}}</div>
+    </div>
+
+    <div class="LastInfoLine" style="height: 135px">
         <div class="InfoFirstCollum LongText"><p><strong>Problema relatado: </strong>{{$order->req_descr ?? ''}}</p></div>
     </div>
 </div>
