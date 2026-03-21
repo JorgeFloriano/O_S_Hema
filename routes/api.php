@@ -72,6 +72,9 @@ Route::middleware('auth:sanctum')->group(function () {
     // Atualizar o tecnico da SAT
     Route::post('/sat/orders/{id}/update-tec', [SatTeamApiController::class, 'update_tec'])->name('sat-update-tec');
 
+    // Atualizar o equipamento da SAT
+    Route::post('/sat/orders/{id}/update-equipment', [SatTeamApiController::class, 'update_equipment'])->name('sat-update-equipment');
+
     // Reabrir SAT
     Route::put('/sat/orders/{id}/reopen', [SatTeamApiController::class, 'reopen'])->name('sat-reopen');
 

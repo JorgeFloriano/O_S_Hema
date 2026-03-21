@@ -140,6 +140,32 @@ class SatTeamApiController extends Controller
         return response()->json($order->updateTecId($request->tec_id));
     }
 
+    public function update_equipment(Request $request, $id)
+    {
+        // Check if user can edit equipment
+        if (!$this->auth->hasPermission('sats', 2)) {
+            logger_main('error', 'Usuário sem permissão para editar equipamento.');
+            return $this->can->array(false, 'Usuário sem permissão para editar equipamento.', 403);
+        }
+
+        $request->validate([
+            'equipment' => 'nullable|string|max:70',
+        ]);
+
+        // Get the order
+        $order = Order::findOrFail($id);
+
+        $order->equipment = $request->equipment;
+        $updated_equipment = $order->save();
+
+        if (!$updated_equipment) {
+            logger_main('error', 'Erro ao atualizar equipamento.');
+            return $this->can->array(false, 'Erro ao atualizar equipamento.', 500);
+        }
+
+        return $this->can->array(true, 'Equipamento atualizado com sucesso.', 200);
+    }
+
     public function reopen($id)
     {
         // Check if user is a supervisor that can attach a technician
