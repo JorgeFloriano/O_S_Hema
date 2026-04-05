@@ -2,10 +2,8 @@
 
 namespace App\Http\Controllers;
 
-use App\Http\Requests\FormFilterRequest;
 use App\Http\Requests\FormOrderRequest;
 use App\Models\Client;
-use App\Models\NoteTec;
 use App\Models\Order;
 use App\Models\OrderType;
 use App\Models\Tec;
@@ -13,6 +11,7 @@ use App\Models\Cli;
 use App\Models\User;
 use App\Class\Logger;
 use App\Class\TextFormat;
+use App\Http\Requests\FormFilterRequest;
 use App\Models\Material;
 use App\Services\FileService;
 use Illuminate\Http\Request;
@@ -66,61 +65,125 @@ class OrderController extends Controller implements HasMiddleware
         $this->auth = Auth::user();
     }
 
-    public function index()
+    public function index(FormFilterRequest $request)
     {
         try {
             Gate::authorize('check-permission', ['sats', 1]);
 
-            $clients = Client::select('id', 'name')->orderBy('name')->get();
-
-            // create session variable wich contains 0 and all clients ids to validated in FormFilterRequest
-            $cli_ids_array = $clients->pluck('id')->toArray();
-            array_unshift($cli_ids_array, 0);
-            session()->put('client_ids', $cli_ids_array);
             session()->put('reference_router_back', 'orders.index');
 
-            // Create date start_date and end_date
-            $start_date = Carbon::now()->subMonth()->format('Y-m-d');
-            $end_date = Carbon::now()->format('Y-m-d');
+            // 1. Initialize Query
+            $query = $this->os->select(
+                'id',
+                'order_type_id',
+                'req_descr',
+                'req_name',
+                'equipment',
+                'sector',
+                'client_id',
+                'user_id',
+                'tec_id',
+                'req_date',
+                'req_time',
+                'finished',
+                'is_emergency'
+            )->whereNull('deleted_at');
 
-            // get orders
-            $orders = $this->os
-                ->select('id', 'order_type_id', 'req_descr', 'req_name', 'equipment', 'sector', 'client_id', 'user_id', 'tec_id', 'req_date', 'req_time', 'finished', 'is_emergency')
-                ->whereNull('deleted_at') // Adicione esta linha explicitamente
-                ->whereBetween('req_date', [$start_date, $end_date])
-                ->orderBy('id', 'desc')
-                ->get();
+            // 2. Apply Filters (Logical check: if request has data, use it. Otherwise, use defaults for index)
+            $date_s = $request->input('date_start', Carbon::now()->subMonth()->format('Y-m-d'));
+            $date_e = $request->input('date_end', Carbon::now()->format('Y-m-d'));
+            $finished = $request->input('finished', 2); // Default to 2 (All)
+            $date_type = $request->input('date_type', "order_open_date"); // Default to req_date
+
+            //Last client selected
+            $old_client = Client::select('id', 'name')->where('id', $request->client_id)->first();
+            if ($old_client) {
+                $old_client = $old_client->name . ' - [' . $old_client->id . ']';
+            }
+
+            // Last tech selected
+            if ($request->tec_id === null || $request->tec_id === '') {
+                $old_tec = 'Técnico (todos)';
+            } elseif ($request->tec_id === '0' || $request->tec_id == 0) {
+                $old_tec = 'Não selecionado - [0]';
+            } else {
+                $tec_model = Tec::with('user:id,name')->find($request->tec_id);
+                $old_tec = $tec_model ? $tec_model->user->name . ' - [' . $tec_model->id . ']' : 'Técnico não encontrado';
+            }
+
+            // Filter by Client
+            $query->when($request->filled('client_id'), function ($q) use ($request) {
+                $q->where('client_id', $request->client_id);
+            });
+
+            // Filter by Tech (keeping your specific logic)
+            $query->when($request->filled('tec_id') || $request->tec_id === '0', function ($q) use ($request) {
+                if ($request->tec_id === '0' || $request->tec_id == 0) {
+                    $q->where(function ($sub) {
+                        $sub->where('tec_id', 0)->orWhereNull('tec_id');
+                    });
+                } else {
+                    $q->where('tec_id', $request->tec_id);
+                }
+            });
+
+            // Filter by Date Type
+            if ($request->date_type == 'last_note_date') {
+                $query->whereRaw("(SELECT MAX(date) FROM notes WHERE notes.order_id = orders.id AND deleted_at IS NULL) BETWEEN ? AND ?", [$date_s, $date_e]);
+            } else {
+                $query->whereBetween('req_date', [$date_s, $date_e]);
+            }
+
+            // Filter by Finished status
+            $query->when($finished != 2, function ($q) use ($finished) {
+                $q->where('finished', $finished);
+            });
+
+            // Determine how many items per page (optional logic)
+            $perPage = ($finished == 1) ? 400 : 100;
+
+            // 3. Execution with Pagination
+            // appends(request()->all()) is CRITICAL for the "Next Page" links to work with filters
+            $orders = $query->orderBy('id', 'desc')->simplePaginate($perPage)->appends($request->all());
 
             session()->put('ords', $orders);
 
-            // create an array with the orders ids for generate the pdf
-            $order_ids = $orders->pluck('id')->implode(',');
+            // 4. Data for View Components
+            $clients = Client::select('id', 'name')->orderBy('name')->get();
+            $tecs = Tec::with('user')->get()->sortBy('user.name');
+
+            // Logic for "Generate PDF" (Note: This is tricky with pagination)
+            // If you need IDs for ALL filtered items (not just the 15 on screen), 
+            // you would need a separate query or a "Select All" logic.
+            $all_ids = $query->pluck('id')->implode(',');
 
             // Verify if the list of orders is not empty and if all orders are finished to ability "Gerar pdf" button
             $finisheds = $orders->pluck('finished')->toArray();
             if (in_array(0, $finisheds) || count($finisheds) == 0) {
-                $able_btn = 'Não é possívle gerar arquivo de Solicitação de Assistência Técnica não finalizadas, tente filtar novamente';
+                $able_btn = 'Não é possívle gerar arquivo de Solicitação de Assistência Técnica não finalizada, tente filtrar novamente';
             }
 
-            $tecs = Tec::all();
-
             return view('order.orders_list', [
-                'orders' => $orders,
-                'order_ids' => $order_ids,
-                'able_btn' => $able_btn ?? '',
-                'tecs' => $tecs->sortBy('user.name'),
-                'clients' => $clients,
-                'main' => $this->auth->isMainAdm() ?? null,
-                'sup' => $this->auth->isSup() ?? null,
-                'adm' => $this->auth->isAdm() ?? null,
-                'old_client' => 'Cliente (todos)',
-                'old_tec' => 'Técnico (todos)',
-                'old_finished' => 2,
-                'date_s' => $start_date,
-                'date_e' => $end_date
+                'orders'    => $orders,
+                'order_ids' => $all_ids,
+                'clients'   => $clients,
+                'able_btn'  => $able_btn ?? '',
+                'tecs'      => $tecs,
+                'date_s'    => $date_s,
+                'date_e'    => $date_e,
+                'old_finished' => $finished,
+                'old_date_type' => $date_type,
+                'old_client' => $old_client ?? 'Cliente (todos)',
+                'old_tec' => $old_tec ?? 'Técnico (todos)',
+                'ids' => $all_ids,
+                // Pass auth flags
+                'main' => $this->auth->isMainAdm(),
+                'sup'  => $this->auth->isSup(),
+                'adm'  => $this->auth->isAdm(),
             ]);
         } catch (\Exception $e) {
             logger_main('error', $e->getMessage());
+            return back()->withErrors('Erro ao processar listagem.');
         }
     }
 
@@ -154,6 +217,7 @@ class OrderController extends Controller implements HasMiddleware
                 'old_client' => 'Cliente (todos)',
                 'old_tec' => 'Técnico (todos)',
                 'old_finished' => 2,
+                'old_date_type' => 'order_open_date',
                 'date_s' => Carbon::now()->subMonth()->format('Y-m-d'),
                 'date_e' => Carbon::now()->format('Y-m-d')
             ]);
@@ -163,140 +227,140 @@ class OrderController extends Controller implements HasMiddleware
     }
 
     // Show the form for filtering orders
-    public function filter(FormFilterRequest  $request)
-    {
-        try {
-            Gate::authorize('check-permission', ['sats', 1]);
+    // public function filter(FormFilterRequest  $request)
+    // {
+    //     try {
+    //         Gate::authorize('check-permission', ['sats', 1]);
 
-            $request->validated();
+    //         $request->validated();
 
-            // Return the view with the last finished selected option
-            $fin_select = [];
-            for ($i = 0; $i < 3; $i++) {
-                $fin_select[$i] = '';
-                if ($i == $request->finished) {
-                    $fin_select[$i] = 'selected';
-                }
-            }
+    //         // Return the view with the last finished selected option
+    //         $fin_select = [];
+    //         for ($i = 0; $i < 3; $i++) {
+    //             $fin_select[$i] = '';
+    //             if ($i == $request->finished) {
+    //                 $fin_select[$i] = 'selected';
+    //             }
+    //         }
 
-            // Return the view with the last date_type selected option
-            $order_open_select = 'selected';
-            $last_note_select = '';
-            if ($request->date_type == 'last_note_date') {
-                $order_open_select = '';
-                $last_note_select = 'selected';
-            }
+    //         // Return the view with the last date_type selected option
+    //         $order_open_select = 'selected';
+    //         $last_note_select = '';
+    //         if ($request->date_type == 'last_note_date') {
+    //             $order_open_select = '';
+    //             $last_note_select = 'selected';
+    //         }
 
-            $orders = $this->os
-                ->when($request->client_id, function ($query) use ($request) {
-                    $query->where('client_id', $request->client_id);
-                })
-                // 1. Verificamos se o campo tec_id existe na requisição e não é uma string vazia/null
-                ->when($request->filled('tec_id') || $request->tec_id === '0', function ($query) use ($request) {
-                    $tec = $request->tec_id;
+    //         $orders = $this->os
+    //             ->when($request->client_id, function ($query) use ($request) {
+    //                 $query->where('client_id', $request->client_id);
+    //             })
+    //             // 1. Verificamos se o campo tec_id existe na requisição e não é uma string vazia/null
+    //             ->when($request->filled('tec_id') || $request->tec_id === '0', function ($query) use ($request) {
+    //                 $tec = $request->tec_id;
 
-                    // 2. Se for '0' ou 0, buscamos os "sem técnico" (null ou 0)
-                    if ($tec === '0' || $tec == 0) {
-                        $query->where(function ($q) {
-                            $q->where('tec_id', 0)
-                                ->orWhereNull('tec_id');
-                        });
-                    }
-                    // 3. Se for um ID normal, filtra por ele
-                    else {
-                        $query->where('tec_id', $tec);
-                    }
-                })
-                ->when($request->date_start, function ($query) use ($request) {
-                    if ($request->date_type == 'order_open_date') {
-                        $query->where('req_date', '>=', $request->date_start);
-                    } elseif ($request->date_type == 'last_note_date') {
-                        $query->where(function ($query) use ($request) {
-                            $query->whereRaw("(
-                        SELECT MAX(date)
-                        FROM notes
-                        WHERE notes.order_id = orders.id AND deleted_at IS NULL
-                    ) >= ?", [$request->date_start]);
-                        });
-                    }
-                })
-                ->when($request->date_end, function ($query) use ($request) {
-                    if ($request->date_type == 'order_open_date') {
-                        $query->where('req_date', '<=', $request->date_end);
-                    } elseif ($request->date_type == 'last_note_date') {
-                        $query->where(function ($query) use ($request) {
-                            $query->whereRaw("(
-                        SELECT MAX(date)
-                        FROM notes
-                        WHERE notes.order_id = orders.id AND deleted_at IS NULL
-                    ) <= ?", [$request->date_end]);
-                        });
-                    }
-                })
-                ->when($request->finished != 2, function ($query) use ($request) {
-                    $query->where('finished', $request->finished);
-                })
-                ->select('id', 'order_type_id', 'req_descr', 'req_name', 'equipment', 'sector', 'client_id', 'user_id', 'tec_id', 'req_date', 'req_time', 'finished', 'is_emergency')
-                ->whereNull('deleted_at') // Adicione esta linha explicitamente
-                ->orderBy('id', 'desc')
-                ->get();
+    //                 // 2. Se for '0' ou 0, buscamos os "sem técnico" (null ou 0)
+    //                 if ($tec === '0' || $tec == 0) {
+    //                     $query->where(function ($q) {
+    //                         $q->where('tec_id', 0)
+    //                             ->orWhereNull('tec_id');
+    //                     });
+    //                 }
+    //                 // 3. Se for um ID normal, filtra por ele
+    //                 else {
+    //                     $query->where('tec_id', $tec);
+    //                 }
+    //             })
+    //             ->when($request->date_start, function ($query) use ($request) {
+    //                 if ($request->date_type == 'order_open_date') {
+    //                     $query->where('req_date', '>=', $request->date_start);
+    //                 } elseif ($request->date_type == 'last_note_date') {
+    //                     $query->where(function ($query) use ($request) {
+    //                         $query->whereRaw("(
+    //                     SELECT MAX(date)
+    //                     FROM notes
+    //                     WHERE notes.order_id = orders.id AND deleted_at IS NULL
+    //                 ) >= ?", [$request->date_start]);
+    //                     });
+    //                 }
+    //             })
+    //             ->when($request->date_end, function ($query) use ($request) {
+    //                 if ($request->date_type == 'order_open_date') {
+    //                     $query->where('req_date', '<=', $request->date_end);
+    //                 } elseif ($request->date_type == 'last_note_date') {
+    //                     $query->where(function ($query) use ($request) {
+    //                         $query->whereRaw("(
+    //                     SELECT MAX(date)
+    //                     FROM notes
+    //                     WHERE notes.order_id = orders.id AND deleted_at IS NULL
+    //                 ) <= ?", [$request->date_end]);
+    //                     });
+    //                 }
+    //             })
+    //             ->when($request->finished != 2, function ($query) use ($request) {
+    //                 $query->where('finished', $request->finished);
+    //             })
+    //             ->select('id', 'order_type_id', 'req_descr', 'req_name', 'equipment', 'sector', 'client_id', 'user_id', 'tec_id', 'req_date', 'req_time', 'finished', 'is_emergency')
+    //             ->whereNull('deleted_at') // Adicione esta linha explicitamente
+    //             ->orderBy('id', 'desc')
+    //             ->get();
 
-            // create an array with the orders ids for generate the pdf
-            $order_ids = $orders->pluck('id')->implode(',');
+    //         // create an array with the orders ids for generate the pdf
+    //         $order_ids = $orders->pluck('id')->implode(',');
 
-            if ($order_ids == '' || $order_ids == null) {
-                $order_ids = 0;
-            }
+    //         if ($order_ids == '' || $order_ids == null) {
+    //             $order_ids = 0;
+    //         }
 
-            // Verify if the list of orders is not empty and if all orders are finished to ability "Gerar pdf" button
-            $finisheds = $orders->pluck('finished')->toArray();
-            if (in_array(0, $finisheds) || count($finisheds) == 0) {
-                $able_btn = 'Não é possívle gerar arquivo de Solicitação de Assistência Técnica não finalizadas, tente filtrar novamente';
-            }
+    //         // Verify if the list of orders is not empty and if all orders are finished to ability "Gerar pdf" button
+    //         $finisheds = $orders->pluck('finished')->toArray();
+    //         if (in_array(0, $finisheds) || count($finisheds) == 0) {
+    //             $able_btn = 'Não é possívle gerar arquivo de Solicitação de Assistência Técnica não finalizadas, tente filtrar novamente';
+    //         }
 
-            //Last client selected
-            $old_client = Client::select('id', 'name')->where('id', $request->client_id)->first();
-            if ($old_client) {
-                $old_client = $old_client->name . ' - [' . $old_client->id . ']';
-            }
+    //         //Last client selected
+    //         $old_client = Client::select('id', 'name')->where('id', $request->client_id)->first();
+    //         if ($old_client) {
+    //             $old_client = $old_client->name . ' - [' . $old_client->id . ']';
+    //         }
 
-            // Substitua a lógica do $old_tec por esta:
-            if ($request->tec_id === null || $request->tec_id === '') {
-                $old_tec = 'Técnico (todos)';
-            } elseif ($request->tec_id === '0' || $request->tec_id == 0) {
-                $old_tec = 'Não selecionado - [0]';
-            } else {
-                $tec_model = Tec::with('user:id,name')->find($request->tec_id);
-                $old_tec = $tec_model ? $tec_model->user->name . ' - [' . $tec_model->id . ']' : 'Técnico não encontrado';
-            }
+    //         // Substitua a lógica do $old_tec por esta:
+    //         if ($request->tec_id === null || $request->tec_id === '') {
+    //             $old_tec = 'Técnico (todos)';
+    //         } elseif ($request->tec_id === '0' || $request->tec_id == 0) {
+    //             $old_tec = 'Não selecionado - [0]';
+    //         } else {
+    //             $tec_model = Tec::with('user:id,name')->find($request->tec_id);
+    //             $old_tec = $tec_model ? $tec_model->user->name . ' - [' . $tec_model->id . ']' : 'Técnico não encontrado';
+    //         }
 
-            // Orders list, to updated tecnicians
-            session()->put('ords', $orders);
+    //         // Orders list, to updated tecnicians
+    //         session()->put('ords', $orders);
 
-            $tecs = Tec::all();
+    //         $tecs = Tec::all();
 
-            return view('order.orders_list', [
-                'orders' => $orders,
-                'ids' => $order_ids ?? 0,
-                'able_btn' => $able_btn ?? '',
-                'tecs' => $tecs->sortBy('user.name'),
-                'clients' => Client::select('id', 'name')->orderBy('name')->get(),
-                'main' => $this->auth->isMainAdm() ?? null,
-                'sup' => $this->auth->isSup() ?? null,
-                'adm' => $this->auth->isAdm() ?? null,
-                'date_s' => $request->date_start,
-                'date_e' => $request->date_end,
-                'old_client' => $old_client ?? 'Cliente (todos)',
-                'old_tec' => $old_tec ?? 'Técnico (todos)',
-                'old_finished' => $request->finished ?? null,
-                'fin_select' => $fin_select ?? ['', '', ''],
-                'order_open_select' => $order_open_select,
-                'last_note_select' => $last_note_select
-            ]);
-        } catch (\Exception $e) {
-            logger_main('error', $e->getMessage());
-        }
-    }
+    //         return view('order.orders_list', [
+    //             'orders' => $orders,
+    //             'ids' => $order_ids ?? 0,
+    //             'able_btn' => $able_btn ?? '',
+    //             'tecs' => $tecs->sortBy('user.name'),
+    //             'clients' => Client::select('id', 'name')->orderBy('name')->get(),
+    //             'main' => $this->auth->isMainAdm() ?? null,
+    //             'sup' => $this->auth->isSup() ?? null,
+    //             'adm' => $this->auth->isAdm() ?? null,
+    //             'date_s' => $request->date_start,
+    //             'date_e' => $request->date_end,
+    //             'old_client' => $old_client ?? 'Cliente (todos)',
+    //             'old_tec' => $old_tec ?? 'Técnico (todos)',
+    //             'old_finished' => $request->finished ?? null,
+    //             'fin_select' => $fin_select ?? ['', '', ''],
+    //             'order_open_select' => $order_open_select,
+    //             'last_note_select' => $last_note_select
+    //         ]);
+    //     } catch (\Exception $e) {
+    //         logger_main('error', $e->getMessage());
+    //     }
+    // }
 
     // Show the form for creating a new order
     public function create()
@@ -308,13 +372,7 @@ class OrderController extends Controller implements HasMiddleware
             // Get id and name of all clients order by name
             $clients = Client::select('id', 'name')->orderBy('name')->get();
 
-            // Create session variable wich contains all order types ids to validated in FormOrderRequest
             $types = OrderType::all();
-            session()->put('types_ids', $types->pluck('id')->toArray());
-
-            // Create session variable wich contains all clients ids to validated in FormOrderRequest
-            $cli_ids_array = Client::all()->pluck('id')->toArray();
-            session()->put('client_ids', $cli_ids_array);
 
             return view('order.order_create', [
                 'clients' => $clients,
@@ -408,13 +466,7 @@ class OrderController extends Controller implements HasMiddleware
 
         $tecs = Tec::all();
 
-        // Create session variable wich contains all order types ids to validated in FormOrderRequest
         $types = OrderType::all();
-        session()->put('types_ids', $types->pluck('id')->toArray());
-
-        // Create session variable wich contains all clients ids to validated in FormOrderRequest
-        $cli_ids_array = $clients->pluck('id')->toArray();
-        session()->put('client_ids', $cli_ids_array);
 
         $user = User::select('name')->withTrashed()->find($order->user_id);
 
