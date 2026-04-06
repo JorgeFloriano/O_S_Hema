@@ -87,7 +87,7 @@ class OrderController extends Controller
 
             // 3. Execution with Pagination
             // appends(request()->all()) is CRITICAL for the "Next Page" links to work with filters
-            $orders = $query->orderBy('id', 'desc')->simplePaginate(100)->appends($request->all());
+            $orders = $query->orderBy('id', 'desc')->simplePaginate(50)->appends($request->all());
 
             return view('order.orders_list', [
                 'orders' => $orders,
