@@ -284,7 +284,7 @@
                 </div>
                 @if ($orders->count() > 1)
                     <div>
-                        {{$orders->links()}}
+                        {{ $orders->links() }}
                     </div>
                 @endif
             </div>
