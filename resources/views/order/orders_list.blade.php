@@ -65,7 +65,7 @@
                 </div>
             </div>
 
-            <form action="{{route($auth->isCli() ? 'client.orders.filter' : 'orders.filter')}}" id="filter_form" method="post">
+            <form action="{{route($auth->isCli() ? 'client.orders.index' : 'orders.index')}}" id="filter_form" method="get">
                 @csrf
                 <div class="row g-2 mb-2">
                     <div class="col-xl-2 col-md-4 col-6">
@@ -78,9 +78,9 @@
 
                     <div class="col-xl-2 col-md-4 col-6">
                         <select class="form-select" size="0" id="finished" name="finished" aria-label="Floating label select example">
-                            <option {{$fin_select[2] ?? ''}} value="2">SATs (todas)</option>
-                            <option {{$fin_select[0] ?? ''}} value="0">Não Finalizadas</option>
-                            <option {{$fin_select[1] ?? ''}} value="1">Finalizadas</option>
+                            <option {{$old_finished == 2 ? 'selected' : ''}} value="2">SATs (todas)</option>
+                            <option {{$old_finished == 0 ? 'selected' : ''}} value="0">Não Finalizadas</option>
+                            <option {{$old_finished == 1 ? 'selected' : ''}} value="1">Finalizadas</option>
                         </select>
                     </div>
 
@@ -94,8 +94,8 @@
 
                     <div class="col-xl-2 col-md-4 col-6">
                         <select class="form-select" id="date_type" name="date_type" aria-label="Floating label select example">
-                            <option {{$order_open_select ?? ''}} value="order_open_date">Data de abertura</option>
-                            <option {{$last_note_select ?? ''}} value="last_note_date">Última anotação</option>
+                            <option {{$old_date_type == 'order_open_date' ? 'selected' : ''}} value="order_open_date">Data de abertura</option>
+                            <option {{$old_date_type == 'last_note_date' ? 'selected' : ''}} value="last_note_date">Última anotação</option>
                         </select>
                     </div>
 
@@ -137,12 +137,12 @@
                 {{-- Forms invisíveis (não afetam o alinhamento visual) --}}
                 <form action="{{route('orders.orders_csv')}}" id="csv_form" method="post">
                     @csrf
-                    <input type="hidden" name="csv_ids" id="csv_ids" value="{{$ids ?? '0'}}">
+                    <input type="hidden" name="csv_ids" id="csv_ids" value="{{$order_ids ?? '0'}}">
                 </form>
                 
                 <form action="{{route('orders.orders_pdf')}}" id="pdf_form" method="post">
                     @csrf
-                    <input type="hidden" name="ids" id="ids" value="{{$ids ?? '0'}}">
+                    <input type="hidden" name="ids" id="ids" value="{{$order_ids ?? '0'}}">
                     <div class="modal fade" id="reportTitle" tabindex="-1" aria-labelledby="reportTitleLabel" aria-hidden="true">
                         <div class="modal-dialog">
                         <div class="modal-content">
@@ -282,6 +282,11 @@
                         <p>Nenhum registro encontrado !</p>
                     @endif
                 </div>
+                @if ($orders->count() > 1)
+                    <div>
+                        {{ $orders->links() }}
+                    </div>
+                @endif
             </div>
         </div>
     </div>

@@ -10,8 +10,8 @@ class FormOrderRequest extends FormRequest
     public function rules(): array
     {
         return [
-            'client_id' => ['required','numeric',Rule::in(session('client_ids'))],
-            'order_type_id' => ['required','numeric',Rule::in(session('types_ids'))],
+            'client_id' => ['required','numeric',Rule::exists('clients', 'id')],
+            'order_type_id' => ['required','numeric',Rule::exists('order_types', 'id')],
             'sector' => 'required|max:30',
             'req_name' => 'required|max:20',
             'req_date' => 'required|date_format:Y-m-d',
@@ -21,16 +21,15 @@ class FormOrderRequest extends FormRequest
         ];
     }
 
-
     public function messages()
     {
         return [
             'client_id.required' => 'Selecione um Cliente',
-            'client_id.in' => 'Selecione um Cliente disponível (alguns podem ter sido arquivados no sistema)',
+            'client_id.exists' => 'Selecione um Cliente disponível (alguns podem ter sido arquivados no sistema)',
             'client_id.numeric' => 'Selecione um Cliente válido',
             'order_type_id.required' => 'Selecione um tipo de Serviço',
             'order_type_id.numeric' => 'Selecione um tipo de Serviço',
-            'order_type_id.in' => 'Selecione um tipo de Serviço válido',
+            'order_type_id.exists' => 'Selecione um tipo de Serviço válido',
             'sector.required' => 'Insira o setor',
             'sector.max' => 'Setor deve ter no máximo 30 caracteres',
             'req_name.required' => 'Insira o nome do solicitante',

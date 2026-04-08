@@ -38,43 +38,75 @@ class OrderController extends Controller
         $this->text = new TextFormat;
     }
 
-    public function index()
+    public function index(FormFilterRequest $request)
     {
-        // If user is not a authorized client, redirect to login
-        if (!$this->user->isCli()) {
-            logger_main('error', "Acesso Negado");
-            return redirect()->route('login.destroy')->withErrors(['error' => 'Acesso negado']);
+        try {
+
+            // If user is not a authorized client, redirect to login
+            if (!$this->user->isCli()) {
+                logger_main('error', "Acesso Negado");
+                return redirect()->route('login.destroy')->withErrors(['error' => 'Acesso negado']);
+            }
+
+            // get orders
+            $query = $this->os->select(
+                'id',
+                'order_type_id',
+                'req_descr',
+                'req_name',
+                'equipment',
+                'sector',
+                'client_id',
+                'user_id',
+                'tec_id',
+                'req_date',
+                'req_time',
+                'finished',
+                'is_emergency'
+            )
+                ->whereNull('deleted_at') // Adicione esta linha explicitamente
+                ->where('client_id', $this->user->userClientCompanyId()); // Somente os orders do client logado
+
+            // 2. Apply Filters (Logical check: if request has data, use it. Otherwise, use defaults for index)
+            $date_s = $request->input('date_start', Carbon::now()->subMonth()->format('Y-m-d'));
+            $date_e = $request->input('date_end', Carbon::now()->format('Y-m-d'));
+            $finished = $request->input('finished', 2); // Default to 2 (All)
+            $date_type = $request->input('date_type', "order_open_date"); // Default to req_date
+
+            // Filter by Date Type
+            if ($request->date_type == 'last_note_date') {
+                $query->whereRaw("(SELECT MAX(date) FROM notes WHERE notes.order_id = orders.id AND deleted_at IS NULL) BETWEEN ? AND ?", [$date_s, $date_e]);
+            } else {
+                $query->whereBetween('req_date', [$date_s, $date_e]);
+            }
+
+            // Filter by Finished status
+            $query->when($finished != 2, function ($q) use ($finished) {
+                $q->where('finished', $finished);
+            });
+
+            // 3. Execution with Pagination
+            // appends(request()->all()) is CRITICAL for the "Next Page" links to work with filters
+            $orders = $query->orderBy('id', 'desc')->simplePaginate(50)->appends($request->all());
+
+            return view('order.orders_list', [
+                'orders' => $orders,
+                'old_tec' => 'Técnico (todos)',
+                'old_finished' => 2,
+                'date_s'    => $date_s,
+                'date_e'    => $date_e,
+                'old_date_type' => $date_type,
+                'old_finished' => $finished,
+            ]);
+        } catch (\Exception $e) {
+            logger_main('error', $e->getMessage());
+            return back()->withErrors('Erro ao processar listagem.');
         }
-
-        // Create date start_date and end_date
-        $start_date = Carbon::now()->subMonth()->format('Y-m-d');
-        $end_date = Carbon::now()->format('Y-m-d');
-
-        // get orders
-        $orders = $this->os
-            ->select('id', 'order_type_id', 'req_descr', 'req_name', 'equipment', 'sector', 'client_id', 'user_id', 'tec_id', 'req_date', 'req_time', 'finished', 'is_emergency')
-            ->whereBetween('req_date', [$start_date, $end_date])
-            ->whereNull('deleted_at') // Adicione esta linha explicitamente
-            ->where('client_id', $this->user->userClientCompanyId()) // Somente os orders do client logado
-            ->orderBy('id', 'desc')
-            ->get();
-
-        $tecs = Tec::all();
-
-        return view('order.orders_list', [
-            'orders' => $orders,
-            'tecs' => $tecs->sortBy('user.name'),
-            'old_tec' => 'Técnico (todos)',
-            'old_finished' => 2,
-            'date_s' => $start_date,
-            'date_e' => $end_date
-        ]);
     }
 
     public function search(Request $request)
     {
-
-        // If user is not suprevisor or administrator, redirect to login
+        // If user is not a authorized client, redirect to login
         if (!$this->user->isCli()) {
             logger_main('error', "Acesso Negado");
             return redirect()->route('login.destroy')->withErrors(['error' => 'Acesso negado']);
@@ -92,18 +124,16 @@ class OrderController extends Controller
             ->whereNull('deleted_at') // Adicione esta linha explicitamente
             ->get();
 
-        $tecs = Tec::all();
-
         return view('order.orders_list', [
             'orders' => $orders,
             'order_ids' => $orders->pluck('id')->implode(','),
-            'tecs' => $tecs->sortBy('user.name'),
             'old_client' => 'Cliente (todos)',
             'old_tec' => 'Técnico (todos)',
             'old_finished' => 2,
             'date_s' => Carbon::now()->subMonth()->format('Y-m-d'),
             'date_e' => Carbon::now()->format('Y-m-d'),
             'old_client' => $this->user->clientStringForUnlabeledDList(),
+            'old_date_type' => 'order_open_date',
         ]);
     }
 
