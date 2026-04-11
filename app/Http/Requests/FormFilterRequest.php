@@ -23,6 +23,7 @@ class FormFilterRequest extends FormRequest
             'date_type' => ['nullable', Rule::in(['order_open_date', 'last_note_date'])],
             'date_start' => 'nullable|date_format:Y-m-d',
             'date_end' => 'nullable|date_format:Y-m-d',
+            'per_page' => 'nullable|numeric|integer|min:50|max:200',
         ];
     }
 

@@ -769,7 +769,7 @@ progress {
         width: 16.6666666667%;
     }
 }
-@media (min-width: 1400px) {
+@media (min-width: 1500px) {
     .col-xxl {
         flex: 1 0 0%;
     }
@@ -1487,7 +1487,7 @@ progress {
         --bs-gutter-y: 3rem;
     }
 }
-@media (min-width: 1400px) {
+@media (min-width: 1500px) {
     .col-xxl-auto {
         flex: 0 0 auto;
         width: auto;

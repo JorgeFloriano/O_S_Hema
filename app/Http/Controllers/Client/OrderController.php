@@ -72,6 +72,7 @@ class OrderController extends Controller
             $date_e = $request->input('date_end', Carbon::now()->format('Y-m-d'));
             $finished = $request->input('finished', 2); // Default to 2 (All)
             $date_type = $request->input('date_type', "order_open_date"); // Default to req_date
+            $per_page = $request->input('per_page', 100); // Default to 100
 
             // Filter by Date Type
             if ($request->date_type == 'last_note_date') {
@@ -87,7 +88,7 @@ class OrderController extends Controller
 
             // 3. Execution with Pagination
             // appends(request()->all()) is CRITICAL for the "Next Page" links to work with filters
-            $orders = $query->orderBy('id', 'desc')->simplePaginate(50)->appends($request->all());
+            $orders = $query->orderBy('id', 'desc')->simplePaginate($per_page)->appends($request->all());
 
             return view('order.orders_list', [
                 'orders' => $orders,
@@ -97,6 +98,7 @@ class OrderController extends Controller
                 'date_e'    => $date_e,
                 'old_date_type' => $date_type,
                 'old_finished' => $finished,
+                'old_per_page' => $per_page ?? 100,
             ]);
         } catch (\Exception $e) {
             logger_main('error', $e->getMessage());
@@ -130,6 +132,7 @@ class OrderController extends Controller
             'old_client' => 'Cliente (todos)',
             'old_tec' => 'Técnico (todos)',
             'old_finished' => 2,
+            'old_per_page' => 100,
             'date_s' => Carbon::now()->subMonth()->format('Y-m-d'),
             'date_e' => Carbon::now()->format('Y-m-d'),
             'old_client' => $this->user->clientStringForUnlabeledDList(),

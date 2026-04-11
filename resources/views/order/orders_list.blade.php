@@ -68,7 +68,7 @@
             <form action="{{route($auth->isCli() ? 'client.orders.index' : 'orders.index')}}" id="filter_form" method="get">
                 @csrf
                 <div class="row g-2 mb-2">
-                    <div class="col-xl-2 col-md-4 col-6">
+                    <div class="col-xxl-2 col-md-4 col-12">
                         @if ($auth->isCli())
                             <input type='text' class='form-control' disabled value='{{$auth->clientStringForUnlabeledDList()}}' readonly>
                         @else
@@ -76,15 +76,7 @@
                         @endif
                     </div>
 
-                    <div class="col-xl-2 col-md-4 col-6">
-                        <select class="form-select" size="0" id="finished" name="finished" aria-label="Floating label select example">
-                            <option {{$old_finished == 2 ? 'selected' : ''}} value="2">SATs (todas)</option>
-                            <option {{$old_finished == 0 ? 'selected' : ''}} value="0">Não Finalizadas</option>
-                            <option {{$old_finished == 1 ? 'selected' : ''}} value="1">Finalizadas</option>
-                        </select>
-                    </div>
-
-                    <div class="col-xl-2 col-md-4 col-6">
+                    <div class="col-xxl-2 col-md-4 col-12">
                         @if ($auth->isCli())
                             <input type='text' class='form-control' disabled value='Todos os Técnicos' readonly>
                         @else
@@ -92,21 +84,34 @@
                         @endif
                     </div>
 
-                    <div class="col-xl-2 col-md-4 col-6">
-                        <select class="form-select" id="date_type" name="date_type" aria-label="Floating label select example">
+                    <div class="col-xxl-2 col-md-4 col-12">
+                        <select class="form-select" size="0" id="finished" name="finished">
+                            <option {{$old_finished == 2 ? 'selected' : ''}} value="2">Abertas e Finalizadas</option>
+                            <option {{$old_finished == 0 ? 'selected' : ''}} value="0">Somente Abertas</option>
+                            <option {{$old_finished == 1 ? 'selected' : ''}} value="1">Somente Finalizadas</option>
+                        </select>
+                    </div>
+
+                    <div class="col-xxl-3 col-md-6 col-12 gap-2 d-flex flex-nowrap">
+                        <select class="form-select" size="0" id="per_page" name="per_page" style="width: 50%">
+                            <option {{$old_per_page == 50 ? 'selected' : ''}} value="50">50 por página</option>
+                            <option {{$old_per_page == 100 ? 'selected' : ''}} value="100">100 por página</option>
+                            <option {{$old_per_page == 150 ? 'selected' : ''}} value="150">150 por página</option>
+                            <option {{$old_per_page == 200 ? 'selected' : ''}} value="200">200 por página</option>
+                        </select>
+                        
+                        <select class="form-select" id="date_type" name="date_type" style="width: 50%">
                             <option {{$old_date_type == 'order_open_date' ? 'selected' : ''}} value="order_open_date">Data de abertura</option>
                             <option {{$old_date_type == 'last_note_date' ? 'selected' : ''}} value="last_note_date">Última anotação</option>
                         </select>
                     </div>
 
-                    <div class="col-xl-2 col-md-4 col-6">
-                        <label for="Start" class="col-form-label" style="width: 20%;float: left">de</label>
-                        <input type="date" max="{{now()->format('Y-m-d')}}" class="form-control" id="Start" style="width: 80%;float: right" name="date_start" placeholder="Início" value="{{$date_s}}">
-                    </div>
-                    
-                    <div class="col-xl-2 col-md-4 col-6">    
-                        <label for="End" class="col-form-label" style="width: 20%;float: left">até</label>
-                        <input type="date" max="{{now()->format('Y-m-d')}}" class="form-control" id="End" style="width: 80%;float: right" name="date_end" placeholder="Término" value="{{$date_e}}">
+                    <div class="col-xxl-3 col-md-6 col-12 gap-2 d-flex flex-nowrap">
+                        <label for="Start" class="col-form-label">de</label>
+                        <input type="date" max="{{now()->format('Y-m-d')}}" class="form-control" id="Start" name="date_start" placeholder="Início" value="{{$date_s}}">
+  
+                        <label for="End" class="col-form-label">até</label>
+                        <input type="date" max="{{now()->format('Y-m-d')}}" class="form-control" id="End" name="date_end" placeholder="Término" value="{{$date_e}}">
                     </div>
                 </div>
             </form>

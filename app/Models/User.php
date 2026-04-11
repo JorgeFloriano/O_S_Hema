@@ -116,7 +116,7 @@ class User extends Authenticatable
         return $this->cli ? $this->cli->canCreateSat() : false;
     }
 
-    public function clientCanSeeSat(?Order $order = null): bool
+    public function clientCanSeeSat(?Order $order = null): bool | null
     {
         if ($order == null || $order->client_id == $this->userClientCompanyId()) {
             return $this->cli ? $this->cli->canSeeSat() : false;

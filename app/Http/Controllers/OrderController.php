@@ -94,6 +94,9 @@ class OrderController extends Controller implements HasMiddleware
             $date_e = $request->input('date_end', Carbon::now()->format('Y-m-d'));
             $finished = $request->input('finished', 2); // Default to 2 (All)
             $date_type = $request->input('date_type', "order_open_date"); // Default to req_date
+            $per_page = $request->input('per_page', 100); // Default to 100
+
+            //dd($request->input('per_page'));
 
             //Last client selected
             $old_client = Client::select('id', 'name')->where('id', $request->client_id)->first();
@@ -140,11 +143,11 @@ class OrderController extends Controller implements HasMiddleware
             });
 
             // Determine how many items per page (optional logic)
-            $perPage = ($finished == 1) ? 400 : 100;
+            // $perPage = ($finished == 1) ? 400 : 100;
 
             // 3. Execution with Pagination
             // appends(request()->all()) is CRITICAL for the "Next Page" links to work with filters
-            $orders = $query->orderBy('id', 'desc')->simplePaginate($perPage)->appends($request->all());
+            $orders = $query->orderBy('id', 'desc')->simplePaginate($per_page)->appends($request->all());
 
             session()->put('ords', $orders);
 
@@ -176,6 +179,7 @@ class OrderController extends Controller implements HasMiddleware
                 'old_client' => $old_client ?? 'Cliente (todos)',
                 'old_tec' => $old_tec ?? 'Técnico (todos)',
                 'ids' => $all_ids,
+                'old_per_page' => $per_page ?? 100,
                 // Pass auth flags
                 'main' => $this->auth->isMainAdm(),
                 'sup'  => $this->auth->isSup(),
@@ -217,6 +221,7 @@ class OrderController extends Controller implements HasMiddleware
                 'old_client' => 'Cliente (todos)',
                 'old_tec' => 'Técnico (todos)',
                 'old_finished' => 2,
+                'old_per_page' => 100,
                 'old_date_type' => 'order_open_date',
                 'date_s' => Carbon::now()->subMonth()->format('Y-m-d'),
                 'date_e' => Carbon::now()->format('Y-m-d')

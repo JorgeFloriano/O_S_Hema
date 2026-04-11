@@ -8,6 +8,9 @@
     <link rel="stylesheet" href="{{asset('assets/bootstrap/bootstrap.min.css')}}">
     <link rel="stylesheet" href="{{asset('assets/css/form.css')}}">
     <link rel="shortcut icon" href="{{asset('favicon.ico')}}">
+    <!-- Add this to your layout file's <head> -->
+    {{-- <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.min.css"> --}}
+
     <style>
             :root {
                 --blue1: #e2eaee;
